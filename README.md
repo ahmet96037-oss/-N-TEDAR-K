@@ -32,14 +32,21 @@ sadece birkaç GTİP'i kapsayan). Bakanlığın sitesinde bunları tek tabloda t
 bir sayfa bulamadım. Boş şema (`gozetim`, `damping` tabloları) veritabanında hazır,
 ama içi dolu değil.
 
-**Gerçekçi üç seçenek:**
-1. **Açık Gümrük'e ulaşmak** — kendi tanıtımlarında "her GTİP'in gözetim kıymetleri ve
-   damping önlemleri" bilgisini zaten derlediklerini yazıyorlar; API/veri paylaşımı
-   isteyebiliriz (bkz. önceki konuşma).
-2. **Kendi tebliğ takip scriptimizi kurmak** — Resmi Gazete'yi ve tarifemevzuati.com gibi
-   özel siteleri "gözetim", "damping" anahtar kelimeleriyle periyodik tarayıp, her yeni
-   tebliğin GTİP/değerini manuel ya da yarı-otomatik işlemek. Yavaş başlar, zamanla birikir.
-3. **Gümrük müşavirliği ortaklığı** — onların profesyonel yazılımında bu veri zaten var.
+**Doğrulanan çözüm (2026-08-14):** Açık Gümrük'ün per-GTİP sayfaları (`acikgumruk.com/gtip/{kod}`)
+her GTİP için "bu kodda gözetim/damping var mı, hangi tebliğe dayanıyor, Resmi Gazete PDF
+linki nedir" bilgisini **ücretsiz** gösteriyor — sadece nihai `$/kg` rakamını üyelik
+arkasına gizliyor. Ama o rakam zaten kaynak PDF'in içinde, kamuya açık. Test ettik:
+GTİP 8428.40.00.00.00 için Açık Gümrük'ten tebliğ referansını (2026/12) ve Resmi Gazete
+linkini aldık, PDF'i indirip gerçek değeri (5 USD/Kg brüt) çektik — `data/raw/resmi-gazete-tebligler/`
+içinde kanıt olarak duruyor, `gozetim` tablosuna işlendi.
+
+**Ölçeklendirme planı:**
+1. Açık Gümrük'ün GTİP sayfalarını sırayla gezip (sadece "hangi tebliğ" indeksini,
+   değeri değil) her aktif gözetim/damping kaydı için tebliğ no + Resmi Gazete linkini
+   toplayan bir keşif scripti yazmak
+2. O linklerdeki PDF'leri indirip GTİP+değer tablosunu otomatik/yarı-otomatik çıkarmak
+   (yukarıdaki gibi — tablo formatı tebliğden tebliğe benziyor, parse edilebilir)
+3. Ölçek büyüdükçe Açık Gümrük'e API/ortaklık teklifiyle gitmek de hâlâ makul bir kısayol
 
 ## Sıradaki adımlar
 1. Gözetim/damping veri kaynağı kararını netleştirmek (yukarıdaki 3 seçenekten)
