@@ -48,6 +48,24 @@ içinde kanıt olarak duruyor, `gozetim` tablosuna işlendi.
    (yukarıdaki gibi — tablo formatı tebliğden tebliğe benziyor, parse edilebilir)
 3. Ölçek büyüdükçe Açık Gümrük'e API/ortaklık teklifiyle gitmek de hâlâ makul bir kısayol
 
+## Damping — gerçek veri bulundu (2026-08-14)
+Ticaret Bakanlığı periyodik olarak "yürürlük süresi sona erecek dampinge karşı önlemler"
+başlıklı tebliğler yayınlıyor (ör. 2025/15 — 2026 ilk yarısında süresi dolacaklar). Bunlar
+o dönemde **hâlâ yürürlükte olan** önlemlerin listesi. Sorun: tablo çoğu zaman düz metin
+değil, **tebliğin içine gömülü bir JPG görsel** olarak yayınlanıyor — bu yüzden normal
+metin scraping'i işe yaramıyor.
+
+**Çözüm: görseli doğrudan okuyabiliyorum (vision).** `20250716-1.htm` tebliğinin içindeki
+`image004.jpg`'yi indirip görsel olarak okudum — 12 GTİP kaydı çıktı, neredeyse tamamı
+**Çin Halk Cumhuriyeti** menşeli (poliester iplik, kapı kilidi, çapa makinesi, kaynak
+makinesi vb.). `damping` tablosuna işlendi, kaynak görsel+HTML `data/raw/resmi-gazete-tebligler/`
+içinde saklı. **Eksik:** bu tebliğ sadece GTİP+ülke+hangi orijinal tebliğe dayandığını
+veriyor (ör. 2021/1), gerçek `%` oranı orijinal tebliğde (2021/1, 2021/3...) — onları da
+tek tek çekip okumamız lazım.
+
+Bu, normal bir scraper'ın yapamayacağı bir şey — OCR altyapısı kurmadan, tabloyu
+doğrudan görsel olarak okuyabiliyorum. Ölçeklendirirken bu avantajı kullanacağız.
+
 ## Sıradaki adımlar
 1. Gözetim/damping veri kaynağı kararını netleştirmek (yukarıdaki 3 seçenekten)
 2. KDV listesini mevzuat.gov.tr'deki tam metinle GTİP seviyesinde doğrulamak
