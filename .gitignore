@@ -1,0 +1,5 @@
+data/raw/*.zip
+data/raw/tgtc-extracted/
+data/raw/rejim-extracted/
+data/raw/igv-extracted/
+data/raw/*.html
