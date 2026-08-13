@@ -15,12 +15,36 @@
   İthalat Rejimi Kararı'nda tanımlanan gruplardır") ve İthalat Rejimi Kararı II sayılı
   listesindeki "DÜ" sütunuyla çapraz doğrulandı.
 
-## Eksik / sıradaki adımlar
-1. Gözetim (referans birim değer) verisi — henüz konsolide kaynağı bulunmadı, ayrı
-   Resmi Gazete tebliğleri taranmalı
-2. Dampinge karşı vergi kararları — GTİP+ülke özelinde, ayrı taranmalı
-3. KDV oranları listesi (ürün kategorisine göre %1/%10/%20)
-4. Hesaplama motorunu (bkz. gtip-vergi-motoru.html prototipi) bu gerçek veritabanına
+## KDV — eklendi, ama yaklaşık
+`src/build_kdv.py` — 2007/13033 sayılı BKK'nın I/II sayılı listesinin genel yapısına göre
+FASIL (GTİP ilk 2 hane) bazlı bir kural seti kullanıyor (%1 temel gıda/tarım, %10 tekstil/
+deri/mobilya/kağıt, %20 genel oran). **Tam GTİP-seviyesinde resmi liste ücretsiz açık
+kaynaktan çekilemedi** (mevzuat.net abonelik istiyor; mevzuat.gov.tr'deki "KDV Genel
+Uygulama Tebliği" madde metni halinde, yapılandırılmış tablo değil). Sonuç: `kdv_tahmini`
+tablosundaki `guvenilirlik` alanı "yaklasik" veya "varsayilan_genel_oran" olarak işaretli —
+gerçek beyanname öncesi teyit gerektirir.
+
+## Gözetim ve Damping — TGTC/İGV gibi tek dosya halinde YOK
+Araştırdım: bu ikisi, TGTC ve İGV'nin aksine **tek bir konsolide resmi dosya olarak
+yayınlanmıyor**. Her biri, yılda onlarca kez çıkan ayrı ayrı Resmi Gazete tebliğleri
+halinde geliyor (ör. "İthalatta Gözetim Uygulanmasına İlişkin Tebliğ No: 2026/37" gibi,
+sadece birkaç GTİP'i kapsayan). Bakanlığın sitesinde bunları tek tabloda toplayan resmi
+bir sayfa bulamadım. Boş şema (`gozetim`, `damping` tabloları) veritabanında hazır,
+ama içi dolu değil.
+
+**Gerçekçi üç seçenek:**
+1. **Açık Gümrük'e ulaşmak** — kendi tanıtımlarında "her GTİP'in gözetim kıymetleri ve
+   damping önlemleri" bilgisini zaten derlediklerini yazıyorlar; API/veri paylaşımı
+   isteyebiliriz (bkz. önceki konuşma).
+2. **Kendi tebliğ takip scriptimizi kurmak** — Resmi Gazete'yi ve tarifemevzuati.com gibi
+   özel siteleri "gözetim", "damping" anahtar kelimeleriyle periyodik tarayıp, her yeni
+   tebliğin GTİP/değerini manuel ya da yarı-otomatik işlemek. Yavaş başlar, zamanla birikir.
+3. **Gümrük müşavirliği ortaklığı** — onların profesyonel yazılımında bu veri zaten var.
+
+## Sıradaki adımlar
+1. Gözetim/damping veri kaynağı kararını netleştirmek (yukarıdaki 3 seçenekten)
+2. KDV listesini mevzuat.gov.tr'deki tam metinle GTİP seviyesinde doğrulamak
+3. Hesaplama motorunu (bkz. gtip-vergi-motoru.html prototipi) bu gerçek veritabanına
    bağlamak — basit bir API/backend (Flask/FastAPI) yazılacak
-5. Güncelleme otomasyonu — bu üç kaynağın "konsolide ve güncel" tutulan sayfalarını
-   periyodik (haftalık) tekrar çekip diff alacak bir script
+4. Güncelleme otomasyonu — TGTC/İGV kaynaklarının "konsolide ve güncel" tutulan
+   sayfalarını periyodik (haftalık) tekrar çekip diff alacak bir script
