@@ -47,6 +47,12 @@ def gtip_detay(kod: str):
     damping = conn.execute("SELECT * FROM damping WHERE gtip12 = ?", (code,)).fetchall()
     kkdf = conn.execute("SELECT * FROM kkdf_kural WHERE id = 1").fetchone()
     uygunluk = conn.execute("SELECT * FROM ugd_uygunluk WHERE gtip12 = ?", (code,)).fetchall()
+    # Bazı ÜGD tebliğleri (ör. Karayolu Taşıt Araçları) tam 12 hane değil, pozisyon/alt
+    # pozisyon (GTP) seviyesinde tablo veriyor — önek eşleşmesi de kontrol edilir.
+    prefix_rows = conn.execute(
+        "SELECT * FROM ugd_uygunluk WHERE gtip_prefix IS NOT NULL"
+    ).fetchall()
+    uygunluk = list(uygunluk) + [r for r in prefix_rows if code.startswith(r["gtip_prefix"])]
     kategoriler = list({u["kategori"] for u in uygunluk})
     belgeler = []
     if kategoriler:
