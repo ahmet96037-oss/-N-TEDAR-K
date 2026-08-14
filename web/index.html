@@ -60,21 +60,32 @@
   .vadeli-field input[type=checkbox]{ width:auto; }
   .vadeli-field label{ margin:0; text-transform:none; font-family:var(--font-body); font-size:13.5px; color:var(--text); letter-spacing:0; }
 
-  .tax-list{ margin-top:24px; display:flex; flex-direction:column; gap:2px; }
-  .tax-row{ background:var(--surface); border:1px solid var(--border); border-radius:3px; }
-  .tax-row.inactive{ opacity:.5; }
-  .tax-head{ display:flex; align-items:center; gap:12px; padding:14px 16px; }
-  .badge{ width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; flex:none; font-family:var(--font-mono); font-size:11px; }
-  .b-duty{ background:var(--accent2); } .b-igv{ background:var(--accent); }
-  .b-gozetim{ background:color-mix(in srgb, var(--accent) 55%, var(--signal) 45%); }
-  .b-damping{ background:var(--signal); } .b-kdv{ background:color-mix(in srgb, var(--accent2) 55%, var(--accent) 45%); }
-  .b-kkdf{ background:var(--text-muted); font-size:9px; }
-  .b-uygunluk{ background:color-mix(in srgb, var(--accent2) 70%, var(--accent) 30%); }
-  .name{ font-family:var(--font-display); font-size:16px; flex:1; }
-  .rate-col{ text-align:right; }
-  .rate{ font-family:var(--font-mono); font-size:13px; color:var(--text-muted); }
-  .amount{ font-family:var(--font-mono); font-size:16px; margin-top:1px; }
-  .explain{ padding:0 16px 14px 62px; font-size:13.5px; color:var(--text-muted); }
+  .tax-table{ margin-top:24px; border:1px solid var(--border); border-radius:4px; overflow:hidden; }
+  .tax-table-head{ display:grid; grid-template-columns:1.6fr 1fr 1fr; gap:12px; padding:9px 16px; background:var(--bg-alt); font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); }
+  .tax-table-head .c3{ text-align:right; }
+  .tax-row{ background:var(--surface); border-top:1px solid var(--border); }
+  .tax-row.inactive .tax-head .name, .tax-row.inactive .tax-head .rate{ opacity:.45; }
+  .tax-head{ display:grid; grid-template-columns:1.6fr 1fr 1fr; gap:12px; align-items:center; padding:13px 16px; cursor:pointer; }
+  .tax-head:hover{ background:var(--bg-alt); }
+  .name-col{ display:flex; align-items:center; gap:9px; min-width:0; }
+  .dot{ width:8px; height:8px; border-radius:50%; flex:none; }
+  .dot-duty{ background:var(--accent2); } .dot-igv{ background:var(--accent); }
+  .dot-gozetim{ background:color-mix(in srgb, var(--accent) 55%, var(--signal) 45%); }
+  .dot-damping{ background:var(--signal); } .dot-kdv{ background:color-mix(in srgb, var(--accent2) 55%, var(--accent) 45%); }
+  .dot-kkdf{ background:var(--text-muted); }
+  .dot-uygunluk{ background:color-mix(in srgb, var(--accent2) 70%, var(--accent) 30%); }
+  .name{ font-family:var(--font-display); font-size:15.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pill{ font-family:var(--font-mono); font-size:9.5px; text-transform:uppercase; letter-spacing:.03em; padding:2px 7px; border-radius:20px; flex:none; border:1px solid transparent; }
+  .pill-tahmini{ color:var(--accent-ink); background:color-mix(in srgb, var(--accent) 14%, transparent); border-color:color-mix(in srgb, var(--accent) 35%, transparent); }
+  .pill-kosullu{ color:var(--signal-ink); background:color-mix(in srgb, var(--signal) 12%, transparent); border-color:color-mix(in srgb, var(--signal) 32%, transparent); }
+  .pill-bilinmiyor{ color:var(--text-muted); background:var(--bg-alt); border-color:var(--border); }
+  .pill-gercek{ color:var(--accent2-ink); background:color-mix(in srgb, var(--accent2) 12%, transparent); border-color:color-mix(in srgb, var(--accent2) 32%, transparent); }
+  .rate-c{ font-family:var(--font-mono); font-size:13px; color:var(--text-muted); text-align:right; }
+  .amount-c{ font-family:var(--font-mono); font-size:15px; text-align:right; }
+  .chev{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); margin-left:4px; }
+  .explain{ padding:0 16px 15px 33px; font-size:13.5px; color:var(--text-muted); display:none; }
+  .tax-row.open .explain{ display:block; }
+  .tax-row.open .chev{ transform:rotate(90deg); display:inline-block; }
   .warn{ color: var(--signal-ink); font-family: var(--font-mono); font-size: 11.5px; }
   .odeme-secim{ display:flex; align-items:center; gap:7px; font-size:13.5px; color:var(--text); margin-bottom:8px; cursor:pointer; }
   .odeme-secim input{ width:auto; }
@@ -179,10 +190,37 @@ async function loadGtip(kod) {
 // ve sonucu render eder; kendi vergi hesabını yapmaz.
 let renderSeq = 0;
 
+function pill(kind, label) { return `<span class="pill pill-${kind}">${label}</span>`; }
+
+// Bir vergi satırı üretir: dot rengi, isim, durum rozeti, oran, tutar, detay metni.
+function taxRow(opts) {
+  const { id, dotClass, name, badge, rate, amount, explain, active = true } = opts;
+  return `
+    <div class="tax-row ${active ? '' : 'inactive'}" data-row="${id}">
+      <div class="tax-head" onclick="toggleRow('${id}')">
+        <div class="name-col">
+          <span class="dot ${dotClass}"></span>
+          <span class="name">${name}</span>
+          ${badge ? badge : ''}
+          <span class="chev">▸</span>
+        </div>
+        <div class="rate-c">${rate}</div>
+        <div class="amount-c">${amount || ''}</div>
+      </div>
+      <div class="explain">${explain}</div>
+    </div>`;
+}
+
+function toggleRow(id) {
+  const el = document.querySelector(`.tax-row[data-row="${id}"]`);
+  if (el) el.classList.toggle('open');
+}
+
 async function renderTaxRows() {
   const d = currentData;
   if (!d) return;
   const bedel = parseFloat(document.getElementById('malBedeli').value) || 0;
+  const miktar = parseFloat(document.getElementById('miktar').value) || null;
   const vadeli = vadeliState;
 
   const mySeq = ++renderSeq;
@@ -192,106 +230,86 @@ async function renderTaxRows() {
       const res = await fetch(API + '/api/hesapla', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gtip: d.gtip12, mal_bedeli: bedel, vadeli }),
+        body: JSON.stringify({ gtip: d.gtip12, mal_bedeli: bedel, vadeli, miktar }),
       });
       if (res.ok) hesap = await res.json();
     } catch (err) { /* bağlantı hatası — hesap null kalır, oranlar yine de gösterilir */ }
   }
-  if (mySeq !== renderSeq) return; // kullanıcı bu arada yeni bir değer girdiyse eski cevabı çiz me
+  if (mySeq !== renderSeq) return; // kullanıcı bu arada yeni bir değer girdiyse eski cevabı çizme
 
-  const amt = v => hesap ? `<div class="amount">${fmtUsd(v)}</div>` : '';
-
+  const amt = v => hesap ? fmtUsd(v) : '';
   const rows = [];
 
-  rows.push(`
-    <div class="tax-row">
-      <div class="tax-head">
-        <div class="badge b-duty">%</div>
-        <div class="name">Gümrük Vergisi</div>
-        <div class="rate-col"><div class="rate">${fmtPct(d.gumruk_vergisi_pct)}</div>${amt(hesap?.gumruk_vergisi)}</div>
-      </div>
-      <div class="explain">Temel ithalat vergisi (2026 TGTC, diğer ülkeler oranı — Çin bu sütuna girer). Matrah: mal bedeli.</div>
-    </div>`);
+  rows.push(taxRow({
+    id: 'gv', dotClass: 'dot-duty', name: 'Gümrük Vergisi',
+    rate: fmtPct(d.gumruk_vergisi_pct), amount: amt(hesap?.gumruk_vergisi),
+    explain: 'Temel ithalat vergisi (2026 TGTC, diğer ülkeler oranı — Çin bu sütuna girer). Matrah: mal bedeli.',
+  }));
 
-  rows.push(`
-    <div class="tax-row ${d.igv_pct ? '' : 'inactive'}">
-      <div class="tax-head">
-        <div class="badge b-igv">İGV</div>
-        <div class="name">İlave Gümrük Vergisi</div>
-        <div class="rate-col"><div class="rate">${d.igv_pct ? fmtPct(d.igv_pct) : 'Yok'}</div>${d.igv_pct ? amt(hesap?.igv) : ''}</div>
-      </div>
-      <div class="explain">${d.igv_pct ? 'Çin menşeli eşyaya uygulanan ek vergi (Diğer Ülkeler sütunu). Matrah: mal bedeli.' : 'Bu GTİP için İGV uygulanmıyor.'}</div>
-    </div>`);
+  rows.push(taxRow({
+    id: 'igv', dotClass: 'dot-igv', name: 'İlave Gümrük Vergisi', active: !!d.igv_pct,
+    rate: d.igv_pct ? fmtPct(d.igv_pct) : 'Yok', amount: d.igv_pct ? amt(hesap?.igv) : '',
+    explain: d.igv_pct ? 'Çin menşeli eşyaya uygulanan ek vergi (Diğer Ülkeler sütunu). Matrah: mal bedeli.' : 'Bu GTİP için İGV uygulanmıyor.',
+  }));
 
-  rows.push(`
-    <div class="tax-row ${d.gozetim ? '' : 'inactive'}">
-      <div class="tax-head">
-        <div class="badge b-gozetim">Ⓖ</div>
-        <div class="name">Gözetim (Referans Değer)</div>
-        <div class="rate">${d.gozetim ? d.gozetim.referans_deger + ' ' + d.gozetim.birim : 'Bilinmiyor'}</div>
-      </div>
-      <div class="explain">${d.gozetim
-        ? `Bu bir vergi değil, bir eşik: beyan edilen birim değer bu referansın altındaysa vergi tabanı yükseltilir (toplama dahil edilmedi). Kaynak: ${d.gozetim.tebligno}`
-        : 'Bu GTİP için gözetim veritabanımızda henüz kayıt yok — bilinmiyor anlamına gelir, kesin olarak "yok" değil. Ticaret Bakanlığı TARA üzerinden teyit edilmeli.'}</div>
-    </div>`);
+  const gzNotlar = (hesap?.notlar || []).filter(n => n.includes('Gözetim') || n.includes('gözetim') || n.includes('Beyan edilen birim'));
+  rows.push(taxRow({
+    id: 'gz', dotClass: 'dot-gozetim', name: 'Gözetim (Referans Değer)', active: !!d.gozetim,
+    badge: d.gozetim ? pill('kosullu', 'eşik') : pill('bilinmiyor', 'bilinmiyor'),
+    rate: d.gozetim ? `$${d.gozetim.referans_deger}/${d.gozetim.birim}` : '—',
+    amount: '',
+    explain: d.gozetim
+      ? `Bu bir vergi değil, bir eşik: beyan edilen birim değer bu referansın altındaysa vergi tabanı yükseltilebilir (toplama dahil edilmez). Kaynak: <a href="${d.gozetim.kaynak_url}" target="_blank" rel="noopener">${d.gozetim.tebligno}</a>`
+        + (gzNotlar.length ? '<br>' + gzNotlar.map(n => `<span class="warn">${n}</span>`).join('<br>') : (miktar ? '' : '<br><span class="warn">Karşılaştırma için yukarıda "Miktar" gir.</span>'))
+      : 'Bu GTİP için gözetim veritabanımızda henüz kayıt yok — "bilinmiyor" anlamına gelir, kesin olarak "yok" değil. Ticaret Bakanlığı TARA üzerinden teyit edilmeli.',
+  }));
 
   const dampingActive = d.damping && d.damping.length > 0;
   const dampingHasRate = dampingActive && d.damping.some(x => x.oran_pct != null || x.sabit_tutar != null);
-  rows.push(`
-    <div class="tax-row ${dampingActive ? '' : 'inactive'}">
-      <div class="tax-head">
-        <div class="badge b-damping">D</div>
-        <div class="name">Dampinge Karşı Vergi</div>
-        <div class="rate-col"><div class="rate">${dampingActive
-          ? (dampingHasRate ? d.damping.map(x => x.oran_pct != null ? fmtPct(x.oran_pct) : (x.sabit_tutar + ' ' + (x.birim||''))).join(' / ') : d.damping.length + ' kayıt')
-          : 'Bilinmiyor'}</div>${dampingHasRate ? amt(hesap?.damping) : ''}</div>
-      </div>
-      <div class="explain">${dampingActive
-        ? d.damping.map(x => `<b>${x.mense_ulke}</b>${x.oran_pct != null ? ': ' + fmtPct(x.oran_pct) + ' (CIF üzerinden)' : ''} — <a href="${x.kaynak_url}" target="_blank" rel="noopener">${x.tebligno}</a>${x.oran_pct == null ? ' <span class="warn">(oran henüz veritabanında yok, orijinal tebliğ teyit edilmeli)</span>' : ''}`).join('<br>') + (dampingHasRate ? '<br><span class="warn">Toplamda, kayıtlı en yüksek oran kullanıldı — gerçek oran üretici/ihracatçıya göre değişir.</span>' : '')
-        : 'Bu GTİP için damping veritabanımızda henüz kayıt yok — bilinmiyor anlamına gelir, kesin olarak "yok" değil.'}</div>
-    </div>`);
+  rows.push(taxRow({
+    id: 'dp', dotClass: 'dot-damping', name: 'Dampinge Karşı Vergi', active: dampingActive,
+    badge: dampingActive && !dampingHasRate ? pill('kosullu', 'oran yok') : (dampingActive ? pill('gercek', 'gerçek') : pill('bilinmiyor', 'bilinmiyor')),
+    rate: dampingActive
+      ? (dampingHasRate ? d.damping.map(x => x.oran_pct != null ? fmtPct(x.oran_pct) : (x.sabit_tutar + ' ' + (x.birim || ''))).join(' / ') : d.damping.length + ' kayıt')
+      : '—',
+    amount: dampingHasRate ? amt(hesap?.damping) : '',
+    explain: dampingActive
+      ? d.damping.map(x => `<b>${x.mense_ulke}</b>${x.oran_pct != null ? ': ' + fmtPct(x.oran_pct) + ' (CIF üzerinden)' : ''} — <a href="${x.kaynak_url}" target="_blank" rel="noopener">${x.tebligno}</a>${x.oran_pct == null ? ' <span class="warn">(oran henüz veritabanında yok, orijinal tebliğ teyit edilmeli)</span>' : ''}`).join('<br>') + (dampingHasRate ? '<br><span class="warn">Toplamda, kayıtlı en yüksek oran kullanıldı — gerçek oran üretici/ihracatçıya göre değişir.</span>' : '')
+      : 'Bu GTİP için damping veritabanımızda henüz kayıt yok — "bilinmiyor" anlamına gelir, kesin olarak "yok" değil.',
+  }));
 
-  rows.push(`
-    <div class="tax-row">
-      <div class="tax-head">
-        <div class="badge b-kdv">KDV</div>
-        <div class="name">KDV</div>
-        <div class="rate-col"><div class="rate">${fmtPct(d.kdv_pct)}</div>${amt(hesap?.kdv)}</div>
-      </div>
-      <div class="explain">${d.kdv_guvenilirlik === 'varsayilan_genel_oran'
-        ? 'Genel oran varsayıldı (fasıl bazlı yaklaşık kural) — kesin liste teyidi gerekir.'
-        : 'Fasıl bazlı yaklaşık kural ile belirlendi — kesin liste teyidi gerekir.'} Matrah: mal bedeli + gümrük vergisi + İGV + damping.</div>
-    </div>`);
+  rows.push(taxRow({
+    id: 'kdv', dotClass: 'dot-kdv', name: 'KDV',
+    badge: d.kdv_guvenilirlik !== 'kesin' ? pill('tahmini', 'tahmini') : pill('gercek', 'gerçek'),
+    rate: fmtPct(d.kdv_pct), amount: amt(hesap?.kdv),
+    explain: (d.kdv_guvenilirlik === 'varsayilan_genel_oran'
+      ? 'Genel oran varsayıldı (fasıl bazlı yaklaşık kural) — kesin liste teyidi gerekir.'
+      : 'Fasıl bazlı yaklaşık kural ile belirlendi — kesin liste teyidi gerekir.') + ' Matrah: mal bedeli + gümrük vergisi + İGV + damping.',
+  }));
 
   if (d.kkdf) {
-    rows.push(`
-      <div class="tax-row ${vadeli ? '' : 'inactive'}">
-        <div class="tax-head">
-          <div class="badge b-kkdf">KKDF</div>
-          <div class="name">KKDF</div>
-          <div class="rate-col"><div class="rate">${vadeli ? fmtPct(d.kkdf.oran_pct) : 'Uygulanmıyor (peşin)'}</div>${vadeli ? amt(hesap?.kkdf) : ''}</div>
-        </div>
-        <div class="explain">
-          <label class="odeme-secim"><input type="checkbox" id="vadeli" ${vadeli ? 'checked' : ''} onchange="vadeliState=this.checked; renderTaxRows();"> Vadeli ödeme (kabul kredili / vadeli akreditif / mal mukabili) — işaretlenirse KKDF hesaba katılır</label>
-          <br>${d.kkdf.uygulama_kosulu}. Matrah: mal bedeli. <a href="${d.kkdf.kaynak_url}" target="_blank" rel="noopener">Hukuki dayanak: ${d.kkdf.hukuki_dayanak}</a>
-          <br><span class="warn">Ayrıca 2015/7511 sayılı Karar eki listede yer alan bazı hammadde/yatırım malı GTİP'lerinde oran ödeme şekli ne olursa olsun sıfırdır — bu liste henüz sistemimizde değil, bu GTİP'in o listede olup olmadığı ayrıca teyit edilmeli.</span>
-        </div>
-      </div>`);
+    rows.push(taxRow({
+      id: 'kkdf', dotClass: 'dot-kkdf', name: 'KKDF', active: vadeli,
+      badge: pill('kosullu', 'koşula tabi'),
+      rate: vadeli ? fmtPct(d.kkdf.oran_pct) : 'Peşinde yok',
+      amount: vadeli ? amt(hesap?.kkdf) : '',
+      explain: `<label class="odeme-secim"><input type="checkbox" id="vadeliChk" ${vadeli ? 'checked' : ''} onclick="event.stopPropagation()" onchange="vadeliState=this.checked; renderTaxRows();"> Vadeli ödeme (kabul kredili / vadeli akreditif / mal mukabili) — işaretlenirse KKDF hesaba katılır</label>`
+        + `${d.kkdf.uygulama_kosulu}. Matrah: mal bedeli. <a href="${d.kkdf.kaynak_url}" target="_blank" rel="noopener">Hukuki dayanak: ${d.kkdf.hukuki_dayanak}</a>`
+        + `<br><span class="warn">Ayrıca 2015/7511 sayılı Karar eki listede yer alan bazı hammadde/yatırım malı GTİP'lerinde oran ödeme şekli ne olursa olsun sıfırdır — bu liste henüz sistemimizde değil, teyit edilmeli.</span>`,
+    }));
   }
 
   const uygunlukVar = d.uygunluk_belgeleri && d.uygunluk_belgeleri.length > 0;
-  rows.push(`
-    <div class="tax-row ${uygunlukVar ? '' : 'inactive'}">
-      <div class="tax-head">
-        <div class="badge b-uygunluk">Ü</div>
-        <div class="name">Uygunluk / İthalat Denetimi Belgesi</div>
-        <div class="rate">${uygunlukVar ? d.uygunluk_belgeleri.map(u => u.kategori).filter((v,i,a)=>a.indexOf(v)===i).join(', ') : 'Taranan kategorilerde yok'}</div>
-      </div>
-      <div class="explain">${uygunlukVar
-        ? d.uygunluk_belgeleri.map(u => `<b>${u.kategori}</b> — ${u.madde_ismi} — <a href="${u.kaynak_url}" target="_blank" rel="noopener">${u.teblig_no}</a>`).join('<br>') +
-          (d.gerekli_belgeler && d.gerekli_belgeler.length ? '<br><br><b>Gerekli belgeler:</b><br>' + d.gerekli_belgeler.map(b => b.belgeler).join('<br>') : '')
-        : 'Bu GTİP, şu ana kadar taranmış uygunluk denetimi tebliğlerinde (Oyuncak, Kişisel Koruyucu Donanım, Telsiz Ekipmanları) bulunmadı. <span class="warn">Sistem henüz tüm ÜGD tebliğlerini (CE, Tarım, Sağlık, Tekstil vb.) taramadı — "yok" değil, "henüz taranmadı" anlamına gelir.</span>'}</div>
-    </div>`);
+  rows.push(taxRow({
+    id: 'ug', dotClass: 'dot-uygunluk', name: 'Uygunluk / İthalat Denetimi', active: uygunlukVar,
+    badge: uygunlukVar ? pill('gercek', 'gerekli') : pill('bilinmiyor', 'taranmadı'),
+    rate: uygunlukVar ? d.uygunluk_belgeleri.map(u => u.kategori).filter((v, i, a) => a.indexOf(v) === i).join(', ') : '—',
+    amount: '',
+    explain: uygunlukVar
+      ? d.uygunluk_belgeleri.map(u => `<b>${u.kategori}</b> — ${u.madde_ismi} — <a href="${u.kaynak_url}" target="_blank" rel="noopener">${u.teblig_no}</a>`).join('<br>') +
+        (d.gerekli_belgeler && d.gerekli_belgeler.length ? '<br><br><b>Gerekli belgeler:</b><br>' + d.gerekli_belgeler.map(b => b.belgeler).join('<br>') : '')
+      : 'Bu GTİP, şu ana kadar taranmış uygunluk denetimi tebliğlerinde bulunmadı. <span class="warn">Sistem henüz tüm ÜGD tebliğlerini (CE, Tarım, Sağlık, Tekstil vb.) taramadı — "yok" değil, "henüz taranmadı" anlamına gelir.</span>',
+  }));
 
   const totalHtml = hesap ? `
     <div class="total-row">
@@ -301,7 +319,10 @@ async function renderTaxRows() {
     <div class="total-note">Mal bedeli $${bedel.toLocaleString('tr-TR')} üzerinden, CIF = mal bedeli varsayımıyla (navlun/sigorta hariçse gerçek CIF farklı olabilir). Gözetim toplamda ayrı — bir vergi değil, tabanı yükseltme eşiğidir. Nihai beyan öncesi gümrük müşaviri teyidi gerekir.</div>
   ` : '';
 
-  document.getElementById('taxList').innerHTML = rows.join('');
+  document.getElementById('taxList').innerHTML = `
+    <div class="tax-table-head"><div>Kalem</div><div class="c3" style="text-align:right">Oran</div><div class="c3">Tutar</div></div>
+    ${rows.join('')}
+  `;
   document.getElementById('totalArea').innerHTML = totalHtml;
 }
 
@@ -322,11 +343,16 @@ function render(d) {
         <label for="malBedeli">Mal Bedeli (Fatura / CIF, USD)</label>
         <input id="malBedeli" type="number" min="0" step="0.01" placeholder="ör. 10000" inputmode="decimal">
       </div>
+      <div class="bedel-field" style="max-width:180px;">
+        <label for="miktar">Miktar <span style="text-transform:none;">(gözetim karşılaştırması için, opsiyonel)</span></label>
+        <input id="miktar" type="number" min="0" step="0.01" placeholder="ör. 2500" inputmode="decimal">
+      </div>
     </div>
-    <div class="tax-list" id="taxList"></div>
+    <div class="tax-table" id="taxList"></div>
     <div id="totalArea"></div>
   `;
   document.getElementById('malBedeli').addEventListener('input', renderTaxRows);
+  document.getElementById('miktar').addEventListener('input', renderTaxRows);
   renderTaxRows();
 }
 

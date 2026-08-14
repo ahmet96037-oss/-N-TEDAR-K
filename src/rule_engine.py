@@ -47,14 +47,33 @@ class HesapSonucu:
         }
 
 
-def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool) -> HesapSonucu:
+def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool, miktar: float = None) -> HesapSonucu:
     """
     gtip_detay: /api/gtip/{kod} endpoint'inin döndürdüğü sözlük
     mal_bedeli: fatura/CIF bedeli (USD varsayımı)
     vadeli: KKDF'nin uygulanıp uygulanmayacağını belirleyen ödeme şekli bayrağı
+    miktar: gözetim referans değeriyle karşılaştırma için (aynı birimde — kg/ton/adet)
     """
     b = mal_bedeli or 0
     notlar = []
+
+    if miktar and gtip_detay.get("gozetim"):
+        gz = gtip_detay["gozetim"]
+        birim_deger = b / miktar if miktar else None
+        ref = gz.get("referans_deger")
+        if birim_deger is not None and ref is not None:
+            birim_adi = gz.get("birim") or "birim"
+            if birim_deger < ref:
+                notlar.append(
+                    f"⚠ Beyan edilen birim değer (${birim_deger:,.2f}, {birim_adi}) "
+                    f"gözetim referans değerinin (${ref:,.2f}) ALTINDA — gümrük idaresi vergi "
+                    f"tabanını referans değere yükseltebilir."
+                )
+            else:
+                notlar.append(
+                    f"Beyan edilen birim değer (${birim_deger:,.2f}, {birim_adi}) "
+                    f"gözetim referans değerinin (${ref:,.2f}) üzerinde — eşik sorunu yok."
+                )
 
     gumruk_vergisi = b * (gtip_detay.get("gumruk_vergisi_pct") or 0) / 100
     igv = b * (gtip_detay.get("igv_pct") or 0) / 100

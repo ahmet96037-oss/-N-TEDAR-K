@@ -183,6 +183,7 @@ class HesaplaIstek(BaseModel):
     gtip: str
     mal_bedeli: float
     vadeli: bool = False
+    miktar: float | None = None
 
 
 @app.post("/api/hesapla")
@@ -190,7 +191,7 @@ def gtip_hesapla(istek: HesaplaIstek):
     """Rule Engine — mal bedeline göre kalem kalem vergi hesabı. Tek doğruluk kaynağı,
     frontend bu sonucu render eder, kendi hesaplamasını yapmaz."""
     detay = gtip_detay(istek.gtip)
-    sonuc = hesapla(detay, istek.mal_bedeli, istek.vadeli)
+    sonuc = hesapla(detay, istek.mal_bedeli, istek.vadeli, istek.miktar)
     return sonuc.to_dict()
 
 
