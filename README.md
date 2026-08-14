@@ -283,3 +283,14 @@ farkları, "tahmini" rozetiyle işaretli kaldı.
 
 **Ders (tekrar):** Bir düzeltme yaparken bile "işlendi" sayısına güvenmeyip gerçek
 eşleşme oranını kontrol etmek kritik — ilk çalıştırmada sessizce %49 başarısız olmuştu.
+
+## Gözetim tebliğleri TAMAMLANDI (2026-08-14)
+36/36 ana gözetim tebliği (2026/1-36) + eski tebliğlere yapılan değişikliklerin 8/11'i
+(2017/9, 2018/1, 2018/5, 2018/6, 2019/2, 2019/6, 2023/7, 2024/2) işlendi. Kalan 3'ü
+(2020/9, 2022/1 kayda-alma tipi farklı önlem, 2024/14) prosedürel/farklı önlem tipi,
+GTİP referans değer tablosu içermiyor. **PostgreSQL'de toplam 272 gözetim kaydı.**
+
+Şimdi sırada: ÜGD (uygunluk/TAREKS) kategorileri — CE İşareti, Tekstil ve Deri, Tarım ve
+Orman Bakanlığı, Sağlık Bakanlığı Denetim, Kimyasallar, Katı Yakıtlar, Atıklar,
+Standartlara Uygunluk, Tütün/Alkol, Tarım Ticari Kalite, Hareketli Makinalar, Makinalar,
+Araç Parçaları, Uluslararası Gözetim Kuruluşu, Yapı Malzemeleri.
