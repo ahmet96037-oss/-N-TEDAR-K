@@ -127,3 +127,25 @@ uygunluk gereksinimi göstermek demek olur (gümrükte ciddi soruna yol açar).
 **Sıradaki adım:** Hangi ürün kategorilerinin (elektronik, tekstil, oyuncak, makina parçası
 vb.) işimiz için öncelikli olduğuna karar verip, sadece o tebliğleri görsel olarak
 sayfa sayfa okuyup GTİP tablolarını çıkarmak — 500 sayfanın tamamı değil.
+
+## Uygunluk belgeleri — gerçek veri işlenmeye başlandı (2026-08-14, devam)
+`ugd_uygunluk` ve `ugd_belgeler` tabloları eklendi. Görsel/OCR ile şu ana kadar TAM olarak
+işlenen 3 kategori (toplam 125 GTİP kalemi, hepsi Ek-1 tablolarından tek tek okundu):
+- Oyuncakların İthalat Denetimi Tebliği (ÜGD: 2026/10) — 60 kalem
+- Kişisel Koruyucu Donanımların İthalat Denetimi Tebliği (ÜGD: 2026/11) — 39 kalem
+- Telsiz Ekipmanlarının İthalat Denetimi Tebliği (ÜGD: 2026/8) — 26 kalem (akıllı saat,
+  telsiz telefon, kablosuz kulaklık gibi Çin'den yaygın ithal edilen ürünleri kapsıyor)
+
+Her kategori için TAREKS'e yüklenmesi gereken belgeler (Ek-2) de kaydedildi.
+API (`/api/gtip/{kod}`) artık `uygunluk_belgeleri` ve `gerekli_belgeler` alanlarını
+döndürüyor; arayüzde ayrı bir kart olarak gösteriliyor. Eşleşme yoksa arayüz "henüz
+taranmadı" diyor, "yok" demiyor — dürüstlük için kritik bir ayrım.
+
+**Kalan iş (22 ÜGD tebliği + 36 gözetim tebliği, ~450 sayfa):** Standartlara Uygunluk,
+Hareketli Makinalar, Atıklar, Sağlık Bakanlığı (özel izin + genel denetim), Tarım ve Orman
+Bakanlığı, Kimyasallar, Katı Yakıtlar, CE İşareti, Tüketici Ürünleri, Yapı Malzemeleri,
+Pil/Akümülatör, Tıbbi Cihaz, Anne-Bebek, Tekstil ve Deri, Tütün/Alkol, Sağlık Bakanlığı
+Denetim, Tarım Ticari Kalite (124 sayfa — en büyüğü), Metal Hurdalar, Araç Parçaları,
+Uluslararası Gözetim Kuruluşu, Karayolu Taşıt Araçları, Makinalar + tüm gözetim tebliğleri.
+Sayfalar zaten `data/raw/mukerrer-2025-12-31/pages/` altında görsele çevrilmiş durumda,
+kaldığı yerden devam edilebilir.

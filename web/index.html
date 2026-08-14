@@ -68,6 +68,7 @@
   .b-gozetim{ background:color-mix(in srgb, var(--accent) 55%, var(--signal) 45%); }
   .b-damping{ background:var(--signal); } .b-kdv{ background:color-mix(in srgb, var(--accent2) 55%, var(--accent) 45%); }
   .b-kkdf{ background:var(--text-muted); font-size:9px; }
+  .b-uygunluk{ background:color-mix(in srgb, var(--accent2) 70%, var(--accent) 30%); }
   .name{ font-family:var(--font-display); font-size:16px; flex:1; }
   .rate-col{ text-align:right; }
   .rate{ font-family:var(--font-mono); font-size:13px; color:var(--text-muted); }
@@ -275,6 +276,20 @@ function renderTaxRows() {
         <div class="explain">${d.kkdf.uygulama_kosulu}. Matrah: mal bedeli. <a href="${d.kkdf.kaynak_url}" target="_blank" rel="noopener">Hukuki dayanak: ${d.kkdf.hukuki_dayanak}</a></div>
       </div>`);
   }
+
+  const uygunlukVar = d.uygunluk_belgeleri && d.uygunluk_belgeleri.length > 0;
+  rows.push(`
+    <div class="tax-row ${uygunlukVar ? '' : 'inactive'}">
+      <div class="tax-head">
+        <div class="badge b-uygunluk">Ü</div>
+        <div class="name">Uygunluk / İthalat Denetimi Belgesi</div>
+        <div class="rate">${uygunlukVar ? d.uygunluk_belgeleri.map(u => u.kategori).filter((v,i,a)=>a.indexOf(v)===i).join(', ') : 'Taranan kategorilerde yok'}</div>
+      </div>
+      <div class="explain">${uygunlukVar
+        ? d.uygunluk_belgeleri.map(u => `<b>${u.kategori}</b> — ${u.madde_ismi} — <a href="${u.kaynak_url}" target="_blank" rel="noopener">${u.teblig_no}</a>`).join('<br>') +
+          (d.gerekli_belgeler && d.gerekli_belgeler.length ? '<br><br><b>Gerekli belgeler:</b><br>' + d.gerekli_belgeler.map(b => b.belgeler).join('<br>') : '')
+        : 'Bu GTİP, şu ana kadar taranmış uygunluk denetimi tebliğlerinde (Oyuncak, Kişisel Koruyucu Donanım, Telsiz Ekipmanları) bulunmadı. <span class="warn">Sistem henüz tüm ÜGD tebliğlerini (CE, Tarım, Sağlık, Tekstil vb.) taramadı — "yok" değil, "henüz taranmadı" anlamına gelir.</span>'}</div>
+    </div>`);
 
   const totalHtml = hesap ? `
     <div class="total-row">

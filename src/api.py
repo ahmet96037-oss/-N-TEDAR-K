@@ -46,6 +46,12 @@ def gtip_detay(kod: str):
     gozetim = conn.execute("SELECT * FROM gozetim WHERE gtip12 = ?", (code,)).fetchone()
     damping = conn.execute("SELECT * FROM damping WHERE gtip12 = ?", (code,)).fetchall()
     kkdf = conn.execute("SELECT * FROM kkdf_kural WHERE id = 1").fetchone()
+    uygunluk = conn.execute("SELECT * FROM ugd_uygunluk WHERE gtip12 = ?", (code,)).fetchall()
+    kategoriler = list({u["kategori"] for u in uygunluk})
+    belgeler = []
+    if kategoriler:
+        q = "SELECT * FROM ugd_belgeler WHERE kategori IN ({})".format(",".join("?" * len(kategoriler)))
+        belgeler = conn.execute(q, kategoriler).fetchall()
 
     conn.close()
 
@@ -82,6 +88,24 @@ def gtip_detay(kod: str):
             "hukuki_dayanak": kkdf["hukuki_dayanak"],
             "kaynak_url": kkdf["kaynak_url"],
         } if kkdf else None,
+        "uygunluk_belgeleri": [
+            {
+                "kategori": u["kategori"],
+                "madde_ismi": u["madde_ismi"],
+                "teblig_no": u["teblig_no"],
+                "kaynak_url": u["kaynak_url"],
+            }
+            for u in uygunluk
+        ],
+        "gerekli_belgeler": [
+            {
+                "kategori": b["kategori"],
+                "belgeler": b["belgeler"],
+                "teblig_no": b["teblig_no"],
+                "kaynak_url": b["kaynak_url"],
+            }
+            for b in belgeler
+        ],
     }
 
 
