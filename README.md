@@ -73,3 +73,32 @@ doğrudan görsel olarak okuyabiliyorum. Ölçeklendirirken bu avantajı kullana
    bağlamak — basit bir API/backend (Flask/FastAPI) yazılacak
 4. Güncelleme otomasyonu — TGTC/İGV kaynaklarının "konsolide ve güncel" tutulan
    sayfalarını periyodik (haftalık) tekrar çekip diff alacak bir script
+
+## Bu oturumda eklenenler (2026-08-14, devam)
+- **KKDF** (Kaynak Kullanımını Destekleme Fonu) eklendi: yeni `kkdf_kural` tablosu,
+  GTİP'den bağımsız genel kural — vadeli ithalatta (kabul kredili/vadeli akreditif/mal
+  mukabili) %6, peşin ithalatta uygulanmaz. Kaynak: BKK 88/12944, oran güncellemesi
+  2011/2304 sayılı Karar (RG 28083). Her GTİP sorgusunda otomatik gösteriliyor.
+- **Damping — ilk gerçek oranlı kayıt**: GTİP 8541.90.00.00.11 (fotovoltaik panel
+  alüminyum çerçevesi), Çin menşeli — Tebliğ 2026/23 (24.06.2026): 6 işbirlikçi üretici
+  için %38.26, diğerleri için %45.99 (CIF üzerinden), 5 yıl süreyle. Kaynak koda
+  TGTC'deki isimle çapraz doğrulandı (birebir eşleşti).
+- Eski 12 damping kaydındaki veri temizliği: `oran_pct`/`sabit_tutar`/`birim` alanlarında
+  boş string yerine NULL kullanılacak şekilde düzeltildi (API/UI'da "bilinmiyor" ile
+  "sıfır" karışmasın diye).
+- `norm_code()` bug fix: kısa GTİP kodları artık doğru normalize ediliyor (sona sıfır
+  ekleniyor, başa değil) — önceden "8428.40" gibi kısa girişler yanlış eşleşiyordu.
+- Arayüze KKDF kartı ve çoklu damping oranı gösterimi eklendi (kaynak linkleriyle).
+
+## Açık Gümrük karşılaştırması (2026-08-14)
+Açık Gümrük'ün GTİP sayfası incelendi (robots.txt'in izin verdiği "referans amaçlı"
+kullanım kapsamında, toplu çekim yapılmadı). Bulgular:
+- Onların 3 tablosu var: Vergiler (KKDF dahil), Önlemler (damping, 38 kayıt/GTİP'e kadar),
+  Tarihçe. Biz KKDF'yi yeni ekledik ama genel kural olarak (onlar gibi GTİP'e bağlı değil).
+- **Kilit fark:** Onlar nihai $/kg veya % rakamını üyelik arkasına gizliyor
+  ("değer üyelere açık"). Biz gerçek rakamı (5541.90 örneğinde %38.26/%45.99 gibi)
+  tamamen kamuya açık Resmi Gazete kaynağından çekip ücretsiz gösteriyoruz — bu bizim
+  temel farklılaşma noktamız.
+- Sıradaki fırsat: onların 38 kayıt/GTİP seviyesindeki kapsamlı damping tarihçesine
+  benzer bir derinliğe ulaşmak için diğer eski tebliğleri (2021/1, 2021/3, 2021/6, ...)
+  tek tek çekip gerçek oranları tamamlamak.

@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GTİP Vergi Hesaplama Motoru</title>
+<style>
+  :root{
+    --bg:#f6f3ec; --bg-alt:#eee9dd; --surface:#ffffff; --text:#211d16; --text-muted:#6b6152;
+    --accent:#a97230; --accent-ink:#7a5322; --accent2:#2f6f63; --accent2-ink:#1e4a42;
+    --signal:#b6452e; --signal-ink:#8f3423; --border:#ded6c3;
+    --font-display: "Iowan Old Style","Sitka Text",Georgia,"Times New Roman",ui-serif,serif;
+    --font-body: -apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-mono: ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#12151c; --bg-alt:#1a1f2b; --surface:#1c2230; --text:#eae6da; --text-muted:#9aa0ac;
+      --accent:#d9a054; --accent-ink:#f0c07d; --accent2:#4fa593; --accent2-ink:#7ccabd;
+      --signal:#e2795f; --signal-ink:#f0a58e; --border:#2a3140;
+    }
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.5; }
+  .wrap{ max-width:920px; margin:0 auto; padding:48px 24px 80px; }
+  .banner{ display:flex; align-items:center; gap:10px; font-family:var(--font-mono); font-size:12px; color:var(--accent2-ink); background:color-mix(in srgb, var(--accent2) 12%, transparent); border:1px solid color-mix(in srgb, var(--accent2) 35%, transparent); padding:9px 14px; border-radius:3px; margin-bottom:24px; }
+  header h1{ font-family:var(--font-display); font-weight:600; font-size:clamp(24px,4vw,34px); margin:0 0 6px; }
+  header p{ color:var(--text-muted); font-size:14.5px; max-width:64ch; margin:0 0 32px; }
+  .stats{ display:flex; gap:22px; flex-wrap:wrap; margin-bottom:32px; font-family:var(--font-mono); font-size:12.5px; color:var(--text-muted); }
+  .stats b{ color:var(--accent-ink); font-family:var(--font-body); font-size:15px; display:block; }
+
+  .search-wrap{ position:relative; }
+  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:24px; }
+  label{ display:block; font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); margin-bottom:7px; }
+  input{ width:100%; font-size:15px; padding:11px 12px; border-radius:3px; border:1px solid var(--border); background:var(--bg); color:var(--text); }
+  input:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+  .suggestions{ position:absolute; left:0; right:0; top:100%; margin-top:4px; background:var(--surface); border:1px solid var(--border); border-radius:3px; max-height:280px; overflow-y:auto; z-index:10; display:none; box-shadow:0 8px 20px rgba(0,0,0,.12); }
+  .suggestions.show{ display:block; }
+  .suggestion{ padding:10px 14px; cursor:pointer; border-bottom:1px solid var(--border); font-size:13.5px; }
+  .suggestion:last-child{ border-bottom:none; }
+  .suggestion:hover, .suggestion.active{ background:var(--bg-alt); }
+  .suggestion .g{ font-family:var(--font-mono); color:var(--accent-ink); margin-right:8px; }
+
+  .result{ margin-top:28px; display:none; }
+  .result.show{ display:block; }
+  .result-head{ margin-bottom:20px; }
+  .result-head .g{ font-family:var(--font-mono); font-size:13px; color:var(--accent-ink); }
+  .result-head h2{ font-family:var(--font-display); font-size:20px; margin:4px 0 0; }
+
+  .summary-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); border:1px solid var(--border); margin-bottom:2px; }
+  .sum-tile{ background:var(--surface); padding:16px 16px; }
+  .sum-tile .l{ font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; color:var(--text-muted); }
+  .sum-tile .v{ font-family:var(--font-mono); font-size:20px; margin-top:4px; }
+
+  .tax-list{ margin-top:24px; display:flex; flex-direction:column; gap:2px; }
+  .tax-row{ background:var(--surface); border:1px solid var(--border); border-radius:3px; }
+  .tax-row.inactive{ opacity:.5; }
+  .tax-head{ display:flex; align-items:center; gap:12px; padding:14px 16px; }
+  .badge{ width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; flex:none; font-family:var(--font-mono); font-size:11px; }
+  .b-duty{ background:var(--accent2); } .b-igv{ background:var(--accent); }
+  .b-gozetim{ background:color-mix(in srgb, var(--accent) 55%, var(--signal) 45%); }
+  .b-damping{ background:var(--signal); } .b-kdv{ background:color-mix(in srgb, var(--accent2) 55%, var(--accent) 45%); }
+  .b-kkdf{ background:var(--text-muted); font-size:9px; }
+  .name{ font-family:var(--font-display); font-size:16px; flex:1; }
+  .rate{ font-family:var(--font-mono); font-size:13px; color:var(--text-muted); }
+  .explain{ padding:0 16px 14px 62px; font-size:13.5px; color:var(--text-muted); }
+  .warn{ color: var(--signal-ink); font-family: var(--font-mono); font-size: 11.5px; }
+  .empty{ color:var(--text-muted); font-size:14px; margin-top:20px; }
+  .err{ color:var(--signal-ink); margin-top:16px; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner">✓ Canlı veri — Ticaret Bakanlığı 2026 TGTC + İGV Kararı'ndan gerçek zamanlı sorgulanıyor</div>
+  <header>
+    <h1>GTİP Vergi Hesaplama Motoru</h1>
+    <p>GTİP kodu veya ürün adı yazmaya başlayın. Çin menşeli ithalat varsayımıyla gümrük vergisi, İGV, gözetim ve KDV otomatik hesaplanır.</p>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <div class="panel search-wrap">
+    <label for="q">GTİP kodu veya ürün adı</label>
+    <input id="q" type="text" placeholder="ör. 8536.69 veya priz" autocomplete="off">
+    <div class="suggestions" id="suggestions"></div>
+  </div>
+
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+const API = "";
+const qInput = document.getElementById('q');
+const sugBox = document.getElementById('suggestions');
+const resultBox = document.getElementById('result');
+let debounceTimer = null;
+
+fetch(API + '/api/istatistik').then(r=>r.json()).then(s=>{
+  document.getElementById('stats').innerHTML = `
+    <div><b>${s.gtip_toplam.toLocaleString('tr-TR')}</b>toplam GTİP</div>
+    <div><b>${s.igv_uygulanan.toLocaleString('tr-TR')}</b>İGV uygulanan</div>
+    <div><b>${s.gozetim_bilinen}</b>gözetim kaydı</div>
+    <div><b>${s.damping_bilinen}</b>damping kaydı</div>
+  `;
+}).catch(()=>{});
+
+qInput.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  const q = qInput.value.trim();
+  if (q.length < 2) { sugBox.classList.remove('show'); return; }
+  debounceTimer = setTimeout(async () => {
+    const res = await fetch(API + '/api/ara?q=' + encodeURIComponent(q));
+    const items = await res.json();
+    if (!items.length) { sugBox.classList.remove('show'); return; }
+    sugBox.innerHTML = items.map(it =>
+      `<div class="suggestion" data-code="${it.gtip_no}"><span class="g">${it.gtip_no}</span>${it.aciklama}</div>`
+    ).join('');
+    sugBox.classList.add('show');
+  }, 200);
+});
+
+sugBox.addEventListener('click', (e) => {
+  const row = e.target.closest('.suggestion');
+  if (!row) return;
+  qInput.value = row.dataset.code;
+  sugBox.classList.remove('show');
+  loadGtip(row.dataset.code);
+});
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.search-wrap')) sugBox.classList.remove('show');
+});
+
+const fmtPct = n => (n ?? 0).toLocaleString('tr-TR', {maximumFractionDigits:1}) + '%';
+
+async function loadGtip(kod) {
+  resultBox.innerHTML = '<p class="empty">Yükleniyor…</p>';
+  resultBox.classList.add('show');
+  try {
+    const res = await fetch(API + '/api/gtip/' + encodeURIComponent(kod));
+    if (!res.ok) {
+      const e = await res.json();
+      resultBox.innerHTML = `<p class="err">${e.detail}</p>`;
+      return;
+    }
+    const d = await res.json();
+    render(d);
+  } catch (err) {
+    resultBox.innerHTML = `<p class="err">Bağlantı hatası: ${err}</p>`;
+  }
+}
+
+function render(d) {
+  const rows = [];
+
+  rows.push(`
+    <div class="tax-row">
+      <div class="tax-head">
+        <div class="badge b-duty">%</div>
+        <div class="name">Gümrük Vergisi</div>
+        <div class="rate">${fmtPct(d.gumruk_vergisi_pct)}</div>
+      </div>
+      <div class="explain">Temel ithalat vergisi (2026 TGTC, diğer ülkeler oranı — Çin bu sütuna girer).</div>
+    </div>`);
+
+  rows.push(`
+    <div class="tax-row ${d.igv_pct ? '' : 'inactive'}">
+      <div class="tax-head">
+        <div class="badge b-igv">İGV</div>
+        <div class="name">İlave Gümrük Vergisi</div>
+        <div class="rate">${d.igv_pct ? fmtPct(d.igv_pct) : 'Yok'}</div>
+      </div>
+      <div class="explain">${d.igv_pct ? 'Çin menşeli eşyaya uygulanan ek vergi (Diğer Ülkeler sütunu).' : 'Bu GTİP için İGV uygulanmıyor.'}</div>
+    </div>`);
+
+  rows.push(`
+    <div class="tax-row ${d.gozetim ? '' : 'inactive'}">
+      <div class="tax-head">
+        <div class="badge b-gozetim">Ⓖ</div>
+        <div class="name">Gözetim (Referans Değer)</div>
+        <div class="rate">${d.gozetim ? d.gozetim.referans_deger + ' ' + d.gozetim.birim : 'Bilinmiyor'}</div>
+      </div>
+      <div class="explain">${d.gozetim
+        ? `Beyan edilen birim değer bu referansın altındaysa vergi tabanı yükseltilir. Kaynak: ${d.gozetim.tebligno}`
+        : 'Bu GTİP için gözetim veritabanımızda henüz kayıt yok — bilinmiyor anlamına gelir, kesin olarak "yok" değil. Ticaret Bakanlığı TARA üzerinden teyit edilmeli.'}</div>
+    </div>`);
+
+  const dampingActive = d.damping && d.damping.length > 0;
+  const dampingHasRate = dampingActive && d.damping.some(x => x.oran_pct != null || x.sabit_tutar != null);
+  rows.push(`
+    <div class="tax-row ${dampingActive ? '' : 'inactive'}">
+      <div class="tax-head">
+        <div class="badge b-damping">D</div>
+        <div class="name">Dampinge Karşı Vergi</div>
+        <div class="rate">${dampingActive
+          ? (dampingHasRate ? d.damping.map(x => x.oran_pct != null ? fmtPct(x.oran_pct) : (x.sabit_tutar + ' ' + (x.birim||''))).join(' / ') : d.damping.length + ' kayıt')
+          : 'Bilinmiyor'}</div>
+      </div>
+      <div class="explain">${dampingActive
+        ? d.damping.map(x => `<b>${x.mense_ulke}</b>${x.oran_pct != null ? ': ' + fmtPct(x.oran_pct) + ' (CIF üzerinden)' : ''} — <a href="${x.kaynak_url}" target="_blank" rel="noopener">${x.tebligno}</a>${x.oran_pct == null ? ' <span class="warn">(oran henüz veritabanında yok, orijinal tebliğ teyit edilmeli)</span>' : ''}`).join('<br>')
+        : 'Bu GTİP için damping veritabanımızda henüz kayıt yok — bilinmiyor anlamına gelir, kesin olarak "yok" değil.'}</div>
+    </div>`);
+
+  rows.push(`
+    <div class="tax-row">
+      <div class="tax-head">
+        <div class="badge b-kdv">KDV</div>
+        <div class="name">KDV</div>
+        <div class="rate">${fmtPct(d.kdv_pct)}</div>
+      </div>
+      <div class="explain">${d.kdv_guvenilirlik === 'varsayilan_genel_oran'
+        ? 'Genel oran varsayıldı (fasıl bazlı yaklaşık kural) — kesin liste teyidi gerekir.'
+        : 'Fasıl bazlı yaklaşık kural ile belirlendi — kesin liste teyidi gerekir.'}</div>
+    </div>`);
+
+  if (d.kkdf) {
+    rows.push(`
+      <div class="tax-row">
+        <div class="tax-head">
+          <div class="badge b-kkdf">KKDF</div>
+          <div class="name">KKDF (yalnızca vadeli ithalatta)</div>
+          <div class="rate">${fmtPct(d.kkdf.oran_pct)}</div>
+        </div>
+        <div class="explain">${d.kkdf.uygulama_kosulu}. <a href="${d.kkdf.kaynak_url}" target="_blank" rel="noopener">Hukuki dayanak: ${d.kkdf.hukuki_dayanak}</a></div>
+      </div>`);
+  }
+
+  resultBox.innerHTML = `
+    <div class="result-head">
+      <div class="g">${d.gtip_no}</div>
+      <h2>${d.aciklama}</h2>
+    </div>
+    <div class="summary-row">
+      <div class="sum-tile"><div class="l">Ölçü Birimi</div><div class="v">${d.olcu_birimi || '—'}</div></div>
+      <div class="sum-tile"><div class="l">Gümrük + İGV</div><div class="v">${fmtPct((d.gumruk_vergisi_pct||0) + (d.igv_pct||0))}</div></div>
+      <div class="sum-tile"><div class="l">+ KDV</div><div class="v">${fmtPct(d.kdv_pct)}</div></div>
+    </div>
+    <div class="tax-list">${rows.join('')}</div>
+  `;
+}
+
+// Enter tuşuyla tam kod girildiyse doğrudan sorgula
+qInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    sugBox.classList.remove('show');
+    loadGtip(qInput.value.trim());
+  }
+});
+</script>
+</body>
+</html>
