@@ -149,3 +149,25 @@ Denetim, Tarım Ticari Kalite (124 sayfa — en büyüğü), Metal Hurdalar, Ara
 Uluslararası Gözetim Kuruluşu, Karayolu Taşıt Araçları, Makinalar + tüm gözetim tebliğleri.
 Sayfalar zaten `data/raw/mukerrer-2025-12-31/pages/` altında görsele çevrilmiş durumda,
 kaldığı yerden devam edilebilir.
+
+## Mimari yükseltme (2026-08-14, "detaylı prompt" sonrası)
+Kullanıcının paylaştığı detaylı mimari spesifikasyona göre iki temel yükseltme yapıldı
+(mevcut veri/davranış BOZULMADAN, additive):
+
+1. **Rule Engine backend'e taşındı** (`src/rule_engine.py`) — vergi hesaplama mantığı
+   artık frontend JS'te değil, `/api/hesapla` (POST) endpoint'inde. Frontend sadece
+   sonucu render ediyor. Taşıma öncesi/sonrası sonuç birebir aynı olduğu doğrulandı.
+2. **Versiyonlama iskeleti** — `igv_diger_ulkeler`, `gozetim`, `damping`, `kkdf_kural`
+   tablolarına `valid_from`/`valid_to` kolonları eklendi. API sorguları artık
+   `valid_to IS NULL` (hâlâ yürürlükte) filtresi kullanıyor. `kaydi_kapat_ve_yenile()`
+   yardımcı fonksiyonu eklendi (henüz hiçbir yerde çağrılmıyor, ilk gerçek mevzuat
+   değişikliğinde kullanılacak) — eski kayıt SİLİNMEZ, `valid_to` ile kapatılıp yeni
+   kayıt `valid_from` ile açılır.
+3. **`countries` tablosu** kuruldu — şu an sadece Çin (`CN`, group=`DU`) gerçek veriyle
+   dolu. AB/EFTA/STA ülkelerinin tercihli oranları henüz parse edilmedi (ham dosyalar
+   `data/raw/rejim-extracted/` altında mevcut, bu ayrı bir iş).
+
+**Kasıtlı olarak yapılmayanlar (mevcut sistemi bozmamak için):** PostgreSQL'e geçiş
+yok (SQLite kalmaya devam ediyor, gerekçe: veri hacmi ve tek-kullanıcı aşaması için
+yeterli, migration riski gereksiz). Auth/multi-tenant, BTB modülü, ÖTV, kota/tarife
+kontenjanı, AI açıklama katmanı — bunlar ayrı, sıradaki adımlar olarak bekliyor.

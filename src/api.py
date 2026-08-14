@@ -46,14 +46,24 @@ def gtip_detay(kod: str):
     if not temel:
         raise HTTPException(status_code=404, detail=f"GTİP {kod} bulunamadı (temel cetvelde yok)")
 
-    gozetim = conn.execute("SELECT * FROM gozetim WHERE gtip12 = ?", (code,)).fetchone()
+    # valid_to IS NULL = hâlâ yürürlükte olan kayıt (versiyonlama: eski kayıtlar silinmez,
+    # valid_to ile kapatılır — bkz. README "Mevzuat versiyonlama")
+    gozetim = conn.execute(
+        "SELECT * FROM gozetim WHERE gtip12 = ? AND valid_to IS NULL", (code,)
+    ).fetchone()
     if not gozetim:
-        for r in conn.execute("SELECT * FROM gozetim WHERE gtip_prefix IS NOT NULL").fetchall():
+        for r in conn.execute(
+            "SELECT * FROM gozetim WHERE gtip_prefix IS NOT NULL AND valid_to IS NULL"
+        ).fetchall():
             if code.startswith(r["gtip_prefix"]):
                 gozetim = r
                 break
-    damping = conn.execute("SELECT * FROM damping WHERE gtip12 = ?", (code,)).fetchall()
-    kkdf = conn.execute("SELECT * FROM kkdf_kural WHERE id = 1").fetchone()
+    damping = conn.execute(
+        "SELECT * FROM damping WHERE gtip12 = ? AND valid_to IS NULL", (code,)
+    ).fetchall()
+    kkdf = conn.execute(
+        "SELECT * FROM kkdf_kural WHERE id = 1 AND valid_to IS NULL"
+    ).fetchone()
     uygunluk = conn.execute("SELECT * FROM ugd_uygunluk WHERE gtip12 = ?", (code,)).fetchall()
     # Bazı ÜGD tebliğleri (ör. Karayolu Taşıt Araçları) tam 12 hane değil, pozisyon/alt
     # pozisyon (GTP) seviyesinde tablo veriyor — önek eşleşmesi de kontrol edilir.

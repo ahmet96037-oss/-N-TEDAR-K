@@ -112,3 +112,31 @@ def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool) -> HesapSonucu:
         toplam_vergi=toplam,
         notlar=notlar,
     )
+
+
+def kaydi_kapat_ve_yenile(conn, tablo: str, where_sql: str, where_params: tuple,
+                            yeni_deger_kolonlari: dict, yeni_valid_from: str):
+    """
+    Versiyonlama yardımcısı: bir yükümlülük kaydı değiştiğinde eskiyi SİLMEZ,
+    valid_to = bugün ile kapatır, aynı yapıda yeni bir satırı valid_from ile açar.
+    Kullanım örneği (İGV oranı değiştiğinde):
+        kaydi_kapat_ve_yenile(conn, "igv_diger_ulkeler",
+            "gtip12 = ? AND valid_to IS NULL", (gtip12,),
+            {"igv_orani_pct": yeni_oran}, "2026-09-01")
+    NOT: Henüz hiçbir çağıran kod bunu kullanmıyor — altyapı olarak eklendi,
+    ilk gerçek mevzuat değişikliği geldiğinde devreye girecek.
+    """
+    cur = conn.cursor()
+    eski = cur.execute(f"SELECT * FROM {tablo} WHERE {where_sql}", where_params).fetchone()
+    if not eski:
+        raise ValueError("Kapatılacak eski kayıt bulunamadı")
+    cur.execute(f"UPDATE {tablo} SET valid_to = ? WHERE {where_sql}", (yeni_valid_from, *where_params))
+    kolonlar = dict(eski)
+    kolonlar.pop("id", None)
+    kolonlar.update(yeni_deger_kolonlari)
+    kolonlar["valid_from"] = yeni_valid_from
+    kolonlar["valid_to"] = None
+    cols = ",".join(kolonlar.keys())
+    qs = ",".join(["?"] * len(kolonlar))
+    cur.execute(f"INSERT INTO {tablo} ({cols}) VALUES ({qs})", tuple(kolonlar.values()))
+    conn.commit()
