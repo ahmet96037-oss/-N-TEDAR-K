@@ -102,3 +102,28 @@ kullanım kapsamında, toplu çekim yapılmadı). Bulgular:
 - Sıradaki fırsat: onların 38 kayıt/GTİP seviyesindeki kapsamlı damping tarihçesine
   benzer bir derinliğe ulaşmak için diğer eski tebliğleri (2021/1, 2021/3, 2021/6, ...)
   tek tek çekip gerçek oranları tamamlamak.
+
+## Uygunluk belgeleri (TSE/Tarım/Sağlık/CE) + gözetim tam listesi — kaynak bulundu (2026-08-14)
+Türkiye her yıl başında TÜM aktif gözetim tebliğlerini ve TÜM Ürün Güvenliği ve Denetimi
+(ÜGD) tebliğlerini **tek bir Resmi Gazete mükerrer sayısında** yeniden yayımlıyor. 2026 yılı
+için bu kaynak: **31 Aralık 2025, RG 33124, 4. Mükerrer**
+(https://www.resmigazete.gov.tr/fihrist?tarih=2025-12-31&mukerrer=4).
+
+**İndirildi:** `data/raw/mukerrer-2025-12-31/` — 73 PDF (53MB):
+- 36 gözetim tebliği (2026/1 – 2026/36) + 11 eski tebliğe değişiklik
+- 21 ÜGD tebliği: Standartlara Uygunluk, Hareketli Makinalar, Atıklar, Sağlık Bakanlığı
+  (özel izin + genel denetim), Tarım ve Orman Bakanlığı kontrolü, Kimyasallar, Katı Yakıtlar,
+  Telsiz Ekipmanları, **CE İşareti**, Oyuncak, Kişisel Koruyucu Donanım, Tüketici Ürünleri,
+  Yapı Malzemeleri, Pil/Akümülatör, Tıbbi Cihaz, Anne-Bebek Ürünleri, **Tekstil ve Deri**,
+  Tütün/Alkol, Tarım Ticari Kalite, Metal Hurdalar, Araç Parçaları, Karayolu Taşıt Araçları,
+  Makinalar — toplam ~517 sayfa (sadece ÜGD kısmı).
+
+**Engel:** Bu PDF'ler bozuk font kodlamasıyla yayımlanmış (Identity-H, ToUnicode CMap'siz
+subset font) — düz metin çıkarma çalışmıyor, anlamsız karakter çıkıyor (test edildi).
+Damping tebliğinde olduğu gibi görsel/OCR bazlı okuma gerekiyor. 500+ sayfayı körü körüne
+taramak hem büyük bir iş hem risklidir — GTİP kodunda okuma hatası, müşteriye yanlış
+uygunluk gereksinimi göstermek demek olur (gümrükte ciddi soruna yol açar).
+
+**Sıradaki adım:** Hangi ürün kategorilerinin (elektronik, tekstil, oyuncak, makina parçası
+vb.) işimiz için öncelikli olduğuna karar verip, sadece o tebliğleri görsel olarak
+sayfa sayfa okuyup GTİP tablolarını çıkarmak — 500 sayfanın tamamı değil.
