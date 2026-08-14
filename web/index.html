@@ -76,6 +76,8 @@
   .amount{ font-family:var(--font-mono); font-size:16px; margin-top:1px; }
   .explain{ padding:0 16px 14px 62px; font-size:13.5px; color:var(--text-muted); }
   .warn{ color: var(--signal-ink); font-family: var(--font-mono); font-size: 11.5px; }
+  .odeme-secim{ display:flex; align-items:center; gap:7px; font-size:13.5px; color:var(--text); margin-bottom:8px; cursor:pointer; }
+  .odeme-secim input{ width:auto; }
   .empty{ color:var(--text-muted); font-size:14px; margin-top:20px; }
   .err{ color:var(--signal-ink); margin-top:16px; font-size:14px; }
 
@@ -151,6 +153,7 @@ const fmtPct = n => (n ?? 0).toLocaleString('tr-TR', {maximumFractionDigits:1}) 
 const fmtUsd = n => '$' + (n ?? 0).toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
 
 let currentData = null;
+let vadeliState = false;
 
 async function loadGtip(kod) {
   resultBox.innerHTML = '<p class="empty">Yükleniyor…</p>';
@@ -200,7 +203,7 @@ function renderTaxRows() {
   const d = currentData;
   if (!d) return;
   const bedel = parseFloat(document.getElementById('malBedeli').value) || 0;
-  const vadeli = document.getElementById('vadeli').checked;
+  const vadeli = vadeliState;
   const hesap = bedel > 0 ? hesapla(d, bedel, vadeli) : null;
   const amt = v => hesap ? `<div class="amount">${fmtUsd(v)}</div>` : '';
 
@@ -271,10 +274,14 @@ function renderTaxRows() {
       <div class="tax-row ${vadeli ? '' : 'inactive'}">
         <div class="tax-head">
           <div class="badge b-kkdf">KKDF</div>
-          <div class="name">KKDF ${vadeli ? '' : '(yalnızca vadeli ithalatta)'}</div>
+          <div class="name">KKDF</div>
           <div class="rate-col"><div class="rate">${vadeli ? fmtPct(d.kkdf.oran_pct) : 'Uygulanmıyor (peşin)'}</div>${vadeli ? amt(hesap?.kkdf) : ''}</div>
         </div>
-        <div class="explain">${d.kkdf.uygulama_kosulu}. Matrah: mal bedeli. <a href="${d.kkdf.kaynak_url}" target="_blank" rel="noopener">Hukuki dayanak: ${d.kkdf.hukuki_dayanak}</a></div>
+        <div class="explain">
+          <label class="odeme-secim"><input type="checkbox" id="vadeli" ${vadeli ? 'checked' : ''} onchange="vadeliState=this.checked; renderTaxRows();"> Vadeli ödeme (kabul kredili / vadeli akreditif / mal mukabili) — işaretlenirse KKDF hesaba katılır</label>
+          <br>${d.kkdf.uygulama_kosulu}. Matrah: mal bedeli. <a href="${d.kkdf.kaynak_url}" target="_blank" rel="noopener">Hukuki dayanak: ${d.kkdf.hukuki_dayanak}</a>
+          <br><span class="warn">Ayrıca 2015/7511 sayılı Karar eki listede yer alan bazı hammadde/yatırım malı GTİP'lerinde oran ödeme şekli ne olursa olsun sıfırdır — bu liste henüz sistemimizde değil, bu GTİP'in o listede olup olmadığı ayrıca teyit edilmeli.</span>
+        </div>
       </div>`);
   }
 
@@ -321,16 +328,11 @@ function render(d) {
         <label for="malBedeli">Mal Bedeli (Fatura / CIF, USD)</label>
         <input id="malBedeli" type="number" min="0" step="0.01" placeholder="ör. 10000" inputmode="decimal">
       </div>
-      <div class="vadeli-field">
-        <input id="vadeli" type="checkbox">
-        <label for="vadeli">Vadeli ödeme (KKDF uygulanır)</label>
-      </div>
     </div>
     <div class="tax-list" id="taxList"></div>
     <div id="totalArea"></div>
   `;
   document.getElementById('malBedeli').addEventListener('input', renderTaxRows);
-  document.getElementById('vadeli').addEventListener('change', renderTaxRows);
   renderTaxRows();
 }
 
