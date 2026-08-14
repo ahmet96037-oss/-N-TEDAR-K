@@ -14,6 +14,9 @@ import sqlite3
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
+
+from src.rule_engine import hesapla
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "processed", "gtip.db")
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "web")
@@ -44,6 +47,11 @@ def gtip_detay(kod: str):
         raise HTTPException(status_code=404, detail=f"GTİP {kod} bulunamadı (temel cetvelde yok)")
 
     gozetim = conn.execute("SELECT * FROM gozetim WHERE gtip12 = ?", (code,)).fetchone()
+    if not gozetim:
+        for r in conn.execute("SELECT * FROM gozetim WHERE gtip_prefix IS NOT NULL").fetchall():
+            if code.startswith(r["gtip_prefix"]):
+                gozetim = r
+                break
     damping = conn.execute("SELECT * FROM damping WHERE gtip12 = ?", (code,)).fetchall()
     kkdf = conn.execute("SELECT * FROM kkdf_kural WHERE id = 1").fetchone()
     uygunluk = conn.execute("SELECT * FROM ugd_uygunluk WHERE gtip12 = ?", (code,)).fetchall()
@@ -144,6 +152,21 @@ def istatistik():
         "gozetim_bilinen": n_gozetim,
         "damping_bilinen": n_damping,
     }
+
+
+class HesaplaIstek(BaseModel):
+    gtip: str
+    mal_bedeli: float
+    vadeli: bool = False
+
+
+@app.post("/api/hesapla")
+def gtip_hesapla(istek: HesaplaIstek):
+    """Rule Engine — mal bedeline göre kalem kalem vergi hesabı. Tek doğruluk kaynağı,
+    frontend bu sonucu render eder, kendi hesaplamasını yapmaz."""
+    detay = gtip_detay(istek.gtip)
+    sonuc = hesapla(detay, istek.mal_bedeli, istek.vadeli)
+    return sonuc.to_dict()
 
 
 class NoCacheStaticFiles(StaticFiles):

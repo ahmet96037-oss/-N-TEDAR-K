@@ -174,37 +174,31 @@ async function loadGtip(kod) {
   }
 }
 
-// Verilen mal bedeli üzerinden her vergi kalemini ve toplamı hesaplar.
-// Matrah mantığı: Gümrük Vergisi + İGV + Damping, mal bedeli (CIF varsayımı) üzerinden;
-// KDV, bunların üzerine eklenmiş ara toplam üzerinden (kanuni KDV matrahı budur);
-// KKDF ise sadece fatura bedeli üzerinden ve yalnızca vadeli ödemede.
-function hesapla(d, bedel, vadeli) {
-  const b = bedel || 0;
-  const gumruk = b * (d.gumruk_vergisi_pct || 0) / 100;
-  const igv = b * (d.igv_pct || 0) / 100;
+// Hesaplama mantığı ARTIK burada değil — tek doğruluk kaynağı backend'deki
+// Rule Engine (src/rule_engine.py). Bu fonksiyon sadece /api/hesapla'yı çağırır
+// ve sonucu render eder; kendi vergi hesabını yapmaz.
+let renderSeq = 0;
 
-  let dampingOran = null;
-  if (d.damping && d.damping.length) {
-    const oranli = d.damping.filter(x => x.oran_pct != null);
-    if (oranli.length) dampingOran = Math.max(...oranli.map(x => x.oran_pct));
-  }
-  const damping = dampingOran != null ? b * dampingOran / 100 : 0;
-
-  const kdvMatrah = b + gumruk + igv + damping;
-  const kdv = kdvMatrah * (d.kdv_pct || 0) / 100;
-
-  const kkdf = (vadeli && d.kkdf) ? b * (d.kkdf.oran_pct || 0) / 100 : 0;
-
-  const toplam = gumruk + igv + damping + kdv + kkdf;
-  return { gumruk, igv, dampingOran, damping, kdv, kkdf, toplam };
-}
-
-function renderTaxRows() {
+async function renderTaxRows() {
   const d = currentData;
   if (!d) return;
   const bedel = parseFloat(document.getElementById('malBedeli').value) || 0;
   const vadeli = vadeliState;
-  const hesap = bedel > 0 ? hesapla(d, bedel, vadeli) : null;
+
+  const mySeq = ++renderSeq;
+  let hesap = null;
+  if (bedel > 0) {
+    try {
+      const res = await fetch(API + '/api/hesapla', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gtip: d.gtip12, mal_bedeli: bedel, vadeli }),
+      });
+      if (res.ok) hesap = await res.json();
+    } catch (err) { /* bağlantı hatası — hesap null kalır, oranlar yine de gösterilir */ }
+  }
+  if (mySeq !== renderSeq) return; // kullanıcı bu arada yeni bir değer girdiyse eski cevabı çiz me
+
   const amt = v => hesap ? `<div class="amount">${fmtUsd(v)}</div>` : '';
 
   const rows = [];
@@ -214,7 +208,7 @@ function renderTaxRows() {
       <div class="tax-head">
         <div class="badge b-duty">%</div>
         <div class="name">Gümrük Vergisi</div>
-        <div class="rate-col"><div class="rate">${fmtPct(d.gumruk_vergisi_pct)}</div>${amt(hesap?.gumruk)}</div>
+        <div class="rate-col"><div class="rate">${fmtPct(d.gumruk_vergisi_pct)}</div>${amt(hesap?.gumruk_vergisi)}</div>
       </div>
       <div class="explain">Temel ithalat vergisi (2026 TGTC, diğer ülkeler oranı — Çin bu sütuna girer). Matrah: mal bedeli.</div>
     </div>`);
@@ -302,7 +296,7 @@ function renderTaxRows() {
   const totalHtml = hesap ? `
     <div class="total-row">
       <div class="l">Toplam Vergi Yükü</div>
-      <div class="v">${fmtUsd(hesap.toplam)}</div>
+      <div class="v">${fmtUsd(hesap.toplam_vergi)}</div>
     </div>
     <div class="total-note">Mal bedeli $${bedel.toLocaleString('tr-TR')} üzerinden, CIF = mal bedeli varsayımıyla (navlun/sigorta hariçse gerçek CIF farklı olabilir). Gözetim toplamda ayrı — bir vergi değil, tabanı yükseltme eşiğidir. Nihai beyan öncesi gümrük müşaviri teyidi gerekir.</div>
   ` : '';
