@@ -116,6 +116,15 @@ def istatistik():
     }
 
 
+class NoCacheStaticFiles(StaticFiles):
+    """Geliştirme aşamasında tarayıcı eski index.html'i önbellekten göstermesin diye."""
+
+    def file_response(self, *args, **kwargs):
+        resp = super().file_response(*args, **kwargs)
+        resp.headers["Cache-Control"] = "no-store"
+        return resp
+
+
 # Statik frontend'i kökten servis et (aynı origin, CORS derdi yok)
 if os.path.isdir(STATIC_DIR):
-    app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="web")
+    app.mount("/", NoCacheStaticFiles(directory=STATIC_DIR, html=True), name="web")
