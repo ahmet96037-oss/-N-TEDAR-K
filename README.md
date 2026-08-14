@@ -171,3 +171,61 @@ Kullanıcının paylaştığı detaylı mimari spesifikasyona göre iki temel y�
 yok (SQLite kalmaya devam ediyor, gerekçe: veri hacmi ve tek-kullanıcı aşaması için
 yeterli, migration riski gereksiz). Auth/multi-tenant, BTB modülü, ÖTV, kota/tarife
 kontenjanı, AI açıklama katmanı — bunlar ayrı, sıradaki adımlar olarak bekliyor.
+
+## PHASE 0 REPORT — PostgreSQL Migrasyonu (2026-08-14)
+
+### Completed
+- Neon (bulut PostgreSQL) hesabı bağlandı, `.env` içinde `DATABASE_URL` (git'e girmiyor,
+  `.gitignore`'da)
+- Normalize edilmiş 9 tablolu şema kuruldu (`src/pg_schema.sql`): countries, documents,
+  gtips, additional_duties, vat_rates, kkdf_rules, trade_measures (gözetim+damping
+  birleşik, measure_type ile ayrılıyor), product_safety_rules, required_documents
+- Foreign key kısıtları var (`gtips.gtip12` referans alınıyor) — bu, migrasyon sırasında
+  **68 yetim kaydı** (64 İGV + 4 damping) otomatik olarak yakaladı: bunlar `gtip_temel`de
+  karşılığı olmayan GTİP kodlarıydı (muhtemelen eski tebliğ/eski TGTC versiyon farkı).
+  Uydurma veriyle kapatmak yerine bu kayıtlar migrasyona dahil edilmedi, sayıları
+  raporlandı (bkz. `src/migrate_to_pg.py` çıktısı).
+- 15.717 GTİP + 4.528 İGV + 15.717 KDV + 91 gözetim + 9 damping (oranlı) + 403 uygunluk
+  kaydı taşındı.
+- `src/db.py` — pg8000 (saf Python, derleme gerektirmeyen sürücü — Python 3.15 alfa'da
+  `psycopg2-binary` derlenemedi) üzerinden PostgreSQL'e bağlanan, sqlite3.Row benzeri
+  dict-erişimli bir wrapper. `api.py`'nin geri kalanı bu sayede minimum değişiklikle
+  PostgreSQL'e taşındı.
+- `api.py` yeni şemaya göre güncellendi, tüm endpoint'ler test edildi.
+
+### Files Changed
+`src/api.py` (PostgreSQL sorgularına çevrildi), yeni: `src/db.py`, `src/pg_schema.sql`,
+`src/migrate_to_pg.py`, `requirements.txt`, `.env` (gitignore'da, commit edilmedi)
+
+### Database Changes
+SQLite (`data/processed/gtip.db`) hâlâ diskte duruyor (yedek/referans amaçlı), ama
+**API artık PostgreSQL'i kullanıyor**. SQLite'a bağımlılık kalmadı.
+
+### API Changes
+Endpoint'lerin dış davranışı (URL, request/response şekli) değişmedi — sadece backend
+veri katmanı değişti. `/api/hesapla` sonucu migrasyon öncesi/sonrası birebir aynı
+doğrulandı (10.518,80 USD test senaryosu).
+
+### Tests
+Manuel doğrulama: referans GTİP (8504.40.95.90.19) sorgulandı, bulundu, kaynak gösterildi
+(FAZ 41 kabul kriteri karşılandı). `/api/ara`, `/api/istatistik`, `/api/hesapla`,
+uygunluk belgesi eşleşmesi (oyuncak örneği) test edildi. Otomatik test suite YOK
+(pytest kurulu değil) — bu bilinen bir eksik, Faz 28'de ele alınacak.
+
+### Data Quality
+68 yetim kayıt tespit edildi ve dışlandı (yukarıda). Bu, sistemin ilk gerçek "data
+quality" bulgusu — Faz 29'daki otomatik kontrollerin neden gerekli olduğunun somut kanıtı.
+
+### Known Issues
+- SQLite'tan kalan iki script (`build_kdv.py`, `parse_tgtc.py`, `parse_igv.py`) hâlâ
+  SQLite'a yazıyor — gelecekte yeni veri eklenirken ya bu scriptler PostgreSQL'e yazacak
+  şekilde güncellenmeli ya da SQLite ara adım olarak kalıp `migrate_to_pg.py` tekrar
+  çalıştırılmalı (şu an ikinci yöntem geçerli).
+- `documents` tablosu kuruldu ama henüz doldurulmadı — `trade_measures`/`product_safety_rules`
+  hâlâ `document_label`/`source_url` düz metin alanlarını kullanıyor, `document_id`
+  foreign key'i henüz bağlanmadı.
+- Testler yok.
+
+### Next Phase
+Faz 1 devam: kalan ÜGD kategorileri (CE, Tekstil, Tarım vb.) ve gözetim tebliğleri
+(27-36) PostgreSQL'e doğrudan yazılacak şekilde devam edilebilir.

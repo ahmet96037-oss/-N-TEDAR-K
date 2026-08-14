@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-GTİP Vergi Hesaplama Motoru — gerçek veri backend'i.
+GTİP Vergi Hesaplama Motoru — gerçek veri backend'i (PostgreSQL / Neon).
 
 Çalıştırma:
     cd ~/cin-tedarik-sistem
@@ -9,25 +9,17 @@ GTİP Vergi Hesaplama Motoru — gerçek veri backend'i.
 Sonra tarayıcıda: http://127.0.0.1:8000
 """
 import os
-import sqlite3
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from src.db import db
 from src.rule_engine import hesapla
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "processed", "gtip.db")
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "web")
 
 app = FastAPI(title="GTİP Vergi Hesaplama Motoru")
-
-
-def db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
 
 
 def norm_code(raw: str) -> str:
@@ -41,92 +33,109 @@ def gtip_detay(kod: str):
     conn = db()
 
     temel = conn.execute(
-        "SELECT * FROM cin_ithalat_vergisi WHERE gtip12 = ?", (code,)
+        """SELECT g.gtip12, g.gtip_no, g.description, g.unit, g.base_duty_pct,
+                  ad.rate_pct AS igv_pct, v.rate_pct AS kdv_pct, v.reliability AS kdv_guvenilirlik
+           FROM gtips g
+           LEFT JOIN additional_duties ad ON ad.gtip12 = g.gtip12 AND ad.valid_to IS NULL
+           LEFT JOIN vat_rates v ON v.gtip12 = g.gtip12 AND v.valid_to IS NULL
+           WHERE g.gtip12 = ?""",
+        (code,),
     ).fetchone()
     if not temel:
+        conn.close()
         raise HTTPException(status_code=404, detail=f"GTİP {kod} bulunamadı (temel cetvelde yok)")
 
     # valid_to IS NULL = hâlâ yürürlükte olan kayıt (versiyonlama: eski kayıtlar silinmez,
     # valid_to ile kapatılır — bkz. README "Mevzuat versiyonlama")
     gozetim = conn.execute(
-        "SELECT * FROM gozetim WHERE gtip12 = ? AND valid_to IS NULL", (code,)
+        "SELECT * FROM trade_measures WHERE measure_type='GOZETIM' AND gtip12 = ? AND valid_to IS NULL",
+        (code,),
     ).fetchone()
     if not gozetim:
         for r in conn.execute(
-            "SELECT * FROM gozetim WHERE gtip_prefix IS NOT NULL AND valid_to IS NULL"
+            "SELECT * FROM trade_measures WHERE measure_type='GOZETIM' AND gtip_prefix IS NOT NULL AND valid_to IS NULL"
         ).fetchall():
             if code.startswith(r["gtip_prefix"]):
                 gozetim = r
                 break
+
     damping = conn.execute(
-        "SELECT * FROM damping WHERE gtip12 = ? AND valid_to IS NULL", (code,)
+        "SELECT * FROM trade_measures WHERE measure_type='ANTI_DAMPING' AND gtip12 = ? AND valid_to IS NULL",
+        (code,),
     ).fetchall()
+
     kkdf = conn.execute(
-        "SELECT * FROM kkdf_kural WHERE id = 1 AND valid_to IS NULL"
+        "SELECT * FROM kkdf_rules WHERE valid_to IS NULL LIMIT 1"
     ).fetchone()
-    uygunluk = conn.execute("SELECT * FROM ugd_uygunluk WHERE gtip12 = ?", (code,)).fetchall()
+
+    uygunluk = conn.execute(
+        "SELECT * FROM product_safety_rules WHERE gtip12 = ? AND valid_to IS NULL", (code,)
+    ).fetchall()
     # Bazı ÜGD tebliğleri (ör. Karayolu Taşıt Araçları) tam 12 hane değil, pozisyon/alt
     # pozisyon (GTP) seviyesinde tablo veriyor — önek eşleşmesi de kontrol edilir.
     prefix_rows = conn.execute(
-        "SELECT * FROM ugd_uygunluk WHERE gtip_prefix IS NOT NULL"
+        "SELECT * FROM product_safety_rules WHERE gtip_prefix IS NOT NULL AND valid_to IS NULL"
     ).fetchall()
     uygunluk = list(uygunluk) + [r for r in prefix_rows if code.startswith(r["gtip_prefix"])]
-    kategoriler = list({u["kategori"] for u in uygunluk})
+    kategoriler = list({u["category"] for u in uygunluk})
     belgeler = []
     if kategoriler:
-        q = "SELECT * FROM ugd_belgeler WHERE kategori IN ({})".format(",".join("?" * len(kategoriler)))
-        belgeler = conn.execute(q, kategoriler).fetchall()
+        placeholders = ",".join(["?"] * len(kategoriler))
+        belgeler = conn.execute(
+            f"SELECT * FROM required_documents WHERE category IN ({placeholders})",
+            tuple(kategoriler),
+        ).fetchall()
 
     conn.close()
 
     return {
         "gtip12": temel["gtip12"],
         "gtip_no": temel["gtip_no"],
-        "aciklama": temel["aciklama"],
-        "olcu_birimi": temel["olcu_birimi"],
-        "gumruk_vergisi_pct": temel["gumruk_vergisi_pct"],
+        "aciklama": temel["description"],
+        "olcu_birimi": temel["unit"],
+        "gumruk_vergisi_pct": temel["base_duty_pct"],
         "igv_pct": temel["igv_pct"],
         "kdv_pct": temel["kdv_pct"],
         "kdv_guvenilirlik": temel["kdv_guvenilirlik"],
         "gozetim": {
-            "referans_deger": gozetim["referans_deger"],
-            "birim": gozetim["birim"],
-            "tebligno": gozetim["tebligno"],
-            "kaynak_url": gozetim["kaynak_url"],
+            "referans_deger": gozetim["reference_value"],
+            "birim": gozetim["unit"],
+            "tebligno": gozetim["document_label"],
+            "kaynak_url": gozetim["source_url"],
         } if gozetim else None,
         "damping": [
             {
-                "mense_ulke": d["mense_ulke"],
-                "oran_pct": d["oran_pct"],
-                "sabit_tutar": d["sabit_tutar"],
-                "birim": d["birim"],
-                "tebligno": d["tebligno"],
-                "kaynak_url": d["kaynak_url"],
+                "mense_ulke": d["country_desc"],
+                "oran_pct": d["rate_pct"],
+                "sabit_tutar": d["fixed_amount"],
+                "birim": d["unit"],
+                "tebligno": d["document_label"],
+                "kaynak_url": d["source_url"],
             }
             for d in damping
         ],
         "kkdf": {
-            "oran_pct": kkdf["oran_pct"],
-            "aciklama": kkdf["aciklama"],
-            "uygulama_kosulu": kkdf["uygulama_kosulu"],
-            "hukuki_dayanak": kkdf["hukuki_dayanak"],
-            "kaynak_url": kkdf["kaynak_url"],
+            "oran_pct": kkdf["rate_pct"],
+            "aciklama": kkdf["description"],
+            "uygulama_kosulu": kkdf["condition_text"],
+            "hukuki_dayanak": kkdf["legal_basis"],
+            "kaynak_url": kkdf["source_url"],
         } if kkdf else None,
         "uygunluk_belgeleri": [
             {
-                "kategori": u["kategori"],
-                "madde_ismi": u["madde_ismi"],
-                "teblig_no": u["teblig_no"],
-                "kaynak_url": u["kaynak_url"],
+                "kategori": u["category"],
+                "madde_ismi": u["item_name"],
+                "teblig_no": u["document_label"],
+                "kaynak_url": u["source_url"],
             }
             for u in uygunluk
         ],
         "gerekli_belgeler": [
             {
-                "kategori": b["kategori"],
-                "belgeler": b["belgeler"],
-                "teblig_no": b["teblig_no"],
-                "kaynak_url": b["kaynak_url"],
+                "kategori": b["category"],
+                "belgeler": b["description"],
+                "teblig_no": b["document_label"],
+                "kaynak_url": b["source_url"],
             }
             for b in belgeler
         ],
@@ -139,22 +148,28 @@ def gtip_ara(q: str, limit: int = 15):
     conn = db()
     like = f"%{q}%"
     rows = conn.execute(
-        """SELECT gtip_no, aciklama FROM gtip_temel
-           WHERE gtip_no LIKE ? OR aciklama LIKE ?
+        """SELECT gtip_no, description FROM gtips
+           WHERE gtip_no ILIKE ? OR description ILIKE ?
            LIMIT ?""",
         (f"{q}%", like, limit),
     ).fetchall()
     conn.close()
-    return [{"gtip_no": r["gtip_no"], "aciklama": r["aciklama"]} for r in rows]
+    return [{"gtip_no": r["gtip_no"], "aciklama": r["description"]} for r in rows]
 
 
 @app.get("/api/istatistik")
 def istatistik():
     conn = db()
-    n_gtip = conn.execute("SELECT COUNT(*) FROM gtip_temel").fetchone()[0]
-    n_igv = conn.execute("SELECT COUNT(*) FROM igv_diger_ulkeler WHERE igv_orani_pct > 0").fetchone()[0]
-    n_gozetim = conn.execute("SELECT COUNT(*) FROM gozetim").fetchone()[0]
-    n_damping = conn.execute("SELECT COUNT(DISTINCT gtip12) FROM damping").fetchone()[0]
+    n_gtip = conn.execute("SELECT COUNT(*) AS n FROM gtips").fetchone()["n"]
+    n_igv = conn.execute(
+        "SELECT COUNT(*) AS n FROM additional_duties WHERE rate_pct > 0 AND valid_to IS NULL"
+    ).fetchone()["n"]
+    n_gozetim = conn.execute(
+        "SELECT COUNT(*) AS n FROM trade_measures WHERE measure_type='GOZETIM' AND valid_to IS NULL"
+    ).fetchone()["n"]
+    n_damping = conn.execute(
+        "SELECT COUNT(DISTINCT gtip12) AS n FROM trade_measures WHERE measure_type='ANTI_DAMPING' AND valid_to IS NULL"
+    ).fetchone()["n"]
     conn.close()
     return {
         "gtip_toplam": n_gtip,
