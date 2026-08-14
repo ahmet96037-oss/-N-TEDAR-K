@@ -229,3 +229,33 @@ quality" bulgusu — Faz 29'daki otomatik kontrollerin neden gerekli olduğunun 
 ### Next Phase
 Faz 1 devam: kalan ÜGD kategorileri (CE, Tekstil, Tarım vb.) ve gözetim tebliğleri
 (27-36) PostgreSQL'e doğrudan yazılacak şekilde devam edilebilir.
+
+## 🔴 KRİTİK DÜZELTME: Gümrük Vergisi kaynağı yanlıştı (2026-08-14)
+
+Kullanıcı Açık Gümrük ile karşılaştırma yaparken fark buldu (GTİP 5407.53.00.90.19:
+biz %150 diyorduk, Açık Gümrük %8 diyordu). Kök neden araştırıldı ve doğrulandı:
+
+**Sorun:** `gtips.base_duty_pct`, TGTC'nin "VERGİ HADDİ" sütunundan dolduruldu — bu sütun
+gerçekte uygulanan gümrük vergisi DEĞİL, WTO'ya bağlı nominal/tavan bir referans değer.
+Aynı fasılda onlarca ürün aynı yüksek değeri (%90, %150) taşıyor — bariz bir işaret.
+
+**Gerçek kaynak:** İthalat Rejimi Kararı'nın (Karar 3350) "II Sayılı Liste" ekleri —
+`data/raw/rejim-extracted/II Sayılı Liste (*.xlsx)`, 8 dosya, fasıl 25-97'yi kapsıyor.
+Her dosyada GTİP + **7 ülke grubu sütunu** (AB, EFTA, GTS ülkeleri alt grupları, ve son
+sütun = "Diğer Ülkeler" — Çin bu sütuna giriyor).
+
+**Düzeltme:** `src/fix_gumruk_vergisi.py` yazıldı, çalıştırıldı. **12.347 GTİP** (fasıl
+25-97, toplamın %79'u) artık gerçek kaynaktan geliyor (`base_duty_source =
+'ithalat_rejimi_ek2_du'`). Referans test GTİP'i (8504.40.95.90.19) %40'tan **%3,3**'e
+düzeltildi. Açık Gümrük'le iki örnekte çapraz doğrulandı, ikisi de birebir eşleşti.
+
+**Kalan bilinen eksik:** Fasıl 1-24 (tarım ürünleri, ~3.370 GTİP) farklı/daha karmaşık
+bir sütun yapısına sahip (`I sayılı Liste` ve `II sayılı Liste (04-24.Fasıllar)` — ülke
+grupları GTS yapısından farklı: AB/BK/EFTA, KOS, SNG, VNZ, BAE gibi ayrı sütunlar, tek bir
+"Diğer Ülkeler" sütunu yok). Bu grup hâlâ eski (TGTC tahmini) değeri taşıyor, API/UI'da
+"tahmini" rozetiyle açıkça işaretli. Ayrıca **7 sütunun 6'sını (AB, EFTA, GTS grupları)
+hâlâ hiç kullanmıyoruz** — bu, ileride çoklu ülke desteğinin (Almanya, Vietnam vb.) gerçek
+verisi olacak, şu an sadece son sütunu (DÜ/Çin) okuyoruz.
+
+**Ders:** Açık Gümrük'le çapraz doğrulama olmasaydı bu hata fark edilmeyecekti — bu tür
+karşılaştırmalar veri kalitesi için kritik.

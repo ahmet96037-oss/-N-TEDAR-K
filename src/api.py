@@ -33,7 +33,7 @@ def gtip_detay(kod: str):
     conn = db()
 
     temel = conn.execute(
-        """SELECT g.gtip12, g.gtip_no, g.description, g.unit, g.base_duty_pct,
+        """SELECT g.gtip12, g.gtip_no, g.description, g.unit, g.base_duty_pct, g.base_duty_source,
                   ad.rate_pct AS igv_pct, v.rate_pct AS kdv_pct, v.reliability AS kdv_guvenilirlik
            FROM gtips g
            LEFT JOIN additional_duties ad ON ad.gtip12 = g.gtip12 AND ad.valid_to IS NULL
@@ -94,6 +94,7 @@ def gtip_detay(kod: str):
         "aciklama": temel["description"],
         "olcu_birimi": temel["unit"],
         "gumruk_vergisi_pct": temel["base_duty_pct"],
+        "gumruk_vergisi_guvenilirlik": temel["base_duty_source"],
         "igv_pct": temel["igv_pct"],
         "kdv_pct": temel["kdv_pct"],
         "kdv_guvenilirlik": temel["kdv_guvenilirlik"],

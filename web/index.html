@@ -32,8 +32,9 @@
   .search-wrap{ position:relative; }
   .panel{ background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:24px; }
   label{ display:block; font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); margin-bottom:7px; }
-  input{ width:100%; font-size:15px; padding:11px 12px; border-radius:3px; border:1px solid var(--border); background:var(--bg); color:var(--text); }
-  input:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+  input, select{ width:100%; font-size:15px; padding:11px 12px; border-radius:3px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; }
+  select{ height:44px; }
+  input:focus, select:focus{ outline:2px solid var(--accent); outline-offset:1px; }
   .suggestions{ position:absolute; left:0; right:0; top:100%; margin-top:4px; background:var(--surface); border:1px solid var(--border); border-radius:3px; max-height:280px; overflow-y:auto; z-index:10; display:none; box-shadow:0 8px 20px rgba(0,0,0,.12); }
   .suggestions.show{ display:block; }
   .suggestion{ padding:10px 14px; cursor:pointer; border-bottom:1px solid var(--border); font-size:13.5px; }
@@ -113,6 +114,40 @@
     <input id="q" type="text" placeholder="ör. 8536.69 veya priz" autocomplete="off">
     <div class="suggestions" id="suggestions"></div>
   </div>
+
+  <div class="panel bedel-panel" style="margin-top:12px;">
+    <div class="bedel-field" style="max-width:170px;">
+      <label for="menseUlke">Menşe Ülke</label>
+      <select id="menseUlke">
+        <option value="CN">Çin</option>
+        <option value="DE">Almanya</option>
+        <option value="VN">Vietnam</option>
+        <option value="KR">Güney Kore</option>
+        <option value="US">ABD</option>
+        <option value="GB">İngiltere</option>
+      </select>
+    </div>
+    <div class="bedel-field">
+      <label for="malBedeli">Mal Bedeli (Fatura / CIF, USD)</label>
+      <input id="malBedeli" type="number" min="0" step="0.01" placeholder="ör. 10000" inputmode="decimal">
+    </div>
+    <div class="bedel-field" style="max-width:160px;">
+      <label for="miktar">Miktar <span style="text-transform:none;">(opsiyonel)</span></label>
+      <input id="miktar" type="number" min="0" step="0.01" placeholder="ör. 2500" inputmode="decimal">
+    </div>
+    <div class="bedel-field" style="max-width:120px;">
+      <label for="miktarBirim">Birim</label>
+      <select id="miktarBirim">
+        <option value="Kg">Kg</option>
+        <option value="Ton">Ton</option>
+        <option value="Adet">Adet</option>
+        <option value="M2">m²</option>
+        <option value="M">Metre</option>
+        <option value="Litre">Litre</option>
+      </select>
+    </div>
+  </div>
+  <div id="menseWarn"></div>
 
   <div class="result" id="result"></div>
 </div>
@@ -219,8 +254,14 @@ function toggleRow(id) {
 async function renderTaxRows() {
   const d = currentData;
   if (!d) return;
+  if (!checkMenseUlke()) {
+    document.getElementById('taxList').innerHTML = '';
+    document.getElementById('totalArea').innerHTML = '';
+    return;
+  }
   const bedel = parseFloat(document.getElementById('malBedeli').value) || 0;
   const miktar = parseFloat(document.getElementById('miktar').value) || null;
+  const miktarBirim = document.getElementById('miktarBirim').value;
   const vadeli = vadeliState;
 
   const mySeq = ++renderSeq;
@@ -230,7 +271,7 @@ async function renderTaxRows() {
       const res = await fetch(API + '/api/hesapla', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gtip: d.gtip12, mal_bedeli: bedel, vadeli, miktar }),
+        body: JSON.stringify({ gtip: d.gtip12, mal_bedeli: bedel, vadeli, miktar, miktar_birim: miktarBirim }),
       });
       if (res.ok) hesap = await res.json();
     } catch (err) { /* bağlantı hatası — hesap null kalır, oranlar yine de gösterilir */ }
@@ -240,16 +281,26 @@ async function renderTaxRows() {
   const amt = v => hesap ? fmtUsd(v) : '';
   const rows = [];
 
+  const TGTC_URL = 'https://ggm.ticaret.gov.tr/duyurular/istatistik-pozisyonlarina-bolunmus-turk-gumruk-tarife-cetveli-karar-sayisi-10781-yayimlanmistir';
+  const IGV_URL = 'https://ticaret.gov.tr/ithalat/ithalat-mevzuati/ithalat-rejimi-karari-igv-karari-ve-ithalat-tebligleri/2-ithalatta-ilave-gumruk-vergisi-uygulanmasina-iliskin-karar-karar-sayisi-3351-karar-metni-ve-tablolar-konsolide-edilmis-olup-gunceldir';
+  const KDV_URL = 'https://ticaret.gov.tr/gumruk-islemleri/mevzuat/tebligler/tarife';
+
+  const gvGercek = d.gumruk_vergisi_guvenilirlik === 'ithalat_rejimi_ek2_du';
   rows.push(taxRow({
     id: 'gv', dotClass: 'dot-duty', name: 'Gümrük Vergisi',
+    badge: gvGercek ? pill('gercek', 'gerçek') : pill('tahmini', 'tahmini'),
     rate: fmtPct(d.gumruk_vergisi_pct), amount: amt(hesap?.gumruk_vergisi),
-    explain: 'Temel ithalat vergisi (2026 TGTC, diğer ülkeler oranı — Çin bu sütuna girer). Matrah: mal bedeli.',
+    explain: gvGercek
+      ? `Temel ithalat vergisi, Diğer Ülkeler sütunu (Çin bu sütuna girer). Matrah: mal bedeli. Kaynak: <a href="${IGV_URL}" target="_blank" rel="noopener">İthalat Rejimi Kararı (Karar 3350) Ek-2, Ticaret Bakanlığı</a>`
+      : `<span class="warn">Bu fasıl (genelde tarım ürünleri, 1-24) henüz İthalat Rejimi Kararı'nın doğru sütunundan doğrulanmadı — TGTC'nin nominal "vergi haddi" değeri gösteriliyor, gerçek uygulanan oran farklı olabilir.</span> Kaynak: <a href="${TGTC_URL}" target="_blank" rel="noopener">2026 TGTC, Ticaret Bakanlığı</a>`,
   }));
 
   rows.push(taxRow({
     id: 'igv', dotClass: 'dot-igv', name: 'İlave Gümrük Vergisi', active: !!d.igv_pct,
     rate: d.igv_pct ? fmtPct(d.igv_pct) : 'Yok', amount: d.igv_pct ? amt(hesap?.igv) : '',
-    explain: d.igv_pct ? 'Çin menşeli eşyaya uygulanan ek vergi (Diğer Ülkeler sütunu). Matrah: mal bedeli.' : 'Bu GTİP için İGV uygulanmıyor.',
+    explain: d.igv_pct
+      ? `Çin menşeli eşyaya uygulanan ek vergi (Diğer Ülkeler sütunu). Matrah: mal bedeli. Kaynak: <a href="${IGV_URL}" target="_blank" rel="noopener">İGV Kararı (Karar 3351), Ticaret Bakanlığı</a>`
+      : 'Bu GTİP için İGV uygulanmıyor.',
   }));
 
   const gzNotlar = (hesap?.notlar || []).filter(n => n.includes('Gözetim') || n.includes('gözetim') || n.includes('Beyan edilen birim'));
@@ -338,23 +389,31 @@ function render(d) {
       <div class="sum-tile"><div class="l">Gümrük + İGV</div><div class="v">${fmtPct((d.gumruk_vergisi_pct||0) + (d.igv_pct||0))}</div></div>
       <div class="sum-tile"><div class="l">+ KDV</div><div class="v">${fmtPct(d.kdv_pct)}</div></div>
     </div>
-    <div class="panel bedel-panel">
-      <div class="bedel-field">
-        <label for="malBedeli">Mal Bedeli (Fatura / CIF, USD)</label>
-        <input id="malBedeli" type="number" min="0" step="0.01" placeholder="ör. 10000" inputmode="decimal">
-      </div>
-      <div class="bedel-field" style="max-width:180px;">
-        <label for="miktar">Miktar <span style="text-transform:none;">(gözetim karşılaştırması için, opsiyonel)</span></label>
-        <input id="miktar" type="number" min="0" step="0.01" placeholder="ör. 2500" inputmode="decimal">
-      </div>
-    </div>
     <div class="tax-table" id="taxList"></div>
     <div id="totalArea"></div>
   `;
-  document.getElementById('malBedeli').addEventListener('input', renderTaxRows);
-  document.getElementById('miktar').addEventListener('input', renderTaxRows);
   renderTaxRows();
 }
+
+function checkMenseUlke() {
+  const val = document.getElementById('menseUlke').value;
+  const warnBox = document.getElementById('menseWarn');
+  if (val !== 'CN') {
+    const adSelect = document.getElementById('menseUlke');
+    const ad = adSelect.options[adSelect.selectedIndex].text;
+    warnBox.innerHTML = `<div class="btb-warn" style="margin-top:12px;">⚠ <b>${ad} için henüz veri yok.</b> Sistemde şu an sadece Çin (Diğer Ülkeler sütunu) için gerçek vergi/mevzuat verisi var. Diğer ülkeler zamanla eklenecek — uydurma rakam göstermek yerine sonucu gizliyoruz.</div>`;
+    return false;
+  }
+  warnBox.innerHTML = '';
+  return true;
+}
+document.getElementById('menseUlke').addEventListener('change', () => {
+  checkMenseUlke();
+  if (currentData) renderTaxRows();
+});
+document.getElementById('malBedeli').addEventListener('input', renderTaxRows);
+document.getElementById('miktar').addEventListener('input', renderTaxRows);
+document.getElementById('miktarBirim').addEventListener('change', renderTaxRows);
 
 // Enter tuşuyla tam kod girildiyse doğrudan sorgula
 qInput.addEventListener('keydown', (e) => {
