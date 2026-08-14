@@ -259,3 +259,27 @@ verisi olacak, şu an sadece son sütunu (DÜ/Çin) okuyoruz.
 
 **Ders:** Açık Gümrük'le çapraz doğrulama olmasaydı bu hata fark edilmeyecekti — bu tür
 karşılaştırmalar veri kalitesi için kritik.
+
+## Tarım ürünleri (fasıl 1-24) düzeltmesi + ikinci bug (2026-08-14, devam)
+
+Kullanıcının "hepsini düzelt" talimatı üzerine tarım fasılları da düzeltildi.
+
+**Kaynaklar:** `I Sayılı Liste` (19 sayfa, fasıl 1-24 + 35/45/53), `II Sayılı Liste
+(04-24.Fasıllar)`, `III Sayılı Liste` (işlenmiş tarım), `IV Sayılı Liste` (balıkçılık) —
+hepsinde açık "DÜ" (Diğer Ülkeler) başlıklı sütun var, konumu sayfaya göre dinamik
+bulunuyor (`src/fix_gumruk_vergisi_tarim.py`).
+
+**İkinci bug bulundu ve düzeltildi:** Fasıl 01-09 GTİP'leri bu dosyalarda SAYI (int)
+olarak saklanmış — Excel/openpyxl baştaki sıfırı siler (`0301...` → `301...`, 11 hane).
+Eski `norm()` fonksiyonu bunu SONA sıfır ekleyerek tamamlıyordu (yanlış yön) →
+`030111...` yerine `301110...` gibi hatalı kodlar üretiliyordu, hiçbir GTİP'le
+eşleşmiyordu. Düzeltme: hücre tipi sayısal ise BAŞA sıfır tamamlanıyor.
+
+**Sonuç:** İlk denemede 3.262 satır "işlendi" ama çoğu eşleşmedi (1.602 hâlâ tahmini
+kalmıştı). Bug düzeltildikten sonra: **15.609 / 15.717 GTİP (%99,3) artık gerçek
+kaynaklı.** Kalan 108 kayıt (fasıl 87, 95, 22, 99, 39, 48 vb.) marjinal/özel kodlar —
+muhtemelen TGTC 2026 ile İthalat Rejimi Kararı listeleri arasındaki küçük versiyon
+farkları, "tahmini" rozetiyle işaretli kaldı.
+
+**Ders (tekrar):** Bir düzeltme yaparken bile "işlendi" sayısına güvenmeyip gerçek
+eşleşme oranını kontrol etmek kritik — ilk çalıştırmada sessizce %49 başarısız olmuştu.
