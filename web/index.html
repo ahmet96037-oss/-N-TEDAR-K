@@ -100,6 +100,9 @@
   .tax-row.open .explain{ display:block; }
   .tax-row.open .chev{ transform:rotate(90deg); display:inline-block; }
   .warn{ color: var(--signal-ink); font-family: var(--font-mono); font-size: 11.5px; }
+  .kaynak-link{ display:inline-flex; align-items:center; gap:4px; margin-top:6px; font-family:var(--font-body); font-weight:600; font-size:12.5px; color:var(--accent2-ink); text-decoration:none; }
+  .kaynak-link:hover{ text-decoration:underline; }
+  .kaynak-label{ font-weight:400; color:var(--text-muted); }
   .odeme-secim{ display:flex; align-items:center; gap:7px; font-size:13.5px; color:var(--text); margin-bottom:8px; cursor:pointer; }
   .odeme-secim input{ width:auto; }
   .empty{ color:var(--text-muted); font-size:14px; margin-top:20px; }
@@ -298,9 +301,14 @@ async function renderTaxRows() {
   const amt = v => hesap ? fmtUsd(v) : '';
   const rows = [];
 
-  const TGTC_URL = 'https://ggm.ticaret.gov.tr/duyurular/istatistik-pozisyonlarina-bolunmus-turk-gumruk-tarife-cetveli-karar-sayisi-10781-yayimlanmistir';
-  const IGV_URL = 'https://ticaret.gov.tr/ithalat/ithalat-mevzuati/ithalat-rejimi-karari-igv-karari-ve-ithalat-tebligleri/2-ithalatta-ilave-gumruk-vergisi-uygulanmasina-iliskin-karar-karar-sayisi-3351-karar-metni-ve-tablolar-konsolide-edilmis-olup-gunceldir';
-  const KDV_URL = 'https://ticaret.gov.tr/gumruk-islemleri/mevzuat/tebligler/tarife';
+  // Her kalem, genel bir bakanlık sayfasına değil — gerçek Resmi Gazete yayın sayfasına
+  // ("orijinal kaynağa git") bağlanır. 3350/3351 aynı gün (31.12.2020), aynı mükerrer
+  // sayıda (RG 31351, 3. Mükerrer) art arda yayımlandı — sadece ek sıra numarası farklı.
+  const TGTC_URL = 'https://www.resmigazete.gov.tr/eskiler/2025/12/20251230M1.pdf'; // Karar 10781, RG 30.12.2025/33123, 1. Mükerrer
+  const REJIM_RG_URL = 'https://www.resmigazete.gov.tr/eskiler/2020/12/20201231M3-1.pdf'; // İthalat Rejimi Kararı (Karar 3350), RG 31.12.2020/31351, 3. Mükerrer
+  const IGV_RG_URL = 'https://www.resmigazete.gov.tr/eskiler/2020/12/20201231M3-2.pdf'; // İGV Kararı (Karar 3351), aynı RG sayısı
+  const KDV_URL = 'https://cdn.gib.gov.tr/api/gibportal-file/file/getFile?objectKey=MEVZUAT_TEBLIGLER%2FUNIVERSAL%2F2026%2Fkdv_genteb.pdf'; // KDV Genel Uygulama Tebliği, RG 26.04.2014/28983 — GİB güncel konsolide metin
+  const kaynakLink = (url, label) => `<a class="kaynak-link" href="${url}" target="_blank" rel="noopener">→ Orijinal kaynağa git <span class="kaynak-label">(${label})</span></a>`;
 
   // KKDF, GTİP'e değil ödeme şekline bağlı GENEL bir kural — her GTİP'te aynı,
   // bu yüzden her zaman en üstte, tek bir tık kutusu olarak gösteriliyor.
@@ -312,7 +320,7 @@ async function renderTaxRows() {
       amount: vadeli ? amt(hesap?.kkdf) : '',
       explain: `<span class="warn">GTİP'e değil ödeme şekline bağlı, tüm GTİP'lere uygulanır.</span><br>`
         + `<label class="odeme-secim"><input type="checkbox" id="vadeliChk" ${vadeli ? 'checked' : ''} onclick="event.stopPropagation()" onchange="vadeliState=this.checked; renderTaxRows();"> Vadeli ödeme (kabul kredili / vadeli akreditif / mal mukabili) — işaretlenirse KKDF hesaba katılır</label>`
-        + `${d.kkdf.uygulama_kosulu}. Matrah: mal bedeli. <a href="${d.kkdf.kaynak_url}" target="_blank" rel="noopener">Hukuki dayanak: ${d.kkdf.hukuki_dayanak}</a>`
+        + `${d.kkdf.uygulama_kosulu}. Matrah: mal bedeli. ${kaynakLink(d.kkdf.kaynak_url, d.kkdf.hukuki_dayanak)}`
         + `<br><span class="warn">Ayrıca 2015/7511 sayılı Karar eki listede yer alan bazı hammadde/yatırım malı GTİP'lerinde oran ödeme şekli ne olursa olsun sıfırdır — bu liste henüz sistemimizde değil, teyit edilmeli.</span>`,
     }));
   }
@@ -324,14 +332,14 @@ async function renderTaxRows() {
     badge: gvGercek ? pill('gercek', 'gerçek') : pill('tahmini', 'tahmini'),
     rate: fmtPct(d.gumruk_vergisi_pct), amount: amt(hesap?.gumruk_vergisi),
     explain: gvGercek
-      ? `Temel ithalat vergisi, Diğer Ülkeler sütunu (Çin bu sütuna girer). Matrah: mal bedeli. Kaynak: <a href="${IGV_URL}" target="_blank" rel="noopener">İthalat Rejimi Kararı (Karar 3350) Ek-2, Ticaret Bakanlığı</a>`
-      : `<span class="warn">Bu fasıl (genelde tarım ürünleri, 1-24) henüz İthalat Rejimi Kararı'nın doğru sütunundan doğrulanmadı — TGTC'nin nominal "vergi haddi" değeri gösteriliyor, gerçek uygulanan oran farklı olabilir.</span> Kaynak: <a href="${TGTC_URL}" target="_blank" rel="noopener">2026 TGTC, Ticaret Bakanlığı</a>`,
+      ? `Temel ithalat vergisi, Diğer Ülkeler sütunu (Çin bu sütuna girer). Matrah: mal bedeli. ${kaynakLink(REJIM_RG_URL, 'İthalat Rejimi Kararı, Karar 3350, Ek-2')}`
+      : `<span class="warn">Bu fasıl (genelde tarım ürünleri, 1-24) henüz İthalat Rejimi Kararı'nın doğru sütunundan doğrulanmadı — TGTC'nin nominal "vergi haddi" değeri gösteriliyor, gerçek uygulanan oran farklı olabilir.</span> ${kaynakLink(TGTC_URL, '2026 TGTC, Karar 10781')}`,
   }));
 
   if (d.igv_pct) rows.push(taxRow({
     id: 'igv', dotClass: 'dot-igv', name: 'İlave Gümrük Vergisi',
     rate: fmtPct(d.igv_pct), amount: amt(hesap?.igv),
-    explain: `Çin menşeli eşyaya uygulanan ek vergi (Diğer Ülkeler sütunu). Matrah: mal bedeli. Kaynak: <a href="${IGV_URL}" target="_blank" rel="noopener">İGV Kararı (Karar 3351), Ticaret Bakanlığı</a>`,
+    explain: `Çin menşeli eşyaya uygulanan ek vergi (Diğer Ülkeler sütunu). Matrah: mal bedeli. ${kaynakLink(IGV_RG_URL, 'İGV Kararı, Karar 3351')}`,
   }));
 
   if (d.gozetim) {
@@ -341,7 +349,7 @@ async function renderTaxRows() {
       badge: pill('kosullu', 'eşik'),
       rate: `$${d.gozetim.referans_deger}/${d.gozetim.birim}`,
       amount: '',
-      explain: `Bu bir vergi değil, $/${d.gozetim.birim} bazlı bir referans birim değer: beyan edilen birim değer bu referansın altındaysa, aşağıdaki tüm vergiler (gümrük vergisi/İGV/damping/KDV) beyan bedeli yerine <b>referans değer × miktar</b> üzerinden hesaplanır. Kaynak: <a href="${d.gozetim.kaynak_url}" target="_blank" rel="noopener">${d.gozetim.tebligno}</a>`
+      explain: `Bu bir vergi değil, $/${d.gozetim.birim} bazlı bir referans birim değer: beyan edilen birim değer bu referansın altındaysa, aşağıdaki tüm vergiler (gümrük vergisi/İGV/damping/KDV) beyan bedeli yerine <b>referans değer × miktar</b> üzerinden hesaplanır. ${kaynakLink(d.gozetim.kaynak_url, d.gozetim.tebligno)}`
         + (gzNotlar.length ? '<br>' + gzNotlar.map(n => `<span class="warn">${n}</span>`).join('<br>') : (miktar ? '' : '<br><span class="warn">Karşılaştırma için yukarıda "Miktar" gir.</span>')),
     }));
   }
@@ -353,7 +361,7 @@ async function renderTaxRows() {
     badge: dampingHasRate ? pill('gercek', 'gerçek') : pill('kosullu', 'oran yok'),
     rate: dampingHasRate ? d.damping.map(x => x.oran_pct != null ? fmtPct(x.oran_pct) : (x.sabit_tutar + ' ' + (x.birim || ''))).join(' / ') : d.damping.length + ' kayıt',
     amount: dampingHasRate ? amt(hesap?.damping) : '',
-    explain: d.damping.map(x => `<b>${x.mense_ulke}</b>${x.oran_pct != null ? ': ' + fmtPct(x.oran_pct) + ' (CIF üzerinden)' : ''} — <a href="${x.kaynak_url}" target="_blank" rel="noopener">${x.tebligno}</a>${x.oran_pct == null ? ' <span class="warn">(oran henüz veritabanında yok, orijinal tebliğ teyit edilmeli)</span>' : ''}`).join('<br>') + (dampingHasRate ? '<br><span class="warn">Toplamda, kayıtlı en yüksek oran kullanıldı — gerçek oran üretici/ihracatçıya göre değişir.</span>' : ''),
+    explain: d.damping.map(x => `<b>${x.mense_ulke}</b>${x.oran_pct != null ? ': ' + fmtPct(x.oran_pct) + ' (CIF üzerinden)' : ''} — ${kaynakLink(x.kaynak_url, x.tebligno)}${x.oran_pct == null ? ' <span class="warn">(oran henüz veritabanında yok, orijinal tebliğ teyit edilmeli)</span>' : ''}`).join('<br>') + (dampingHasRate ? '<br><span class="warn">Toplamda, kayıtlı en yüksek oran kullanıldı — gerçek oran üretici/ihracatçıya göre değişir.</span>' : ''),
   }));
 
   const kdvBadge = {
@@ -374,7 +382,7 @@ async function renderTaxRows() {
     id: 'kdv', dotClass: 'dot-kdv', name: 'KDV',
     badge: kdvBadge,
     rate: fmtPct(d.kdv_pct), amount: amt(hesap?.kdv),
-    explain: kdvExplain + ' Matrah: mal bedeli + gümrük vergisi + İGV + damping.',
+    explain: kdvExplain + ` Matrah: mal bedeli + gümrük vergisi + İGV + damping. ${kaynakLink(KDV_URL, 'KDV Genel Uygulama Tebliği')}`,
   }));
 
   const uygunlukVar = d.uygunluk_belgeleri && d.uygunluk_belgeleri.length > 0;
@@ -383,7 +391,7 @@ async function renderTaxRows() {
     badge: pill('gercek', 'gerekli'),
     rate: d.uygunluk_belgeleri.map(u => u.kategori).filter((v, i, a) => a.indexOf(v) === i).join(', '),
     amount: '',
-    explain: d.uygunluk_belgeleri.map(u => `<b>${u.kategori}</b> — ${u.madde_ismi} — <a href="${u.kaynak_url}" target="_blank" rel="noopener">${u.teblig_no}</a>`).join('<br>') +
+    explain: d.uygunluk_belgeleri.map(u => `<b>${u.kategori}</b> — ${u.madde_ismi} — ${kaynakLink(u.kaynak_url, u.teblig_no)}`).join('<br>') +
         (d.gerekli_belgeler && d.gerekli_belgeler.length ? '<br><br><b>Gerekli belgeler:</b><br>' + d.gerekli_belgeler.map(b => b.belgeler).join('<br>') : ''),
   }));
 
