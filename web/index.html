@@ -285,8 +285,23 @@ async function renderTaxRows() {
   const IGV_URL = 'https://ticaret.gov.tr/ithalat/ithalat-mevzuati/ithalat-rejimi-karari-igv-karari-ve-ithalat-tebligleri/2-ithalatta-ilave-gumruk-vergisi-uygulanmasina-iliskin-karar-karar-sayisi-3351-karar-metni-ve-tablolar-konsolide-edilmis-olup-gunceldir';
   const KDV_URL = 'https://ticaret.gov.tr/gumruk-islemleri/mevzuat/tebligler/tarife';
 
+  // KKDF, GTİP'e değil ödeme şekline bağlı GENEL bir kural — her GTİP'te aynı,
+  // bu yüzden her zaman en üstte, tek bir tık kutusu olarak gösteriliyor.
+  if (d.kkdf) {
+    rows.push(taxRow({
+      id: 'kkdf', dotClass: 'dot-kkdf', name: 'KKDF (opsiyon — ödeme şekline bağlı)', active: vadeli,
+      badge: pill('kosullu', 'tüm GTİP\'lere uygulanır'),
+      rate: vadeli ? fmtPct(d.kkdf.oran_pct) : 'Peşinde yok',
+      amount: vadeli ? amt(hesap?.kkdf) : '',
+      explain: `<label class="odeme-secim"><input type="checkbox" id="vadeliChk" ${vadeli ? 'checked' : ''} onclick="event.stopPropagation()" onchange="vadeliState=this.checked; renderTaxRows();"> Vadeli ödeme (kabul kredili / vadeli akreditif / mal mukabili) — işaretlenirse KKDF hesaba katılır</label>`
+        + `${d.kkdf.uygulama_kosulu}. Matrah: mal bedeli. <a href="${d.kkdf.kaynak_url}" target="_blank" rel="noopener">Hukuki dayanak: ${d.kkdf.hukuki_dayanak}</a>`
+        + `<br><span class="warn">Ayrıca 2015/7511 sayılı Karar eki listede yer alan bazı hammadde/yatırım malı GTİP'lerinde oran ödeme şekli ne olursa olsun sıfırdır — bu liste henüz sistemimizde değil, teyit edilmeli.</span>`,
+    }));
+  }
+
   const gvGercek = d.gumruk_vergisi_guvenilirlik === 'ithalat_rejimi_ek2_du';
-  rows.push(taxRow({
+  const gvVar = d.gumruk_vergisi_pct != null && d.gumruk_vergisi_pct > 0;
+  if (gvVar) rows.push(taxRow({
     id: 'gv', dotClass: 'dot-duty', name: 'Gümrük Vergisi',
     badge: gvGercek ? pill('gercek', 'gerçek') : pill('tahmini', 'tahmini'),
     rate: fmtPct(d.gumruk_vergisi_pct), amount: amt(hesap?.gumruk_vergisi),
@@ -295,38 +310,32 @@ async function renderTaxRows() {
       : `<span class="warn">Bu fasıl (genelde tarım ürünleri, 1-24) henüz İthalat Rejimi Kararı'nın doğru sütunundan doğrulanmadı — TGTC'nin nominal "vergi haddi" değeri gösteriliyor, gerçek uygulanan oran farklı olabilir.</span> Kaynak: <a href="${TGTC_URL}" target="_blank" rel="noopener">2026 TGTC, Ticaret Bakanlığı</a>`,
   }));
 
-  rows.push(taxRow({
-    id: 'igv', dotClass: 'dot-igv', name: 'İlave Gümrük Vergisi', active: !!d.igv_pct,
-    rate: d.igv_pct ? fmtPct(d.igv_pct) : 'Yok', amount: d.igv_pct ? amt(hesap?.igv) : '',
-    explain: d.igv_pct
-      ? `Çin menşeli eşyaya uygulanan ek vergi (Diğer Ülkeler sütunu). Matrah: mal bedeli. Kaynak: <a href="${IGV_URL}" target="_blank" rel="noopener">İGV Kararı (Karar 3351), Ticaret Bakanlığı</a>`
-      : 'Bu GTİP için İGV uygulanmıyor.',
+  if (d.igv_pct) rows.push(taxRow({
+    id: 'igv', dotClass: 'dot-igv', name: 'İlave Gümrük Vergisi',
+    rate: fmtPct(d.igv_pct), amount: amt(hesap?.igv),
+    explain: `Çin menşeli eşyaya uygulanan ek vergi (Diğer Ülkeler sütunu). Matrah: mal bedeli. Kaynak: <a href="${IGV_URL}" target="_blank" rel="noopener">İGV Kararı (Karar 3351), Ticaret Bakanlığı</a>`,
   }));
 
-  const gzNotlar = (hesap?.notlar || []).filter(n => n.includes('Gözetim') || n.includes('gözetim') || n.includes('Beyan edilen birim'));
-  rows.push(taxRow({
-    id: 'gz', dotClass: 'dot-gozetim', name: 'Gözetim (Referans Değer)', active: !!d.gozetim,
-    badge: d.gozetim ? pill('kosullu', 'eşik') : pill('bilinmiyor', 'bilinmiyor'),
-    rate: d.gozetim ? `$${d.gozetim.referans_deger}/${d.gozetim.birim}` : '—',
-    amount: '',
-    explain: d.gozetim
-      ? `Bu bir vergi değil, $/${d.gozetim.birim} bazlı bir referans birim değer: beyan edilen birim değer bu referansın altındaysa, aşağıdaki tüm vergiler (gümrük vergisi/İGV/damping/KDV) beyan bedeli yerine <b>referans değer × miktar</b> üzerinden hesaplanır. Kaynak: <a href="${d.gozetim.kaynak_url}" target="_blank" rel="noopener">${d.gozetim.tebligno}</a>`
-        + (gzNotlar.length ? '<br>' + gzNotlar.map(n => `<span class="warn">${n}</span>`).join('<br>') : (miktar ? '' : '<br><span class="warn">Karşılaştırma için yukarıda "Miktar" gir.</span>'))
-      : 'Bu GTİP için gözetim veritabanımızda henüz kayıt yok — "bilinmiyor" anlamına gelir, kesin olarak "yok" değil. Ticaret Bakanlığı TARA üzerinden teyit edilmeli.',
-  }));
+  if (d.gozetim) {
+    const gzNotlar = (hesap?.notlar || []).filter(n => n.includes('Gözetim') || n.includes('gözetim') || n.includes('Beyan edilen birim'));
+    rows.push(taxRow({
+      id: 'gz', dotClass: 'dot-gozetim', name: 'Gözetim (Referans Değer)',
+      badge: pill('kosullu', 'eşik'),
+      rate: `$${d.gozetim.referans_deger}/${d.gozetim.birim}`,
+      amount: '',
+      explain: `Bu bir vergi değil, $/${d.gozetim.birim} bazlı bir referans birim değer: beyan edilen birim değer bu referansın altındaysa, aşağıdaki tüm vergiler (gümrük vergisi/İGV/damping/KDV) beyan bedeli yerine <b>referans değer × miktar</b> üzerinden hesaplanır. Kaynak: <a href="${d.gozetim.kaynak_url}" target="_blank" rel="noopener">${d.gozetim.tebligno}</a>`
+        + (gzNotlar.length ? '<br>' + gzNotlar.map(n => `<span class="warn">${n}</span>`).join('<br>') : (miktar ? '' : '<br><span class="warn">Karşılaştırma için yukarıda "Miktar" gir.</span>')),
+    }));
+  }
 
   const dampingActive = d.damping && d.damping.length > 0;
   const dampingHasRate = dampingActive && d.damping.some(x => x.oran_pct != null || x.sabit_tutar != null);
-  rows.push(taxRow({
-    id: 'dp', dotClass: 'dot-damping', name: 'Dampinge Karşı Vergi', active: dampingActive,
-    badge: dampingActive && !dampingHasRate ? pill('kosullu', 'oran yok') : (dampingActive ? pill('gercek', 'gerçek') : pill('bilinmiyor', 'bilinmiyor')),
-    rate: dampingActive
-      ? (dampingHasRate ? d.damping.map(x => x.oran_pct != null ? fmtPct(x.oran_pct) : (x.sabit_tutar + ' ' + (x.birim || ''))).join(' / ') : d.damping.length + ' kayıt')
-      : '—',
+  if (dampingActive) rows.push(taxRow({
+    id: 'dp', dotClass: 'dot-damping', name: 'Dampinge Karşı Vergi',
+    badge: dampingHasRate ? pill('gercek', 'gerçek') : pill('kosullu', 'oran yok'),
+    rate: dampingHasRate ? d.damping.map(x => x.oran_pct != null ? fmtPct(x.oran_pct) : (x.sabit_tutar + ' ' + (x.birim || ''))).join(' / ') : d.damping.length + ' kayıt',
     amount: dampingHasRate ? amt(hesap?.damping) : '',
-    explain: dampingActive
-      ? d.damping.map(x => `<b>${x.mense_ulke}</b>${x.oran_pct != null ? ': ' + fmtPct(x.oran_pct) + ' (CIF üzerinden)' : ''} — <a href="${x.kaynak_url}" target="_blank" rel="noopener">${x.tebligno}</a>${x.oran_pct == null ? ' <span class="warn">(oran henüz veritabanında yok, orijinal tebliğ teyit edilmeli)</span>' : ''}`).join('<br>') + (dampingHasRate ? '<br><span class="warn">Toplamda, kayıtlı en yüksek oran kullanıldı — gerçek oran üretici/ihracatçıya göre değişir.</span>' : '')
-      : 'Bu GTİP için damping veritabanımızda henüz kayıt yok — "bilinmiyor" anlamına gelir, kesin olarak "yok" değil.',
+    explain: d.damping.map(x => `<b>${x.mense_ulke}</b>${x.oran_pct != null ? ': ' + fmtPct(x.oran_pct) + ' (CIF üzerinden)' : ''} — <a href="${x.kaynak_url}" target="_blank" rel="noopener">${x.tebligno}</a>${x.oran_pct == null ? ' <span class="warn">(oran henüz veritabanında yok, orijinal tebliğ teyit edilmeli)</span>' : ''}`).join('<br>') + (dampingHasRate ? '<br><span class="warn">Toplamda, kayıtlı en yüksek oran kullanıldı — gerçek oran üretici/ihracatçıya göre değişir.</span>' : ''),
   }));
 
   const kdvBadge = {
@@ -350,28 +359,14 @@ async function renderTaxRows() {
     explain: kdvExplain + ' Matrah: mal bedeli + gümrük vergisi + İGV + damping.',
   }));
 
-  if (d.kkdf) {
-    rows.push(taxRow({
-      id: 'kkdf', dotClass: 'dot-kkdf', name: 'KKDF', active: vadeli,
-      badge: pill('kosullu', 'koşula tabi'),
-      rate: vadeli ? fmtPct(d.kkdf.oran_pct) : 'Peşinde yok',
-      amount: vadeli ? amt(hesap?.kkdf) : '',
-      explain: `<label class="odeme-secim"><input type="checkbox" id="vadeliChk" ${vadeli ? 'checked' : ''} onclick="event.stopPropagation()" onchange="vadeliState=this.checked; renderTaxRows();"> Vadeli ödeme (kabul kredili / vadeli akreditif / mal mukabili) — işaretlenirse KKDF hesaba katılır</label>`
-        + `${d.kkdf.uygulama_kosulu}. Matrah: mal bedeli. <a href="${d.kkdf.kaynak_url}" target="_blank" rel="noopener">Hukuki dayanak: ${d.kkdf.hukuki_dayanak}</a>`
-        + `<br><span class="warn">Ayrıca 2015/7511 sayılı Karar eki listede yer alan bazı hammadde/yatırım malı GTİP'lerinde oran ödeme şekli ne olursa olsun sıfırdır — bu liste henüz sistemimizde değil, teyit edilmeli.</span>`,
-    }));
-  }
-
   const uygunlukVar = d.uygunluk_belgeleri && d.uygunluk_belgeleri.length > 0;
-  rows.push(taxRow({
-    id: 'ug', dotClass: 'dot-uygunluk', name: 'Uygunluk / İthalat Denetimi', active: uygunlukVar,
-    badge: uygunlukVar ? pill('gercek', 'gerekli') : pill('bilinmiyor', 'taranmadı'),
-    rate: uygunlukVar ? d.uygunluk_belgeleri.map(u => u.kategori).filter((v, i, a) => a.indexOf(v) === i).join(', ') : '—',
+  if (uygunlukVar) rows.push(taxRow({
+    id: 'ug', dotClass: 'dot-uygunluk', name: 'Uygunluk / İthalat Denetimi',
+    badge: pill('gercek', 'gerekli'),
+    rate: d.uygunluk_belgeleri.map(u => u.kategori).filter((v, i, a) => a.indexOf(v) === i).join(', '),
     amount: '',
-    explain: uygunlukVar
-      ? d.uygunluk_belgeleri.map(u => `<b>${u.kategori}</b> — ${u.madde_ismi} — <a href="${u.kaynak_url}" target="_blank" rel="noopener">${u.teblig_no}</a>`).join('<br>') +
-        (d.gerekli_belgeler && d.gerekli_belgeler.length ? '<br><br><b>Gerekli belgeler:</b><br>' + d.gerekli_belgeler.map(b => b.belgeler).join('<br>') : '')
-      : 'Bu GTİP, şu ana kadar taranmış uygunluk denetimi tebliğlerinde bulunmadı. <span class="warn">Sistem henüz tüm ÜGD tebliğlerini (CE, Tarım, Sağlık, Tekstil vb.) taramadı — "yok" değil, "henüz taranmadı" anlamına gelir.</span>',
+    explain: d.uygunluk_belgeleri.map(u => `<b>${u.kategori}</b> — ${u.madde_ismi} — <a href="${u.kaynak_url}" target="_blank" rel="noopener">${u.teblig_no}</a>`).join('<br>') +
+        (d.gerekli_belgeler && d.gerekli_belgeler.length ? '<br><br><b>Gerekli belgeler:</b><br>' + d.gerekli_belgeler.map(b => b.belgeler).join('<br>') : ''),
   }));
 
   const gvSupheliUyari = !gvGercek
