@@ -27,6 +27,7 @@ class HesapSonucu:
     igv: float
     damping_oran_pct: Optional[float]
     damping: float
+    otv: float
     kdv_matrah: float
     kdv: float
     kkdf: float
@@ -43,6 +44,7 @@ class HesapSonucu:
             "igv": round(self.igv, 2),
             "damping_oran_pct": self.damping_oran_pct,
             "damping": round(self.damping, 2),
+            "otv": round(self.otv, 2),
             "kdv_matrah": round(self.kdv_matrah, 2),
             "kdv": round(self.kdv, 2),
             "kkdf": round(self.kkdf, 2),
@@ -132,7 +134,31 @@ def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool, miktar: float = N
         )
     damping = (matrah * damping_oran / 100) if damping_oran is not None else 0
 
-    kdv_matrah = matrah + gumruk_vergisi + igv + damping
+    # ÖTV: matrahı gümrük kıymeti + gümrük vergisidir (4760 sayılı Kanun madde 11/2),
+    # KDV'den ÖNCE hesaplanır ve KDV matrahına dahil olur.
+    otv = 0.0
+    otv_bilgi = gtip_detay.get("otv")
+    if otv_bilgi:
+        otv_matrah = matrah + gumruk_vergisi
+        if otv_bilgi.get("oran_pct") is not None:
+            otv = otv_matrah * otv_bilgi["oran_pct"] / 100
+        elif otv_bilgi.get("sabit_tutar") is not None:
+            kg = _kg_esdegeri(miktar, miktar_birim)
+            if kg is not None:
+                otv = otv_bilgi["sabit_tutar"] * kg
+            else:
+                notlar.append(
+                    "⚠ Bu GTİP'te sabit tutarlı ÖTV var ama miktar/birim (kg) girilmedi — "
+                    "ÖTV toplama dahil edilemedi."
+                )
+        if otv_bilgi.get("guvenilirlik") == "kaynak_tarihi_belirsiz":
+            notlar.append(
+                f"⚠ ÖTV oranı (%{otv_bilgi.get('oran_pct')}) kaynağının güncelliği "
+                f"doğrulanmadı — bazı ÖTV oranları (özellikle elektronik/telekom ürünlerinde) "
+                f"sık değişiyor, resmi kaynaktan teyit edilmeden kullanılmamalı."
+            )
+
+    kdv_matrah = matrah + gumruk_vergisi + igv + damping + otv
     kdv_pct = gtip_detay.get("kdv_pct") or 0
     kdv = kdv_matrah * kdv_pct / 100
     if gtip_detay.get("kdv_guvenilirlik") in ("varsayilan_genel_oran", "yaklasik"):
@@ -149,7 +175,7 @@ def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool, miktar: float = N
             "sistemde değil — bu GTİP o listede olabilir, teyit edilmeli."
         )
 
-    toplam = gumruk_vergisi + igv + damping + kdv + kkdf
+    toplam = gumruk_vergisi + igv + damping + otv + kdv + kkdf
 
     return HesapSonucu(
         mal_bedeli=b,
@@ -160,6 +186,7 @@ def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool, miktar: float = N
         igv=igv,
         damping_oran_pct=damping_oran,
         damping=damping,
+        otv=otv,
         kdv_matrah=kdv_matrah,
         kdv=kdv,
         kkdf=kkdf,

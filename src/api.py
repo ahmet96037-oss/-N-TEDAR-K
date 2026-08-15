@@ -69,6 +69,14 @@ def gtip_detay(kod: str):
         "SELECT * FROM kkdf_rules WHERE valid_to IS NULL LIMIT 1"
     ).fetchone()
 
+    # ÖTV: en spesifik (en uzun) GTİP prefiksi kazanır — KDV motorundaki mantığın aynısı.
+    otv = None
+    otv_rows = conn.execute("SELECT * FROM otv_kurallari ORDER BY LENGTH(gtip_prefix) DESC").fetchall()
+    for r in otv_rows:
+        if code.startswith(r["gtip_prefix"]):
+            otv = r
+            break
+
     uygunluk = conn.execute(
         "SELECT * FROM product_safety_rules WHERE gtip12 = ? AND valid_to IS NULL", (code,)
     ).fetchall()
@@ -124,6 +132,15 @@ def gtip_detay(kod: str):
             "hukuki_dayanak": kkdf["legal_basis"],
             "kaynak_url": kkdf["source_url"],
         } if kkdf else None,
+        "otv": {
+            "liste": otv["liste"],
+            "oran_pct": otv["oran_pct"],
+            "sabit_tutar": otv["sabit_tutar"],
+            "birim": otv["birim"],
+            "aciklama": otv["aciklama"],
+            "kaynak": otv["kaynak"],
+            "guvenilirlik": otv["guvenilirlik"],
+        } if otv else None,
         "uygunluk_belgeleri": [
             {
                 "kategori": u["category"],

@@ -342,6 +342,19 @@ async function renderTaxRows() {
     explain: `Çin menşeli eşyaya uygulanan ek vergi (Diğer Ülkeler sütunu). Matrah: mal bedeli. ${kaynakLink(IGV_RG_URL, 'İGV Kararı, Karar 3351')}`,
   }));
 
+  if (d.otv) {
+    const otvBelirsiz = d.otv.guvenilirlik === 'kaynak_tarihi_belirsiz';
+    rows.push(taxRow({
+      id: 'otv', dotClass: 'dot-igv', name: 'ÖTV',
+      badge: otvBelirsiz ? pill('kosullu', 'tarih doğrulanmadı') : pill('gercek', 'gerçek'),
+      rate: d.otv.oran_pct != null ? fmtPct(d.otv.oran_pct) : `${d.otv.sabit_tutar} ${d.otv.birim || ''}`,
+      amount: amt(hesap?.otv),
+      explain: `<b>${d.otv.aciklama}</b> (Liste ${d.otv.liste}). Matrah: mal bedeli + gümrük vergisi.`
+        + (otvBelirsiz ? `<br><span class="warn">⚠ Bu oranın güncelliği doğrulanmadı — bazı ÖTV oranları (özellikle elektronik/telekom) sık değişiyor. Resmi kaynaktan teyit etmeden kullanma.</span>` : '')
+        + `<br>${kaynakLink('https://www.mevzuat.gov.tr/mevzuatmetin/1.5.4760.pdf', '4760 sayılı ÖTV Kanunu')}`,
+    }));
+  }
+
   if (d.gozetim) {
     const gzNotlar = (hesap?.notlar || []).filter(n => n.includes('Gözetim') || n.includes('gözetim') || n.includes('Beyan edilen birim'));
     rows.push(taxRow({
@@ -408,12 +421,15 @@ async function renderTaxRows() {
     cakismali_kaynak: `⚠ Toplama dahil edilen KDV (%${d.kdv_pct}) kaynakta çelişkili bulundu, teyit edilmeden kesin sayılmamalı.`,
     varsayilan_genel_oran: `⚠ Toplama dahil edilen KDV (%${d.kdv_pct}) bu GTİP için doğrudan kaynak eşleşmesi değil, genel oran varsayımı — en ufak şüphede resmi kaynaktan teyit edin.`,
   }[d.kdv_guvenilirlik] : '';
+  const otvSupheliUyari = (d.otv && d.otv.guvenilirlik === 'kaynak_tarihi_belirsiz')
+    ? `⚠ Toplama dahil edilen ÖTV (%${d.otv.oran_pct}) kaynağının güncelliği doğrulanmadı — resmi kaynaktan teyit edin.`
+    : '';
   const totalHtml = hesap ? `
     <div class="total-row">
       <div class="l">Toplam Vergi Yükü</div>
       <div class="v">${fmtUsd(hesap.toplam_vergi)}</div>
     </div>
-    <div class="total-note">Mal bedeli $${bedel.toLocaleString('tr-TR')} üzerinden, CIF = mal bedeli varsayımıyla (navlun/sigorta hariçse gerçek CIF farklı olabilir).${hesap.gozetim_yukseltildi ? ` <span class="warn">Gözetim eşiği nedeniyle vergi matrahı $${hesap.vergi_matrahi.toLocaleString('tr-TR')}'ye yükseltilerek hesaplandı.</span>` : ''}${gvSupheliUyari ? ` <span class="warn">${gvSupheliUyari}</span>` : ''}${kdvSupheliUyari ? ` <span class="warn">${kdvSupheliUyari}</span>` : ''}${dampingSupheliUyari ? ` <span class="warn">${dampingSupheliUyari}</span>` : ''} Nihai beyan öncesi gümrük müşaviri teyidi gerekir.</div>
+    <div class="total-note">Mal bedeli $${bedel.toLocaleString('tr-TR')} üzerinden, CIF = mal bedeli varsayımıyla (navlun/sigorta hariçse gerçek CIF farklı olabilir).${hesap.gozetim_yukseltildi ? ` <span class="warn">Gözetim eşiği nedeniyle vergi matrahı $${hesap.vergi_matrahi.toLocaleString('tr-TR')}'ye yükseltilerek hesaplandı.</span>` : ''}${gvSupheliUyari ? ` <span class="warn">${gvSupheliUyari}</span>` : ''}${otvSupheliUyari ? ` <span class="warn">${otvSupheliUyari}</span>` : ''}${kdvSupheliUyari ? ` <span class="warn">${kdvSupheliUyari}</span>` : ''}${dampingSupheliUyari ? ` <span class="warn">${dampingSupheliUyari}</span>` : ''} Nihai beyan öncesi gümrük müşaviri teyidi gerekir.</div>
   ` : '';
 
   document.getElementById('taxList').innerHTML = `
