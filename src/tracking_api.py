@@ -18,12 +18,17 @@ import os
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, HTTPException, Header, UploadFile, File, Form
 from pydantic import BaseModel
 
 from src.db import db
 
 router = APIRouter(prefix="/api/tk")
+
+# Belgeler (konşimento, fatura vb.) sunucunun yerel diskinde saklanıyor —
+# ayrı bir dosya depolama servisi (S3 vb.) bu aşamada gereksiz karmaşıklık.
+BELGE_DIZINI = os.path.join(os.path.dirname(__file__), "..", "uploads", "belgeler")
+os.makedirs(BELGE_DIZINI, exist_ok=True)
 
 # ---- Durum akışı — sunumdaki Bölüm 07-08'in genişletilmiş hâli ----
 # Ana lineer akış: numune ve üretim onay/ödeme aşamaları ayrıştırıldı, gümrük
@@ -332,3 +337,54 @@ def admin_belge_ekle(siparis_no: str, istek: BelgeEkleIstek, authorization: str 
     )
     conn._conn.commit()
     return {"ok": True}
+
+
+@router.post("/admin/siparis/{siparis_no}/belge-yukle")
+async def admin_belge_yukle(
+    siparis_no: str,
+    dosya: UploadFile = File(...),
+    belge_tipi: str = Form(...),
+    aciklama: str | None = Form(None),
+    authorization: str = Header(None),
+):
+    """Gerçek dosya yükleme — admin panelinden doğrudan konşimento/fatura vb. dosyayı
+    seçip yükler, elle URL girmeye gerek kalmaz. Dosya sunucunun /uploads dizinine
+    rastgele adla kaydedilir, orijinal ad ayrı sütunda tutulur."""
+    conn, _ = _admin_dogrula(authorization)
+    siparis = conn.execute("SELECT id FROM tk_siparisler WHERE siparis_no = ?", (siparis_no,)).fetchone()
+    if not siparis:
+        raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
+
+    icerik = await dosya.read()
+    if len(icerik) > 20 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Dosya 20 MB sınırını aşıyor")
+
+    uzanti = os.path.splitext(dosya.filename or "")[1][:10]
+    guvenli_ad = f"{siparis_no}_{secrets.token_hex(8)}{uzanti}"
+    hedef_yol = os.path.join(BELGE_DIZINI, guvenli_ad)
+    with open(hedef_yol, "wb") as f:
+        f.write(icerik)
+
+    dosya_url = f"/api/tk/belge-indir/{guvenli_ad}"
+    conn.execute(
+        "INSERT INTO tk_belgeler (siparis_id, belge_tipi, dosya_adi, dosya_url, aciklama) VALUES (?, ?, ?, ?, ?)",
+        (siparis["id"], belge_tipi, dosya.filename or guvenli_ad, dosya_url, aciklama),
+    )
+    conn._conn.commit()
+    return {"ok": True, "dosya_url": dosya_url}
+
+
+@router.get("/belge-indir/{dosya_adi}")
+def belge_indir(dosya_adi: str):
+    """Yüklenen belgeyi indirir. Basit <a href> linkiyle çalışması için (Authorization
+    header'ı olmadan) korumasız bırakıldı — güvenlik dosya adındaki 16 hex karakterlik
+    rastgele token'a dayanıyor (secrets.token_hex(8) = 2^64 olasılık), tahmin edilemez.
+    Sipariş numarası önekte görünse de kalan kısım kaba kuvvetle bulunamaz."""
+    from fastapi.responses import FileResponse
+
+    # Path traversal koruması: sadece dosya adı bileşeni kabul edilir.
+    guvenli_ad = os.path.basename(dosya_adi)
+    yol = os.path.join(BELGE_DIZINI, guvenli_ad)
+    if not os.path.isfile(yol):
+        raise HTTPException(status_code=404, detail="Belge bulunamadı")
+    return FileResponse(yol)

@@ -7,3 +7,5 @@ data/raw/*.html
 __pycache__/
 *.pyc
 .claude/settings.local.json
+uploads/belgeler/*
+!uploads/belgeler/.gitkeep

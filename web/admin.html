@@ -157,11 +157,10 @@ async function detayYukle(siparisNo) {
       <h2>Belge Ekle</h2>
       <div class="row2">
         <div><label>Belge tipi</label><input id="belgeTipi" placeholder="ör. Konşimento"></div>
-        <div><label>Dosya adı</label><input id="belgeAdi" placeholder="ör. BL_2026001.pdf"></div>
+        <div><label>Dosya</label><input id="belgeDosya" type="file"></div>
       </div>
-      <label>Dosya URL</label><input id="belgeUrl" placeholder="https://...">
       <label>Açıklama (opsiyonel)</label><input id="belgeAciklama">
-      <button class="primary" onclick="belgeEkle('${d.siparis_no}')">Belge Ekle</button>
+      <button class="primary" onclick="belgeEkle('${d.siparis_no}')" id="belgeEkleBtn">Belgeyi Yükle</button>
     </div>
     <div class="panel">
       <h2>Mevcut Belgeler</h2>
@@ -186,14 +185,24 @@ async function durumGuncelle(siparisNo) {
 
 async function belgeEkle(siparisNo) {
   const belge_tipi = document.getElementById('belgeTipi').value.trim();
-  const dosya_adi = document.getElementById('belgeAdi').value.trim();
-  const dosya_url = document.getElementById('belgeUrl').value.trim();
+  const dosyaInput = document.getElementById('belgeDosya');
+  const dosya = dosyaInput.files[0];
   const aciklama = document.getElementById('belgeAciklama').value.trim() || null;
-  if (!belge_tipi || !dosya_adi || !dosya_url) { alert('Belge tipi, dosya adı ve URL zorunlu.'); return; }
-  await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/belge', {
-    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-    body: JSON.stringify({belge_tipi, dosya_adi, dosya_url, aciklama})
-  });
+  if (!belge_tipi || !dosya) { alert('Belge tipi ve dosya seçimi zorunlu.'); return; }
+  const btn = document.getElementById('belgeEkleBtn');
+  btn.disabled = true; btn.textContent = 'Yükleniyor...';
+  const form = new FormData();
+  form.append('dosya', dosya);
+  form.append('belge_tipi', belge_tipi);
+  if (aciklama) form.append('aciklama', aciklama);
+  try {
+    const res = await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/belge-yukle', {
+      method:'POST', headers:{'Authorization':'Bearer '+token}, body: form
+    });
+    if (!res.ok) { const e = await res.json().catch(()=>({})); alert('Yükleme başarısız: ' + (e.detail||res.status)); return; }
+  } finally {
+    btn.disabled = false; btn.textContent = 'Belgeyi Yükle';
+  }
   detayYukle(siparisNo);
 }
 
