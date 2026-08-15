@@ -77,6 +77,13 @@ def gtip_detay(kod: str):
             otv = r
             break
 
+    trt = None
+    trt_rows = conn.execute("SELECT * FROM trt_bandrol_kurallari ORDER BY LENGTH(gtip_prefix) DESC").fetchall()
+    for r in trt_rows:
+        if code.startswith(r["gtip_prefix"]):
+            trt = r
+            break
+
     uygunluk = conn.execute(
         "SELECT * FROM product_safety_rules WHERE gtip12 = ? AND valid_to IS NULL", (code,)
     ).fetchall()
@@ -141,6 +148,11 @@ def gtip_detay(kod: str):
             "kaynak": otv["kaynak"],
             "guvenilirlik": otv["guvenilirlik"],
         } if otv else None,
+        "trt": {
+            "oran_pct": trt["oran_pct"],
+            "cihaz_cinsi": trt["cihaz_cinsi"],
+            "kaynak": trt["kaynak"],
+        } if trt else None,
         "uygunluk_belgeleri": [
             {
                 "kategori": u["category"],

@@ -342,6 +342,14 @@ async function renderTaxRows() {
     explain: `Çin menşeli eşyaya uygulanan ek vergi (Diğer Ülkeler sütunu). Matrah: mal bedeli. ${kaynakLink(IGV_RG_URL, 'İGV Kararı, Karar 3351')}`,
   }));
 
+  if (d.trt) rows.push(taxRow({
+    id: 'trt', dotClass: 'dot-igv', name: 'TRT Bandrolü',
+    badge: pill('kosullu', 'cihaz özelliğine bağlı'),
+    rate: fmtPct(d.trt.oran_pct), amount: amt(hesap?.trt),
+    explain: `<b>${d.trt.cihaz_cinsi}</b>. Matrah: mal bedeli. Tek seferlik, cihazın SIM kart/radyo-TV yayını alma özelliğine bağlı — eşya bu tanıma uymuyorsa uygulanmaz.`
+      + `<br>${kaynakLink('https://www.trt.net.tr/bandrol/mevzuat/2015-7757-sayili-bakanlar-kurulu-karari', '2015/7757 sayılı BKK, 3093 sayılı Kanun')}`,
+  }));
+
   if (d.otv) {
     const otvBelirsiz = d.otv.guvenilirlik === 'kaynak_tarihi_belirsiz';
     rows.push(taxRow({

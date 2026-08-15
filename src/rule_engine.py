@@ -28,6 +28,7 @@ class HesapSonucu:
     damping_oran_pct: Optional[float]
     damping: float
     otv: float
+    trt: float
     kdv_matrah: float
     kdv: float
     kkdf: float
@@ -45,6 +46,7 @@ class HesapSonucu:
             "damping_oran_pct": self.damping_oran_pct,
             "damping": round(self.damping, 2),
             "otv": round(self.otv, 2),
+            "trt": round(self.trt, 2),
             "kdv_matrah": round(self.kdv_matrah, 2),
             "kdv": round(self.kdv, 2),
             "kkdf": round(self.kkdf, 2),
@@ -158,7 +160,17 @@ def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool, miktar: float = N
                 f"sık değişiyor, resmi kaynaktan teyit edilmeden kullanılmamalı."
             )
 
-    kdv_matrah = matrah + gumruk_vergisi + igv + damping + otv
+    # TRT Bandrolü: radyo/TV/görüntü-ses cihazlarında mal bedeli üzerinden, tek seferlik.
+    trt = 0.0
+    trt_bilgi = gtip_detay.get("trt")
+    if trt_bilgi:
+        trt = matrah * (trt_bilgi.get("oran_pct") or 0) / 100
+        notlar.append(
+            f"⚠ TRT Bandrolü ({trt_bilgi.get('cihaz_cinsi')}) cihazın SIM kart/yayın alma "
+            f"özelliğine bağlıdır — eşya bu tanıma uymuyorsa bu kalemi düşün."
+        )
+
+    kdv_matrah = matrah + gumruk_vergisi + igv + damping + otv + trt
     kdv_pct = gtip_detay.get("kdv_pct") or 0
     kdv = kdv_matrah * kdv_pct / 100
     if gtip_detay.get("kdv_guvenilirlik") in ("varsayilan_genel_oran", "yaklasik"):
@@ -175,7 +187,7 @@ def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool, miktar: float = N
             "sistemde değil — bu GTİP o listede olabilir, teyit edilmeli."
         )
 
-    toplam = gumruk_vergisi + igv + damping + otv + kdv + kkdf
+    toplam = gumruk_vergisi + igv + damping + otv + trt + kdv + kkdf
 
     return HesapSonucu(
         mal_bedeli=b,
@@ -187,6 +199,7 @@ def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool, miktar: float = N
         damping_oran_pct=damping_oran,
         damping=damping,
         otv=otv,
+        trt=trt,
         kdv_matrah=kdv_matrah,
         kdv=kdv,
         kkdf=kkdf,
