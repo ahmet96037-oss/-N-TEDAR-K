@@ -294,3 +294,64 @@ GTİP referans değer tablosu içermiyor. **PostgreSQL'de toplam 272 gözetim ka
 Orman Bakanlığı, Sağlık Bakanlığı Denetim, Kimyasallar, Katı Yakıtlar, Atıklar,
 Standartlara Uygunluk, Tütün/Alkol, Tarım Ticari Kalite, Hareketli Makinalar, Makinalar,
 Araç Parçaları, Uluslararası Gözetim Kuruluşu, Yapı Malzemeleri.
+
+## Açık Gümrük karşılaştırması + 4 kalemin toparlanması (2026-08-15)
+
+Kullanıcı Açık Gümrük'ün senaryo hesabıyla aynı GTİP'i (8703.23.19.11.00) karşılaştırdı:
+bizim Gümrük Vergisi %75 (tahmini), onlarınki %10 — devasa fark. Kök neden bulundu ve
+düzeltildi, sonra aynı yöntemle Gözetim, Damping ve KDV de sırayla toparlandı.
+
+**Gümrük Vergisi bug'ı:** `II Sayılı Liste 86-89. Fasıllar.xlsx` dosyasında oranlar
+`"10(3)"` gibi dipnotlu METİN olarak saklanmış, `fix_gumruk_vergisi.py`'nin sayısal-hücre
+filtresi bunları sessizce atlıyordu — 26 GTİP (çoğunlukla fasıl 87, araçlar) bu yüzden
+yanlış/tahmini kaynaktaydı. `parse_val()` fonksiyonu eklenerek düzeltildi, script yeniden
+çalıştırıldı: gerçek kaynaklı GTİP **15.609 → 15.635 (%99,5)**, tahmini kalan 108 → 82
+(niş kategoriler: alkollü içki fasıl 22, oyuncak 95, özel provizyon 99 — bilinçli olarak
+düşük öncelikli bırakıldı).
+
+**Gözetim hesaplaması gerçek hale getirildi:** `rule_engine.py` önceden beyan değeri
+referansın altındaysa sadece bir UYARI NOTU basıyordu, matraha yansıtmıyordu. Artık
+matrah gerçekten `referans_deger × miktar`'a yükseltiliyor ve gümrük vergisi/İGV/
+damping/KDV o yükseltilmiş matrah üzerinden hesaplanıyor.
+
+**Damping tamamlandı:** 8 sabit-tutarlı ($/kg, $/ton) kayıt için orijinal tebliğler
+(2021/1, 2021/6, 2021/8, 2021/9) tek tek bulunup gerçek rakamlar işlendi. Ayrıca
+rule_engine önceden sabit tutarlı damping'i HİÇ hesaplamıyordu (sadece % oranlı olanı) —
+bu da düzeltildi, miktar/birim girildiğinde artık hesaba katılıyor. **14/14 damping
+kaydında artık oran ya da sabit tutar var, oransız kayıt kalmadı.**
+
+**KDV — GİB'in gerçek kaynağı bulundu ve parse edildi:** KDV Genel Uygulama Tebliği eki
+(I) ve (II) Sayılı Liste (BKK 2007/13033, `cdn.gib.gov.tr` güncel liste PDF'i) GTİP/fasıl
+referanslı, gerçekten parse edilebilir bir kaynak — önceki oturumlarda "böyle bir kaynak
+yok" denilmişti, aslında GİB'in pratik rehber PDF'inde varmış. Liste I (%1, gıda — 13 tam
+fasıl + kısmi kodlar) ve Liste II (%10, tekstil/deri/ayakkabı/mobilya/tarım makineleri —
+17 fasıl + madde 28-29-33-38'in spesifik kodları) `kdv_liste_kurallari` tablosuna işlendi.
+
+İki teknik sorun bulundu ve çözüldü: (1) madde 28'deki bazı GTİP'ler 2011 vintage TGTC
+numaralandırmasıyla yazılmış, güncel 2026 kodlarla eşleşmiyordu (ör. traktör kodları
+`8701.90.11` → `8701.91.10`) — tebliğin kendi "ESKİ GTİP → 2019 GTİP" korelasyon
+tablosundan düzeltildi. (2) Liste I madde 17 ile Liste II madde 28 aynı pozisyonları
+(fasıl 84 tarım/sanayi makineleri) farklı oranlarla kapsıyordu — motor mantığı "en
+spesifik/uzun GTİP prefiksi kazanır" kuralına geçirilerek çözüldü (hukukta "özel hüküm
+genel hükmü geçersiz kılar" ilkesiyle tutarlı). Tek bir gerçek çakışma (84.34, süt sağma
+makineleri — kaynak metninde iki farklı yerde iki farklı oranla geçiyor) çözülemedi,
+uydurulmadı; `cakismali_kaynak` diye açıkça işaretlendi.
+
+İlaç/zirai ilaç/veteriner ürünü gibi Bakanlık ruhsatına bağlı kalemler için yeni bir
+`kosullu_ruhsat` durumu eklendi — GTİP eşleşiyor ama gerçek oran ruhsat durumuna bağlı,
+bu açıkça UI'da gösteriliyor (uydurulmuyor).
+
+**Sonuç: 4.982 / 15.717 GTİP (%31,7) artık gerçek/koşullu/çelişkili olarak işaretli**
+(2.458 Liste I + 2.387 Liste II + 132 koşullu + 5 çelişkili), kalan %68,3 "listelerde
+bulunamadı" gerekçesiyle genel orana (%20) düşüyor — kör tahmin değil, doğrulanmış negatif
+sonuç. `api.py`/`web/index.html` yeni durumları (gerçek/koşullu/çelişkili/varsayım) ayrı
+rozet ve açıklamayla gösterecek şekilde güncellendi.
+
+**Doğrulama altyapısı (başlatıldı, tamamlanmadı):** Açık Gümrük'ün her veri noktası için
+SHA-256 hash'li arşiv kopyası + kaynak satır referansı gösteren "doğrulama sayfası"
+özelliği örnek alındı. `documents` tablosuna `content_sha256`, `archived_at`,
+`archived_path` kolonları eklendi (boş, doldurulmadı) — sıradaki adım.
+
+**Sıradaki adımlar:** ÖTV ve TRT Bandrolü (hâlâ sistemde yok, araç/elektronik gibi
+kategorilerde toplam yükün en büyük kalemi olabiliyorlar), doğrulama/arşiv altyapısının
+tamamlanması, kalan 82 marjinal gümrük vergisi kaydı, KDV'nin taranmamış küçük maddeleri.

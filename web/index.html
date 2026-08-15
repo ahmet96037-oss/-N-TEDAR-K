@@ -310,7 +310,7 @@ async function renderTaxRows() {
     rate: d.gozetim ? `$${d.gozetim.referans_deger}/${d.gozetim.birim}` : '—',
     amount: '',
     explain: d.gozetim
-      ? `Bu bir vergi değil, bir eşik: beyan edilen birim değer bu referansın altındaysa vergi tabanı yükseltilebilir (toplama dahil edilmez). Kaynak: <a href="${d.gozetim.kaynak_url}" target="_blank" rel="noopener">${d.gozetim.tebligno}</a>`
+      ? `Bu bir vergi değil, $/${d.gozetim.birim} bazlı bir referans birim değer: beyan edilen birim değer bu referansın altındaysa, aşağıdaki tüm vergiler (gümrük vergisi/İGV/damping/KDV) beyan bedeli yerine <b>referans değer × miktar</b> üzerinden hesaplanır. Kaynak: <a href="${d.gozetim.kaynak_url}" target="_blank" rel="noopener">${d.gozetim.tebligno}</a>`
         + (gzNotlar.length ? '<br>' + gzNotlar.map(n => `<span class="warn">${n}</span>`).join('<br>') : (miktar ? '' : '<br><span class="warn">Karşılaştırma için yukarıda "Miktar" gir.</span>'))
       : 'Bu GTİP için gözetim veritabanımızda henüz kayıt yok — "bilinmiyor" anlamına gelir, kesin olarak "yok" değil. Ticaret Bakanlığı TARA üzerinden teyit edilmeli.',
   }));
@@ -329,13 +329,25 @@ async function renderTaxRows() {
       : 'Bu GTİP için damping veritabanımızda henüz kayıt yok — "bilinmiyor" anlamına gelir, kesin olarak "yok" değil.',
   }));
 
+  const kdvBadge = {
+    liste_i_gercek: pill('gercek', 'Liste I — gerçek'),
+    liste_ii_gercek: pill('gercek', 'Liste II — gerçek'),
+    kosullu_ruhsat: pill('kosullu', 'ruhsata bağlı'),
+    cakismali_kaynak: pill('kosullu', 'kaynak çelişkili'),
+    varsayilan_genel_oran: pill('tahmini', 'genel oran'),
+  }[d.kdv_guvenilirlik] || pill('tahmini', 'tahmini');
+  const kdvExplain = {
+    liste_i_gercek: 'KDV Genel Uygulama Tebliği eki (I) Sayılı Liste ile eşleşti — gerçek kaynak.',
+    liste_ii_gercek: 'KDV Genel Uygulama Tebliği eki (II) Sayılı Liste ile eşleşti — gerçek kaynak.',
+    kosullu_ruhsat: `⚠ ${d.kdv_kosul || 'Bu oran ilgili Bakanlık ruhsatı/izni şartına bağlı — ruhsatlı değilse genel oran (%20) uygulanır.'}`,
+    cakismali_kaynak: `⚠ ${d.kdv_kosul || 'Kaynak metinde bu GTİP için birden fazla farklı oran bulundu, çelişki teyit edilmeli.'}`,
+    varsayilan_genel_oran: 'Bu GTİP, KDV Genel Uygulama Tebliği eki (I)/(II) Sayılı Liste\'de bulunamadı — genel oran (%20) varsayıldı. Listelerde olmadığı doğrulandı ama madde-madde tam teyit tüm GTİP\'ler için yapılmadı.',
+  }[d.kdv_guvenilirlik] || 'Fasıl bazlı yaklaşık kural ile belirlendi.';
   rows.push(taxRow({
     id: 'kdv', dotClass: 'dot-kdv', name: 'KDV',
-    badge: d.kdv_guvenilirlik !== 'kesin' ? pill('tahmini', 'tahmini') : pill('gercek', 'gerçek'),
+    badge: kdvBadge,
     rate: fmtPct(d.kdv_pct), amount: amt(hesap?.kdv),
-    explain: (d.kdv_guvenilirlik === 'varsayilan_genel_oran'
-      ? 'Genel oran varsayıldı (fasıl bazlı yaklaşık kural) — kesin liste teyidi gerekir.'
-      : 'Fasıl bazlı yaklaşık kural ile belirlendi — kesin liste teyidi gerekir.') + ' Matrah: mal bedeli + gümrük vergisi + İGV + damping.',
+    explain: kdvExplain + ' Matrah: mal bedeli + gümrük vergisi + İGV + damping.',
   }));
 
   if (d.kkdf) {
@@ -367,7 +379,7 @@ async function renderTaxRows() {
       <div class="l">Toplam Vergi Yükü</div>
       <div class="v">${fmtUsd(hesap.toplam_vergi)}</div>
     </div>
-    <div class="total-note">Mal bedeli $${bedel.toLocaleString('tr-TR')} üzerinden, CIF = mal bedeli varsayımıyla (navlun/sigorta hariçse gerçek CIF farklı olabilir). Gözetim toplamda ayrı — bir vergi değil, tabanı yükseltme eşiğidir. Nihai beyan öncesi gümrük müşaviri teyidi gerekir.</div>
+    <div class="total-note">Mal bedeli $${bedel.toLocaleString('tr-TR')} üzerinden, CIF = mal bedeli varsayımıyla (navlun/sigorta hariçse gerçek CIF farklı olabilir).${hesap.gozetim_yukseltildi ? ` <span class="warn">Gözetim eşiği nedeniyle vergi matrahı $${hesap.vergi_matrahi.toLocaleString('tr-TR')}'ye yükseltilerek hesaplandı.</span>` : ''} Nihai beyan öncesi gümrük müşaviri teyidi gerekir.</div>
   ` : '';
 
   document.getElementById('taxList').innerHTML = `

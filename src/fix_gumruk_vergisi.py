@@ -11,6 +11,7 @@ onlara DOKUNMUYOR, eski (TGTC bazlı, artık "tahmini/eski_kaynak" olarak işare
 kalıyor. Bu bilinen bir eksik, ayrı bir iş.
 """
 import os
+import re
 import sys
 import types
 import glob
@@ -47,6 +48,21 @@ def norm(g) -> str:
     return digits.ljust(12, "0")[:12]
 
 
+def parse_val(v):
+    """Sayısal hücreden ya da dipnotlu metin hücresinden (ör. '6,5(3)', '10(3)') oranı
+    çıkarır. Bazı liste dosyalarında (ör. 86-89. Fasıllar) oranlar saf sayı değil,
+    başında oran + parantez içinde dipnot referansı olan metin olarak saklanıyor —
+    bunları atlamak 86-89 fasıllarında 26 GTİP'in yanlışlıkla eski/tahmini kaynakta
+    kalmasına yol açmıştı (2026-08-15, Açık Gümrük karşılaştırmasıyla bulundu)."""
+    if isinstance(v, (int, float, Decimal)):
+        return float(v)
+    if isinstance(v, str):
+        m = re.match(r"^(\d+(?:[.,]\d+)?)", v.strip())
+        if m:
+            return float(m.group(1).replace(",", "."))
+    return None
+
+
 def parse_file(path):
     """Her (gtip12, du_orani) çiftini üretir. DÜ = 7 ülke grubu sütununun sonuncusu (I)."""
     wb = openpyxl.load_workbook(path, data_only=True)
@@ -60,11 +76,14 @@ def parse_file(path):
                 continue
             # Kolon C..I (index 2..8) = 7 ülke grubu oranı; son doluysa DÜ odur
             vals = [c.value for c in row[2:9]]
-            nums = [v for v in vals if isinstance(v, (int, float, Decimal))]
-            if not nums:
+            parsed = [parse_val(v) for v in vals]
+            parsed = [p for p in parsed if p is not None]
+            if not parsed:
                 continue
-            du = vals[-1] if isinstance(vals[-1], (int, float, Decimal)) else nums[-1]
-            yield norm(cell0), float(du)
+            du = parse_val(vals[-1])
+            if du is None:
+                du = parsed[-1]
+            yield norm(cell0), du
 
 
 def main():

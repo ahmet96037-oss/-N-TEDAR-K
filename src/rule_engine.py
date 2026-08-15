@@ -20,6 +20,8 @@ from typing import Optional
 @dataclass
 class HesapSonucu:
     mal_bedeli: float
+    vergi_matrahi: float
+    gozetim_yukseltildi: bool
     vadeli: bool
     gumruk_vergisi: float
     igv: float
@@ -34,6 +36,8 @@ class HesapSonucu:
     def to_dict(self):
         return {
             "mal_bedeli": self.mal_bedeli,
+            "vergi_matrahi": round(self.vergi_matrahi, 2),
+            "gozetim_yukseltildi": self.gozetim_yukseltildi,
             "vadeli": self.vadeli,
             "gumruk_vergisi": round(self.gumruk_vergisi, 2),
             "igv": round(self.igv, 2),
@@ -47,36 +51,69 @@ class HesapSonucu:
         }
 
 
-def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool, miktar: float = None) -> HesapSonucu:
+def _kg_esdegeri(miktar: float, birim: str) -> Optional[float]:
+    """Miktarı kg'a çevirir (sabit tutarlı damping — USD/KG, USD/TON — için).
+    Kg/Ton dışındaki birimler (Adet, M2, M, Litre) ağırlığa çevrilemez → None döner."""
+    if miktar is None or not birim:
+        return None
+    b = birim.strip().lower()
+    if b == "kg":
+        return miktar
+    if b == "ton":
+        return miktar * 1000
+    return None
+
+
+def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool, miktar: float = None,
+            miktar_birim: str = None) -> HesapSonucu:
     """
     gtip_detay: /api/gtip/{kod} endpoint'inin döndürdüğü sözlük
     mal_bedeli: fatura/CIF bedeli (USD varsayımı)
     vadeli: KKDF'nin uygulanıp uygulanmayacağını belirleyen ödeme şekli bayrağı
-    miktar: gözetim referans değeriyle karşılaştırma için (aynı birimde — kg/ton/adet)
+    miktar: gözetim referans değeriyle karşılaştırma ve sabit tutarlı ($/kg, $/ton)
+        damping hesabı için (Kg/Ton/Adet/M2/M/Litre)
+    miktar_birim: yukarıdaki miktarın birimi
     """
     b = mal_bedeli or 0
     notlar = []
 
+    # Gözetim bir vergi/oran DEĞİL — $/kg, $/adet veya $/ton bazlı bir referans birim
+    # değerdir. Beyan edilen birim değer bu referansın altındaysa, gümrük idaresi vergi
+    # matrahını (kıymeti) referans değere yükseltir; oran hesaba karışmaz, sadece taban
+    # değişir. Burada bu yükseltmeyi gerçek matraha (dolayısıyla tüm vergilere) yansıtıyoruz.
+    matrah = b
+    gozetim_yukseltildi = False
     if miktar and gtip_detay.get("gozetim"):
         gz = gtip_detay["gozetim"]
         birim_deger = b / miktar if miktar else None
         ref = gz.get("referans_deger")
         if birim_deger is not None and ref is not None:
             birim_adi = gz.get("birim") or "birim"
-            if birim_deger < ref:
+            if miktar_birim and birim_adi and miktar_birim.strip().lower() != birim_adi.strip().lower():
                 notlar.append(
-                    f"⚠ Beyan edilen birim değer (${birim_deger:,.2f}, {birim_adi}) "
-                    f"gözetim referans değerinin (${ref:,.2f}) ALTINDA — gümrük idaresi vergi "
-                    f"tabanını referans değere yükseltebilir."
+                    f"⚠ Girilen miktar birimi ({miktar_birim}) gözetim tebliğinin birimiyle "
+                    f"({birim_adi}) eşleşmiyor — birim değer karşılaştırması yanlış olabilir, "
+                    f"miktarı {birim_adi} cinsinden girin."
+                )
+            if birim_deger < ref:
+                matrah = ref * miktar
+                gozetim_yukseltildi = True
+                notlar.append(
+                    f"⚠ Beyan edilen birim değer (${birim_deger:,.2f}/{birim_adi}) gözetim "
+                    f"referans değerinin (${ref:,.2f}/{birim_adi}) ALTINDA — vergi matrahı "
+                    f"${b:,.2f}'den ${matrah:,.2f}'ye (referans değer × miktar) yükseltilerek "
+                    f"hesaplandı. Bu, gümrük idaresinin standart uygulamasının bir tahminidir; "
+                    f"idare beyan değerini de kabul edebilir, kesin sonuç değildir."
                 )
             else:
                 notlar.append(
-                    f"Beyan edilen birim değer (${birim_deger:,.2f}, {birim_adi}) "
-                    f"gözetim referans değerinin (${ref:,.2f}) üzerinde — eşik sorunu yok."
+                    f"Beyan edilen birim değer (${birim_deger:,.2f}/{birim_adi}) gözetim "
+                    f"referans değerinin (${ref:,.2f}/{birim_adi}) üzerinde — eşik sorunu yok, "
+                    f"matrah beyan değeri olarak kaldı."
                 )
 
-    gumruk_vergisi = b * (gtip_detay.get("gumruk_vergisi_pct") or 0) / 100
-    igv = b * (gtip_detay.get("igv_pct") or 0) / 100
+    gumruk_vergisi = matrah * (gtip_detay.get("gumruk_vergisi_pct") or 0) / 100
+    igv = matrah * (gtip_detay.get("igv_pct") or 0) / 100
 
     damping_oran = None
     damping_list = gtip_detay.get("damping") or []
@@ -93,14 +130,16 @@ def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool, miktar: float = N
             "Bu GTİP için damping kaydı var ama oran veritabanında henüz yok — "
             "toplama dahil edilmedi, orijinal tebliğ teyit edilmeli."
         )
-    damping = (b * damping_oran / 100) if damping_oran is not None else 0
+    damping = (matrah * damping_oran / 100) if damping_oran is not None else 0
 
-    kdv_matrah = b + gumruk_vergisi + igv + damping
+    kdv_matrah = matrah + gumruk_vergisi + igv + damping
     kdv_pct = gtip_detay.get("kdv_pct") or 0
     kdv = kdv_matrah * kdv_pct / 100
     if gtip_detay.get("kdv_guvenilirlik") in ("varsayilan_genel_oran", "yaklasik"):
         notlar.append("KDV oranı yaklaşık/tahmini — kesin liste teyidi gerekir.")
 
+    # KKDF matrahı beyan edilen (fatura) bedeldir, gözetim yükseltmesinden etkilenmez —
+    # KKDF gümrük kıymetine değil, kambiyo/transfer bedeline bağlı ayrı bir fon.
     kkdf = 0.0
     kkdf_bilgi = gtip_detay.get("kkdf")
     if vadeli and kkdf_bilgi:
@@ -110,16 +149,12 @@ def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool, miktar: float = N
             "sistemde değil — bu GTİP o listede olabilir, teyit edilmeli."
         )
 
-    if gtip_detay.get("gozetim"):
-        notlar.append(
-            "Gözetim uygulanan bir GTİP — bu bir vergi değil, referans değer eşiğidir, "
-            "toplama dahil edilmedi. Beyan değeri eşiğin altındaysa vergi tabanı yükseltilebilir."
-        )
-
     toplam = gumruk_vergisi + igv + damping + kdv + kkdf
 
     return HesapSonucu(
         mal_bedeli=b,
+        vergi_matrahi=matrah,
+        gozetim_yukseltildi=gozetim_yukseltildi,
         vadeli=vadeli,
         gumruk_vergisi=gumruk_vergisi,
         igv=igv,

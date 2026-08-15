@@ -34,7 +34,8 @@ def gtip_detay(kod: str):
 
     temel = conn.execute(
         """SELECT g.gtip12, g.gtip_no, g.description, g.unit, g.base_duty_pct, g.base_duty_source,
-                  ad.rate_pct AS igv_pct, v.rate_pct AS kdv_pct, v.reliability AS kdv_guvenilirlik
+                  ad.rate_pct AS igv_pct, v.rate_pct AS kdv_pct, v.reliability AS kdv_guvenilirlik,
+                  v.kosul_metni AS kdv_kosul
            FROM gtips g
            LEFT JOIN additional_duties ad ON ad.gtip12 = g.gtip12 AND ad.valid_to IS NULL
            LEFT JOIN vat_rates v ON v.gtip12 = g.gtip12 AND v.valid_to IS NULL
@@ -98,6 +99,7 @@ def gtip_detay(kod: str):
         "igv_pct": temel["igv_pct"],
         "kdv_pct": temel["kdv_pct"],
         "kdv_guvenilirlik": temel["kdv_guvenilirlik"],
+        "kdv_kosul": temel["kdv_kosul"],
         "gozetim": {
             "referans_deger": gozetim["reference_value"],
             "birim": gozetim["unit"],
