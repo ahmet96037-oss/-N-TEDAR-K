@@ -374,12 +374,25 @@ async function renderTaxRows() {
       : 'Bu GTİP, şu ana kadar taranmış uygunluk denetimi tebliğlerinde bulunmadı. <span class="warn">Sistem henüz tüm ÜGD tebliğlerini (CE, Tarım, Sağlık, Tekstil vb.) taramadı — "yok" değil, "henüz taranmadı" anlamına gelir.</span>',
   }));
 
+  const gvSupheliUyari = !gvGercek
+    ? `⚠ Toplama dahil edilen Gümrük Vergisi (%${d.gumruk_vergisi_pct}) bu fasılda henüz gerçek kaynaktan doğrulanmadı, TGTC'nin nominal tavan değeri gösteriliyor — gerçek oran farklı olabilir.`
+    : '';
+  const dampingBelirsiz = (d.damping || []).length > 0 && !(d.damping || []).some(x => x.oran_pct != null || x.sabit_tutar != null);
+  const dampingSupheliUyari = dampingBelirsiz
+    ? '⚠ Bu GTİP için damping kaydı var ama oran/tutar veritabanında henüz yok — toplama dahil edilmedi, gerçek yük daha yüksek olabilir.'
+    : '';
+  const kdvKesin = d.kdv_guvenilirlik === 'liste_i_gercek' || d.kdv_guvenilirlik === 'liste_ii_gercek';
+  const kdvSupheliUyari = !kdvKesin ? {
+    kosullu_ruhsat: `⚠ Toplama dahil edilen KDV (%${d.kdv_pct}) bir Bakanlık ruhsatı şartına bağlı — ruhsat yoksa gerçek KDV %20 olur ve toplam değişir.`,
+    cakismali_kaynak: `⚠ Toplama dahil edilen KDV (%${d.kdv_pct}) kaynakta çelişkili bulundu, teyit edilmeden kesin sayılmamalı.`,
+    varsayilan_genel_oran: `⚠ Toplama dahil edilen KDV (%${d.kdv_pct}) bu GTİP için doğrudan kaynak eşleşmesi değil, genel oran varsayımı — en ufak şüphede resmi kaynaktan teyit edin.`,
+  }[d.kdv_guvenilirlik] : '';
   const totalHtml = hesap ? `
     <div class="total-row">
       <div class="l">Toplam Vergi Yükü</div>
       <div class="v">${fmtUsd(hesap.toplam_vergi)}</div>
     </div>
-    <div class="total-note">Mal bedeli $${bedel.toLocaleString('tr-TR')} üzerinden, CIF = mal bedeli varsayımıyla (navlun/sigorta hariçse gerçek CIF farklı olabilir).${hesap.gozetim_yukseltildi ? ` <span class="warn">Gözetim eşiği nedeniyle vergi matrahı $${hesap.vergi_matrahi.toLocaleString('tr-TR')}'ye yükseltilerek hesaplandı.</span>` : ''} Nihai beyan öncesi gümrük müşaviri teyidi gerekir.</div>
+    <div class="total-note">Mal bedeli $${bedel.toLocaleString('tr-TR')} üzerinden, CIF = mal bedeli varsayımıyla (navlun/sigorta hariçse gerçek CIF farklı olabilir).${hesap.gozetim_yukseltildi ? ` <span class="warn">Gözetim eşiği nedeniyle vergi matrahı $${hesap.vergi_matrahi.toLocaleString('tr-TR')}'ye yükseltilerek hesaplandı.</span>` : ''}${gvSupheliUyari ? ` <span class="warn">${gvSupheliUyari}</span>` : ''}${kdvSupheliUyari ? ` <span class="warn">${kdvSupheliUyari}</span>` : ''}${dampingSupheliUyari ? ` <span class="warn">${dampingSupheliUyari}</span>` : ''} Nihai beyan öncesi gümrük müşaviri teyidi gerekir.</div>
   ` : '';
 
   document.getElementById('taxList').innerHTML = `
