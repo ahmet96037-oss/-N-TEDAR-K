@@ -289,11 +289,12 @@ async function renderTaxRows() {
   // bu yüzden her zaman en üstte, tek bir tık kutusu olarak gösteriliyor.
   if (d.kkdf) {
     rows.push(taxRow({
-      id: 'kkdf', dotClass: 'dot-kkdf', name: 'KKDF (opsiyon — ödeme şekline bağlı)', active: vadeli,
-      badge: pill('kosullu', 'tüm GTİP\'lere uygulanır'),
+      id: 'kkdf', dotClass: 'dot-kkdf', name: 'KKDF', active: vadeli,
+      badge: pill('kosullu', 'opsiyonel'),
       rate: vadeli ? fmtPct(d.kkdf.oran_pct) : 'Peşinde yok',
       amount: vadeli ? amt(hesap?.kkdf) : '',
-      explain: `<label class="odeme-secim"><input type="checkbox" id="vadeliChk" ${vadeli ? 'checked' : ''} onclick="event.stopPropagation()" onchange="vadeliState=this.checked; renderTaxRows();"> Vadeli ödeme (kabul kredili / vadeli akreditif / mal mukabili) — işaretlenirse KKDF hesaba katılır</label>`
+      explain: `<span class="warn">GTİP'e değil ödeme şekline bağlı, tüm GTİP'lere uygulanır.</span><br>`
+        + `<label class="odeme-secim"><input type="checkbox" id="vadeliChk" ${vadeli ? 'checked' : ''} onclick="event.stopPropagation()" onchange="vadeliState=this.checked; renderTaxRows();"> Vadeli ödeme (kabul kredili / vadeli akreditif / mal mukabili) — işaretlenirse KKDF hesaba katılır</label>`
         + `${d.kkdf.uygulama_kosulu}. Matrah: mal bedeli. <a href="${d.kkdf.kaynak_url}" target="_blank" rel="noopener">Hukuki dayanak: ${d.kkdf.hukuki_dayanak}</a>`
         + `<br><span class="warn">Ayrıca 2015/7511 sayılı Karar eki listede yer alan bazı hammadde/yatırım malı GTİP'lerinde oran ödeme şekli ne olursa olsun sıfırdır — bu liste henüz sistemimizde değil, teyit edilmeli.</span>`,
     }));
