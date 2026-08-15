@@ -68,6 +68,17 @@ def _kg_esdegeri(miktar: float, birim: str) -> Optional[float]:
     return None
 
 
+def _birim_esdegeri(miktar: float, girilen_birim: str, hedef_birim: str) -> Optional[float]:
+    """Girilen miktarı hedef birimle karşılaştırır — birimler farklıysa dönüştürmeye
+    çalışmadan None döner (ör. TL/litre sabit tutarlı ÖTV, kullanıcı 'Litre' girmediyse
+    hesaplanamaz, yanlış varsayım yapılmaz)."""
+    if miktar is None or not girilen_birim or not hedef_birim:
+        return None
+    if girilen_birim.strip().lower() == hedef_birim.strip().lower():
+        return miktar
+    return None
+
+
 def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool, miktar: float = None,
             miktar_birim: str = None) -> HesapSonucu:
     """
@@ -138,21 +149,29 @@ def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool, miktar: float = N
 
     # ÖTV: matrahı gümrük kıymeti + gümrük vergisidir (4760 sayılı Kanun madde 11/2),
     # KDV'den ÖNCE hesaplanır ve KDV matrahına dahil olur.
+    # NOT: otv_kurallari'ndaki sabit_tutar/asgari_maktu_tutar alanları KANUNDA TL cinsinden
+    # tanımlı (alkollü içkilerde TL/litre gibi) — sistemin geri kalanı USD üzerinden çalıştığı
+    # ve kur girişi olmadığı için bu TL tutarları USD toplama KATILMIYOR, sadece bilgi notu
+    # olarak gösteriliyor. Kur eklenene kadar bu kalemlerde sadece oran bazlı kısım (varsa)
+    # toplama dahildir — gerçek ÖTV muhtemelen daha yüksektir.
     otv = 0.0
     otv_bilgi = gtip_detay.get("otv")
     if otv_bilgi:
         otv_matrah = matrah + gumruk_vergisi
         if otv_bilgi.get("oran_pct") is not None:
             otv = otv_matrah * otv_bilgi["oran_pct"] / 100
-        elif otv_bilgi.get("sabit_tutar") is not None:
-            kg = _kg_esdegeri(miktar, miktar_birim)
-            if kg is not None:
-                otv = otv_bilgi["sabit_tutar"] * kg
-            else:
-                notlar.append(
-                    "⚠ Bu GTİP'te sabit tutarlı ÖTV var ama miktar/birim (kg) girilmedi — "
-                    "ÖTV toplama dahil edilemedi."
-                )
+        if otv_bilgi.get("sabit_tutar") is not None:
+            notlar.append(
+                f"⚠ Bu GTİP'te ayrıca TL bazlı sabit/maktu ÖTV tutarı var (₺{otv_bilgi['sabit_tutar']}/"
+                f"{otv_bilgi.get('birim')}) — kur girişi olmadığı için USD toplama dahil edilmedi, "
+                f"gerçek ÖTV yükü burada gösterilenden yüksek olabilir."
+            )
+        if otv_bilgi.get("asgari_maktu_tutar") is not None:
+            notlar.append(
+                f"⚠ Bu GTİP'te ayrıca ₺{otv_bilgi['asgari_maktu_tutar']}/{otv_bilgi.get('asgari_maktu_birim')} "
+                f"asgari maktu ÖTV tutarı var (oransal tutardan yüksekse o uygulanır) — kur girişi olmadığı "
+                f"için USD toplama dahil edilmedi, gerçek ÖTV yükü burada gösterilenden yüksek olabilir."
+            )
         if otv_bilgi.get("guvenilirlik") == "kaynak_tarihi_belirsiz":
             notlar.append(
                 f"⚠ ÖTV oranı (%{otv_bilgi.get('oran_pct')}) kaynağının güncelliği "

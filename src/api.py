@@ -144,6 +144,8 @@ def gtip_detay(kod: str):
             "oran_pct": otv["oran_pct"],
             "sabit_tutar": otv["sabit_tutar"],
             "birim": otv["birim"],
+            "asgari_maktu_tutar": otv["asgari_maktu_tutar"],
+            "asgari_maktu_birim": otv["asgari_maktu_birim"],
             "aciklama": otv["aciklama"],
             "kaynak": otv["kaynak"],
             "guvenilirlik": otv["guvenilirlik"],

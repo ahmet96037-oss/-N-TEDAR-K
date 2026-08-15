@@ -352,13 +352,16 @@ async function renderTaxRows() {
 
   if (d.otv) {
     const otvBelirsiz = d.otv.guvenilirlik === 'kaynak_tarihi_belirsiz';
+    const otvTlUyari = (d.otv.sabit_tutar != null || d.otv.asgari_maktu_tutar != null);
     rows.push(taxRow({
       id: 'otv', dotClass: 'dot-igv', name: 'ÖTV',
-      badge: otvBelirsiz ? pill('kosullu', 'tarih doğrulanmadı') : pill('gercek', 'gerçek'),
+      badge: otvBelirsiz ? pill('kosullu', 'tarih doğrulanmadı') : (otvTlUyari ? pill('kosullu', 'TL tutar — kur yok') : pill('gercek', 'gerçek')),
       rate: d.otv.oran_pct != null ? fmtPct(d.otv.oran_pct) : `${d.otv.sabit_tutar} ${d.otv.birim || ''}`,
       amount: amt(hesap?.otv),
       explain: `<b>${d.otv.aciklama}</b> (Liste ${d.otv.liste}). Matrah: mal bedeli + gümrük vergisi.`
         + (otvBelirsiz ? `<br><span class="warn">⚠ Bu oranın güncelliği doğrulanmadı — bazı ÖTV oranları (özellikle elektronik/telekom) sık değişiyor. Resmi kaynaktan teyit etmeden kullanma.</span>` : '')
+        + (d.otv.sabit_tutar != null ? `<br><span class="warn">⚠ Ayrıca ₺${d.otv.sabit_tutar}/${d.otv.birim} sabit ÖTV tutarı var — kur girişi olmadığı için toplama dahil edilmedi.</span>` : '')
+        + (d.otv.asgari_maktu_tutar != null ? `<br><span class="warn">⚠ Ayrıca ₺${d.otv.asgari_maktu_tutar}/${d.otv.asgari_maktu_birim} asgari maktu tutar var (oransaldan yüksekse o uygulanır) — kur girişi olmadığı için toplama dahil edilmedi.</span>` : '')
         + `<br>${kaynakLink('https://www.mevzuat.gov.tr/mevzuatmetin/1.5.4760.pdf', '4760 sayılı ÖTV Kanunu')}`,
     }));
   }
@@ -429,9 +432,12 @@ async function renderTaxRows() {
     cakismali_kaynak: `⚠ Toplama dahil edilen KDV (%${d.kdv_pct}) kaynakta çelişkili bulundu, teyit edilmeden kesin sayılmamalı.`,
     varsayilan_genel_oran: `⚠ Toplama dahil edilen KDV (%${d.kdv_pct}) bu GTİP için doğrudan kaynak eşleşmesi değil, genel oran varsayımı — en ufak şüphede resmi kaynaktan teyit edin.`,
   }[d.kdv_guvenilirlik] : '';
-  const otvSupheliUyari = (d.otv && d.otv.guvenilirlik === 'kaynak_tarihi_belirsiz')
-    ? `⚠ Toplama dahil edilen ÖTV (%${d.otv.oran_pct}) kaynağının güncelliği doğrulanmadı — resmi kaynaktan teyit edin.`
-    : '';
+  let otvSupheliUyari = '';
+  if (d.otv && d.otv.guvenilirlik === 'kaynak_tarihi_belirsiz') {
+    otvSupheliUyari = `⚠ Toplama dahil edilen ÖTV (%${d.otv.oran_pct}) kaynağının güncelliği doğrulanmadı — resmi kaynaktan teyit edin.`;
+  } else if (d.otv && (d.otv.sabit_tutar != null || d.otv.asgari_maktu_tutar != null)) {
+    otvSupheliUyari = `⚠ Bu GTİP'te TL bazlı sabit/asgari ÖTV tutarı var, kur girişi olmadığı için toplama dahil edilmedi — gerçek toplam yük burada gösterilenden yüksek olabilir.`;
+  }
   const totalHtml = hesap ? `
     <div class="total-row">
       <div class="l">Toplam Vergi Yükü</div>
