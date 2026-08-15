@@ -61,9 +61,30 @@ let token = localStorage.getItem('tk_admin_token');
 let view = token ? 'liste' : 'giris';
 let aktifSiparisNo = null;
 const DURUMLAR = [
-  ['talep_alindi','Talep Alındı'],['fabrika_gorusuluyor','Fabrika Görüşülüyor'],['teklif_hazir','Teklif Hazır'],
-  ['numune','Numune Yolda / QC Raporu'],['uretimde','Üretimde'],['konteyner','Konteynere Yüklendi'],
-  ['gemide','Gemide'],['gumrukte','Gümrükte'],['teslim_edildi','Teslim Edildi']
+  ['talep_alindi','Talep Alındı'],
+  ['fabrika_gorusuluyor','Fabrika Görüşülüyor'],
+  ['teklif_hazir','Teklif Hazır'],
+  ['numune_odeme_bekleniyor','Numune Ödemesi Bekleniyor'],
+  ['numune_uretiliyor','Numune Üretiliyor'],
+  ['numune_kalite_kontrolde','Numune Kalite Kontrolünde'],
+  ['numune_onayinizi_bekliyor','Numune Onayınızı Bekliyor'],
+  ['uretim_odeme_bekleniyor','Üretim Ödemesi Bekleniyor'],
+  ['uretimde','Üretimde'],
+  ['uretim_kalite_kontrolde','Üretim Kalite Kontrolünde'],
+  ['sevkiyat_belgeleri_hazirlaniyor','Sevkiyat Belgeleri Hazırlanıyor'],
+  ['konteyner','Konteynere Yüklendi'],
+  ['yukleme_odeme_bekleniyor','Yükleme Öncesi Ödeme Bekleniyor'],
+  ['gemide','Gemide'],
+  ['gumruk_beyanname','Gümrük Beyannamesi Veriliyor'],
+  ['gumruk_vergi_odeme','Gümrük Vergisi Ödemesi Bekleniyor'],
+  ['gumruk_muayene','Gümrükte Muayene'],
+  ['teslimat_yolda','Teslimat İçin Yolda'],
+  ['teslim_edildi','Teslim Edildi'],
+];
+const OZEL_DURUMLAR = [
+  ['numune_revizyon_istendi','⚠ Numune Revizyonu İstendi'],
+  ['beklemede','⚠ Süreç Beklemede'],
+  ['iptal_edildi','✕ İptal Edildi'],
 ];
 
 function render() {
@@ -107,7 +128,7 @@ async function listeYukle() {
       <td class="siparis-no">${r.siparis_no}</td>
       <td>${r.musteri}${r.firma ? ' ('+r.firma+')' : ''}<br><span style="color:var(--text-muted);font-size:12px;">${r.email}</span></td>
       <td>${r.urun_aciklamasi}</td>
-      <td><span class="pill">${r.durum_adi}</span></td>
+      <td><span class="pill" style="${r.durum==='iptal_edildi' ? 'background:color-mix(in srgb, var(--signal) 14%, transparent); color:var(--signal-ink); border-color:color-mix(in srgb, var(--signal) 35%, transparent);' : (['numune_revizyon_istendi','beklemede'].includes(r.durum) ? 'background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent-ink); border-color:color-mix(in srgb, var(--accent) 35%, transparent);' : '')}">${r.durum_adi}</span></td>
       <td style="font-family:var(--font-code); font-variant-numeric:tabular-nums;">${new Date(r.olusturulma).toLocaleDateString('tr-TR')}</td>
     </tr>`;
   });
@@ -119,7 +140,8 @@ async function detayYukle(siparisNo) {
   const app = document.getElementById('app');
   const res = await fetch(API + '/api/tk/siparis/' + encodeURIComponent(siparisNo), {headers:{'Authorization':'Bearer '+token}});
   const d = await res.json();
-  let durumOpts = DURUMLAR.map(([k,a]) => `<option value="${k}" ${k===d.durum?'selected':''}>${a}</option>`).join('');
+  let durumOpts = '<optgroup label="Ana Akış">' + DURUMLAR.map(([k,a]) => `<option value="${k}" ${k===d.durum?'selected':''}>${a}</option>`).join('') + '</optgroup>'
+    + '<optgroup label="Özel Durumlar">' + OZEL_DURUMLAR.map(([k,a]) => `<option value="${k}" ${k===d.durum?'selected':''}>${a}</option>`).join('') + '</optgroup>';
   app.innerHTML = `
     <button class="back" onclick="view='liste'; render();">← Listeye dön</button>
     <div class="panel">

@@ -199,11 +199,15 @@ async function siparisListesiYukle() {
     if (rows.length === 0) {
       html += `<div class="panel">Henüz siparişiniz yok. <button class="linklike" onclick="view='rfq'; render();">İlk talebinizi oluşturun</button></div>`;
     } else {
+      const OZEL = new Set(['numune_revizyon_istendi','beklemede','iptal_edildi']);
       rows.forEach(r => {
+        const ozelStil = r.durum === 'iptal_edildi'
+          ? 'background:color-mix(in srgb, var(--signal) 14%, transparent); color:var(--signal-ink); border-color:color-mix(in srgb, var(--signal) 35%, transparent);'
+          : (OZEL.has(r.durum) ? 'background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent-ink); border-color:color-mix(in srgb, var(--accent) 35%, transparent);' : '');
         html += `<div class="siparis-kart" onclick="aktifSiparisNo='${r.siparis_no}'; view='detay'; render();">
           <div class="no">${r.siparis_no}</div>
           <h3>${r.urun_aciklamasi}</h3>
-          <span class="pill">${r.durum_adi}</span>
+          <span class="pill" style="${ozelStil}">${r.durum_adi}</span>
         </div>`;
       });
     }
@@ -219,8 +223,27 @@ async function siparisDetayYukle(siparisNo) {
     if (!res.ok) { app.innerHTML = '<div class="panel err">Sipariş bulunamadı.</div>'; return; }
     const d = await res.json();
 
-    const tamamlananKodlar = new Set(d.gecmis.map(g => g.durum));
-    const suankiIndex = d.durum_sirasi.findIndex(s => s.kod === d.durum);
+    // Özel durum (revizyon/beklemede/iptal) ana akışta bir "adım" değil, üstüne
+    // binen bir durum — stepper'ı en son ulaşılan LİNEER adıma göre çiziyoruz,
+    // özel durumu ayrı bir uyarı bandında gösteriyoruz.
+    const lineerKodlar = new Set(d.durum_sirasi.map(s => s.kod));
+    let sonLineerDurum = null;
+    for (let i = d.gecmis.length - 1; i >= 0; i--) {
+      if (lineerKodlar.has(d.gecmis[i].durum)) { sonLineerDurum = d.gecmis[i].durum; break; }
+    }
+    const suankiIndex = d.durum_sirasi.findIndex(s => s.kod === sonLineerDurum);
+
+    let ozelBanner = '';
+    if (d.ozel_durum_mu) {
+      const ozelBilgi = (d.ozel_durumlar || []).find(o => o.kod === d.durum);
+      const sonKayit = d.gecmis[d.gecmis.length - 1];
+      const renk = d.durum === 'iptal_edildi' ? 'var(--signal)' : 'var(--accent)';
+      const bg = d.durum === 'iptal_edildi' ? 'color-mix(in srgb, var(--signal) 10%, transparent)' : 'color-mix(in srgb, var(--accent) 10%, transparent)';
+      ozelBanner = `<div class="panel" style="border-color:${renk}; background:${bg};">
+        <div style="font-weight:700; font-size:15px; color:${renk};">⚠ ${ozelBilgi ? ozelBilgi.ad : d.durum}</div>
+        ${sonKayit && sonKayit.not_metni ? `<p style="margin:6px 0 0; color:var(--text-muted); font-size:14px;">${sonKayit.not_metni}</p>` : ''}
+      </div>`;
+    }
 
     let stepperHtml = '<div class="stepper">';
     d.durum_sirasi.forEach((s, i) => {
@@ -253,6 +276,7 @@ async function siparisDetayYukle(siparisNo) {
       <div class="siparis-no-tag">${d.siparis_no}</div>
       <h2>${d.urun_aciklamasi}</h2>
       <p style="color:var(--text-muted); margin-top:4px;">Miktar: ${d.miktar || '—'} ${d.hedef_fiyat ? '· Hedef fiyat: ' + d.hedef_fiyat : ''}</p>
+      ${ozelBanner}
       <div class="panel">${stepperHtml}</div>
       ${belgeHtml}
     `;

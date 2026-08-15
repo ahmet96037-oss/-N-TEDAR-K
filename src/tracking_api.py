@@ -25,20 +25,48 @@ from src.db import db
 
 router = APIRouter(prefix="/api/tk")
 
-# ---- Durum akışı (sunumdaki Bölüm 07-08'deki 9 adım) ----
+# ---- Durum akışı — sunumdaki Bölüm 07-08'in genişletilmiş hâli ----
+# Ana lineer akış: numune ve üretim onay/ödeme aşamaları ayrıştırıldı, gümrük
+# 3 alt adıma bölündü, sevkiyat belgesi hazırlığı ve son teslimat adımı eklendi.
 DURUM_SIRASI = [
     ("talep_alindi", "Talep Alındı"),
     ("fabrika_gorusuluyor", "Fabrika Görüşülüyor"),
     ("teklif_hazir", "Teklif Hazır"),
-    ("numune", "Numune Yolda / QC Raporu"),
+    ("numune_odeme_bekleniyor", "Numune Ödemesi Bekleniyor"),
+    ("numune_uretiliyor", "Numune Üretiliyor"),
+    ("numune_kalite_kontrolde", "Numune Kalite Kontrolünde"),
+    ("numune_onayinizi_bekliyor", "Numune Onayınızı Bekliyor"),
+    ("uretim_odeme_bekleniyor", "Üretim Ödemesi Bekleniyor"),
     ("uretimde", "Üretimde"),
+    ("uretim_kalite_kontrolde", "Üretim Kalite Kontrolünde"),
+    ("sevkiyat_belgeleri_hazirlaniyor", "Sevkiyat Belgeleri Hazırlanıyor"),
     ("konteyner", "Konteynere Yüklendi"),
+    ("yukleme_odeme_bekleniyor", "Yükleme Öncesi Ödeme Bekleniyor"),
     ("gemide", "Gemide"),
-    ("gumrukte", "Gümrükte"),
+    ("gumruk_beyanname", "Gümrük Beyannamesi Veriliyor"),
+    ("gumruk_vergi_odeme", "Gümrük Vergisi Ödemesi Bekleniyor"),
+    ("gumruk_muayene", "Gümrükte Muayene"),
+    ("teslimat_yolda", "Teslimat İçin Yolda"),
     ("teslim_edildi", "Teslim Edildi"),
 ]
 DURUM_ISIMLERI = dict(DURUM_SIRASI)
-DURUM_KODLARI = {kod for kod, _ in DURUM_SIRASI}
+
+# Özel durumlar: ana akışın DIŞINDA, herhangi bir noktada devreye girebilir
+# (lineer sırada "bir sonraki adım" değildir — mevcut adımın üzerine biner).
+# revizyon: numune onayı reddedilip düzeltme istendiğinde; süreç bir önceki
+#   üretim adımına geri döner (numune_uretiliyor'a).
+# beklemede: herhangi bir nedenle (belge eksik, ödeme gecikmesi vb.) süreç
+#   durduğunda — hangi adımda kaldığı ayrıca not edilir.
+# iptal_edildi: sipariş iptal edildiğinde, akış orada biter.
+OZEL_DURUMLAR = [
+    ("numune_revizyon_istendi", "Numune Revizyonu İstendi"),
+    ("beklemede", "Süreç Beklemede"),
+    ("iptal_edildi", "İptal Edildi"),
+]
+OZEL_ISIMLERI = dict(OZEL_DURUMLAR)
+
+DURUM_KODLARI = {kod for kod, _ in DURUM_SIRASI} | {kod for kod, _ in OZEL_DURUMLAR}
+TUM_DURUM_ISIMLERI = {**DURUM_ISIMLERI, **OZEL_ISIMLERI}
 
 
 def _hash_sifre(sifre: str, salt: bytes = None) -> str:
@@ -162,7 +190,7 @@ def siparislerim(authorization: str = Header(None)):
             "urun_aciklamasi": r["urun_aciklamasi"],
             "miktar": r["miktar"],
             "durum": r["durum"],
-            "durum_adi": DURUM_ISIMLERI.get(r["durum"], r["durum"]),
+            "durum_adi": TUM_DURUM_ISIMLERI.get(r["durum"], r["durum"]),
             "olusturulma": r["olusturulma"].isoformat() if r["olusturulma"] else None,
         }
         for r in rows
@@ -194,12 +222,14 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
         "miktar": siparis["miktar"],
         "hedef_fiyat": siparis["hedef_fiyat"],
         "durum": siparis["durum"],
-        "durum_adi": DURUM_ISIMLERI.get(siparis["durum"], siparis["durum"]),
+        "durum_adi": TUM_DURUM_ISIMLERI.get(siparis["durum"], siparis["durum"]),
         "durum_sirasi": [{"kod": k, "ad": a} for k, a in DURUM_SIRASI],
+        "ozel_durumlar": [{"kod": k, "ad": a} for k, a in OZEL_DURUMLAR],
+        "ozel_durum_mu": siparis["durum"] in OZEL_ISIMLERI,
         "gecmis": [
             {
                 "durum": g["durum"],
-                "durum_adi": DURUM_ISIMLERI.get(g["durum"], g["durum"]),
+                "durum_adi": TUM_DURUM_ISIMLERI.get(g["durum"], g["durum"]),
                 "not_metni": g["not_metni"],
                 "ek_veri": g["ek_veri"],
                 "tarih": g["tarih"].isoformat() if g["tarih"] else None,
@@ -251,7 +281,7 @@ def admin_tum_siparisler(authorization: str = Header(None)):
             "siparis_no": r["siparis_no"],
             "urun_aciklamasi": r["urun_aciklamasi"],
             "durum": r["durum"],
-            "durum_adi": DURUM_ISIMLERI.get(r["durum"], r["durum"]),
+            "durum_adi": TUM_DURUM_ISIMLERI.get(r["durum"], r["durum"]),
             "musteri": r["ad_soyad"],
             "firma": r["firma"],
             "email": r["email"],
