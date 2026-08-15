@@ -16,10 +16,12 @@ from pydantic import BaseModel
 
 from src.db import db
 from src.rule_engine import hesapla
+from src.tracking_api import router as tracking_router
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "web")
 
-app = FastAPI(title="GTİP Vergi Hesaplama Motoru")
+app = FastAPI(title="Çin Tedarik Ağı — Vergi Motoru + Takip Sistemi")
+app.include_router(tracking_router)
 
 
 def norm_code(raw: str) -> str:

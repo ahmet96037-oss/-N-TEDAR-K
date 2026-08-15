@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sipariş Takip — Çin Tedarik Ağı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Kurumsal B2B palet — soğuk nötrler + lacivert/indigo vurgu (Stripe/Linear tarzı) */
+    --bg:#f8fafc; --bg-alt:#f1f5f9; --surface:#ffffff; --text:#0f172a; --text-muted:#64748b;
+    --accent:#2451c4; --accent-ink:#1c3d99; --accent2:#0f766e; --accent2-ink:#0b5750;
+    --signal:#c0362c; --signal-ink:#9c2c23; --border:#e2e8f0;
+    --font-display: "Inter Tight","Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-body: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-code: ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0b1220; --bg-alt:#111a2c; --surface:#141d31; --text:#e7ecf5; --text-muted:#8a94a8;
+      --accent:#5b8def; --accent-ink:#8fb0f5; --accent2:#2fb8a6; --accent2-ink:#6fd6c8;
+      --signal:#ef6b60; --signal-ink:#f29a92; --border:#243252;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b1220; --bg-alt:#111a2c; --surface:#141d31; --text:#e7ecf5; --text-muted:#8a94a8;
+    --accent:#5b8def; --accent-ink:#8fb0f5; --accent2:#2fb8a6; --accent2-ink:#6fd6c8;
+    --signal:#ef6b60; --signal-ink:#f29a92; --border:#243252;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.5; }
+  .wrap{ max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+  .theme-toggle{ position:fixed; top:16px; right:16px; z-index:50; display:flex; gap:2px; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:3px; box-shadow:0 4px 14px rgba(0,0,0,.1); }
+  .theme-toggle button{ width:auto; border:none; background:transparent; color:var(--text-muted); font-family:var(--font-body); font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:16px; cursor:pointer; }
+  .theme-toggle button.active{ background:var(--accent2); color:#fff; }
+  header h1{ font-family:var(--font-display); font-weight:800; font-size:clamp(26px,4vw,36px); letter-spacing:-.02em; margin:0 0 6px; }
+  header p{ color:var(--text-muted); font-size:15px; max-width:60ch; margin:0 0 32px; }
+  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:28px; margin-bottom:24px; box-shadow:0 1px 2px rgba(15,23,42,.04), 0 1px 0 rgba(15,23,42,.03); }
+  label{ display:block; font-family:var(--font-body); font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); margin-bottom:6px; font-weight:600;}
+  input, textarea{ width:100%; font-size:15px; padding:11px 12px; border-radius:3px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; margin-bottom:16px; }
+  textarea{ min-height:80px; resize:vertical; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:600px){ .row2{ grid-template-columns:1fr; } }
+  button.primary{ width:100%; background:var(--accent); color:#fff; border:none; padding:13px; border-radius:6px; font-family:var(--font-body); font-weight:600; font-size:15px; cursor:pointer; letter-spacing:-.01em; transition:background .12s; }
+  button.primary:hover{ background:var(--accent-ink); }
+  .linklike{ background:none; border:none; color:var(--accent-ink); font-weight:600; cursor:pointer; padding:0; font-size:14px; text-decoration:underline; }
+  .toggle-row{ text-align:center; margin-top:14px; font-size:14px; color:var(--text-muted); }
+  .err{ color:var(--signal-ink); font-size:13.5px; margin-bottom:12px; }
+  .siparis-kart{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:20px; margin-bottom:12px; cursor:pointer; transition:border-color .15s, box-shadow .15s; box-shadow:0 1px 2px rgba(15,23,42,.04); }
+  .siparis-kart:hover{ border-color:var(--accent); box-shadow:0 4px 14px rgba(15,23,42,.08); }
+  .siparis-kart .no{ font-family:var(--font-code); font-variant-numeric:tabular-nums; font-weight:600; font-size:12.5px; color:var(--accent-ink); letter-spacing:.02em; }
+  .siparis-kart h3{ font-family:var(--font-display); font-weight:700; font-size:17px; margin:6px 0 10px; letter-spacing:-.01em; }
+  .pill{ display:inline-block; font-family:var(--font-body); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:4px 10px; border-radius:20px; background:color-mix(in srgb, var(--accent2) 12%, transparent); color:var(--accent2-ink); border:1px solid color-mix(in srgb, var(--accent2) 30%, transparent); }
+  .back{ background:none; border:none; color:var(--text-muted); font-size:14px; cursor:pointer; margin-bottom:20px; padding:0; font-weight:600; }
+  .stepper{ margin-top:28px; }
+  .step{ display:grid; grid-template-columns:36px 1fr; gap:16px; position:relative; padding-bottom:24px; }
+  .step:last-child{ padding-bottom:0; }
+  .step .marker{ width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-body); font-weight:700; font-size:14px; position:relative; z-index:1; background:var(--border); color:var(--text-muted); }
+  .step.done .marker{ background:var(--accent2); color:#fff; }
+  .step.current .marker{ background:var(--accent); color:#fff; box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent); }
+  .step:not(:last-child)::before{ content:""; position:absolute; left:17px; top:36px; bottom:0; width:2px; background:var(--border); }
+  .step.done:not(:last-child)::before{ background:var(--accent2); }
+  .step .content h4{ font-family:var(--font-display); font-size:15.5px; margin:0 0 4px; }
+  .step .content p{ font-size:13px; color:var(--text-muted); margin:0; }
+  .step .content .tarih{ font-family:var(--font-code); font-size:11.5px; color:var(--text-muted); margin-top:4px; }
+  .belge-item{ display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:var(--bg-alt); border-radius:3px; margin-bottom:8px; }
+  .belge-item .ad{ font-size:14px; font-weight:600; }
+  .belge-item .tip{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); }
+  .belge-item a{ color:var(--accent2-ink); font-size:13px; font-weight:600; text-decoration:none; }
+  h2{ font-family:var(--font-display); font-weight:700; font-size:22px; letter-spacing:-.01em; margin:0 0 4px; }
+  .siparis-no-tag{ font-family:var(--font-code); font-variant-numeric:tabular-nums; font-weight:600; font-size:13px; color:var(--accent-ink); letter-spacing:.02em; margin-bottom:18px; }
+  .tarih{ font-variant-numeric:tabular-nums; }
+</style>
+</head>
+<body>
+<div class="theme-toggle" id="themeToggle">
+  <button data-mode="light">☀ Açık</button>
+  <button data-mode="dark">☾ Koyu</button>
+  <button data-mode="system">Sistem</button>
+</div>
+<div class="wrap">
+  <header>
+    <h1>Sipariş Takip</h1>
+    <p>Talebinizden teslimata kadar tüm süreci buradan izleyin — fabrika, numune, üretim, gemi, gümrük, teslimat.</p>
+  </header>
+
+  <div id="app"></div>
+</div>
+
+<script>
+const API = '';
+let token = localStorage.getItem('tk_token');
+let view = token ? 'liste' : 'giris'; // giris | rfq | liste | detay
+let aktifSiparisNo = null;
+
+function render() {
+  const app = document.getElementById('app');
+  if (view === 'giris') app.innerHTML = girisEkrani();
+  else if (view === 'rfq') app.innerHTML = rfqEkrani();
+  else if (view === 'liste') { app.innerHTML = '<div class="panel">Yükleniyor…</div>'; siparisListesiYukle(); }
+  else if (view === 'detay') { app.innerHTML = '<div class="panel">Yükleniyor…</div>'; siparisDetayYukle(aktifSiparisNo); }
+}
+
+function girisEkrani() {
+  return `
+    <div class="panel">
+      <h2>Giriş Yap</h2>
+      <div id="girisErr" class="err"></div>
+      <label for="gEmail">E-posta</label>
+      <input id="gEmail" type="email" placeholder="ornek@firma.com">
+      <label for="gSifre">Şifre</label>
+      <input id="gSifre" type="password">
+      <button class="primary" onclick="girisYap()">Giriş Yap</button>
+      <div class="toggle-row">Hesabınız yok mu? <button class="linklike" onclick="view='rfq'; render();">Yeni talep oluşturun</button></div>
+    </div>`;
+}
+
+function rfqEkrani() {
+  return `
+    <div class="panel">
+      <h2>Yeni Talep (RFQ)</h2>
+      <p style="color:var(--text-muted); font-size:14px; margin-top:0;">Ürün bilgilerinizi girin, fabrika görüşmelerine hemen başlayalım. Aynı zamanda bir hesap oluşturulur, süreci buradan takip edersiniz.</p>
+      <div id="rfqErr" class="err"></div>
+      <div class="row2">
+        <div><label for="rAd">Ad Soyad</label><input id="rAd"></div>
+        <div><label for="rFirma">Firma (opsiyonel)</label><input id="rFirma"></div>
+      </div>
+      <div class="row2">
+        <div><label for="rEmail">E-posta</label><input id="rEmail" type="email"></div>
+        <div><label for="rTel">Telefon (opsiyonel)</label><input id="rTel"></div>
+      </div>
+      <label for="rSifre">Şifre belirleyin (siparişinizi takip etmek için)</label>
+      <input id="rSifre" type="password">
+      <label for="rUrun">Ürün açıklaması</label>
+      <textarea id="rUrun" placeholder="Ne tür bir ürün, hangi özelliklerde?"></textarea>
+      <div class="row2">
+        <div><label for="rMiktar">Miktar</label><input id="rMiktar" placeholder="ör. 5000 adet"></div>
+        <div><label for="rFiyat">Hedef fiyat (opsiyonel)</label><input id="rFiyat" placeholder="ör. 2000 USD"></div>
+      </div>
+      <button class="primary" onclick="rfqGonder()">Talebi Gönder</button>
+      <div class="toggle-row">Zaten hesabınız var mı? <button class="linklike" onclick="view='giris'; render();">Giriş yapın</button></div>
+    </div>`;
+}
+
+async function girisYap() {
+  const email = document.getElementById('gEmail').value.trim();
+  const sifre = document.getElementById('gSifre').value;
+  const errBox = document.getElementById('girisErr');
+  errBox.textContent = '';
+  try {
+    const res = await fetch(API + '/api/tk/giris', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({email, sifre}) });
+    if (!res.ok) { const d = await res.json(); errBox.textContent = d.detail || 'Giriş başarısız'; return; }
+    const d = await res.json();
+    token = d.token; localStorage.setItem('tk_token', token);
+    view = 'liste'; render();
+  } catch (e) { errBox.textContent = 'Bağlantı hatası'; }
+}
+
+async function rfqGonder() {
+  const body = {
+    ad_soyad: document.getElementById('rAd').value.trim(),
+    firma: document.getElementById('rFirma').value.trim() || null,
+    email: document.getElementById('rEmail').value.trim(),
+    telefon: document.getElementById('rTel').value.trim() || null,
+    sifre: document.getElementById('rSifre').value,
+    urun_aciklamasi: document.getElementById('rUrun').value.trim(),
+    miktar: document.getElementById('rMiktar').value.trim() || null,
+    hedef_fiyat: document.getElementById('rFiyat').value.trim() || null,
+  };
+  const errBox = document.getElementById('rfqErr');
+  errBox.textContent = '';
+  if (!body.ad_soyad || !body.email || !body.sifre || !body.urun_aciklamasi) {
+    errBox.textContent = 'Ad soyad, e-posta, şifre ve ürün açıklaması zorunlu.'; return;
+  }
+  try {
+    const res = await fetch(API + '/api/tk/rfq', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (!res.ok) { const d = await res.json(); errBox.textContent = d.detail || 'Bir hata oluştu'; return; }
+    const d = await res.json();
+    token = d.token; localStorage.setItem('tk_token', token);
+    aktifSiparisNo = d.siparis_no;
+    view = 'detay'; render();
+  } catch (e) { errBox.textContent = 'Bağlantı hatası'; }
+}
+
+function cikisYap() { localStorage.removeItem('tk_token'); token = null; view = 'giris'; render(); }
+
+async function siparisListesiYukle() {
+  const app = document.getElementById('app');
+  try {
+    const res = await fetch(API + '/api/tk/siparislerim', { headers: {'Authorization':'Bearer ' + token} });
+    if (res.status === 401) { cikisYap(); return; }
+    const rows = await res.json();
+    let html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+      <h2 style="margin:0;">Siparişleriniz</h2>
+      <div><button class="linklike" onclick="view='rfq'; render();">+ Yeni talep</button> &nbsp;|&nbsp; <button class="linklike" onclick="cikisYap()">Çıkış</button></div>
+    </div>`;
+    if (rows.length === 0) {
+      html += `<div class="panel">Henüz siparişiniz yok. <button class="linklike" onclick="view='rfq'; render();">İlk talebinizi oluşturun</button></div>`;
+    } else {
+      rows.forEach(r => {
+        html += `<div class="siparis-kart" onclick="aktifSiparisNo='${r.siparis_no}'; view='detay'; render();">
+          <div class="no">${r.siparis_no}</div>
+          <h3>${r.urun_aciklamasi}</h3>
+          <span class="pill">${r.durum_adi}</span>
+        </div>`;
+      });
+    }
+    app.innerHTML = html;
+  } catch (e) { app.innerHTML = '<div class="panel err">Yüklenemedi, bağlantınızı kontrol edin.</div>'; }
+}
+
+async function siparisDetayYukle(siparisNo) {
+  const app = document.getElementById('app');
+  try {
+    const res = await fetch(API + '/api/tk/siparis/' + encodeURIComponent(siparisNo), { headers: {'Authorization':'Bearer ' + token} });
+    if (res.status === 401) { cikisYap(); return; }
+    if (!res.ok) { app.innerHTML = '<div class="panel err">Sipariş bulunamadı.</div>'; return; }
+    const d = await res.json();
+
+    const tamamlananKodlar = new Set(d.gecmis.map(g => g.durum));
+    const suankiIndex = d.durum_sirasi.findIndex(s => s.kod === d.durum);
+
+    let stepperHtml = '<div class="stepper">';
+    d.durum_sirasi.forEach((s, i) => {
+      const gecmisKaydi = d.gecmis.find(g => g.durum === s.kod);
+      const cls = i < suankiIndex ? 'done' : (i === suankiIndex ? 'done current' : '');
+      stepperHtml += `<div class="step ${cls}">
+        <div class="marker">${i < suankiIndex || i === suankiIndex ? '✓' : (i+1)}</div>
+        <div class="content">
+          <h4>${s.ad}</h4>
+          ${gecmisKaydi ? `<p>${gecmisKaydi.not_metni || ''}</p><div class="tarih">${new Date(gecmisKaydi.tarih).toLocaleString('tr-TR')}</div>` : `<p style="opacity:.5">Henüz gelmedi</p>`}
+        </div>
+      </div>`;
+    });
+    stepperHtml += '</div>';
+
+    let belgeHtml = '';
+    if (d.belgeler.length) {
+      belgeHtml = '<div class="panel"><h2>Belgeler</h2>';
+      d.belgeler.forEach(b => {
+        belgeHtml += `<div class="belge-item">
+          <div><div class="ad">${b.dosya_adi}</div><div class="tip">${b.belge_tipi}</div></div>
+          <a href="${b.dosya_url}" target="_blank" rel="noopener">İndir →</a>
+        </div>`;
+      });
+      belgeHtml += '</div>';
+    }
+
+    app.innerHTML = `
+      <button class="back" onclick="view='liste'; render();">← Siparişlerime dön</button>
+      <div class="siparis-no-tag">${d.siparis_no}</div>
+      <h2>${d.urun_aciklamasi}</h2>
+      <p style="color:var(--text-muted); margin-top:4px;">Miktar: ${d.miktar || '—'} ${d.hedef_fiyat ? '· Hedef fiyat: ' + d.hedef_fiyat : ''}</p>
+      <div class="panel">${stepperHtml}</div>
+      ${belgeHtml}
+    `;
+  } catch (e) { app.innerHTML = '<div class="panel err">Yüklenemedi.</div>'; }
+}
+
+render();
+
+(function initTheme() {
+  const root = document.documentElement;
+  const buttons = document.querySelectorAll('#themeToggle button');
+  function apply(mode) {
+    if (mode === 'light') root.setAttribute('data-theme', 'light');
+    else if (mode === 'dark') root.setAttribute('data-theme', 'dark');
+    else root.removeAttribute('data-theme');
+    buttons.forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  }
+  const saved = localStorage.getItem('tema') || 'system';
+  apply(saved);
+  buttons.forEach(b => b.addEventListener('click', () => { localStorage.setItem('tema', b.dataset.mode); apply(b.dataset.mode); }));
+})();
+</script>
+</body>
+</html>
