@@ -447,10 +447,8 @@ function detaySayfasi(d, suankiIndex) {
       </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         ${s.tasiyici_takip_url ? `<a href="${s.tasiyici_takip_url}" target="_blank" rel="noopener" class="btn btn-primary">${s.tasiyici_firma || 'Taşıyıcı'} Sitesinde Takip Et →</a>` : ''}
-        ${s.marine_traffic_url ? `<a href="${s.marine_traffic_url}" target="_blank" rel="noopener" class="btn">Marine Traffic'te Ara →</a>` : ''}
         ${s.vesselfinder_url ? `<a href="${s.vesselfinder_url}" target="_blank" rel="noopener" class="btn">VesselFinder'da Ara →</a>` : ''}
       </div>
-      ${s.marine_traffic_url ? `<p style="font-size:12px; color:var(--text-muted); margin:10px 0 0;">Not: Marine Traffic yoğun trafikte bazen bir doğrulama ekranı gösterebilir — birkaç saniye içinde geçer. Açılmazsa VesselFinder'ı deneyin.</p>` : ''}
     </div>`;
   }
 

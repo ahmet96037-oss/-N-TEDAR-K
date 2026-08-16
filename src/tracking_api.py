@@ -271,19 +271,14 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
         (siparis["id"],),
     ).fetchall()
 
-    # Gemi konum takibi — iki bağımsız AIS servisi birden sunuluyor. Marine
-    # Traffic'in kendi sitesi (ana sayfası dahil) otomatik istekleri Cloudflare
-    # ile engelliyor; gerçek kullanıcıda genelde açılır ama garanti edilemez —
-    # bu yüzden aynı işi gören VesselFinder de (test edildi, güvenilir açıldı)
-    # yedek olarak ekleniyor. İkisi de gerçek, resmi arama uç noktaları;
-    # sonuç sayfası gemi adına göre arama yapıyor, MMSI bilinmediği için
-    # doğrudan gemi sayfasına değil.
-    marine_traffic_url = None
+    # Gemi konum takibi — VesselFinder kullanılıyor. Marine Traffic iki kez
+    # denendi, ikisinde de kullanıcı tarafında açılmadığı bildirildi (kendi
+    # sitesinin bot koruması otomatik/gerçek kullanıcı ayrımı yapmadan
+    # engelliyor olmalı) — ısrar etmek yerine kaldırıldı. VesselFinder aynı
+    # işi görüyor (gemi adına göre arama) ve testlerde güvenilir açıldı.
     vesselfinder_url = None
     if siparis["gemi_adi"]:
-        gemi_q = _url_quote(siparis["gemi_adi"])
-        marine_traffic_url = f"https://www.marinetraffic.com/en/ais/index/search/all?keyword={gemi_q}"
-        vesselfinder_url = f"https://www.vesselfinder.com/vessels?name={gemi_q}"
+        vesselfinder_url = f"https://www.vesselfinder.com/vessels?name={_url_quote(siparis['gemi_adi'])}"
 
     # Taşıyıcı takip linki önceliği:
     # 1) admin'in o sevkiyat için elle girdiği gerçek link (varsa en doğru olan budur)
@@ -317,7 +312,6 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
             "sefer_no": siparis["sefer_no"],
             "konsimento_no": siparis["konsimento_no"],
             "tasiyici_takip_url": tasiyici_url,
-            "marine_traffic_url": marine_traffic_url,
             "vesselfinder_url": vesselfinder_url,
         } if any([tasiyici_ad, siparis["gemi_adi"], siparis["konsimento_no"]]) else None,
         "gecmis": [
