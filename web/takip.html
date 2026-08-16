@@ -54,7 +54,6 @@
 
   /* ================= PRE-AUTH: split hero + form ================= */
   .auth-shell{ display:grid; grid-template-columns:1.1fr 1fr; min-height:100vh; }
-  @media (max-width:860px){ .auth-shell{ grid-template-columns:1fr; } .auth-brand{ display:none; } }
   .auth-brand{ background:var(--text); color:var(--bg); padding:64px 56px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden; }
   .auth-brand::before{ content:""; position:absolute; inset:0; background-image:repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 26px); }
   .auth-brand .logo{ font-family:var(--font-display); font-weight:700; font-size:19px; text-decoration:none; color:var(--bg); position:relative; z-index:1; }
@@ -68,6 +67,11 @@
   .auth-form .back-home{ display:inline-block; margin-bottom:28px; font-size:13.5px; font-weight:600; color:var(--text-muted); text-decoration:none; }
   .auth-form h2{ font-size:26px; margin-bottom:8px; }
   .auth-form .lede{ color:var(--text-muted); font-size:14.5px; margin:0 0 28px; }
+  /* Bu media query bilerek EN SONDA: yukarıdaki .auth-brand kuralını ezmesi gerekiyor
+     (aynı özgüllükte CSS'te kazanan kaynak sırasında sonraki kuraldır — önce yazılırsa
+     hiç uygulanmaz, bu tam olarak önceki sürümdeki "mobilde kayan/üst üste binen kutular"
+     hatasının sebebiydi). */
+  @media (max-width:860px){ .auth-shell{ grid-template-columns:1fr; } .auth-brand{ display:none; } }
 
   /* ================= APP SHELL (post-auth panel) ================= */
   .app-shell{ display:flex; min-height:100vh; align-items:stretch; }
