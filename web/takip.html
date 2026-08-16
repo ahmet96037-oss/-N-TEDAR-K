@@ -50,6 +50,11 @@
   .linklike{ background:none; border:none; color:var(--accent-ink); font-weight:600; cursor:pointer; padding:0; font-size:14px; text-decoration:underline; }
   .toggle-row{ text-align:center; margin-top:16px; font-size:14px; color:var(--text-muted); }
   .err{ color:var(--signal-ink); font-size:13.5px; margin-bottom:12px; }
+
+  /* Ana sayfayla tutarlı, sade blur-in giriş animasyonu — her render'da yeniden tetiklenir */
+  .panel-fade{ animation:panelFadeIn .45s cubic-bezier(.2,.7,.3,1); }
+  @keyframes panelFadeIn{ from{ opacity:0; filter:blur(6px); transform:translateY(8px); } to{ opacity:1; filter:blur(0); transform:translateY(0); } }
+  @media (prefers-reduced-motion: reduce){ .panel-fade{ animation:none; } }
   h2{ font-family:var(--font-display); font-weight:700; font-size:24px; letter-spacing:-.01em; margin:0 0 6px; }
   .tarih{ font-variant-numeric:tabular-nums; }
 
@@ -225,7 +230,7 @@ function authShell(innerHtml) {
         </div>
       </div>
       <div class="auth-form-wrap">
-        <div class="auth-form">
+        <div class="auth-form panel-fade">
           <a href="/" class="back-home">← Ana sayfaya dön</a>
           ${innerHtml}
         </div>
@@ -371,7 +376,7 @@ async function siparisListesiYukle() {
       });
       html += '</div>';
     }
-    main.innerHTML = html;
+    main.innerHTML = '<div class="panel-fade">' + html + '</div>';
   } catch (e) { main.innerHTML = '<div class="panel err">Yüklenemedi, bağlantınızı kontrol edin.</div>'; }
 }
 
@@ -412,7 +417,7 @@ async function siparisDetayYukle(siparisNo) {
     acikFazIndex = FAZLAR.findIndex(f => f.kodlar.includes(sonLineerDurum));
     if (acikFazIndex < 0) acikFazIndex = 0;
 
-    main.innerHTML = detaySayfasi(d, suankiIndex);
+    main.innerHTML = '<div class="panel-fade">' + detaySayfasi(d, suankiIndex) + '</div>';
   } catch (e) { main.innerHTML = '<div class="panel err">Yüklenemedi.</div>'; }
 }
 
