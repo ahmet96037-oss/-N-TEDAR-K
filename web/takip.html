@@ -50,6 +50,7 @@
   .linklike{ background:none; border:none; color:var(--accent-ink); font-weight:600; cursor:pointer; padding:0; font-size:14px; text-decoration:underline; }
   .toggle-row{ text-align:center; margin-top:16px; font-size:14px; color:var(--text-muted); }
   .err{ color:var(--signal-ink); font-size:13.5px; margin-bottom:12px; }
+  .demo-box{ font-size:13px; line-height:1.5; color:var(--accent2-ink); background:color-mix(in srgb, var(--accent2) 10%, transparent); border:1px solid color-mix(in srgb, var(--accent2) 28%, transparent); border-radius:6px; padding:10px 13px; margin-bottom:18px; }
 
   /* Ana sayfayla tutarlı, sade blur-in giriş animasyonu — her render'da yeniden tetiklenir */
   .panel-fade{ animation:panelFadeIn .45s cubic-bezier(.2,.7,.3,1); }
@@ -270,11 +271,14 @@ function girisEkrani() {
   return `
     <h2>Panelinize Giriş</h2>
     <p class="lede">Sipariş takibiniz, belgeleriniz ve süreç geçmişiniz tek panelde.</p>
+    <div class="demo-box">
+      <b>Hızlı test için:</b> Bilgiler otomatik dolduruldu, doğrudan "Giriş Yap"a basabilirsiniz.
+    </div>
     <div id="girisErr" class="err"></div>
     <label for="gEmail">E-posta</label>
-    <input id="gEmail" type="email" placeholder="ornek@firma.com">
+    <input id="gEmail" type="email" placeholder="ornek@firma.com" value="demo@cintedarikagi.com">
     <label for="gSifre">Şifre</label>
-    <input id="gSifre" type="password">
+    <input id="gSifre" type="password" value="demo1234">
     <button class="primary" onclick="girisYap()">Giriş Yap</button>
     <div class="toggle-row">Hesabınız yok mu? <button class="linklike" onclick="view='rfq'; render();">Yeni talep oluşturun</button></div>`;
 }

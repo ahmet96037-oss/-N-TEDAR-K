@@ -48,6 +48,7 @@
   button:disabled{ opacity:.4; cursor:not-allowed; }
   .linklike{ background:none; border:none; color:var(--accent-ink); font-weight:600; cursor:pointer; padding:0; font-size:13px; text-decoration:underline; }
   .err{ color:var(--signal-ink); font-size:13px; margin-bottom:10px; }
+  .demo-box{ font-size:13px; line-height:1.5; color:var(--accent2-ink); background:color-mix(in srgb, var(--accent2) 10%, transparent); border:1px solid color-mix(in srgb, var(--accent2) 28%, transparent); border-radius:6px; padding:10px 13px; margin-bottom:16px; }
 
   .panel-fade{ animation:panelFadeIn .45s cubic-bezier(.2,.7,.3,1); }
   @keyframes panelFadeIn{ from{ opacity:0; filter:blur(6px); transform:translateY(8px); } to{ opacity:1; filter:blur(0); transform:translateY(0); } }
@@ -233,9 +234,12 @@ function girisEkrani() {
     <span class="badge">Yalnızca ekip erişimi</span>
     <h2>Admin Girişi</h2>
     <p class="lede">Sipariş durumlarını güncellemek ve belge yüklemek için giriş yapın.</p>
+    <div class="demo-box">
+      <b>Hızlı test için:</b> Bilgiler otomatik dolduruldu, doğrudan "Giriş Yap"a basabilirsiniz.
+    </div>
     <div id="err" class="err"></div>
-    <label>E-posta</label><input id="email" type="email">
-    <label>Şifre</label><input id="sifre" type="password">
+    <label>E-posta</label><input id="email" type="email" value="ekip@cintedarikagi.com">
+    <label>Şifre</label><input id="sifre" type="password" value="ekip1234">
     <button class="primary" style="width:100%;" onclick="girisYap()">Giriş Yap</button>
   `;
 }
