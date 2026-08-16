@@ -439,16 +439,13 @@ function detaySayfasi(d, suankiIndex) {
     const s = d.sevkiyat;
     sevkiyatCard = `<div class="panel" style="margin-bottom:20px;">
       <h2 style="font-size:16px; margin-bottom:14px;">🚢 Gemi &amp; Taşıyıcı Takibi</h2>
-      <div class="ozet-meta" style="margin-bottom:${s.tasiyici_takip_url || s.marine_traffic_url ? '18px' : '0'};">
+      <div class="ozet-meta" style="margin-bottom:${s.tasiyici_takip_url ? '18px' : '0'};">
         ${s.tasiyici_firma ? `<div>Taşıyıcı<b style="font-family:var(--font-body);">${s.tasiyici_firma}</b></div>` : ''}
         ${s.gemi_adi ? `<div>Gemi adı<b style="font-family:var(--font-body);">${s.gemi_adi}</b></div>` : ''}
         ${s.sefer_no ? `<div>Sefer no<b>${s.sefer_no}</b></div>` : ''}
         ${s.konsimento_no ? `<div>Konşimento (B/L)<b>${s.konsimento_no}</b></div>` : ''}
       </div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        ${s.tasiyici_takip_url ? `<a href="${s.tasiyici_takip_url}" target="_blank" rel="noopener" class="btn btn-primary">${s.tasiyici_firma || 'Taşıyıcı'} Sitesinde Takip Et →</a>` : ''}
-        ${s.marine_traffic_url ? `<a href="${s.marine_traffic_url}" target="_blank" rel="noopener" class="btn">Marine Traffic'te Ara →</a>` : ''}
-      </div>
+      ${s.tasiyici_takip_url ? `<a href="${s.tasiyici_takip_url}" target="_blank" rel="noopener" class="btn btn-primary">${s.tasiyici_firma || 'Taşıyıcı'} Sitesinde Takip Et →</a>` : ''}
     </div>`;
   }
 

@@ -271,16 +271,11 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
         (siparis["id"],),
     ).fetchall()
 
-    # Marine Traffic'in resmi/genel arama URL'i — gemi adına göre gerçek, çalışan
-    # bir arama sonucu açar (MMSI bilinmediği için doğrudan gemi sayfası değil,
-    # ama tahmini/uydurma bir link değil — Marine Traffic'in kendi arama uç
-    # noktası). Taşıyıcının (Maersk/MSC/CMA CGM vb.) KENDİ takip sayfası ise
-    # sevkiyata özel olduğu ve tahmin edilemeyeceği için admin tarafından o
-    # sevkiyat için gerçekten aldığı linki elle giriyor — uydurma bir URL
-    # deseni asla üretilmiyor.
-    marine_traffic_url = None
-    if siparis["gemi_adi"]:
-        marine_traffic_url = f"https://www.marinetraffic.com/en/ais/index/search/all?keyword={_url_quote(siparis['gemi_adi'])}"
+    # NOT: Marine Traffic linki kasıtlı olarak KALDIRILDI — kendi sitesi bile
+    # (ana sayfası dahil) Cloudflare bot korumasından 403 dönüyor, gerçek
+    # kullanıcıda da güvenilir açılmadığı doğrulandı (kullanıcı bildirdi).
+    # Kırık/güvenilmez bir üçüncü parti linki sunmaktansa hiç sunmuyoruz —
+    # taşıyıcının kendi (doğrulanmış) takip sayfası zaten yeterli.
 
     # Taşıyıcı takip linki önceliği:
     # 1) admin'in o sevkiyat için elle girdiği gerçek link (varsa en doğru olan budur)
@@ -314,7 +309,6 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
             "sefer_no": siparis["sefer_no"],
             "konsimento_no": siparis["konsimento_no"],
             "tasiyici_takip_url": tasiyici_url,
-            "marine_traffic_url": marine_traffic_url,
         } if any([tasiyici_ad, siparis["gemi_adi"], siparis["konsimento_no"]]) else None,
         "gecmis": [
             {
@@ -421,8 +415,8 @@ def tasiyici_listesi():
 
 @router.post("/admin/siparis/{siparis_no}/sevkiyat")
 def admin_sevkiyat_guncelle(siparis_no: str, istek: SevkiyatBilgisiIstek, authorization: str = Header(None)):
-    """Taşıyıcı/gemi/konşimento bilgisi — müşteri panelinde Marine Traffic ve
-    taşıyıcı takip linklerinin gösterilebilmesi için. tasiyici_takip_url admin
+    """Taşıyıcı/gemi/konşimento bilgisi — müşteri panelinde taşıyıcı takip
+    linkinin gösterilebilmesi için. tasiyici_takip_url admin
     tarafından o sevkiyat için gerçekten alınan linktir; sistem hiçbir zaman
     taşıyıcıya özel bir takip URL'i TAHMİN ETMEZ (yanlış/kırık link riski)."""
     conn, _ = _admin_dogrula(authorization)
