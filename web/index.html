@@ -567,59 +567,120 @@
     ]);
     const countries = await fetch('/data/countries.geo.json').then(r => r.json());
 
-    const rootStyle = getComputedStyle(document.documentElement);
-    const cAccent = rootStyle.getPropertyValue('--accent').trim() || '#a97230';
-    const cAccent2 = rootStyle.getPropertyValue('--accent2').trim() || '#2f6f63';
-    const cBg = rootStyle.getPropertyValue('--bg').trim() || '#f6f3ec';
+    // Orijinal component'in renk paleti BİREBİR: koyu indigo küre, beyaz ülke
+    // sınırları, cyan/mavi/indigo ark renkleri — marka renklerine "uyarlanmış"
+    // soluk versiyon değil, aynısı.
+    const ARC_COLORS = ['#06b6d4', '#3b82f6', '#6366f1'];
+    const rndColor = () => ARC_COLORS[Math.floor(Math.random() * ARC_COLORS.length)];
 
-    // Sunumdaki/panelimizdeki gerçek şehirler + birkaç büyük lojistik/liman merkezi —
-    // orijinal örnekteki gibi çok sayıda ark, ama uydurma değil gerçek koordinatlar.
+    // Gerçek şehir koordinatları — bizim asıl hattımız (Çin üretim şehirleri →
+    // Türkiye) + dünyanın her yanına yayılan, orijinal örnekteki gibi zengin bir
+    // küresel ağ hissi versin diye eklenen gerçek şehirler arası rotalar (uydurma
+    // koordinat yok, hepsi gerçek şehirler — sadece "bizim sevkiyatımız" iddiası
+    // taşımıyorlar, dekoratif küresel bağlantı dokusu).
+    const CN_TR = [ // asıl hikayemiz
+      [31.2304,121.4737, 41.0082,28.9784],  // Şanghay → İstanbul
+      [22.5431,114.0579, 41.0082,28.9784],  // Shenzhen → İstanbul
+      [39.9042,116.4074, 40.1885,29.0610],  // Pekin → Bursa
+      [23.1291,113.2644, 38.4237,27.1428],  // Guangzhou → İzmir
+      [31.2304,121.4737, 36.8969,30.7133],  // Şanghay → Antalya
+      [30.5928,114.3055, 40.7654,29.9408],  // Wuhan → Kocaeli
+    ];
+    const GLOBAL = [ // küreyi dünyanın HER yanına dengeli yayan dekoratif rotalar —
+      // hangi taraf kameraya dönerse dönsün boş kalmasın diye Amerika, Afrika,
+      // Avustralya/Pasifik ve Avrupa içi de yoğunlukla temsil ediliyor.
+      // — Asya/Ortadoğu/Avrupa köprüsü —
+      [22.5431,114.0579, 1.3521,103.8198],   [1.3521,103.8198, 12.9716,77.5946],
+      [12.9716,77.5946, 25.2048,55.2708],    [25.2048,55.2708, 41.0082,28.9784],
+      [41.0082,28.9784, 52.5200,13.4050],    [52.5200,13.4050, 51.5072,-0.1276],
+      [19.0760,72.8777, 25.2048,55.2708],    [28.6139,77.2090, 19.0760,72.8777],
+      [55.7558,37.6173, 52.5200,13.4050],    [39.9042,116.4074, 55.7558,37.6173],
+      [48.8566,2.3522, 41.0082,28.9784],     [31.2304,121.4737, 35.6762,139.6503],
+      [35.6762,139.6503, 37.5665,126.9780],  [37.5665,126.9780, -6.2088,106.8456],
+      // — Kuzey Amerika —
+      [51.5072,-0.1276, 40.7128,-74.0060],   [40.7128,-74.0060, 34.0522,-118.2437],
+      [34.0522,-118.2437, 49.2827,-123.1207],[49.2827,-123.1207, 45.5017,-73.5673],
+      [45.5017,-73.5673, 41.8781,-87.6298],  [41.8781,-87.6298, 29.7604,-95.3698],
+      [29.7604,-95.3698, 25.7617,-80.1918],  [40.7128,-74.0060, 19.4326,-99.1332],
+      // — Güney Amerika —
+      [19.4326,-99.1332, 4.7110,-74.0721],   [4.7110,-74.0721, -12.0464,-77.0428],
+      [-12.0464,-77.0428, -33.4489,-70.6693],[-33.4489,-70.6693, -34.6037,-58.3816],
+      [-34.6037,-58.3816, -22.9068,-43.1729],[-22.9068,-43.1729, -15.7939,-47.8828],
+      // — Afrika —
+      [22.5431,114.0579, -1.3026,36.8219],   [-1.3026,36.8219, -33.9249,18.4241],
+      [-33.9249,18.4241, -22.9068,-43.1729], [30.0444,31.2357, -1.3026,36.8219],
+      [6.5244,3.3792, 30.0444,31.2357],      [6.5244,3.3792, -33.9249,18.4241],
+      [41.0082,28.9784, 30.0444,31.2357],
+      // — Avustralya / Pasifik —
+      [34.0522,-118.2437, -33.8688,151.2093],[-6.2088,106.8456, -33.8688,151.2093],
+      [-33.8688,151.2093, -36.8485,174.7633],[-33.8688,151.2093, -22.9068,-43.1729],
+      [1.3521,103.8198, -33.8688,151.2093],  [22.5431,114.0579, -33.8688,151.2093],
+    ];
     const ROUTES = [
-      { startLat: 31.2304, startLng: 121.4737, endLat: 41.0082, endLng: 28.9784, color: cAccent2 },   // Şanghay → İstanbul
-      { startLat: 22.5431, startLng: 114.0579, endLat: 41.0082, endLng: 28.9784, color: cAccent },    // Shenzhen → İstanbul
-      { startLat: 39.9042, startLng: 116.4074, endLat: 40.1885, endLng: 29.0610, color: cAccent2 },   // Pekin → Bursa
-      { startLat: 23.1291, startLng: 113.2644, endLat: 38.4237, endLng: 27.1428, color: cAccent },    // Guangzhou → İzmir
-      { startLat: 31.2304, startLng: 121.4737, endLat: 36.8969, endLng: 30.7133, color: cAccent2 },   // Şanghay → Antalya
-      { startLat: 30.5928, startLng: 114.3055, endLat: 40.7654, endLng: 29.9408, color: cAccent },    // Wuhan → Kocaeli
-      { startLat: 22.5431, startLng: 114.0579, endLat: 1.3521, endLng: 103.8198, color: cAccent2 },   // Shenzhen → Singapur (transit)
-      { startLat: 1.3521, startLng: 103.8198, endLat: 12.9716, endLng: 77.5946, color: cAccent },     // Singapur → Bengaluru (transit)
-      { startLat: 12.9716, startLng: 77.5946, endLat: 25.2048, endLng: 55.2708, color: cAccent2 },    // Bengaluru → Dubai (transit)
-      { startLat: 25.2048, startLng: 55.2708, endLat: 41.0082, endLng: 28.9784, color: cAccent },     // Dubai → İstanbul
-    ].map(r => ({ ...r, order: Math.round(Math.random() * 5), arcAlt: .25 + Math.random() * .25 }));
+      ...CN_TR.map(([sLa,sLo,eLa,eLo]) => ({ startLat:sLa, startLng:sLo, endLat:eLa, endLng:eLo, color: rndColor() })),
+      ...GLOBAL.map(([sLa,sLo,eLa,eLo]) => ({ startLat:sLa, startLng:sLo, endLat:eLa, endLng:eLo, color: rndColor() })),
+    ].map(r => ({ ...r, order: Math.round(Math.random() * 8), arcAlt: .15 + Math.random() * .35 }));
+
+    const globePoints = ROUTES.flatMap(r => [
+      { lat:r.startLat, lng:r.startLng, color:r.color },
+      { lat:r.endLat, lng:r.endLng, color:r.color },
+    ]);
 
     const globe = new ThreeGlobe()
       .hexPolygonsData(countries.features)
       .hexPolygonResolution(3)
       .hexPolygonMargin(0.7)
-      .hexPolygonColor(() => 'rgba(255,255,255,0.35)')
       .showAtmosphere(true)
-      .atmosphereColor(cAccent2)
-      .atmosphereAltitude(0.18)
+      .atmosphereColor('#FFFFFF')
+      .atmosphereAltitude(0.12)
+      .hexPolygonColor(() => 'rgba(255,255,255,0.7)')
       .arcsData(ROUTES)
       .arcColor('color')
       .arcAltitude('arcAlt')
-      .arcStroke(0.5)
-      .arcDashLength(0.5)
-      .arcDashGap(2)
+      .arcStroke(() => [0.32, 0.28, 0.3][Math.round(Math.random() * 2)])
+      .arcDashLength(0.9)
+      .arcDashGap(15)
       .arcDashInitialGap('order')
-      .arcDashAnimateTime(2200)
-      .pointsData(ROUTES.flatMap(r => [{lat:r.startLat,lng:r.startLng,color:r.color},{lat:r.endLat,lng:r.endLng,color:r.color}]))
+      .arcDashAnimateTime(1000)
+      .pointsData(globePoints)
       .pointColor('color')
-      .pointAltitude(0.005)
-      .pointRadius(0.35)
-      .pointsMerge(true);
-    globe.globeMaterial().color = new THREE.Color(0x0c1b2e);
-    globe.globeMaterial().emissive = new THREE.Color(cAccent2);
-    globe.globeMaterial().emissiveIntensity = 0.15;
-    globe.globeMaterial().shininess = 0.7;
+      .pointsMerge(true)
+      .pointAltitude(0)
+      .pointRadius(2)
+      .ringsData([])
+      .ringColor(() => (t) => `rgba(255,255,255,${1 - t})`)
+      .ringMaxRadius(3)
+      .ringPropagationSpeed(3)
+      .ringRepeatPeriod((1000 * 0.9) / 1);
+    globe.globeMaterial().color = new THREE.Color('#062056');
+    globe.globeMaterial().emissive = new THREE.Color('#062056');
+    globe.globeMaterial().emissiveIntensity = 0.1;
+    globe.globeMaterial().shininess = 0.9;
+
+    // Orijinal örnekteki gibi rastgele noktalarda periyodik "ring" (nabız) efekti —
+    // sadece statik noktalar değil, canlı/nefes alan bir küre hissi.
+    setInterval(() => {
+      const sample = globePoints
+        .map(p => ({ p, r: Math.random() }))
+        .sort((a,b) => a.r - b.r)
+        .slice(0, Math.floor(globePoints.length * 0.6))
+        .map(x => x.p);
+      globe.ringsData(sample);
+    }, 1400);
 
     const width = stage.clientWidth, height = stage.clientHeight;
     const scene = new THREE.Scene();
     scene.add(globe);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-    const dLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    dLight.position.set(-400, 200, 400);
-    scene.add(dLight);
+    scene.add(new THREE.AmbientLight('#38bdf8', 0.8));
+    const dLight1 = new THREE.DirectionalLight(0xffffff, 0.7);
+    dLight1.position.set(-400, 100, 400);
+    scene.add(dLight1);
+    const dLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+    dLight2.position.set(-200, 500, 200);
+    scene.add(dLight2);
+    const pLight = new THREE.PointLight(0xffffff, 0.8);
+    pLight.position.set(-200, 500, 200);
+    scene.add(pLight);
 
     const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 2000);
     camera.position.z = 280;
