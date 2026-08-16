@@ -6,16 +6,16 @@
 <title>Sipariş Takip — Çin Tedarik Ağı</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     /* Marka paleti — sunumla (cin-tedarik-sunum.html) birebir aynı: sıcak krem + pirinç/çam yeşili vurgu */
     --bg:#f6f3ec; --bg-alt:#eee9dd; --surface:#ffffff; --text:#211d16; --text-muted:#6b6152;
     --accent:#a97230; --accent-ink:#7a5322; --accent2:#2f6f63; --accent2-ink:#1e4a42;
     --signal:#b6452e; --signal-ink:#8f3423; --border:#ded6c3;
-    --font-display: "Inter Tight","Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-display: "Fraunces","Iowan Old Style",Georgia,ui-serif,serif;
     --font-body: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-    --font-code: ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --font-code: "IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -31,47 +31,101 @@
   }
   *{box-sizing:border-box;}
   body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.5; }
-  .wrap{ max-width:820px; margin:0 auto; padding:48px 24px 80px; }
-  .theme-toggle{ position:fixed; top:16px; right:16px; z-index:50; display:flex; gap:2px; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:3px; box-shadow:0 4px 14px rgba(0,0,0,.1); }
+  a{ color:inherit; }
+  ::selection{ background:var(--accent); color:#1c1508; }
+
+  .theme-toggle{ position:fixed; top:16px; right:16px; z-index:80; display:flex; gap:2px; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:3px; box-shadow:0 4px 14px rgba(0,0,0,.1); }
   .theme-toggle button{ width:auto; border:none; background:transparent; color:var(--text-muted); font-family:var(--font-body); font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:16px; cursor:pointer; }
   .theme-toggle button.active{ background:var(--accent2); color:#fff; }
-  header h1{ font-family:var(--font-display); font-weight:800; font-size:clamp(26px,4vw,36px); letter-spacing:-.02em; margin:0 0 6px; }
-  header p{ color:var(--text-muted); font-size:15px; max-width:60ch; margin:0 0 32px; }
-  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:28px; margin-bottom:24px; box-shadow:0 1px 2px rgba(15,23,42,.04), 0 1px 0 rgba(15,23,42,.03); }
-  label{ display:block; font-family:var(--font-body); font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); margin-bottom:6px; font-weight:600;}
-  input, textarea{ width:100%; font-size:15px; padding:11px 12px; border-radius:3px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; margin-bottom:16px; }
+
+  label{ display:block; font-family:var(--font-body); font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); margin-bottom:6px; font-weight:600;}
+  input, textarea{ width:100%; font-size:15px; padding:11px 12px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; margin-bottom:16px; }
   textarea{ min-height:80px; resize:vertical; }
+  input:focus, textarea:focus{ outline:2px solid var(--accent); outline-offset:1px; }
   .row2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
   @media (max-width:600px){ .row2{ grid-template-columns:1fr; } }
-  button.primary{ width:100%; background:var(--accent); color:#fff; border:none; padding:13px; border-radius:6px; font-family:var(--font-body); font-weight:600; font-size:15px; cursor:pointer; letter-spacing:-.01em; transition:background .12s; }
+  button.primary{ width:100%; background:var(--accent); color:#fff; border:none; padding:13px; border-radius:6px; font-family:var(--font-body); font-weight:700; font-size:15px; cursor:pointer; letter-spacing:-.01em; transition:background .12s; }
   button.primary:hover{ background:var(--accent-ink); }
   .linklike{ background:none; border:none; color:var(--accent-ink); font-weight:600; cursor:pointer; padding:0; font-size:14px; text-decoration:underline; }
-  .toggle-row{ text-align:center; margin-top:14px; font-size:14px; color:var(--text-muted); }
+  .toggle-row{ text-align:center; margin-top:16px; font-size:14px; color:var(--text-muted); }
   .err{ color:var(--signal-ink); font-size:13.5px; margin-bottom:12px; }
-  .siparis-kart{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:20px; margin-bottom:12px; cursor:pointer; transition:border-color .15s, box-shadow .15s; box-shadow:0 1px 2px rgba(15,23,42,.04); }
-  .siparis-kart:hover{ border-color:var(--accent); box-shadow:0 4px 14px rgba(15,23,42,.08); }
-  .siparis-kart .no{ font-family:var(--font-code); font-variant-numeric:tabular-nums; font-weight:600; font-size:12.5px; color:var(--accent-ink); letter-spacing:.02em; }
-  .siparis-kart h3{ font-family:var(--font-display); font-weight:700; font-size:17px; margin:6px 0 10px; letter-spacing:-.01em; }
+  h2{ font-family:var(--font-display); font-weight:700; font-size:24px; letter-spacing:-.01em; margin:0 0 6px; }
+  .tarih{ font-variant-numeric:tabular-nums; }
+
+  /* ================= PRE-AUTH: split hero + form ================= */
+  .auth-shell{ display:grid; grid-template-columns:1.1fr 1fr; min-height:100vh; }
+  @media (max-width:860px){ .auth-shell{ grid-template-columns:1fr; } .auth-brand{ display:none; } }
+  .auth-brand{ background:var(--text); color:var(--bg); padding:64px 56px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden; }
+  .auth-brand::before{ content:""; position:absolute; inset:0; background-image:repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 26px); }
+  .auth-brand .logo{ font-family:var(--font-display); font-weight:700; font-size:19px; text-decoration:none; color:var(--bg); position:relative; z-index:1; }
+  .auth-brand .quote{ position:relative; z-index:1; }
+  .auth-brand .quote h1{ font-family:var(--font-display); font-weight:600; font-size:clamp(26px,3vw,36px); line-height:1.2; letter-spacing:-.01em; margin:0 0 18px; max-width:14ch; }
+  .auth-brand .quote p{ color:color-mix(in srgb, var(--bg) 72%, transparent); font-size:15px; max-width:42ch; margin:0; }
+  .auth-brand .meta{ position:relative; z-index:1; display:flex; gap:32px; font-family:var(--font-code); font-size:12px; color:color-mix(in srgb, var(--bg) 65%, transparent); border-top:1px solid rgba(255,255,255,.14); padding-top:18px; }
+  .auth-brand .meta b{ display:block; color:var(--bg); font-family:var(--font-body); font-size:15px; margin-top:3px; font-weight:700; }
+  .auth-form-wrap{ display:flex; align-items:center; justify-content:center; padding:40px 24px; }
+  .auth-form{ width:100%; max-width:400px; }
+  .auth-form .back-home{ display:inline-block; margin-bottom:28px; font-size:13.5px; font-weight:600; color:var(--text-muted); text-decoration:none; }
+  .auth-form h2{ font-size:26px; margin-bottom:8px; }
+  .auth-form .lede{ color:var(--text-muted); font-size:14.5px; margin:0 0 28px; }
+
+  /* ================= APP SHELL (post-auth panel) ================= */
+  .app-shell{ display:flex; min-height:100vh; align-items:stretch; }
+  .sidebar{ width:252px; flex:none; background:var(--surface); border-right:1px solid var(--border); padding:26px 18px; display:flex; flex-direction:column; }
+  .sidebar .brand{ font-family:var(--font-display); font-weight:700; font-size:17px; text-decoration:none; color:var(--text); margin-bottom:34px; padding:0 6px; }
+  .side-nav{ display:flex; flex-direction:column; gap:2px; }
+  .side-nav button, .side-nav a{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:6px; font-weight:600; font-size:14px; color:var(--text-muted); cursor:pointer; border:none; background:none; text-align:left; width:100%; font-family:var(--font-body); text-decoration:none; }
+  .side-nav button:hover, .side-nav a:hover{ background:var(--bg-alt); color:var(--text); }
+  .side-nav button.active{ background:color-mix(in srgb, var(--accent) 12%, transparent); color:var(--accent-ink); }
+  .side-nav .ico{ width:18px; text-align:center; flex:none; }
+  .sidebar-foot{ margin-top:auto; padding-top:16px; border-top:1px solid var(--border); }
+  .user-chip{ display:flex; align-items:center; gap:10px; padding:8px 6px; margin-bottom:6px; }
+  .user-chip .av{ width:30px; height:30px; border-radius:50%; background:var(--accent2); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:13px; flex:none; }
+  .user-chip .who{ min-width:0; }
+  .user-chip .name{ font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .user-chip .role{ font-size:11.5px; color:var(--text-muted); }
+  .main{ flex:1; padding:44px 52px; max-width:920px; }
+  @media (max-width:820px){
+    .app-shell{ flex-direction:column; }
+    .sidebar{ width:100%; flex-direction:row; align-items:center; padding:12px 16px; border-right:none; border-bottom:1px solid var(--border); }
+    .sidebar .brand{ margin-bottom:0; margin-right:16px; }
+    .side-nav{ flex-direction:row; }
+    .sidebar-foot{ margin-top:0; margin-left:auto; padding-top:0; border-top:none; display:flex; align-items:center; }
+    .user-chip{ margin-bottom:0; }
+    .main{ padding:28px 18px; }
+  }
+  .panel-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:26px; flex-wrap:wrap; }
+  .panel-head p{ color:var(--text-muted); font-size:14.5px; margin:6px 0 0; }
+  .btn{ display:inline-flex; align-items:center; gap:6px; padding:10px 18px; border-radius:6px; font-weight:700; font-size:13.5px; text-decoration:none; border:1px solid var(--border); cursor:pointer; font-family:var(--font-body); background:var(--surface); color:var(--text); }
+  .btn:hover{ border-color:var(--accent); }
+  .btn-primary{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .btn-primary:hover{ background:var(--accent-ink); border-color:var(--accent-ink); }
+
+  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:28px; margin-bottom:20px; }
+  .empty-state{ background:var(--surface); border:1px dashed var(--border); border-radius:8px; padding:40px; text-align:center; color:var(--text-muted); }
+
+  .siparis-kart{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:20px; margin-bottom:12px; cursor:pointer; transition:border-color .15s, box-shadow .15s, transform .1s; }
+  .siparis-kart:hover{ border-color:var(--accent); box-shadow:0 6px 18px rgba(33,29,22,.07); transform:translateY(-1px); }
+  .siparis-kart .no{ font-family:var(--font-code); font-variant-numeric:tabular-nums; font-weight:600; font-size:12px; color:var(--accent-ink); letter-spacing:.02em; }
+  .siparis-kart h3{ font-family:var(--font-display); font-weight:700; font-size:17px; margin:6px 0 10px; letter-spacing:-.005em; }
   .pill{ display:inline-block; font-family:var(--font-body); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:4px 10px; border-radius:20px; background:color-mix(in srgb, var(--accent2) 12%, transparent); color:var(--accent2-ink); border:1px solid color-mix(in srgb, var(--accent2) 30%, transparent); }
-  .back{ background:none; border:none; color:var(--text-muted); font-size:14px; cursor:pointer; margin-bottom:20px; padding:0; font-weight:600; }
-  .stepper{ margin-top:28px; }
+  .back{ background:none; border:none; color:var(--text-muted); font-size:13.5px; cursor:pointer; margin-bottom:18px; padding:0; font-weight:600; }
+  .stepper{ margin-top:4px; }
   .step{ display:grid; grid-template-columns:36px 1fr; gap:16px; position:relative; padding-bottom:24px; }
   .step:last-child{ padding-bottom:0; }
-  .step .marker{ width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-body); font-weight:700; font-size:14px; position:relative; z-index:1; background:var(--border); color:var(--text-muted); }
+  .step .marker{ width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-code); font-weight:700; font-size:13px; position:relative; z-index:1; background:var(--border); color:var(--text-muted); }
   .step.done .marker{ background:var(--accent2); color:#fff; }
   .step.current .marker{ background:var(--accent); color:#fff; box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent); }
   .step:not(:last-child)::before{ content:""; position:absolute; left:17px; top:36px; bottom:0; width:2px; background:var(--border); }
   .step.done:not(:last-child)::before{ background:var(--accent2); }
-  .step .content h4{ font-family:var(--font-display); font-size:15.5px; margin:0 0 4px; }
+  .step .content h4{ font-family:var(--font-display); font-weight:600; font-size:15.5px; margin:0 0 4px; }
   .step .content p{ font-size:13px; color:var(--text-muted); margin:0; }
-  .step .content .tarih{ font-family:var(--font-code); font-size:11.5px; color:var(--text-muted); margin-top:4px; }
-  .belge-item{ display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:var(--bg-alt); border-radius:3px; margin-bottom:8px; }
+  .step .content .tarih{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); margin-top:4px; }
+  .belge-item{ display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:var(--bg-alt); border-radius:6px; margin-bottom:8px; }
   .belge-item .ad{ font-size:14px; font-weight:600; }
   .belge-item .tip{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); }
   .belge-item a{ color:var(--accent2-ink); font-size:13px; font-weight:600; text-decoration:none; }
-  h2{ font-family:var(--font-display); font-weight:700; font-size:22px; letter-spacing:-.01em; margin:0 0 4px; }
-  .siparis-no-tag{ font-family:var(--font-code); font-variant-numeric:tabular-nums; font-weight:600; font-size:13px; color:var(--accent-ink); letter-spacing:.02em; margin-bottom:18px; }
-  .tarih{ font-variant-numeric:tabular-nums; }
+  .siparis-no-tag{ font-family:var(--font-code); font-variant-numeric:tabular-nums; font-weight:600; font-size:13px; color:var(--accent-ink); letter-spacing:.02em; margin-bottom:6px; }
 </style>
 </head>
 <body>
@@ -80,72 +134,109 @@
   <button data-mode="dark">☾ Koyu</button>
   <button data-mode="system">Sistem</button>
 </div>
-<div class="wrap">
-  <header>
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:20px; font-size:14px;">
-      <a href="/" style="font-weight:800; font-family:var(--font-display); color:var(--text); text-decoration:none;">← Çin Tedarik Ağı</a>
-      <a href="/hesapla.html" style="font-weight:600; color:var(--text-muted); text-decoration:none;">Vergi Hesaplama →</a>
-    </div>
-    <h1>Sipariş Takip</h1>
-    <p>Talebinizden teslimata kadar tüm süreci buradan izleyin — fabrika, numune, üretim, gemi, gümrük, teslimat.</p>
-  </header>
 
-  <div id="app"></div>
-</div>
+<div id="app"></div>
 
 <script>
 const API = '';
 let token = localStorage.getItem('tk_token');
+let musteriAdi = localStorage.getItem('tk_ad') || '';
 let view = token ? 'liste' : (location.hash === '#rfq' ? 'rfq' : 'giris'); // giris | rfq | liste | detay
 let aktifSiparisNo = null;
 
 function render() {
   const app = document.getElementById('app');
-  if (view === 'giris') app.innerHTML = girisEkrani();
-  else if (view === 'rfq') app.innerHTML = rfqEkrani();
-  else if (view === 'liste') { app.innerHTML = '<div class="panel">Yükleniyor…</div>'; siparisListesiYukle(); }
-  else if (view === 'detay') { app.innerHTML = '<div class="panel">Yükleniyor…</div>'; siparisDetayYukle(aktifSiparisNo); }
+  if (view === 'giris') { app.innerHTML = authShell(girisEkrani()); return; }
+  if (view === 'rfq') { app.innerHTML = authShell(rfqEkrani()); return; }
+  // Post-auth: her zaman panel kabuğu (sidebar + içerik) — tüm kullanıcı işlemleri burada.
+  app.innerHTML = panelShell('<div class="empty-state">Yükleniyor…</div>', view);
+  if (view === 'liste') siparisListesiYukle();
+  else if (view === 'detay') siparisDetayYukle(aktifSiparisNo);
+}
+
+function authShell(innerHtml) {
+  return `
+    <div class="auth-shell">
+      <div class="auth-brand">
+        <a href="/" class="logo">Çin Tedarik Ağı</a>
+        <div class="quote">
+          <h1>Fabrikadan kapınıza, her adım tek ekranda.</h1>
+          <p>Talebinizden teslimata kadar süreci — numune, üretim, gemi, gümrük — canlı olarak buradan izlersiniz. Kara kutu değil, sistemli bir süreç.</p>
+        </div>
+        <div class="meta">
+          <div>Süreç şeffaflığı<b>Canlı Takip</b></div>
+          <div>Kalite güvencesi<b>Yerinde QC</b></div>
+          <div>Risk yönetimi<b>Yazılı Taahhüt</b></div>
+        </div>
+      </div>
+      <div class="auth-form-wrap">
+        <div class="auth-form">
+          <a href="/" class="back-home">← Ana sayfaya dön</a>
+          ${innerHtml}
+        </div>
+      </div>
+    </div>`;
+}
+
+function panelShell(innerHtml, activeView) {
+  const initial = (musteriAdi || '?').trim().charAt(0).toUpperCase();
+  return `
+    <div class="app-shell">
+      <div class="sidebar">
+        <a href="/" class="brand">Çin Tedarik Ağı</a>
+        <div class="side-nav">
+          <button class="${activeView==='liste'||activeView==='detay' ? 'active' : ''}" onclick="view='liste'; render();"><span class="ico">📦</span> Siparişlerim</button>
+          <button onclick="view='rfq'; render();"><span class="ico">＋</span> Yeni Talep</button>
+          <a href="/hesapla.html"><span class="ico">🧮</span> Vergi Hesaplama</a>
+        </div>
+        <div class="sidebar-foot">
+          <div class="user-chip">
+            <div class="av">${initial}</div>
+            <div class="who"><div class="name">${musteriAdi || 'Hesabım'}</div><div class="role">Müşteri Paneli</div></div>
+          </div>
+          <button class="linklike" style="font-size:13px;" onclick="cikisYap()">Çıkış Yap</button>
+        </div>
+      </div>
+      <div class="main">${innerHtml}</div>
+    </div>`;
 }
 
 function girisEkrani() {
   return `
-    <div class="panel">
-      <h2>Giriş Yap</h2>
-      <div id="girisErr" class="err"></div>
-      <label for="gEmail">E-posta</label>
-      <input id="gEmail" type="email" placeholder="ornek@firma.com">
-      <label for="gSifre">Şifre</label>
-      <input id="gSifre" type="password">
-      <button class="primary" onclick="girisYap()">Giriş Yap</button>
-      <div class="toggle-row">Hesabınız yok mu? <button class="linklike" onclick="view='rfq'; render();">Yeni talep oluşturun</button></div>
-    </div>`;
+    <h2>Panelinize Giriş</h2>
+    <p class="lede">Sipariş takibiniz, belgeleriniz ve süreç geçmişiniz tek panelde.</p>
+    <div id="girisErr" class="err"></div>
+    <label for="gEmail">E-posta</label>
+    <input id="gEmail" type="email" placeholder="ornek@firma.com">
+    <label for="gSifre">Şifre</label>
+    <input id="gSifre" type="password">
+    <button class="primary" onclick="girisYap()">Giriş Yap</button>
+    <div class="toggle-row">Hesabınız yok mu? <button class="linklike" onclick="view='rfq'; render();">Yeni talep oluşturun</button></div>`;
 }
 
 function rfqEkrani() {
   return `
-    <div class="panel">
-      <h2>Yeni Talep (RFQ)</h2>
-      <p style="color:var(--text-muted); font-size:14px; margin-top:0;">Ürün bilgilerinizi girin, fabrika görüşmelerine hemen başlayalım. Aynı zamanda bir hesap oluşturulur, süreci buradan takip edersiniz.</p>
-      <div id="rfqErr" class="err"></div>
-      <div class="row2">
-        <div><label for="rAd">Ad Soyad</label><input id="rAd"></div>
-        <div><label for="rFirma">Firma (opsiyonel)</label><input id="rFirma"></div>
-      </div>
-      <div class="row2">
-        <div><label for="rEmail">E-posta</label><input id="rEmail" type="email"></div>
-        <div><label for="rTel">Telefon (opsiyonel)</label><input id="rTel"></div>
-      </div>
-      <label for="rSifre">Şifre belirleyin (siparişinizi takip etmek için)</label>
-      <input id="rSifre" type="password">
-      <label for="rUrun">Ürün açıklaması</label>
-      <textarea id="rUrun" placeholder="Ne tür bir ürün, hangi özelliklerde?"></textarea>
-      <div class="row2">
-        <div><label for="rMiktar">Miktar</label><input id="rMiktar" placeholder="ör. 5000 adet"></div>
-        <div><label for="rFiyat">Hedef fiyat (opsiyonel)</label><input id="rFiyat" placeholder="ör. 2000 USD"></div>
-      </div>
-      <button class="primary" onclick="rfqGonder()">Talebi Gönder</button>
-      <div class="toggle-row">Zaten hesabınız var mı? <button class="linklike" onclick="view='giris'; render();">Giriş yapın</button></div>
-    </div>`;
+    <h2>Yeni Talep (RFQ)</h2>
+    <p class="lede">Ürün bilgilerinizi girin, fabrika görüşmelerine hemen başlayalım. Aynı anda bir panel hesabı oluşturulur.</p>
+    <div id="rfqErr" class="err"></div>
+    <div class="row2">
+      <div><label for="rAd">Ad Soyad</label><input id="rAd"></div>
+      <div><label for="rFirma">Firma (opsiyonel)</label><input id="rFirma"></div>
+    </div>
+    <div class="row2">
+      <div><label for="rEmail">E-posta</label><input id="rEmail" type="email"></div>
+      <div><label for="rTel">Telefon (opsiyonel)</label><input id="rTel"></div>
+    </div>
+    <label for="rSifre">Şifre belirleyin (panelinize giriş için)</label>
+    <input id="rSifre" type="password">
+    <label for="rUrun">Ürün açıklaması</label>
+    <textarea id="rUrun" placeholder="Ne tür bir ürün, hangi özelliklerde?"></textarea>
+    <div class="row2">
+      <div><label for="rMiktar">Miktar</label><input id="rMiktar" placeholder="ör. 5000 adet"></div>
+      <div><label for="rFiyat">Hedef fiyat (opsiyonel)</label><input id="rFiyat" placeholder="ör. 2000 USD"></div>
+    </div>
+    <button class="primary" onclick="rfqGonder()">Talebi Gönder</button>
+    <div class="toggle-row">Zaten hesabınız var mı? <button class="linklike" onclick="view='giris'; render();">Giriş yapın</button></div>`;
 }
 
 async function girisYap() {
@@ -158,6 +249,7 @@ async function girisYap() {
     if (!res.ok) { const d = await res.json(); errBox.textContent = d.detail || 'Giriş başarısız'; return; }
     const d = await res.json();
     token = d.token; localStorage.setItem('tk_token', token);
+    musteriAdi = d.ad_soyad || ''; localStorage.setItem('tk_ad', musteriAdi);
     view = 'liste'; render();
   } catch (e) { errBox.textContent = 'Bağlantı hatası'; }
 }
@@ -183,25 +275,26 @@ async function rfqGonder() {
     if (!res.ok) { const d = await res.json(); errBox.textContent = d.detail || 'Bir hata oluştu'; return; }
     const d = await res.json();
     token = d.token; localStorage.setItem('tk_token', token);
+    musteriAdi = body.ad_soyad; localStorage.setItem('tk_ad', musteriAdi);
     aktifSiparisNo = d.siparis_no;
     view = 'detay'; render();
   } catch (e) { errBox.textContent = 'Bağlantı hatası'; }
 }
 
-function cikisYap() { localStorage.removeItem('tk_token'); token = null; view = 'giris'; render(); }
+function cikisYap() { localStorage.removeItem('tk_token'); localStorage.removeItem('tk_ad'); token = null; musteriAdi = ''; view = 'giris'; render(); }
 
 async function siparisListesiYukle() {
-  const app = document.getElementById('app');
+  const main = document.querySelector('.main');
   try {
     const res = await fetch(API + '/api/tk/siparislerim', { headers: {'Authorization':'Bearer ' + token} });
     if (res.status === 401) { cikisYap(); return; }
     const rows = await res.json();
-    let html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
-      <h2 style="margin:0;">Siparişleriniz</h2>
-      <div><button class="linklike" onclick="view='rfq'; render();">+ Yeni talep</button> &nbsp;|&nbsp; <button class="linklike" onclick="cikisYap()">Çıkış</button></div>
+    let html = `<div class="panel-head">
+      <div><h2>Siparişleriniz</h2><p>Tüm taleplerinizin durumu ve geçmişi.</p></div>
+      <button class="btn btn-primary" onclick="view='rfq'; render();">＋ Yeni Talep</button>
     </div>`;
     if (rows.length === 0) {
-      html += `<div class="panel">Henüz siparişiniz yok. <button class="linklike" onclick="view='rfq'; render();">İlk talebinizi oluşturun</button></div>`;
+      html += `<div class="empty-state">Henüz siparişiniz yok.<br><button class="linklike" style="margin-top:10px;" onclick="view='rfq'; render();">İlk talebinizi oluşturun →</button></div>`;
     } else {
       const OZEL = new Set(['numune_revizyon_istendi','beklemede','iptal_edildi']);
       rows.forEach(r => {
@@ -215,16 +308,16 @@ async function siparisListesiYukle() {
         </div>`;
       });
     }
-    app.innerHTML = html;
-  } catch (e) { app.innerHTML = '<div class="panel err">Yüklenemedi, bağlantınızı kontrol edin.</div>'; }
+    main.innerHTML = html;
+  } catch (e) { main.innerHTML = '<div class="panel err">Yüklenemedi, bağlantınızı kontrol edin.</div>'; }
 }
 
 async function siparisDetayYukle(siparisNo) {
-  const app = document.getElementById('app');
+  const main = document.querySelector('.main');
   try {
     const res = await fetch(API + '/api/tk/siparis/' + encodeURIComponent(siparisNo), { headers: {'Authorization':'Bearer ' + token} });
     if (res.status === 401) { cikisYap(); return; }
-    if (!res.ok) { app.innerHTML = '<div class="panel err">Sipariş bulunamadı.</div>'; return; }
+    if (!res.ok) { main.innerHTML = '<div class="panel err">Sipariş bulunamadı.</div>'; return; }
     const d = await res.json();
 
     // Özel durum (revizyon/beklemede/iptal) ana akışta bir "adım" değil, üstüne
@@ -265,7 +358,7 @@ async function siparisDetayYukle(siparisNo) {
 
     let belgeHtml = '';
     if (d.belgeler.length) {
-      belgeHtml = '<div class="panel"><h2>Belgeler</h2>';
+      belgeHtml = '<div class="panel"><h2 style="font-size:18px;">Belgeler</h2>';
       d.belgeler.forEach(b => {
         belgeHtml += `<div class="belge-item">
           <div><div class="ad">${b.dosya_adi}</div><div class="tip">${b.belge_tipi}</div></div>
@@ -275,16 +368,16 @@ async function siparisDetayYukle(siparisNo) {
       belgeHtml += '</div>';
     }
 
-    app.innerHTML = `
+    main.innerHTML = `
       <button class="back" onclick="view='liste'; render();">← Siparişlerime dön</button>
       <div class="siparis-no-tag">${d.siparis_no}</div>
       <h2>${d.urun_aciklamasi}</h2>
-      <p style="color:var(--text-muted); margin-top:4px;">Miktar: ${d.miktar || '—'} ${d.hedef_fiyat ? '· Hedef fiyat: ' + d.hedef_fiyat : ''}</p>
+      <p style="color:var(--text-muted); margin:4px 0 24px;">Miktar: ${d.miktar || '—'} ${d.hedef_fiyat ? '· Hedef fiyat: ' + d.hedef_fiyat : ''}</p>
       ${ozelBanner}
       <div class="panel">${stepperHtml}</div>
       ${belgeHtml}
     `;
-  } catch (e) { app.innerHTML = '<div class="panel err">Yüklenemedi.</div>'; }
+  } catch (e) { main.innerHTML = '<div class="panel err">Yüklenemedi.</div>'; }
 }
 
 render();
