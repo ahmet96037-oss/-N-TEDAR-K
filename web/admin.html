@@ -92,8 +92,9 @@
   }
 
   .panel-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:22px; flex-wrap:wrap; }
-  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:24px; }
-  @media (max-width:760px){ .stat-grid{ grid-template-columns:repeat(2,1fr); } }
+  .stat-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:24px; }
+  @media (max-width:960px){ .stat-grid{ grid-template-columns:repeat(3,1fr); } }
+  @media (max-width:600px){ .stat-grid{ grid-template-columns:repeat(2,1fr); } }
   .stat-card{ background:var(--surface); padding:18px 20px; border-top:3px solid var(--accent2); }
   .stat-card .v{ font-family:var(--font-code); font-weight:600; font-size:26px; color:var(--accent-ink); }
   .stat-card .l{ font-size:12px; color:var(--text-muted); margin-top:4px; line-height:1.4; }
@@ -248,6 +249,32 @@ function cikisYap() {
 }
 
 let siparisRowsCache = [];
+let musteriRowsCache = [];
+
+// Basit CSV dışa aktarma — harici kütüphane gerektirmez. Değerlerdeki
+// virgül/tırnak/satır sonu CSV kaçış kuralına göre işlenir.
+function csvIndir(rows, alanlar, dosyaAdi) {
+  const kacir = (v) => {
+    const s = (v === null || v === undefined) ? '' : String(v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  const satirlar = [alanlar.join(',')].concat(rows.map(r => alanlar.map(a => kacir(r[a])).join(',')));
+  const blob = new Blob(['﻿' + satirlar.join('\n')], {type: 'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = dosyaAdi;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function kopyala(metin, event) {
+  navigator.clipboard.writeText(metin);
+  const el = event.target;
+  const eski = el.textContent;
+  el.textContent = '✓';
+  setTimeout(() => { el.textContent = eski; }, 900);
+  if (event) event.stopPropagation();
+}
 
 async function listeYukle() {
   const main = document.querySelector('.main');
@@ -256,12 +283,15 @@ async function listeYukle() {
   siparisRowsCache = await res.json();
 
   const ozelSet = new Set(['numune_revizyon_istendi','beklemede','iptal_edildi']);
+  const bitmisSet = new Set(['teslim_edildi','iptal_edildi']);
   const yediGunOnce = Date.now() - 7*24*60*60*1000;
+  const besGunOnce = Date.now() - 5*24*60*60*1000;
   const stats = {
     toplam: siparisRowsCache.length,
     aktif: siparisRowsCache.filter(r => r.durum !== 'teslim_edildi' && !ozelSet.has(r.durum)).length,
     ozel: siparisRowsCache.filter(r => ozelSet.has(r.durum)).length,
     buHafta: siparisRowsCache.filter(r => new Date(r.olusturulma).getTime() >= yediGunOnce).length,
+    geciken: siparisRowsCache.filter(r => !bitmisSet.has(r.durum) && r.guncellenme && new Date(r.guncellenme).getTime() < besGunOnce).length,
   };
 
   let html = `<div class="panel-head">
@@ -273,6 +303,7 @@ async function listeYukle() {
     <div class="stat-card"><div class="v">${stats.aktif}</div><div class="l">Aktif süreçte</div></div>
     <div class="stat-card" style="${stats.ozel ? 'border-top-color:var(--signal);' : ''}"><div class="v" style="${stats.ozel ? 'color:var(--signal-ink);' : ''}">${stats.ozel}</div><div class="l">Dikkat gerektiren (beklemede/revizyon/iptal)</div></div>
     <div class="stat-card"><div class="v">${stats.buHafta}</div><div class="l">Bu hafta gelen talep</div></div>
+    <div class="stat-card" style="${stats.geciken ? 'border-top-color:var(--signal);' : ''}"><div class="v" style="${stats.geciken ? 'color:var(--signal-ink);' : ''}">${stats.geciken}</div><div class="l">5+ gündür aynı aşamada</div></div>
   </div>
   <div class="filter-row">
     <input id="filtreArama" placeholder="Sipariş no, müşteri, firma veya ürün ara..." oninput="siparisListesiCiz()">
@@ -304,14 +335,15 @@ function siparisListesiCiz() {
   let html = '<div class="table-card"><div class="table-wrap"><table><thead><tr><th>Sipariş No</th><th>Müşteri</th><th>Ürün</th><th>Durum</th><th>Tarih</th></tr></thead><tbody>';
   rows.forEach(r => {
     html += `<tr onclick="aktifSiparisNo='${r.siparis_no}'; view='detay'; render();">
-      <td class="siparis-no">${r.siparis_no}</td>
-      <td>${r.musteri}${r.firma ? ' ('+r.firma+')' : ''}<br><span style="color:var(--text-muted);font-size:12px;">${r.email}</span></td>
+      <td class="siparis-no">${r.siparis_no} <span onclick="kopyala('${r.siparis_no}', event)" title="Kopyala" style="cursor:pointer; opacity:.5; font-size:11px;">📋</span></td>
+      <td>${r.musteri}${r.firma ? ' ('+r.firma+')' : ''}<br><a href="mailto:${r.email}" onclick="event.stopPropagation()" style="color:var(--text-muted); font-size:12px; text-decoration:none;">✉ ${r.email}</a></td>
       <td>${r.urun_aciklamasi}</td>
       <td><span class="pill" style="${r.durum==='iptal_edildi' ? 'background:color-mix(in srgb, var(--signal) 14%, transparent); color:var(--signal-ink); border-color:color-mix(in srgb, var(--signal) 35%, transparent);' : (['numune_revizyon_istendi','beklemede'].includes(r.durum) ? 'background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent-ink); border-color:color-mix(in srgb, var(--accent) 35%, transparent);' : '')}">${r.durum_adi}</span></td>
       <td style="font-family:var(--font-code); font-variant-numeric:tabular-nums;">${new Date(r.olusturulma).toLocaleDateString('tr-TR')}</td>
     </tr>`;
   });
   html += '</tbody></table></div></div>';
+  html += `<div style="margin-top:16px;"><button class="secondary" onclick="csvIndir(siparisRowsCache, ['siparis_no','musteri','firma','email','urun_aciklamasi','durum_adi','olusturulma'], 'siparisler.csv')">⬇ CSV Olarak İndir</button></div>`;
   kutu.innerHTML = html;
 }
 
@@ -326,16 +358,22 @@ async function musterilerYukle() {
   } else {
     html += '<div class="table-card"><div class="table-wrap"><table><thead><tr><th>Ad Soyad</th><th>Firma</th><th>İletişim</th><th>Sipariş</th><th>Son sipariş</th></tr></thead><tbody>';
     rows.forEach(m => {
+      const waNo = (m.telefon || '').replace(/[^0-9]/g, '');
       html += `<tr>
         <td>${m.ad_soyad}</td>
         <td>${m.firma || '—'}</td>
-        <td>${m.email}${m.telefon ? '<br><span style="color:var(--text-muted);font-size:12px;">'+m.telefon+'</span>' : ''}</td>
+        <td>
+          <a href="mailto:${m.email}" style="color:var(--accent-ink); text-decoration:none; font-weight:600;">✉ ${m.email}</a>
+          ${m.telefon ? `<br><a href="https://wa.me/${waNo}" target="_blank" rel="noopener" style="color:var(--accent2-ink); text-decoration:none; font-size:12.5px; font-weight:600;">💬 ${m.telefon}</a>` : ''}
+        </td>
         <td class="siparis-no">${m.siparis_sayisi}</td>
         <td style="font-family:var(--font-code); font-variant-numeric:tabular-nums;">${m.son_siparis ? new Date(m.son_siparis).toLocaleDateString('tr-TR') : '—'}</td>
       </tr>`;
     });
     html += '</tbody></table></div></div>';
   }
+  musteriRowsCache = rows;
+  html += `<div style="margin-top:16px;"><button class="secondary" onclick="csvIndir(musteriRowsCache, ['ad_soyad','firma','email','telefon','siparis_sayisi'], 'musteriler.csv')">⬇ CSV Olarak İndir</button></div>`;
   main.innerHTML = html;
 }
 
@@ -477,6 +515,12 @@ async function detayYukle(siparisNo) {
       </div>
       ${(!siradaki && suankiIdx === DURUMLAR.length - 1) ? `<p style="color:var(--accent2-ink); font-weight:600; font-size:13.5px; margin-top:16px;">✓ Sipariş son aşamada (Teslim Edildi).</p>` : ''}
     </div>
+    <div class="panel" style="border-color:color-mix(in srgb, var(--accent) 35%, var(--border));">
+      <h2 style="font-size:16px;">🔒 İç Not <span style="font-weight:400; font-size:12px; color:var(--text-muted); text-transform:none; letter-spacing:0;">— sadece ekip görür</span></h2>
+      <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Müşteri panelinde asla görünmez. Ör. "ödeme gecikmesi yaşadı, takip et", "zor müşteri, dikkatli ol".</p>
+      <textarea id="icNot" rows="3" placeholder="Ekip içi not...">${d.ic_not || ''}</textarea>
+      <button class="secondary" onclick="icNotKaydet('${d.siparis_no}')">İç Notu Kaydet</button>
+    </div>
     <div class="panel">
       <h2 style="font-size:16px;">Durumu Elle Ayarla</h2>
       <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Bir aşama geri almak, atlamak veya özel bir duruma (beklemede, iptal, revizyon) almak için kullanın.</p>
@@ -564,6 +608,14 @@ async function sevkiyatGuncelle(siparisNo) {
     body: JSON.stringify(body)
   });
   detayYukle(siparisNo);
+}
+
+async function icNotKaydet(siparisNo) {
+  const ic_not = document.getElementById('icNot').value.trim() || null;
+  await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/ic-not', {
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body: JSON.stringify({ic_not})
+  });
 }
 
 async function ilerlet(siparisNo, durum) {

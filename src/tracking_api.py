@@ -305,6 +305,8 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
         "durum_sirasi": [{"kod": k, "ad": a} for k, a in DURUM_SIRASI],
         "ozel_durumlar": [{"kod": k, "ad": a} for k, a in OZEL_DURUMLAR],
         "ozel_durum_mu": siparis["durum"] in OZEL_ISIMLERI,
+        # İç not SADECE admin oturumunda dönüyor — müşteri panelinde asla görünmez.
+        "ic_not": siparis["ic_not"] if oturum["admin_id"] else None,
         "sevkiyat": {
             "tasiyici_key": siparis["tasiyici_key"],
             "tasiyici_firma": tasiyici_ad,
@@ -366,7 +368,8 @@ def _admin_dogrula(authorization: str = None):
 def admin_tum_siparisler(authorization: str = Header(None)):
     conn, _, _ = _admin_dogrula(authorization)
     rows = conn.execute(
-        """SELECT s.siparis_no, s.urun_aciklamasi, s.durum, s.olusturulma, m.ad_soyad, m.firma, m.email
+        """SELECT s.siparis_no, s.urun_aciklamasi, s.durum, s.olusturulma, s.guncellenme,
+                  m.ad_soyad, m.firma, m.email, m.telefon
            FROM tk_siparisler s JOIN tk_musteriler m ON m.id = s.musteri_id
            ORDER BY s.olusturulma DESC"""
     ).fetchall()
@@ -379,7 +382,9 @@ def admin_tum_siparisler(authorization: str = Header(None)):
             "musteri": r["ad_soyad"],
             "firma": r["firma"],
             "email": r["email"],
+            "telefon": r["telefon"],
             "olusturulma": r["olusturulma"].isoformat() if r["olusturulma"] else None,
+            "guncellenme": r["guncellenme"].isoformat() if r["guncellenme"] else None,
         }
         for r in rows
     ]
@@ -474,6 +479,23 @@ def admin_siparis_olustur(istek: AdminSiparisOlusturIstek, authorization: str = 
 class DurumGuncelleIstek(BaseModel):
     durum: str
     not_metni: str | None = None
+
+
+class IcNotIstek(BaseModel):
+    ic_not: str | None = None
+
+
+@router.post("/admin/siparis/{siparis_no}/ic-not")
+def admin_ic_not_guncelle(siparis_no: str, istek: IcNotIstek, authorization: str = Header(None)):
+    """Sadece ekibin gördüğü serbest not — müşteri panelinde hiçbir zaman
+    görünmez (siparis_detay'da oturum admin değilse ic_not dönmüyor)."""
+    conn, _, _ = _admin_dogrula(authorization)
+    siparis = conn.execute("SELECT id FROM tk_siparisler WHERE siparis_no = ?", (siparis_no,)).fetchone()
+    if not siparis:
+        raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
+    conn.execute("UPDATE tk_siparisler SET ic_not = ? WHERE id = ?", (istek.ic_not, siparis["id"]))
+    conn._conn.commit()
+    return {"ok": True}
 
 
 @router.post("/admin/siparis/{siparis_no}/durum")
