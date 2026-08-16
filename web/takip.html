@@ -63,7 +63,8 @@
   .auth-brand .quote p{ color:color-mix(in srgb, var(--bg) 72%, transparent); font-size:15px; max-width:42ch; margin:0; }
   .auth-brand .meta{ position:relative; z-index:1; display:flex; gap:32px; font-family:var(--font-code); font-size:12px; color:color-mix(in srgb, var(--bg) 65%, transparent); border-top:1px solid rgba(255,255,255,.14); padding-top:18px; }
   .auth-brand .meta b{ display:block; color:var(--bg); font-family:var(--font-body); font-size:15px; margin-top:3px; font-weight:700; }
-  .auth-form-wrap{ display:flex; align-items:center; justify-content:center; padding:40px 24px; }
+  .auth-form-wrap{ display:flex; align-items:flex-start; justify-content:center; padding:104px 24px 40px; }
+  @media (max-width:860px){ .auth-form-wrap{ align-items:center; padding:40px 24px; min-height:100vh; } }
   .auth-form{ width:100%; max-width:400px; }
   .auth-form .back-home{ display:inline-block; margin-bottom:28px; font-size:13.5px; font-weight:600; color:var(--text-muted); text-decoration:none; }
   .auth-form h2{ font-size:26px; margin-bottom:8px; }
