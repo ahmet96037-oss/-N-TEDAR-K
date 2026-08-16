@@ -78,42 +78,35 @@
   h2{ font-family:var(--font-display); font-weight:800; font-size:clamp(24px,3vw,32px); letter-spacing:-.015em; margin:0 0 12px; line-height:1.15; }
   .section-head p{ color:var(--text-muted); font-size:16px; margin:0; max-width:60ch; }
 
-  /* ---- Pain points ---- */
-  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
-  @media (max-width:820px){ .grid3{ grid-template-columns:1fr; } }
-  .card{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:26px; }
-  .card .tag{ display:inline-block; font-family:var(--font-code); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--signal-ink); background:color-mix(in srgb, var(--signal) 12%, transparent); border:1px solid color-mix(in srgb, var(--signal) 30%, transparent); padding:3px 9px; border-radius:20px; margin-bottom:14px; }
-  .card h3{ font-family:var(--font-display); font-size:18px; margin:0 0 8px; font-weight:700; }
-  .card p{ color:var(--text-muted); font-size:14.5px; margin:0; }
+  /* ---- Pain points: editorial index list, not generic cards ---- */
+  .pain-list{ border-top:1px solid var(--border); }
+  .pain-row{ display:grid; grid-template-columns:88px 1fr; gap:28px; padding:32px 0; border-bottom:1px solid var(--border); align-items:baseline; }
+  @media (max-width:640px){ .pain-row{ grid-template-columns:44px 1fr; gap:18px; } }
+  .pain-row .idx{ font-family:var(--font-display); font-style:italic; font-weight:400; font-size:40px; color:var(--signal); opacity:.55; line-height:1; }
+  .pain-row h3{ font-family:var(--font-display); font-size:19px; margin:0 0 6px; font-weight:600; }
+  .pain-row p{ color:var(--text-muted); font-size:15px; margin:0; max-width:60ch; }
 
-  /* ---- Pillars ---- */
-  .pillar{ display:flex; gap:20px; padding:26px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+  /* ---- Pillars: big ghost serif letter, editorial rhythm ---- */
+  .pillar{ display:grid; grid-template-columns:88px 1fr; gap:28px; padding:32px 0; border-bottom:1px solid var(--border); align-items:baseline; }
+  @media (max-width:640px){ .pillar{ grid-template-columns:44px 1fr; gap:18px; } }
   .pillar:last-child{ border-bottom:none; }
-  .pillar .letter{ width:52px; height:52px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:18px; box-shadow:0 4px 12px rgba(0,0,0,.14); }
-  .pillar:nth-child(1) .letter{ background:var(--accent2); }
-  .pillar:nth-child(2) .letter{ background:color-mix(in srgb, var(--accent2) 55%, var(--accent) 45%); }
-  .pillar:nth-child(3) .letter{ background:var(--accent); }
-  .pillar:nth-child(4) .letter{ background:var(--signal); }
-  .pillar h3{ font-family:var(--font-display); font-size:19px; margin:0 0 6px; font-weight:700; }
-  .pillar p{ color:var(--text-muted); font-size:15px; margin:0; max-width:66ch; }
+  .pillar .letter{ font-family:var(--font-display); font-style:italic; font-weight:400; font-size:44px; color:var(--accent); opacity:.65; line-height:1; }
+  .pillar h3{ font-family:var(--font-display); font-size:20px; margin:0 0 8px; font-weight:600; }
+  .pillar p{ color:var(--text-muted); font-size:15.5px; margin:0; max-width:66ch; }
 
-  /* ---- Process stepper ---- */
-  .stepper{ display:flex; flex-direction:column; }
-  .step{ display:grid; grid-template-columns:44px 1fr; gap:20px; position:relative; padding-bottom:30px; }
-  .step:last-child{ padding-bottom:0; }
-  .step .marker{ width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-code); font-weight:700; font-size:14px; position:relative; z-index:1; box-shadow:0 2px 6px rgba(0,0,0,0.12); }
-  .step:nth-child(6n+1) .marker{ background:var(--accent2); }
-  .step:nth-child(6n+2) .marker{ background:color-mix(in srgb, var(--accent2) 70%, var(--accent) 30%); }
-  .step:nth-child(6n+3) .marker{ background:color-mix(in srgb, var(--accent2) 40%, var(--accent) 60%); }
-  .step:nth-child(6n+4) .marker{ background:var(--accent); }
-  .step:nth-child(6n+5) .marker{ background:color-mix(in srgb, var(--accent) 55%, var(--signal) 45%); }
-  .step:nth-child(6n+6) .marker{ background:var(--signal); }
-  .step:not(:last-child)::before{ content:""; position:absolute; left:21px; top:44px; bottom:0; width:1px; background:var(--border); }
-  .step .content{ padding-top:5px; }
-  .step .content h3{ font-family:var(--font-display); font-size:16.5px; margin:0 0 5px; font-weight:700; }
-  .step .content p{ font-size:14px; color:var(--text-muted); margin:0 0 8px; max-width:60ch; }
-  .portal-tag{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-code); font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent2-ink); background:color-mix(in srgb, var(--accent2) 12%, transparent); border:1px solid color-mix(in srgb, var(--accent2) 30%, transparent); padding:3px 9px; border-radius:20px; }
+  /* ---- Process: alternating editorial rows, large serif index numerals ---- */
+  .proc-list{ border-top:1px solid var(--border); }
+  .proc-row{ display:grid; grid-template-columns:140px 1fr; gap:36px; padding:44px 0; border-bottom:1px solid var(--border); align-items:start; }
+  @media (max-width:760px){ .proc-row{ grid-template-columns:64px 1fr; gap:20px; } }
+  .proc-row .idx{ font-family:var(--font-display); font-weight:500; font-size:56px; line-height:.9; color:var(--accent2); letter-spacing:-.02em; }
+  @media (max-width:760px){ .proc-row .idx{ font-size:34px; } }
+  .proc-row:nth-child(2n) .idx{ color:var(--accent); }
+  .proc-row .content h3{ font-family:var(--font-display); font-size:22px; margin:0 0 10px; font-weight:600; letter-spacing:-.005em; }
+  .proc-row .content p{ font-size:15.5px; color:var(--text-muted); margin:0 0 14px; max-width:62ch; }
+  .portal-tag{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-code); font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent2-ink); background:color-mix(in srgb, var(--accent2) 12%, transparent); border:1px solid color-mix(in srgb, var(--accent2) 30%, transparent); padding:4px 10px; border-radius:20px; }
   .portal-tag::before{ content:"◎ "; }
+  .proc-foot{ padding-top:28px; font-family:var(--font-code); font-size:12.5px; color:var(--text-muted); }
+  .proc-foot b{ color:var(--accent-ink); font-family:var(--font-body); font-weight:700; }
 
   /* ---- Trust cards ---- */
   .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
@@ -188,10 +181,10 @@
       <h2>Rekabet parçalı — güven hâlâ eksik.</h2>
       <p>Klasik ithalat danışmanları, serbest sourcing ajanları, Alibaba'nın kendisi — hepsi bir şekilde rakip. Ortak eksik: hiçbiri süreci uçtan uca şeffaf göstermiyor.</p>
     </div>
-    <div class="grid3">
-      <div class="card"><span class="tag">Acı noktası</span><h3>Kara kutu süreç</h3><p>Numune, üretim ve sevkiyat aşamaları görünmüyor; müşteri sadece WhatsApp mesajlarına güveniyor.</p></div>
-      <div class="card"><span class="tag">Acı noktası</span><h3>Tutarsız kalite</h3><p>Tek fabrikaya bağımlı ajanlar kalite sorununda alternatif sunamıyor; risk tamamen müşteride.</p></div>
-      <div class="card"><span class="tag">Acı noktası</span><h3>Yavaş yanıt</h3><p>Manuel WhatsApp trafiği teklif sürecini günlerce uzatıyor.</p></div>
+    <div class="pain-list">
+      <div class="pain-row"><div class="idx">01</div><div><h3>Kara kutu süreç</h3><p>Numune, üretim ve sevkiyat aşamaları görünmüyor; müşteri sadece WhatsApp mesajlarına güveniyor.</p></div></div>
+      <div class="pain-row"><div class="idx">02</div><div><h3>Tutarsız kalite</h3><p>Tek fabrikaya bağımlı ajanlar kalite sorununda alternatif sunamıyor; risk tamamen müşteride.</p></div></div>
+      <div class="pain-row"><div class="idx">03</div><div><h3>Yavaş yanıt</h3><p>Manuel WhatsApp trafiği teklif sürecini günlerce uzatıyor.</p></div></div>
     </div>
   </div>
 </section>
@@ -215,16 +208,17 @@
     <div class="section-head">
       <p class="eyebrow2">Talepten teslimata</p>
       <h2>Fabrikadan kapınıza, her adım tek ekranda.</h2>
-      <p>Sipariş takip portalınızda 19 aşamalı süreç canlı olarak işlenir; aşağıda öne çıkan kilometre taşları.</p>
+      <p>Panelinizde 19 aşamalı tam süreç canlı olarak işlenir; aşağıda öne çıkan altı kilometre taşı.</p>
     </div>
-    <div class="stepper">
-      <div class="step"><div class="marker">01</div><div class="content"><h3>RFQ alınır</h3><p>Ürün, miktar ve hedef fiyatı portaldaki formdan iletirsiniz.</p><span class="portal-tag">Talep Alındı</span></div></div>
-      <div class="step"><div class="marker">02</div><div class="content"><h3>Fabrika eşleştirme &amp; teklif</h3><p>Uygun fabrikalar belirlenir, karşılaştırmalı teklif hazırlanır.</p><span class="portal-tag">Teklif Hazır</span></div></div>
-      <div class="step"><div class="marker">03</div><div class="content"><h3>Numune süreci</h3><p>Numune üretilir, yerinde QC ekibi kontrol eder, onayınız beklenir.</p><span class="portal-tag">Numune Onayınızı Bekliyor</span></div></div>
-      <div class="step"><div class="marker">04</div><div class="content"><h3>Seri üretim</h3><p>Numune onaylanınca üretim başlar; kalite kontrolü ile ilerleme paylaşılır.</p><span class="portal-tag">Üretimde</span></div></div>
-      <div class="step"><div class="marker">05</div><div class="content"><h3>Konteyner &amp; gemi</h3><p>Ürünler konteynere yüklenir, gemiye biner; canlı konum takibi başlar.</p><span class="portal-tag">Gemide</span></div></div>
-      <div class="step"><div class="marker">06</div><div class="content"><h3>Gümrük &amp; teslimat</h3><p>Beyanname, vergi ve muayene süreci takip edilir; mal adresinize ulaşır.</p><span class="portal-tag">Teslim Edildi</span></div></div>
+    <div class="proc-list">
+      <div class="proc-row"><div class="idx">01</div><div class="content"><h3>RFQ alınır</h3><p>Ürün, miktar ve hedef fiyatınızı panelinizdeki formdan iletirsiniz; talebiniz aynı gün fabrika görüşmelerine girer.</p><span class="portal-tag">Talep Alındı</span></div></div>
+      <div class="proc-row"><div class="idx">02</div><div class="content"><h3>Fabrika eşleştirme &amp; teklif</h3><p>Uygun fabrikalar belirlenir, karşılaştırmalı fiyat ve termin teklifi hazırlanır, onayınıza sunulur.</p><span class="portal-tag">Teklif Hazır</span></div></div>
+      <div class="proc-row"><div class="idx">03</div><div class="content"><h3>Numune süreci</h3><p>Onaylanan tedarikçiden numune üretilir; yerinde QC ekibimiz fiziksel olarak kontrol eder, fotoğraf/video paylaşır.</p><span class="portal-tag">Numune Onayınızı Bekliyor</span></div></div>
+      <div class="proc-row"><div class="idx">04</div><div class="content"><h3>Seri üretim</h3><p>Numune onaylanmadan seri üretime geçilmez. Onay sonrası üretim başlar, kalite kontrolü ile ilerleme periyodik paylaşılır.</p><span class="portal-tag">Üretimde</span></div></div>
+      <div class="proc-row"><div class="idx">05</div><div class="content"><h3>Konteyner &amp; gemi</h3><p>Ürünler konteynere yüklenir, limanda gemiye biner; sefer bilgisi ve canlı konum takibi panelinizde açılır.</p><span class="portal-tag">Gemide</span></div></div>
+      <div class="proc-row"><div class="idx">06</div><div class="content"><h3>Gümrük &amp; teslimat</h3><p>Beyanname, vergi ve muayene süreci aşama aşama işlenir; mal gümrükten çekilip adresinize ulaştırılır.</p><span class="portal-tag">Teslim Edildi</span></div></div>
     </div>
+    <p class="proc-foot">Aradaki numune ödemesi, üretim ödemesi, sevkiyat belgeleri ve gümrük alt aşamaları dahil tüm <b>19 durum</b> panelinizde tek tek görünür.</p>
   </div>
 </section>
 
