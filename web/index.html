@@ -206,16 +206,14 @@
      three-globe ile (React/Next.js olmadan — bu kütüphaneler saf vanilla JS'te de
      çalışıyor, sadece @react-three/fiber React'a özeldi). WebGL destekli, dönen,
      ülke sınırlı, ark animasyonlu gerçek 3D küre. ---- */
-  section.globe-section{ background:#050b16; color:var(--bg); text-align:center; padding:88px 24px 100px; overflow:hidden; }
+  section.globe-section{ background:#ffffff; color:var(--text); text-align:center; padding:56px 24px 70px; overflow:hidden; }
+  @media (prefers-color-scheme: dark){ section.globe-section{ background:#ffffff; color:#211d16; } }
   .globe-section .eyebrow2{ color:var(--accent-ink); justify-content:center; display:flex; }
-  .globe-section h2{ color:inherit; }
-  .globe-section .sub{ color:color-mix(in srgb, var(--bg) 68%, transparent); font-size:16px; max-width:52ch; margin:0 auto 40px; }
+  .globe-section h2{ color:inherit; margin-bottom:32px; }
   .globe-stage{ position:relative; width:min(560px, 90vw); height:min(560px, 90vw); margin:0 auto; cursor:grab; }
   .globe-stage:active{ cursor:grabbing; }
   .globe-stage canvas{ outline:none; }
-  .globe-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--font-code); font-size:12px; color:color-mix(in srgb, var(--bg) 50%, transparent); transition:opacity .4s; }
-  .globe-caption{ display:flex; justify-content:center; gap:36px; margin-top:12px; flex-wrap:wrap; font-family:var(--font-code); font-size:12px; color:color-mix(in srgb, var(--bg) 62%, transparent); }
-  .globe-caption b{ display:block; color:var(--bg); font-family:var(--font-body); font-size:15px; margin-top:3px; font-weight:700; }
+  .globe-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--font-code); font-size:12px; color:var(--text-muted); transition:opacity .4s; }
 
   /* ---- Trust cards ---- */
   .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
@@ -423,16 +421,9 @@
 
 <section class="globe-section">
   <div class="wrap">
-    <p class="eyebrow2">Ağın genişliği</p>
     <h2>Tedarik ağımız Çin'in tek bir şehrinden ibaret değil.</h2>
-    <p class="sub">Farklı üretim bölgelerindeki fabrika ilişkilerimiz, tek noktaya bağımlı kalmadan alternatif tedarikçi sunabilmemizi sağlıyor — hepsi aynı canlı takip panelinden yönetiliyor.</p>
     <div class="globe-stage" id="globeStage">
       <div class="globe-loading" id="globeLoading">Küre yükleniyor…</div>
-    </div>
-    <div class="globe-caption">
-      <div>Üretim bölgesi çeşitliliği<b>Çoklu fabrika ağı</b></div>
-      <div>Kalite kontrolü<b>Her bölgede yerinde QC</b></div>
-      <div>Takip<b>Tek panelden, canlı</b></div>
     </div>
   </div>
 </section>
@@ -619,7 +610,7 @@
     const ROUTES = [
       ...CN_TR.map(([sLa,sLo,eLa,eLo]) => ({ startLat:sLa, startLng:sLo, endLat:eLa, endLng:eLo, color: rndColor() })),
       ...GLOBAL.map(([sLa,sLo,eLa,eLo]) => ({ startLat:sLa, startLng:sLo, endLat:eLa, endLng:eLo, color: rndColor() })),
-    ].map(r => ({ ...r, order: Math.round(Math.random() * 8), arcAlt: .15 + Math.random() * .35 }));
+    ].map(r => ({ ...r, order: Math.round(Math.random() * 3), arcAlt: .15 + Math.random() * .35 }));
 
     const globePoints = ROUTES.flatMap(r => [
       { lat:r.startLat, lng:r.startLng, color:r.color },
@@ -639,9 +630,9 @@
       .arcAltitude('arcAlt')
       .arcStroke(() => [0.32, 0.28, 0.3][Math.round(Math.random() * 2)])
       .arcDashLength(0.9)
-      .arcDashGap(15)
+      .arcDashGap(2)
       .arcDashInitialGap('order')
-      .arcDashAnimateTime(1000)
+      .arcDashAnimateTime(900)
       .pointsData(globePoints)
       .pointColor('color')
       .pointsMerge(true)
@@ -657,16 +648,16 @@
     globe.globeMaterial().emissiveIntensity = 0.1;
     globe.globeMaterial().shininess = 0.9;
 
-    // Orijinal örnekteki gibi rastgele noktalarda periyodik "ring" (nabız) efekti —
-    // sadece statik noktalar değil, canlı/nefes alan bir küre hissi.
+    // Sürekli, hiç durmayan nabız efekti — her bölgede her an bir şey aktif olsun
+    // diye çok sık aralıkla noktaların büyük bir kısmı yeniden örnekleniyor.
     setInterval(() => {
       const sample = globePoints
         .map(p => ({ p, r: Math.random() }))
         .sort((a,b) => a.r - b.r)
-        .slice(0, Math.floor(globePoints.length * 0.6))
+        .slice(0, Math.floor(globePoints.length * 0.85))
         .map(x => x.p);
       globe.ringsData(sample);
-    }, 1400);
+    }, 500);
 
     const width = stage.clientWidth, height = stage.clientHeight;
     const scene = new THREE.Scene();
