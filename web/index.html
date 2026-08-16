@@ -1,720 +1,642 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%230f3d63%22/><text x=%2216%22 y=%2222%22 font-family=%22Georgia,serif%22 font-size=%2216%22 font-weight=%22700%22 fill=%22white%22 text-anchor=%22middle%22>CT</text></svg>">
-<title>Çin Tedarik Ağı — Çin'den Türkiye'ye Şeffaf Tedarik</title>
-<meta name="description" content="Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip edin. Çoklu fabrika ağı, yerinde kalite kontrol ve yazılı risk güvencesiyle Çin'den ithalat.">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Çin Tedarik Ağı — Çin'den Türkiye'ye Şeffaf Tedarik">
-<meta property="og:description" content="Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip edin. Çoklu fabrika ağı, yerinde kalite kontrol ve yazılı risk güvencesiyle Çin'den ithalat.">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Çin Tedarik Ağı — Çin'den Türkiye'ye Şeffaf Tedarik">
-<meta name="twitter:description" content="Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip edin.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#f5f6f8; --bg-alt:#eaedf2; --surface:#ffffff; --text:#0b1f38; --text-muted:#5b6b80;
-    --accent:#d99a2b; --accent-ink:#a8721a; --accent2:#0f3d63; --accent2-ink:#0a2c47;
-    --signal:#c0392b; --signal-ink:#96271b; --border:#dbe0e8;
-    --font-display: "Fraunces","Iowan Old Style",Georgia,ui-serif,serif;
-    --font-body: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-    --font-code: "IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#0b1420; --bg-alt:#101c2c; --surface:#132132; --text:#e8edf3; --text-muted:#93a3b8;
-      --accent:#e8b355; --accent-ink:#f3c878; --accent2:#4f8fc0; --accent2-ink:#7ab3dd;
-      --signal:#e2725f; --signal-ink:#f0a08e; --border:#233246;
-    }
-  }
-  :root[data-theme="dark"]{
-    --bg:#0b1420; --bg-alt:#101c2c; --surface:#132132; --text:#e8edf3; --text-muted:#93a3b8;
-    --accent:#e8b355; --accent-ink:#f3c878; --accent2:#4f8fc0; --accent2-ink:#7ab3dd;
-    --signal:#e2725f; --signal-ink:#f0a08e; --border:#233246;
-  }
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.55; overflow-x:hidden; }
-  a{ color:inherit; }
-  ::selection{ background:var(--accent); color:#1c1508; }
+    <meta charset="utf-8">
+    <title>Çin Tedarik Ağı — Çin'den Türkiye'ye Şeffaf Tedarik</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="description" content="Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip edin. Çoklu fabrika ağı, yerinde kalite kontrol ve yazılı risk güvencesiyle Çin'den ithalat.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Çin Tedarik Ağı — Çin'den Türkiye'ye Şeffaf Tedarik">
+    <meta property="og:description" content="Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip edin.">
 
-  .theme-toggle{ display:flex; gap:2px; background:var(--bg-alt); border:1px solid var(--border); border-radius:20px; padding:3px; flex:none; }
-  .theme-toggle button{ width:auto; border:none; background:transparent; color:var(--text-muted); font-family:var(--font-body); font-size:12px; font-weight:600; padding:5px 10px; border-radius:16px; cursor:pointer; }
-  .theme-toggle button.active{ background:var(--accent2); color:#fff; }
+    <link href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%230f3d63%22/><text x=%2216%22 y=%2222%22 font-family=%22Georgia,serif%22 font-size=%2216%22 font-weight=%22700%22 fill=%22white%22 text-anchor=%22middle%22>CT</text></svg>" rel="icon">
 
-  /* ---- Nav ---- */
-  nav{ position:sticky; top:0; z-index:50; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); }
-  .nav-inner{ max-width:1200px; margin:0 auto; padding:16px 24px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; row-gap:8px; }
-  @media (max-width:560px){ .nav-inner{ padding:12px 14px; } }
-  .logo{ display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:800; font-size:16px; letter-spacing:-.01em; text-decoration:none; flex:none; }
-  .logo .mark{ width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg, var(--accent2), var(--accent)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; font-weight:800; flex:none; }
-  .nav-links{ display:flex; flex-wrap:wrap; align-items:center; gap:14px; row-gap:8px; font-size:14.5px; font-weight:600; }
-  .nav-links a{ text-decoration:none; color:var(--text-muted); white-space:nowrap; }
-  .nav-links a:hover{ color:var(--text); }
-  .nav-cta{ background:var(--accent); color:#fff !important; padding:10px 18px; border-radius:6px; font-weight:700; white-space:nowrap; }
-  .nav-cta:hover{ background:var(--accent-ink); }
-  .staff-link{ font-size:15px; opacity:.4; filter:grayscale(1); transition:opacity .15s; line-height:1; flex:none; }
-  .staff-link:hover{ opacity:.85; }
-  @media (max-width:900px){ .nav-links a:not(.nav-cta):not(.staff-link){ display:none; } }
-  @media (max-width:600px){
-    .nav-inner .logo-text{ display:none; }
-    .nav-cta{ padding:9px 12px; font-size:13px; }
-    .theme-toggle{ display:none; }
-  }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 
-  .wrap{ max-width:1200px; margin:0 auto; padding:0 24px; }
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
-  /* ================= HERO — split, illüstrasyonlu ================= */
-  .hero{ padding:76px 0 0; position:relative; overflow:hidden; }
-  /* Yumuşak, markaya uygun gradient katmanı — sayfa açılışında hafifçe belirir */
-  .hero-gradient{
-    position:absolute; inset:0; z-index:-1; opacity:0;
-    background-image:
-      linear-gradient(180deg, var(--bg) 0%, color-mix(in srgb, var(--accent2) 7%, var(--bg)) 30%, color-mix(in srgb, var(--accent) 9%, var(--bg)) 60%, var(--bg) 100%),
-      radial-gradient(at 15% 20%, color-mix(in srgb, var(--accent2) 14%, transparent) 0%, transparent 55%),
-      radial-gradient(at 85% 15%, color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 60%);
-    animation: heroGradeIn 1.6s ease-out forwards;
-  }
-  @keyframes heroGradeIn{ from{ opacity:0; transform:translateY(-14px); } to{ opacity:1; transform:translateY(0); } }
-  @media (prefers-reduced-motion: reduce){ .hero-gradient{ animation:none; opacity:1; } }
+    <link href="assets/theme/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="assets/theme/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="assets/theme/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/theme/css/style.css" rel="stylesheet">
 
-  /* Dünya haritası + Çin→Türkiye rotası + gemi — marka renklerinde, dış görsel
-     kullanmadan (lisans/erişilebilirlik riski olmadan) inşa edilmiş arka plan
-     dokusu. Çok soluk, içeriğin okunabilirliğini bozmuyor. */
-  .hero-world{ position:absolute; inset:0; z-index:-1; opacity:0; overflow:hidden; animation:heroWorldIn 2s ease-out .3s forwards; }
-  @keyframes heroWorldIn{ from{ opacity:0; } to{ opacity:1; } }
-  @media (prefers-reduced-motion: reduce){ .hero-world{ animation:none; opacity:1; } }
-  .hero-world svg{ position:absolute; top:-6%; left:50%; transform:translateX(-50%); width:min(1500px, 165%); height:auto; }
-  .hero-world .land{ fill:var(--text); opacity:.05; }
-  @media (prefers-color-scheme: dark){ .hero-world .land{ opacity:.09; } }
-  .hero-world .route{ fill:none; stroke:var(--accent2); stroke-width:1.4; stroke-dasharray:1 5; stroke-linecap:round; opacity:.5; }
-  .hero-world .route2{ fill:none; stroke:var(--accent); stroke-width:1.4; stroke-dasharray:1 5; stroke-linecap:round; opacity:.4; }
-  .hero-world .node{ fill:var(--bg); stroke:var(--accent2); stroke-width:2; }
-  .hero-world .node.tr{ stroke:var(--accent); }
-  .hero-world .node-label{ font-family:var(--font-code); font-size:11px; letter-spacing:.08em; fill:var(--text-muted); opacity:.7; }
-  .hero-world .ship{ fill:var(--accent-ink); opacity:.55; }
-  /* Kademeli blur-in giriş animasyonu — hero metinleri sırayla belirir */
-  .reveal{ opacity:0; filter:blur(10px); transform:translateY(10px); animation:heroReveal .9s cubic-bezier(.2,.7,.3,1) forwards; }
-  .reveal-1{ animation-delay:.05s; } .reveal-2{ animation-delay:.16s; }
-  .reveal-3{ animation-delay:.27s; } .reveal-4{ animation-delay:.38s; }
-  @keyframes heroReveal{ to{ opacity:1; filter:blur(0); transform:translateY(0); } }
-  @media (prefers-reduced-motion: reduce){ .reveal{ animation:none; opacity:1; filter:none; transform:none; } }
-  .hero-grid{ display:grid; grid-template-columns:1.05fr .95fr; gap:40px; align-items:center; }
-  .hero-grid > *{ min-width:0; }
-  @media (max-width:960px){ .hero-grid{ grid-template-columns:1fr; } }
-  .eyebrow{ font-family:var(--font-code); font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-ink); margin:0 0 18px; display:flex; align-items:center; gap:8px; }
-  .eyebrow::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--accent2); display:inline-block; }
-  .hero h1{ font-family:var(--font-display); font-weight:600; font-size:clamp(36px,4.6vw,56px); line-height:1.05; letter-spacing:-.02em; margin:0 0 22px; }
-  .hero h1 .hl{ font-style:italic; background-image:linear-gradient(100deg, var(--accent2) 0%, var(--accent) 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
-  .hero .sub{ color:var(--text-muted); font-size:18px; max-width:52ch; margin:0 0 34px; }
-  .hero-ctas{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:44px; }
-  .btn{ display:inline-flex; align-items:center; gap:8px; padding:14px 26px; border-radius:6px; font-weight:700; font-size:15px; text-decoration:none; border:1px solid transparent; cursor:pointer; font-family:var(--font-body); transition:transform .15s; }
-  .btn-primary{ background:var(--accent); color:#fff; }
-  .btn-primary:hover{ background:var(--accent-ink); }
-  .btn-ghost{ background:var(--surface); color:var(--text); border-color:var(--border); }
-  .btn-ghost:hover{ border-color:var(--accent); }
-  /* İki tonlu "glow" çerçeve — paylaşılan hero component'lerindeki gradient-border
-     buton sarmalayıcısının marka renklerimize uyarlanmış hâli */
-  .btn-glow{ display:inline-flex; padding:3px; border-radius:11px; background:linear-gradient(100deg, var(--accent2), var(--accent)); }
-  .btn-glow .btn{ border-radius:8px; margin:0; }
-  .btn-glow .btn:hover{ transform:translateY(-1px); }
-
-  /* Panel önizlemesi — soyut illüstrasyon yerine gerçek ürünün küçük bir
-     modeli: ne satın aldığını somut gösteriyor, daha inandırıcı. */
-  .preview-card{ background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:0 20px 50px rgba(33,29,22,.09); overflow:hidden; max-width:100%; }
-  @media (prefers-color-scheme: dark){ .preview-card{ box-shadow:0 20px 50px rgba(0,0,0,.4); } }
-  .preview-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; padding:14px 18px; border-bottom:1px solid var(--border); background:var(--bg-alt); }
-  .preview-head .no{ font-family:var(--font-code); font-size:11.5px; font-weight:600; color:var(--accent-ink); }
-  .preview-head .pill{ font-family:var(--font-body); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; padding:3px 9px; border-radius:20px; background:color-mix(in srgb, var(--accent2) 14%, transparent); color:var(--accent2-ink); border:1px solid color-mix(in srgb, var(--accent2) 32%, transparent); }
-  .preview-body{ padding:20px 22px; }
-  .preview-body .bar-track{ height:6px; border-radius:6px; background:var(--bg-alt); overflow:hidden; margin-bottom:22px; }
-  .preview-body .bar-fill{ height:100%; width:58%; background:linear-gradient(90deg, var(--accent2), var(--accent)); }
-  .pv-step{ display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
-  .pv-step:last-child{ border-bottom:none; }
-  .pv-step .dot{ width:18px; height:18px; border-radius:50%; flex:none; margin-top:1px; display:flex; align-items:center; justify-content:center; font-size:10px; color:#fff; }
-  .pv-step.done .dot{ background:var(--accent2); }
-  .pv-step.current .dot{ background:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
-  .pv-step.pending .dot{ background:var(--border); }
-  .pv-step .t{ font-size:13.5px; font-weight:600; }
-  .pv-step.pending .t{ color:var(--text-muted); font-weight:500; }
-  .pv-step .d{ font-size:12px; color:var(--text-muted); margin-top:1px; }
-
-  /* "Ekran görüntüsü" bandı */
-  .shot-wrap{ position:relative; margin-top:52px; padding:0 8px; }
-  .shot-fade{ position:absolute; inset:0; z-index:2; pointer-events:none; background:linear-gradient(180deg, transparent 55%, var(--bg) 100%); }
-  .shot-frame{ position:relative; max-width:920px; margin:0 auto; background:var(--surface); border:1px solid var(--border); border-bottom:none; border-radius:16px 16px 0 0; box-shadow:0 30px 60px -20px rgba(33,29,22,.18); overflow:hidden; }
-  @media (prefers-color-scheme: dark){ .shot-frame{ box-shadow:0 30px 60px -20px rgba(0,0,0,.5); } }
-  .shot-topbar{ display:flex; align-items:center; gap:6px; padding:12px 16px; border-bottom:1px solid var(--border); background:var(--bg-alt); }
-  .shot-dot{ width:9px; height:9px; border-radius:50%; opacity:.6; }
-  .shot-body{ display:flex; min-height:260px; }
-  .shot-sidebar{ width:170px; flex:none; border-right:1px solid var(--border); padding:16px 10px; display:none; }
-  @media (min-width:560px){ .shot-sidebar{ display:block; } }
-  .shot-side-item{ font-size:12.5px; font-weight:600; color:var(--text-muted); padding:9px 10px; border-radius:6px; margin-bottom:2px; }
-  .shot-side-item.active{ background:color-mix(in srgb, var(--accent) 12%, transparent); color:var(--accent-ink); }
-  .shot-main{ flex:1; padding:18px 20px; }
-  .shot-row{ display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid var(--border); font-size:13.5px; }
-  .shot-row:last-child{ border-bottom:none; }
-  .shot-row b{ font-family:var(--font-code); font-weight:600; color:var(--accent-ink); font-size:12.5px; }
-  .pill{ font-family:var(--font-code); font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.02em; padding:4px 9px; border-radius:20px; background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent-ink); border:1px solid color-mix(in srgb, var(--accent) 32%, transparent); white-space:nowrap; }
-
-  /* İstatistik bandı — gerçek rakamlar */
-  .stat-band{ border-top:1px solid var(--border); margin-top:60px; padding:34px 0; display:grid; grid-template-columns:repeat(4,1fr); }
-  @media (max-width:760px){ .stat-band{ grid-template-columns:repeat(2,1fr); row-gap:24px; } }
-  .stat{ padding-right:28px; border-left:1px solid var(--border); padding-left:24px; }
-  .stat:first-child{ border-left:none; padding-left:0; }
-  .stat .v{ font-family:var(--font-code); font-weight:600; font-size:30px; color:var(--accent-ink); letter-spacing:-.01em; }
-  .stat .l{ font-size:13px; color:var(--text-muted); margin-top:4px; }
-
-  section{ padding:76px 0; border-bottom:1px solid var(--border); }
-  section:nth-of-type(even){ background:var(--bg-alt); }
-  .section-head{ max-width:640px; margin-bottom:44px; }
-  .eyebrow2{ font-family:var(--font-code); font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent-ink); margin:0 0 12px; }
-  h2{ font-family:var(--font-display); font-weight:600; font-size:clamp(24px,3vw,32px); letter-spacing:-.015em; margin:0 0 12px; line-height:1.15; }
-  .section-head p{ color:var(--text-muted); font-size:16px; margin:0; max-width:60ch; }
-
-  /* ---- Pain points ---- */
-  .pain-list{ border-top:1px solid var(--border); }
-  .pain-row{ display:grid; grid-template-columns:44px 1fr; gap:20px; padding:26px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
-  .pain-row .idx{ width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-code); font-size:13px; font-weight:600; color:var(--signal-ink); background:color-mix(in srgb, var(--signal) 12%, transparent); border:1px solid color-mix(in srgb, var(--signal) 30%, transparent); }
-  .pain-row h3{ font-family:var(--font-display); font-size:18px; margin:0 0 6px; font-weight:600; }
-  .pain-row p{ color:var(--text-muted); font-size:15px; margin:0; max-width:60ch; }
-
-  /* ---- Pillars ---- */
-  .pillar{ display:grid; grid-template-columns:44px 1fr; gap:20px; padding:26px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
-  .pillar:last-child{ border-bottom:none; }
-  .pillar .letter{ width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-code); font-size:13px; font-weight:600; color:var(--accent-ink); background:color-mix(in srgb, var(--accent) 14%, transparent); border:1px solid color-mix(in srgb, var(--accent) 32%, transparent); }
-  .pillar h3{ font-family:var(--font-display); font-size:19px; margin:0 0 6px; font-weight:600; }
-  .pillar p{ color:var(--text-muted); font-size:15px; margin:0; max-width:66ch; }
-
-  /* ---- Process ---- */
-  .proc-list{ border-top:1px solid var(--border); }
-  .proc-row{ display:grid; grid-template-columns:44px 1fr; gap:20px; padding:30px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
-  .proc-row .idx{ width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-code); font-size:13px; font-weight:600; color:#fff; background:var(--accent2); }
-  .proc-row:nth-child(2n) .idx{ background:var(--accent); }
-  .proc-row .content h3{ font-family:var(--font-display); font-size:19px; margin:0 0 8px; font-weight:600; letter-spacing:-.005em; }
-  .proc-row .content p{ font-size:15.5px; color:var(--text-muted); margin:0 0 14px; max-width:62ch; }
-  .portal-tag{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-code); font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent2-ink); background:color-mix(in srgb, var(--accent2) 12%, transparent); border:1px solid color-mix(in srgb, var(--accent2) 30%, transparent); padding:4px 10px; border-radius:20px; }
-  .portal-tag::before{ content:"◎ "; }
-  .proc-foot{ padding-top:28px; font-family:var(--font-code); font-size:12.5px; color:var(--text-muted); }
-  .proc-foot b{ color:var(--accent-ink); font-family:var(--font-body); font-weight:700; }
-
-  /* ---- Küre bölümü: paylaşılan interaktif 3D globe component'i GERÇEK three.js +
-     three-globe ile (React/Next.js olmadan — bu kütüphaneler saf vanilla JS'te de
-     çalışıyor, sadece @react-three/fiber React'a özeldi). WebGL destekli, dönen,
-     ülke sınırlı, ark animasyonlu gerçek 3D küre. ---- */
-  section.globe-section{ background:#ffffff; color:var(--text); text-align:center; padding:56px 24px 70px; overflow:hidden; }
-  @media (prefers-color-scheme: dark){ section.globe-section{ background:#ffffff; color:#211d16; } }
-  .globe-section .eyebrow2{ color:var(--accent-ink); justify-content:center; display:flex; }
-  .globe-section h2{ color:inherit; margin-bottom:32px; }
-  .globe-stage{ position:relative; width:min(560px, 90vw); height:min(560px, 90vw); margin:0 auto; cursor:grab; }
-  .globe-stage:active{ cursor:grabbing; }
-  .globe-stage canvas{ outline:none; }
-  .globe-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--font-code); font-size:12px; color:var(--text-muted); transition:opacity .4s; }
-
-  /* ---- Trust cards ---- */
-  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-  @media (max-width:820px){ .grid2{ grid-template-columns:1fr; } }
-  .card{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:26px; }
-  .card .tag{ display:inline-block; font-family:var(--font-code); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--signal-ink); background:color-mix(in srgb, var(--signal) 12%, transparent); border:1px solid color-mix(in srgb, var(--signal) 30%, transparent); padding:3px 9px; border-radius:20px; margin-bottom:14px; }
-  .card h3{ font-family:var(--font-display); font-size:18px; margin:0 0 8px; font-weight:700; }
-  .card p{ color:var(--text-muted); font-size:14.5px; margin:0; }
-  .card .tag.brass{ color:var(--accent-ink); background:color-mix(in srgb, var(--accent) 14%, transparent); border-color:color-mix(in srgb, var(--accent) 35%, transparent); }
-
-  /* ---- Araçlar: bento ---- */
-  .bento{ display:grid; grid-template-columns:1.3fr 1fr; gap:20px; }
-  @media (max-width:860px){ .bento{ grid-template-columns:1fr; } }
-  .bento-card{ background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:36px; display:flex; flex-direction:column; position:relative; overflow:hidden; }
-  .bento-card.lg{ background:var(--text); color:var(--bg); }
-  @media (prefers-color-scheme: dark){ .bento-card.lg{ background:linear-gradient(135deg, var(--accent2-ink), var(--accent-ink)); color:#171310; } }
-  .bento-card .icon-badge{ width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:20px; background:color-mix(in srgb, var(--accent) 16%, transparent); }
-  .bento-card.lg .icon-badge{ background:rgba(255,255,255,.14); }
-  .bento-card h3{ font-family:var(--font-display); font-size:24px; margin:0 0 10px; font-weight:600; }
-  .bento-card p{ font-size:15px; margin:0 0 26px; max-width:44ch; flex:1; }
-  .bento-card.lg p{ color:color-mix(in srgb, var(--bg) 75%, transparent); }
-  .bento-card:not(.lg) p{ color:var(--text-muted); }
-  .bento-card .btn-primary.inv{ background:var(--bg); color:var(--text); }
-  .bento-card .btn-primary.inv:hover{ background:color-mix(in srgb, var(--bg) 85%, var(--text)); }
-
-  /* ---- CTA band ---- */
-  .cta-band{ background:var(--text); color:var(--bg); text-align:center; padding:88px 24px; }
-  @media (prefers-color-scheme: dark){ .cta-band{ background:var(--accent-ink); color:#171310; } }
-  .cta-band h2{ color:inherit; }
-  .cta-band p{ color:color-mix(in srgb, var(--bg) 70%, transparent); font-size:16px; max-width:52ch; margin:0 auto 30px; }
-  @media (prefers-color-scheme: dark){ .cta-band p{ color:color-mix(in srgb, #171310 65%, transparent); } }
-  .cta-band .btn-primary{ background:var(--accent); }
-
-  /* ---- Footer ---- */
-  footer{ padding:56px 24px 32px; }
-  .footer-grid{ max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:40px; padding-bottom:32px; border-bottom:1px solid var(--border); }
-  @media (max-width:700px){ .footer-grid{ grid-template-columns:1fr; gap:28px; } }
-  .footer-brand .logo{ margin-bottom:12px; }
-  .footer-brand p{ color:var(--text-muted); font-size:14px; max-width:36ch; margin:0; }
-  .footer-col h4{ font-family:var(--font-code); font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin:0 0 14px; }
-  .footer-col a{ display:block; color:var(--text); text-decoration:none; font-size:14.5px; margin-bottom:10px; font-weight:600; }
-  .footer-col a:hover{ color:var(--accent-ink); }
-  .footer-bottom{ max-width:1200px; margin:24px auto 0; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
-  .footer-bottom p{ color:var(--text-muted); font-size:12.5px; margin:0; }
-</style>
+    <style>
+      /* ---- Marka üstü ince ayarlar: şablonun kendi tasarım sistemine dokunmadan,
+         Çin Tedarik Ağı içeriğine özel birkaç bileşen ekliyoruz. ---- */
+      body{ font-family:'Inter',sans-serif; overflow-x:hidden; }
+      .navbar-brand h2{ font-family:'Inter',sans-serif; font-weight:800; font-size:22px; }
+      .mono{ font-family:'IBM Plex Mono',ui-monospace,monospace; }
+      .staff-link{ font-size:18px; opacity:.55; text-decoration:none; margin-left:18px; }
+      .staff-link:hover{ opacity:1; }
+      .portal-pill{ display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.04em; padding:4px 10px; border-radius:20px; background:rgba(15,61,99,.1); color:var(--primary); border:1px solid rgba(15,61,99,.25); margin-top:10px; }
+      .price-item .display-5{ font-size:0; }
+      .price-item ul{ list-style:none; padding:0; margin:0; }
+      .price-item ul li{ padding:6px 0; }
+      /* Küre bölümü: gerçek WebGL 3D küre (three.js + three-globe) — şablona ait değil,
+         sitenin kendi tedarik ağı görselleştirmesi. Beyaz zemin üzerinde. */
+      .globe-wrap{ background:#fff; padding:80px 0; text-align:center; }
+      .globe-stage{ position:relative; width:min(560px, 90vw); height:min(560px, 90vw); margin:0 auto; cursor:grab; }
+      .globe-stage:active{ cursor:grabbing; }
+      .globe-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#8a94a3; }
+      .rfq-cta-box{ background:var(--dark); border-radius:4px; padding:56px 40px; text-align:center; }
+      .rfq-cta-box h1{ color:#fff; }
+      .rfq-cta-box p{ color:rgba(255,255,255,.7); }
+    </style>
 </head>
+
 <body>
-
-<nav>
-  <div class="nav-inner">
-    <a href="/" class="logo"><span class="mark">ÇT</span> <span class="logo-text">Çin Tedarik Ağı</span></a>
-    <div class="nav-links">
-      <a href="#surec">Süreç</a>
-      <a href="#neden-biz">Neden Biz</a>
-      <a href="/hesapla.html">Vergi Hesaplama</a>
-      <a href="/takip.html">Müşteri Girişi</a>
-      <div class="theme-toggle" id="themeToggle">
-        <button data-mode="light">☀</button>
-        <button data-mode="dark">☾</button>
-        <button data-mode="system">Sis</button>
-      </div>
-      <a href="/takip.html#rfq" class="nav-cta">Ücretsiz Teklif Al</a>
-      <a href="/admin.html" class="staff-link" title="Çalışan Girişi">🔒</a>
-    </div>
-  </div>
-</nav>
-
-<header class="hero">
-  <div class="hero-gradient"></div>
-  <div class="hero-world" aria-hidden="true">
-    <svg viewBox="0 0 1600 700" xmlns="http://www.w3.org/2000/svg">
-      <!-- Basitleştirilmiş kıta silüetleri — coğrafi hassasiyet iddiası taşımayan,
-           soyut/dekoratif bir dünya haritası dokusu (nokta-blob tekniği). -->
-      <g class="land">
-        <ellipse cx="150" cy="120" rx="140" ry="85"/>
-        <ellipse cx="1420" cy="130" rx="150" ry="90"/>
-        <ellipse cx="1300" cy="600" rx="170" ry="100"/>
-        <ellipse cx="60" cy="580" rx="120" ry="90"/>
-        <ellipse cx="1500" cy="500" rx="90" ry="130"/>
-      </g>
-      <path class="route" d="M180,640 C420,560 620,660 840,610 C1040,570 1180,630 1340,600"/>
-      <path class="route2" d="M180,640 C440,600 640,610 840,610 C1020,600 1200,635 1340,600"/>
-      <circle class="node" cx="180" cy="640" r="7"/>
-      <text class="node-label" x="152" y="670">ÇİN</text>
-      <circle class="node tr" cx="1340" cy="600" r="7"/>
-      <text class="node-label" x="1305" y="630">TÜRKİYE</text>
-      <g transform="translate(840,610) rotate(-8)">
-        <path class="ship" d="M-22,4 L22,4 L16,20 L-16,20 Z"/>
-        <path class="ship" d="M0,-22 L0,4 L16,4 Z" opacity=".85"/>
-      </g>
-    </svg>
-  </div>
-  <div class="wrap">
-    <div class="hero-grid">
-      <div>
-        <p class="eyebrow reveal reveal-1">Çin — Türkiye tedarik köprüsü</p>
-        <h1 class="reveal reveal-2">Çin'den Türkiye'ye,<br><span class="hl">şeffaf ve garantili</span> tedarik.</h1>
-        <p class="sub reveal reveal-3">Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip portalından izleyin. Çoklu fabrika ağı, yerinde kalite kontrol ve yazılı risk güvencesiyle — kara kutu değil, sistemli bir süreç.</p>
-        <div class="hero-ctas reveal reveal-4">
-          <span class="btn-glow"><a href="/takip.html#rfq" class="btn btn-primary">Ücretsiz Teklif Talebi (RFQ) Oluştur</a></span>
-          <a href="/hesapla.html" class="btn btn-ghost">Gümrük Vergisi Hesapla</a>
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Yükleniyor...</span>
         </div>
-      </div>
-      <div>
-        <div class="preview-card reveal reveal-4">
-          <div class="preview-head">
-            <span class="no">CTA-2026-0114</span>
-            <span class="pill">Üretimde</span>
-          </div>
-          <div class="preview-body">
-            <div class="bar-track"><div class="bar-fill"></div></div>
-            <div class="pv-step done"><div class="dot">✓</div><div><div class="t">Talep &amp; Teklif</div><div class="d">Tamamlandı — 3/3 aşama</div></div></div>
-            <div class="pv-step done"><div class="dot">✓</div><div><div class="t">Numune</div><div class="d">Tamamlandı — 4/4 aşama</div></div></div>
-            <div class="pv-step current"><div class="dot"></div><div><div class="t">Üretim</div><div class="d">Sürüyor — 2/3 aşama</div></div></div>
-            <div class="pv-step pending"><div class="dot"></div><div><div class="t">Sevkiyat</div><div class="d">Henüz başlamadı</div></div></div>
-          </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-white navbar-light shadow border-top border-5 border-primary sticky-top p-0">
+        <a href="/" class="navbar-brand bg-primary d-flex align-items-center px-4 px-lg-5">
+            <h2 class="mb-2 text-white">ÇİN TEDARİK AĞI</h2>
+        </a>
+        <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto p-4 p-lg-0">
+                <a href="/" class="nav-item nav-link active">Ana Sayfa</a>
+                <a href="#surec" class="nav-item nav-link">Süreç</a>
+                <a href="#neden-biz" class="nav-item nav-link">Neden Biz</a>
+                <a href="/hesapla.html" class="nav-item nav-link">Vergi Hesaplama</a>
+                <a href="/takip.html" class="nav-item nav-link">Müşteri Girişi</a>
+            </div>
+            <a href="/takip.html#rfq" class="btn btn-primary py-2 px-4 me-3 fw-bold">Ücretsiz Teklif Al</a>
+            <a href="/admin.html" class="staff-link d-none d-lg-inline" title="Çalışan Girişi"><i class="fa fa-lock"></i></a>
         </div>
-      </div>
-    </div>
+    </nav>
+    <!-- Navbar End -->
 
-    <!-- Büyük "ürün ekran görüntüsü" bandı — paylaşılan hero component'lerindeki
-         çerçeveli/gölgeli/üstten fade maskeli app-screenshot deseninin, gerçek
-         panelimizin geniş bir mockup'ıyla uyarlanmış hâli. Sahte/dış görsel yok. -->
-    <div class="shot-wrap reveal" style="animation-delay:.5s;">
-      <div class="shot-fade"></div>
-      <div class="shot-frame">
-        <div class="shot-topbar">
-          <span class="shot-dot" style="background:var(--signal);"></span>
-          <span class="shot-dot" style="background:var(--accent);"></span>
-          <span class="shot-dot" style="background:var(--accent2);"></span>
-          <span style="margin-left:10px; font-family:var(--font-code); font-size:11.5px; color:var(--text-muted);">panel.cintedarikagi.com/takip</span>
+
+    <!-- Hero Carousel -->
+    <div class="container-fluid p-0 pb-5">
+        <div class="owl-carousel header-carousel position-relative mb-5">
+            <div class="owl-carousel-item position-relative">
+                <img class="img-fluid" src="assets/theme/img/carousel-1.jpg" alt="">
+                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center" style="background: rgba(10, 28, 49, .72);">
+                    <div class="container">
+                        <div class="row justify-content-start">
+                            <div class="col-10 col-lg-8">
+                                <h5 class="text-white text-uppercase mb-3 animated slideInDown mono">Çin — Türkiye tedarik köprüsü</h5>
+                                <h1 class="display-3 text-white animated slideInDown mb-4">Çin'den Türkiye'ye, <span class="text-primary" style="color:#e8b355 !important;">şeffaf</span> tedarik.</h1>
+                                <p class="fs-5 fw-medium text-white mb-4 pb-2">Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip portalından izleyin. Çoklu fabrika ağı, yerinde kalite kontrol ve yazılı risk güvencesi.</p>
+                                <a href="/takip.html#rfq" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">Ücretsiz Teklif Al</a>
+                                <a href="/hesapla.html" class="btn btn-secondary py-md-3 px-md-5 animated slideInRight">Vergi Hesapla</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="owl-carousel-item position-relative">
+                <img class="img-fluid" src="assets/theme/img/carousel-2.jpg" alt="">
+                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center" style="background: rgba(10, 28, 49, .72);">
+                    <div class="container">
+                        <div class="row justify-content-start">
+                            <div class="col-10 col-lg-8">
+                                <h5 class="text-white text-uppercase mb-3 animated slideInDown mono">19 aşamalı canlı takip</h5>
+                                <h1 class="display-3 text-white animated slideInDown mb-4">Kara kutu değil, <span class="text-primary" style="color:#e8b355 !important;">sistemli</span> bir süreç.</h1>
+                                <p class="fs-5 fw-medium text-white mb-4 pb-2">RFQ'dan teslimata her adım panelinizde. Kim neyi değiştirdi, hangi belge ne zaman yüklendi — hepsi kayıt altında.</p>
+                                <a href="/takip.html" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">Siparişimi Görüntüle</a>
+                                <a href="#surec" class="btn btn-secondary py-md-3 px-md-5 animated slideInRight">Süreci İncele</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="shot-body">
-          <div class="shot-sidebar">
-            <div class="shot-side-item active">📦 Siparişlerim</div>
-            <div class="shot-side-item">＋ Yeni Talep</div>
-            <div class="shot-side-item">🧮 Vergi Hesaplama</div>
-          </div>
-          <div class="shot-main">
-            <div class="shot-row"><b>CTA-2026-0091</b><span class="pill">Numune Onayınızı Bekliyor</span></div>
-            <div class="shot-row"><b>CTA-2026-0088</b><span class="pill" style="background:color-mix(in srgb, var(--accent2) 14%, transparent); color:var(--accent2-ink); border-color:color-mix(in srgb, var(--accent2) 32%, transparent);">Gemide</span></div>
-            <div class="shot-row"><b>CTA-2026-0084</b><span class="pill" style="background:color-mix(in srgb, var(--accent2) 14%, transparent); color:var(--accent2-ink); border-color:color-mix(in srgb, var(--accent2) 32%, transparent);">Teslim Edildi</span></div>
-            <div class="shot-row"><b>CTA-2026-0079</b><span class="pill">Gümrükte Muayene</span></div>
-          </div>
+    </div>
+    <!-- Hero Carousel End -->
+
+
+    <!-- About -->
+    <div class="container-fluid overflow-hidden py-5 px-lg-0" id="neden-biz">
+        <div class="container about py-5 px-lg-0">
+            <div class="row g-5 mx-lg-0">
+                <div class="col-lg-6 ps-lg-0 wow fadeInLeft" data-wow-delay="0.1s" style="min-height: 400px;">
+                    <div class="position-relative h-100">
+                        <img class="position-absolute img-fluid w-100 h-100" src="assets/theme/img/about.jpg" style="object-fit: cover;" alt="">
+                    </div>
+                </div>
+                <div class="col-lg-6 about-text wow fadeInUp" data-wow-delay="0.3s">
+                    <h6 class="text-secondary text-uppercase mb-3">Neden Biz</h6>
+                    <h1 class="mb-5">Dört sütun üzerine kurulu bir fark</h1>
+                    <p class="mb-5">"Çin'den ürün buluruz" artık yeterli değil. Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip portalında görünür kılıyor, riski müşteriden alıp sisteme yüklüyoruz.</p>
+                    <div class="row g-4 mb-5">
+                        <div class="col-sm-6 wow fadeIn" data-wow-delay="0.5s">
+                            <i class="fa fa-globe fa-3x text-primary mb-3"></i>
+                            <h5>Uçtan Uca Şeffaflık</h5>
+                            <p class="m-0">Fabrika görüşmesinden gümrüğe kadar her aşama panelinizde görünür.</p>
+                        </div>
+                        <div class="col-sm-6 wow fadeIn" data-wow-delay="0.7s">
+                            <i class="fa fa-shipping-fast fa-3x text-primary mb-3"></i>
+                            <h5>Ağın Derinliği</h5>
+                            <p class="m-0">Tek fabrikaya bağımlı değil; yerinde QC ekibi ve alternatif tedarikçi ağı.</p>
+                        </div>
+                    </div>
+                    <a href="#surec" class="btn btn-primary py-3 px-5">Süreci İncele</a>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
+    <!-- About End -->
 
-    <div class="stat-band">
-      <div class="stat"><div class="v">19</div><div class="l">panelde canlı takip edilen durum</div></div>
-      <div class="stat"><div class="v">6</div><div class="l">uçtan uca süreç fazı</div></div>
-      <div class="stat"><div class="v">15.000+</div><div class="l">GTİP kaleminde gerçek vergi verisi</div></div>
-      <div class="stat"><div class="v">4</div><div class="l">yazılı güvence sütunu</div></div>
+
+    <!-- Facts -->
+    <div class="container-xxl py-5 bg-light">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <h6 class="text-secondary text-uppercase mb-3">Rakamlarla</h6>
+                    <h1 class="mb-5">Sistemli tedarikin somut karşılığı</h1>
+                    <p class="mb-5">Kara kutu değil, panelinizde tek tek görünen bir süreç. Her rakam, panelin arkasındaki gerçek veriye dayanıyor.</p>
+                    <div class="d-flex align-items-center">
+                        <i class="fa fa-headphones fa-2x flex-shrink-0 bg-primary p-3 text-white"></i>
+                        <div class="ps-4">
+                            <h6>Teklif talebi için</h6>
+                            <h3 class="text-primary m-0"><a href="/takip.html#rfq" style="color:inherit; text-decoration:none;">Panelden RFQ Oluştur →</a></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-sm-6">
+                            <div class="bg-primary p-4 mb-4 wow fadeIn" data-wow-delay="0.3s">
+                                <i class="fa fa-list-ol fa-2x text-white mb-3"></i>
+                                <h2 class="text-white mb-2" data-toggle="counter-up">19</h2>
+                                <p class="text-white mb-0">panelde canlı takip edilen durum</p>
+                            </div>
+                            <div class="bg-secondary p-4 wow fadeIn" data-wow-delay="0.5s">
+                                <i class="fa fa-ship fa-2x text-white mb-3"></i>
+                                <h2 class="text-white mb-2" data-toggle="counter-up">6</h2>
+                                <p class="text-white mb-0">uçtan uca süreç fazı</p>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-4 wow fadeIn" data-wow-delay="0.7s" style="background:var(--dark);">
+                                <i class="fa fa-file-invoice-dollar fa-2x text-white mb-3"></i>
+                                <h2 class="text-white mb-2" data-toggle="counter-up">15000</h2>
+                                <p class="text-white mb-0">GTİP kaleminde gerçek vergi verisi</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</header>
+    <!-- Facts End -->
 
-<section id="acilar">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow2">Sektörün çözemediği sorun</p>
-      <h2>Rekabet parçalı — güven hâlâ eksik.</h2>
-      <p>Klasik ithalat danışmanları, serbest sourcing ajanları, Alibaba'nın kendisi — hepsi bir şekilde rakip. Ortak eksik: hiçbiri süreci uçtan uca şeffaf göstermiyor.</p>
+
+    <!-- Process / Services -->
+    <div class="container-xxl py-5" id="surec">
+        <div class="container py-5">
+            <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+                <h6 class="text-secondary text-uppercase">Talepten Teslimata</h6>
+                <h1 class="mb-5">Fabrikadan kapınıza, her adım tek ekranda</h1>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="service-item p-4">
+                        <div class="overflow-hidden mb-4">
+                            <img class="img-fluid" src="assets/theme/img/service-1.jpg" alt="">
+                        </div>
+                        <h4 class="mb-3">01 — RFQ Alınır</h4>
+                        <p>Ürün, miktar ve hedef fiyatınızı panelinizden iletirsiniz; talebiniz aynı gün fabrika görüşmelerine girer.</p>
+                        <span class="portal-pill">Talep Alındı</span>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="service-item p-4">
+                        <div class="overflow-hidden mb-4">
+                            <img class="img-fluid" src="assets/theme/img/service-2.jpg" alt="">
+                        </div>
+                        <h4 class="mb-3">02 — Fabrika Eşleştirme</h4>
+                        <p>Uygun fabrikalar belirlenir, karşılaştırmalı fiyat ve termin teklifi hazırlanıp onayınıza sunulur.</p>
+                        <span class="portal-pill">Teklif Hazır</span>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.7s">
+                    <div class="service-item p-4">
+                        <div class="overflow-hidden mb-4">
+                            <img class="img-fluid" src="assets/theme/img/service-3.jpg" alt="">
+                        </div>
+                        <h4 class="mb-3">03 — Numune Süreci</h4>
+                        <p>Onaylanan tedarikçiden numune üretilir; yerinde QC ekibimiz fiziksel olarak kontrol eder.</p>
+                        <span class="portal-pill">Numune Onayı Bekliyor</span>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="service-item p-4">
+                        <div class="overflow-hidden mb-4">
+                            <img class="img-fluid" src="assets/theme/img/service-4.jpg" alt="">
+                        </div>
+                        <h4 class="mb-3">04 — Seri Üretim</h4>
+                        <p>Numune onaylanmadan seri üretime geçilmez. Onay sonrası üretim başlar, ilerleme periyodik paylaşılır.</p>
+                        <span class="portal-pill">Üretimde</span>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="service-item p-4">
+                        <div class="overflow-hidden mb-4">
+                            <img class="img-fluid" src="assets/theme/img/service-5.jpg" alt="">
+                        </div>
+                        <h4 class="mb-3">05 — Konteyner &amp; Gemi</h4>
+                        <p>Ürünler konteynere yüklenir, limanda gemiye biner; sefer bilgisi panelinizde açılır.</p>
+                        <span class="portal-pill">Gemide</span>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.7s">
+                    <div class="service-item p-4">
+                        <div class="overflow-hidden mb-4">
+                            <img class="img-fluid" src="assets/theme/img/service-6.jpg" alt="">
+                        </div>
+                        <h4 class="mb-3">06 — Gümrük &amp; Teslimat</h4>
+                        <p>Beyanname, vergi ve muayene süreci aşama aşama işlenir; mal adresinize ulaştırılır.</p>
+                        <span class="portal-pill">Teslim Edildi</span>
+                    </div>
+                </div>
+            </div>
+            <p class="text-center text-muted mt-4 mono" style="font-size:13px;">Aradaki numune ödemesi, üretim ödemesi, sevkiyat belgeleri ve gümrük alt aşamaları dahil tüm <b>19 durum</b> panelinizde tek tek görünür.</p>
+        </div>
     </div>
-    <div class="pain-list">
-      <div class="pain-row"><div class="idx">01</div><div><h3>Kara kutu süreç</h3><p>Numune, üretim ve sevkiyat aşamaları görünmüyor; müşteri sadece WhatsApp mesajlarına güveniyor.</p></div></div>
-      <div class="pain-row"><div class="idx">02</div><div><h3>Tutarsız kalite</h3><p>Tek fabrikaya bağımlı ajanlar kalite sorununda alternatif sunamıyor; risk tamamen müşteride.</p></div></div>
-      <div class="pain-row"><div class="idx">03</div><div><h3>Yavaş yanıt</h3><p>Manuel WhatsApp trafiği teklif sürecini günlerce uzatıyor.</p></div></div>
+    <!-- Process End -->
+
+
+    <!-- Feature -->
+    <div class="container-fluid overflow-hidden py-5 px-lg-0 bg-light">
+        <div class="container feature py-5 px-lg-0">
+            <div class="row g-5 mx-lg-0">
+                <div class="col-lg-6 feature-text wow fadeInUp" data-wow-delay="0.1s">
+                    <h6 class="text-secondary text-uppercase mb-3">Sütun D'nin somutlaştığı yer</h6>
+                    <h1 class="mb-5">Riski müşteriden alıp sisteme yüklüyoruz</h1>
+                    <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.3s">
+                        <i class="fa fa-money-check-alt text-primary fa-3x flex-shrink-0"></i>
+                        <div class="ms-4">
+                            <h5>Kademeli Ödeme</h5>
+                            <p class="mb-0">Bedel tek seferde değil; RFQ onayı, numune onayı, yükleme öncesi ve teslimat sonrası olmak üzere aşamalara bölünerek ödenir.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex mb-5 wow fadeIn" data-wow-delay="0.5s">
+                        <i class="fa fa-file-signature text-primary fa-3x flex-shrink-0"></i>
+                        <div class="ms-4">
+                            <h5>Yazılı Taahhüt</h5>
+                            <p class="mb-0">Her siparişte fiyat, termin, kalite şartnamesi ve uyuşmazlık durumunda müdahale prosedürü yazılı olarak imzalanır.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex mb-0 wow fadeInUp" data-wow-delay="0.7s">
+                        <i class="fa fa-folder-open text-primary fa-3x flex-shrink-0"></i>
+                        <div class="ms-4">
+                            <h5>Belge Arşivi</h5>
+                            <p class="mb-0">Konşimento, fatura, çeki listesi ve gümrük belgeleri portalınızda arşivlenir, e-posta karmaşası yok.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 pe-lg-0 wow fadeInRight" data-wow-delay="0.1s" style="min-height: 400px;">
+                    <div class="position-relative h-100">
+                        <img class="position-absolute img-fluid w-100 h-100" src="assets/theme/img/feature.jpg" style="object-fit: cover;" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</section>
+    <!-- Feature End -->
 
-<section id="neden-biz">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow2">Konumlandırma</p>
-      <h2>Dört sütun üzerine kurulu bir fark.</h2>
-      <p>"Çin'den ürün buluruz" artık yeterli değil. Gerçek fark aşağıdaki dört sütunda kurulur — hepsi sisteme gömülü, tek seferlik bir vaat değil.</p>
+
+    <!-- Globe: gerçek WebGL 3D küre -->
+    <div class="globe-wrap">
+        <div class="container">
+            <h6 class="text-secondary text-uppercase">Küresel Ağ</h6>
+            <h1 class="mb-5">Tedarik ağımız Çin'in tek bir şehrinden ibaret değil</h1>
+            <div class="globe-stage" id="globeStage">
+                <div class="globe-loading" id="globeLoading">Küre yükleniyor…</div>
+            </div>
+        </div>
     </div>
-    <div class="pillar"><div class="letter">A</div><div><h3>Uçtan uca şeffaflık</h3><p>Fabrika görüşmesinden gümrüğe kadar her aşama, canlı takip portalında görünür — güvensizliği sistemle çözüyoruz.</p></div></div>
-    <div class="pillar"><div class="letter">B</div><div><h3>Ağın derinliği</h3><p>Kaç fabrika, hangi dikeyde, yerinde QC ekibi, tek tedarikçiye bağımlı olmayan alternatif önerisi — sadece "ofisimiz var" değil.</p></div></div>
-    <div class="pillar"><div class="letter">C</div><div><h3>Dikey uzmanlaşma</h3><p>"Her şeyi getiririz" yerine seçili kategorilerde derinlemesine uzmanlık ve fabrika ilişkisi.</p></div></div>
-    <div class="pillar"><div class="letter">D</div><div><h3>Yazılı risk üstlenme</h3><p>Numune/ilk parti garantisi ve kalite uyuşmazlığında yazılı müdahale taahhüdü — somut güvence.</p></div></div>
-  </div>
-</section>
+    <!-- Globe End -->
 
-<section id="surec">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow2">Talepten teslimata</p>
-      <h2>Fabrikadan kapınıza, her adım tek ekranda.</h2>
-      <p>Panelinizde 19 aşamalı tam süreç canlı olarak işlenir; aşağıda öne çıkan altı kilometre taşı.</p>
+
+    <!-- Güvence cards (pricing yapısı, garanti sütunlarına uyarlandı) -->
+    <div class="container-xxl py-5">
+        <div class="container py-5">
+            <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+                <h6 class="text-secondary text-uppercase">Yazılı Güvence</h6>
+                <h1 class="mb-5">Somut, sisteme gömülü dört güvence</h1>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="price-item">
+                        <div class="border-bottom p-4 mb-4">
+                            <i class="fa fa-layer-group text-primary fa-2x mb-2"></i>
+                            <h5 class="text-primary mb-0">Ödeme Güvenliği</h5>
+                        </div>
+                        <div class="p-4 pt-0">
+                            <p>Bedel; RFQ onayı, numune onayı, yükleme öncesi ve teslimat sonrası olmak üzere aşamalara bölünerek ödenir.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.4s">
+                    <div class="price-item">
+                        <div class="border-bottom p-4 mb-4">
+                            <i class="fa fa-file-contract text-primary fa-2x mb-2"></i>
+                            <h5 class="text-primary mb-0">Sözleşme</h5>
+                        </div>
+                        <div class="p-4 pt-0">
+                            <p>Fiyat, termin, kalite şartnamesi ve uyuşmazlık durumunda müdahale prosedürü yazılı olarak imzalanır.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="price-item">
+                        <div class="border-bottom p-4 mb-4">
+                            <i class="fa fa-check-double text-primary fa-2x mb-2"></i>
+                            <h5 class="text-primary mb-0">Kalite Güvencesi</h5>
+                        </div>
+                        <div class="p-4 pt-0">
+                            <p>Numune fiziksel olarak onaylanmadan seri üretime geçilmez; üretim sırasında rastgele denetim yapılır.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.6s">
+                    <div class="price-item">
+                        <div class="border-bottom p-4 mb-4">
+                            <i class="fa fa-archive text-primary fa-2x mb-2"></i>
+                            <h5 class="text-primary mb-0">Belge Arşivi</h5>
+                        </div>
+                        <div class="p-4 pt-0">
+                            <p>Konşimento, fatura, çeki listesi ve gümrük belgeleri portalınızda arşivlenir, e-posta karmaşası yok.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="proc-list">
-      <div class="proc-row"><div class="idx">01</div><div class="content"><h3>RFQ alınır</h3><p>Ürün, miktar ve hedef fiyatınızı panelinizdeki formdan iletirsiniz; talebiniz aynı gün fabrika görüşmelerine girer.</p><span class="portal-tag">Talep Alındı</span></div></div>
-      <div class="proc-row"><div class="idx">02</div><div class="content"><h3>Fabrika eşleştirme &amp; teklif</h3><p>Uygun fabrikalar belirlenir, karşılaştırmalı fiyat ve termin teklifi hazırlanır, onayınıza sunulur.</p><span class="portal-tag">Teklif Hazır</span></div></div>
-      <div class="proc-row"><div class="idx">03</div><div class="content"><h3>Numune süreci</h3><p>Onaylanan tedarikçiden numune üretilir; yerinde QC ekibimiz fiziksel olarak kontrol eder, fotoğraf/video paylaşır.</p><span class="portal-tag">Numune Onayınızı Bekliyor</span></div></div>
-      <div class="proc-row"><div class="idx">04</div><div class="content"><h3>Seri üretim</h3><p>Numune onaylanmadan seri üretime geçilmez. Onay sonrası üretim başlar, kalite kontrolü ile ilerleme periyodik paylaşılır.</p><span class="portal-tag">Üretimde</span></div></div>
-      <div class="proc-row"><div class="idx">05</div><div class="content"><h3>Konteyner &amp; gemi</h3><p>Ürünler konteynere yüklenir, limanda gemiye biner; sefer bilgisi ve canlı konum takibi panelinizde açılır.</p><span class="portal-tag">Gemide</span></div></div>
-      <div class="proc-row"><div class="idx">06</div><div class="content"><h3>Gümrük &amp; teslimat</h3><p>Beyanname, vergi ve muayene süreci aşama aşama işlenir; mal gümrükten çekilip adresinize ulaştırılır.</p><span class="portal-tag">Teslim Edildi</span></div></div>
+    <!-- Güvence End -->
+
+
+    <!-- RFQ CTA -->
+    <div class="container-xxl py-5">
+        <div class="container py-5">
+            <div class="rfq-cta-box wow fadeIn" data-wow-delay="0.1s">
+                <h6 class="text-uppercase mb-3" style="color:#e8b355;">Önce ilk teklifinizi tasarlayalım</h6>
+                <h1 class="mb-4">Ürün, miktar ve hedef fiyatınızı iletin</h1>
+                <p class="mb-4 mx-auto" style="max-width:56ch;">Fabrika görüşmelerine hemen başlayalım. Aynı anda bir takip hesabınız da oluşur — süreci baştan sona panelinizden izlersiniz.</p>
+                <a href="/takip.html#rfq" class="btn btn-primary py-3 px-5 me-3">Ücretsiz Teklif Talebi Oluştur</a>
+                <a href="/hesapla.html" class="btn btn-secondary py-3 px-5">Gümrük Vergisi Hesapla</a>
+            </div>
+        </div>
     </div>
-    <p class="proc-foot">Aradaki numune ödemesi, üretim ödemesi, sevkiyat belgeleri ve gümrük alt aşamaları dahil tüm <b>19 durum</b> panelinizde tek tek görünür.</p>
-  </div>
-</section>
+    <!-- RFQ CTA End -->
 
-<section class="globe-section">
-  <div class="wrap">
-    <h2>Tedarik ağımız Çin'in tek bir şehrinden ibaret değil.</h2>
-    <div class="globe-stage" id="globeStage">
-      <div class="globe-loading" id="globeLoading">Küre yükleniyor…</div>
+
+    <!-- Tools bento (araçlar) -->
+    <div class="container-xxl py-5 bg-light" id="araclar">
+        <div class="container py-5">
+            <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+                <h6 class="text-secondary text-uppercase">Sizin İçin Hazırladığımız Araçlar</h6>
+                <h1 class="mb-5">Karar vermeden önce deneyin</h1>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="p-5 h-100" style="background:var(--dark); border-radius:4px;">
+                        <i class="fa fa-box-open fa-2x mb-3" style="color:#e8b355;"></i>
+                        <h3 class="text-white mb-3">Sipariş Takip Portalı</h3>
+                        <p class="text-white-50 mb-4">Zaten müşterimiz misiniz? Talebinizin durumunu, belgelerinizi ve süreç geçmişini tek panelden görüntüleyin — ya da yeni bir teklif talebi oluşturun.</p>
+                        <a href="/takip.html" class="btn btn-primary">Siparişimi Görüntüle →</a>
+                    </div>
+                </div>
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="p-5 h-100 bg-white border" style="border-radius:4px;">
+                        <i class="fa fa-calculator fa-2x text-primary mb-3"></i>
+                        <h3 class="mb-3">GTİP Vergi Hesaplama</h3>
+                        <p class="text-muted mb-4">GTİP kodu veya ürün adı yazın; gümrük vergisi, İGV, gözetim, ÖTV, TRT bandrolü ve KDV kalem kalem, gerçek zamanlı hesaplansın.</p>
+                        <a href="/hesapla.html" class="btn btn-secondary">Vergiyi Hesapla →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</section>
+    <!-- Tools End -->
 
-<section id="guven">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow2">Sütun D'nin somutlaştığı yer</p>
-      <h2>Riski müşteriden alıp sisteme yüklüyoruz.</h2>
+
+    <!-- Footer -->
+    <div class="container-fluid bg-dark text-light footer pt-5 wow fadeIn" data-wow-delay="0.1s" style="margin-top: 3rem;">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-4 col-md-6">
+                    <h4 class="text-light mb-4">Çin Tedarik Ağı</h4>
+                    <p class="mb-2">Çin'den Türkiye'ye şeffaf ve garantili tedarik — fabrika görüşmesinden gümrüğe kadar her aşama canlı takip portalında.</p>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <h4 class="text-light mb-4">Araçlar</h4>
+                    <a class="btn btn-link" href="/takip.html">Sipariş Takip</a>
+                    <a class="btn btn-link" href="/hesapla.html">Vergi Hesaplama</a>
+                    <a class="btn btn-link" href="/takip.html#rfq">Teklif Talebi Oluştur</a>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <h4 class="text-light mb-4">Sayfa İçi</h4>
+                    <a class="btn btn-link" href="#surec">Süreç</a>
+                    <a class="btn btn-link" href="#neden-biz">Neden Biz</a>
+                    <a class="btn btn-link" href="/admin.html">Çalışan Girişi</a>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="copyright">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        &copy; Çin Tedarik Ağı, Tüm Hakları Saklıdır.
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <!--/*** Bu şablon HTML Codex tarafından "Logistica" adıyla ücretsiz sunulmuştur; CC BY 4.0 lisansı gereği atıf bağlantısı korunmaktadır. ***/-->
+                        Tasarım: <a class="border-bottom" href="https://htmlcodex.com" target="_blank">HTML Codex</a>
+                        &nbsp;/&nbsp;<a class="border-bottom" href="https://themewagon.com" target="_blank">ThemeWagon</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="grid2">
-      <div class="card"><span class="tag brass">Ödeme güvenliği</span><h3>Kademeli ödeme</h3><p>Bedel tek seferde değil; RFQ onayı, numune onayı, yükleme öncesi ve teslimat sonrası olmak üzere aşamalara bölünerek ödenir.</p></div>
-      <div class="card"><span class="tag brass">Sözleşme</span><h3>Yazılı taahhüt</h3><p>Her siparişte fiyat, termin, kalite şartnamesi ve uyuşmazlık durumunda müdahale prosedürü yazılı olarak imzalanır.</p></div>
-      <div class="card"><span class="tag brass">Kalite güvencesi</span><h3>Numune onayı şartı</h3><p>Numune fiziksel olarak onaylanmadan seri üretime geçilmez; üretim sırasında da rastgele denetim yapılır.</p></div>
-      <div class="card"><span class="tag brass">Belge arşivi</span><h3>Tüm evrak tek yerde</h3><p>Konşimento, fatura, çeki listesi ve gümrük belgeleri portalınızda arşivlenir, e-posta karmaşası yok.</p></div>
-    </div>
-  </div>
-</section>
+    <!-- Footer End -->
 
-<section id="araclar">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow2">Sizin için hazırladığımız araçlar</p>
-      <h2>Karar vermeden önce deneyin.</h2>
-    </div>
-    <div class="bento">
-      <div class="bento-card lg">
-        <div class="icon-badge">📦</div>
-        <h3>Sipariş Takip Portalı</h3>
-        <p>Zaten müşterimiz misiniz? Talebinizin durumunu, belgelerinizi ve süreç geçmişini tek panelden görüntüleyin — ya da yeni bir teklif talebi oluşturun, aynı anda hesabınız açılsın.</p>
-        <a href="/takip.html" class="btn btn-primary inv">Siparişimi Görüntüle →</a>
-      </div>
-      <div class="bento-card">
-        <div class="icon-badge">🧮</div>
-        <h3>GTİP Vergi Hesaplama</h3>
-        <p>GTİP kodu veya ürün adı yazın; gümrük vergisi, İGV, gözetim, ÖTV, TRT bandrolü ve KDV kalem kalem, gerçek zamanlı hesaplansın.</p>
-        <a href="/hesapla.html" class="btn btn-ghost">Vergiyi Hesapla →</a>
-      </div>
-    </div>
-  </div>
-</section>
 
-<div class="cta-band">
-  <h2>Önce ilk teklifinizi birlikte tasarlayalım.</h2>
-  <p>Ürün, miktar ve hedef fiyatınızı iletin — fabrika görüşmelerine hemen başlayalım. Aynı anda bir takip hesabınız da oluşur.</p>
-  <a href="/takip.html#rfq" class="btn btn-primary">Ücretsiz Teklif Talebi Oluştur</a>
-</div>
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-0 back-to-top"><i class="bi bi-arrow-up"></i></a>
 
-<footer>
-  <div class="footer-grid">
-    <div class="footer-brand">
-      <a href="/" class="logo"><span class="mark">ÇT</span> <span class="logo-text">Çin Tedarik Ağı</span></a>
-      <p>Çin'den Türkiye'ye şeffaf ve garantili tedarik — fabrika görüşmesinden gümrüğe kadar her aşama canlı takip portalında.</p>
-    </div>
-    <div class="footer-col">
-      <h4>Araçlar</h4>
-      <a href="/takip.html">Sipariş Takip</a>
-      <a href="/hesapla.html">Vergi Hesaplama</a>
-      <a href="/takip.html#rfq">Teklif Talebi Oluştur</a>
-    </div>
-    <div class="footer-col">
-      <h4>Sayfa İçi</h4>
-      <a href="#surec">Süreç</a>
-      <a href="#neden-biz">Neden Biz</a>
-      <a href="#guven">Güven &amp; Risk</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <p>© Çin Tedarik Ağı</p>
-    <p>Fabrika görüşmesinden gümrüğe — uçtan uca şeffaf tedarik.</p>
-  </div>
-</footer>
 
-<script>
-(function(){
-  const btns = document.querySelectorAll('#themeToggle button');
-  function apply(mode){
-    if (mode === 'system') document.documentElement.removeAttribute('data-theme');
-    else document.documentElement.setAttribute('data-theme', mode);
-    btns.forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-    localStorage.setItem('tema', mode);
-  }
-  btns.forEach(b => b.addEventListener('click', () => apply(b.dataset.mode)));
-  apply(localStorage.getItem('tema') || 'system');
-})();
-</script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/theme/lib/wow/wow.min.js"></script>
+    <script src="assets/theme/lib/easing/easing.min.js"></script>
+    <script src="assets/theme/lib/waypoints/waypoints.min.js"></script>
+    <script src="assets/theme/lib/counterup/counterup.min.js"></script>
+    <script src="assets/theme/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="assets/theme/js/main.js"></script>
 
-<!-- Gerçek 3D küre — three.js + three-globe, React/Next.js OLMADAN (@react-three/fiber
-     React'a özeldi ama three.js'in kendisi ve three-globe saf JS kütüphaneleri).
-     esm.sh CDN'i, three-globe'un onlarca alt bağımlılığını (d3-*, kapsule, h3-js vb.)
-     otomatik çözüyor — manuel bir import-map yazmaya gerek kalmadı. Ülke sınır verisi
-     (Natural Earth, kamuya açık) kendi sunucumuzda barındırılıyor. -->
-<!-- three-globe içten "three" paketini bare specifier ile import ediyor
-     (?external=three demek "bunu sen sağla" demek) — tarayıcı bunu bir
-     import-map olmadan çözemez, aksi hâlde "Failed to resolve module
-     specifier 'three'" hatası alınır. -->
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://esm.sh/three@0.160.0",
-    "three/examples/jsm/controls/OrbitControls.js": "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js",
-    "three/examples/jsm/": "https://esm.sh/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
-<script type="module">
-(async () => {
-  const stage = document.getElementById('globeStage');
-  const loading = document.getElementById('globeLoading');
-  if (!stage) return;
-
-  // Kullanıcı hareketsiz animasyon istiyorsa (prefers-reduced-motion) küreyi hiç
-  // yüklemiyoruz — hem erişilebilirlik hem gereksiz WebGL/ağ yükü tasarrufu.
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    loading.textContent = 'Küre görselleştirmesi hareket azaltma modunda devre dışı.';
-    return;
-  }
-
-  // Sadece kullanıcı bu bölüme yaklaşınca yükle — sayfa açılışını yavaşlatmasın.
-  await new Promise(resolve => {
-    const io = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting) { io.disconnect(); resolve(); }
-    }, { rootMargin: '200px' });
-    io.observe(stage);
-  });
-
-  try {
-    const [THREE, { OrbitControls }, { default: ThreeGlobe }] = await Promise.all([
-      import('three'),
-      import('three/examples/jsm/controls/OrbitControls.js'),
-      import('https://esm.sh/three-globe@2.31.0?external=three'),
-    ]);
-    const countries = await fetch('/data/countries.geo.json').then(r => r.json());
-
-    // Orijinal component'in renk paleti BİREBİR: koyu indigo küre, beyaz ülke
-    // sınırları, cyan/mavi/indigo ark renkleri — marka renklerine "uyarlanmış"
-    // soluk versiyon değil, aynısı.
-    const ARC_COLORS = ['#06b6d4', '#3b82f6', '#6366f1'];
-    const rndColor = () => ARC_COLORS[Math.floor(Math.random() * ARC_COLORS.length)];
-
-    // Gerçek şehir koordinatları — bizim asıl hattımız (Çin üretim şehirleri →
-    // Türkiye) + dünyanın her yanına yayılan, orijinal örnekteki gibi zengin bir
-    // küresel ağ hissi versin diye eklenen gerçek şehirler arası rotalar (uydurma
-    // koordinat yok, hepsi gerçek şehirler — sadece "bizim sevkiyatımız" iddiası
-    // taşımıyorlar, dekoratif küresel bağlantı dokusu).
-    const CN_TR = [ // asıl hikayemiz
-      [31.2304,121.4737, 41.0082,28.9784],  // Şanghay → İstanbul
-      [22.5431,114.0579, 41.0082,28.9784],  // Shenzhen → İstanbul
-      [39.9042,116.4074, 40.1885,29.0610],  // Pekin → Bursa
-      [23.1291,113.2644, 38.4237,27.1428],  // Guangzhou → İzmir
-      [31.2304,121.4737, 36.8969,30.7133],  // Şanghay → Antalya
-      [30.5928,114.3055, 40.7654,29.9408],  // Wuhan → Kocaeli
-    ];
-    const GLOBAL = [ // küreyi dünyanın HER yanına dengeli yayan dekoratif rotalar —
-      // hangi taraf kameraya dönerse dönsün boş kalmasın diye Amerika, Afrika,
-      // Avustralya/Pasifik ve Avrupa içi de yoğunlukla temsil ediliyor.
-      // — Asya/Ortadoğu/Avrupa köprüsü —
-      [22.5431,114.0579, 1.3521,103.8198],   [1.3521,103.8198, 12.9716,77.5946],
-      [12.9716,77.5946, 25.2048,55.2708],    [25.2048,55.2708, 41.0082,28.9784],
-      [41.0082,28.9784, 52.5200,13.4050],    [52.5200,13.4050, 51.5072,-0.1276],
-      [19.0760,72.8777, 25.2048,55.2708],    [28.6139,77.2090, 19.0760,72.8777],
-      [55.7558,37.6173, 52.5200,13.4050],    [39.9042,116.4074, 55.7558,37.6173],
-      [48.8566,2.3522, 41.0082,28.9784],     [31.2304,121.4737, 35.6762,139.6503],
-      [35.6762,139.6503, 37.5665,126.9780],  [37.5665,126.9780, -6.2088,106.8456],
-      // — Kuzey Amerika —
-      [51.5072,-0.1276, 40.7128,-74.0060],   [40.7128,-74.0060, 34.0522,-118.2437],
-      [34.0522,-118.2437, 49.2827,-123.1207],[49.2827,-123.1207, 45.5017,-73.5673],
-      [45.5017,-73.5673, 41.8781,-87.6298],  [41.8781,-87.6298, 29.7604,-95.3698],
-      [29.7604,-95.3698, 25.7617,-80.1918],  [40.7128,-74.0060, 19.4326,-99.1332],
-      // — Güney Amerika —
-      [19.4326,-99.1332, 4.7110,-74.0721],   [4.7110,-74.0721, -12.0464,-77.0428],
-      [-12.0464,-77.0428, -33.4489,-70.6693],[-33.4489,-70.6693, -34.6037,-58.3816],
-      [-34.6037,-58.3816, -22.9068,-43.1729],[-22.9068,-43.1729, -15.7939,-47.8828],
-      // — Afrika —
-      [22.5431,114.0579, -1.3026,36.8219],   [-1.3026,36.8219, -33.9249,18.4241],
-      [-33.9249,18.4241, -22.9068,-43.1729], [30.0444,31.2357, -1.3026,36.8219],
-      [6.5244,3.3792, 30.0444,31.2357],      [6.5244,3.3792, -33.9249,18.4241],
-      [41.0082,28.9784, 30.0444,31.2357],
-      // — Avustralya / Pasifik —
-      [34.0522,-118.2437, -33.8688,151.2093],[-6.2088,106.8456, -33.8688,151.2093],
-      [-33.8688,151.2093, -36.8485,174.7633],[-33.8688,151.2093, -22.9068,-43.1729],
-      [1.3521,103.8198, -33.8688,151.2093],  [22.5431,114.0579, -33.8688,151.2093],
-    ];
-    const ROUTES = [
-      ...CN_TR.map(([sLa,sLo,eLa,eLo]) => ({ startLat:sLa, startLng:sLo, endLat:eLa, endLng:eLo, color: rndColor() })),
-      ...GLOBAL.map(([sLa,sLo,eLa,eLo]) => ({ startLat:sLa, startLng:sLo, endLat:eLa, endLng:eLo, color: rndColor() })),
-    ].map(r => ({ ...r, order: Math.round(Math.random() * 3), arcAlt: .15 + Math.random() * .35 }));
-
-    const globePoints = ROUTES.flatMap(r => [
-      { lat:r.startLat, lng:r.startLng, color:r.color },
-      { lat:r.endLat, lng:r.endLng, color:r.color },
-    ]);
-
-    const globe = new ThreeGlobe()
-      .hexPolygonsData(countries.features)
-      .hexPolygonResolution(3)
-      .hexPolygonMargin(0.7)
-      .showAtmosphere(true)
-      .atmosphereColor('#FFFFFF')
-      .atmosphereAltitude(0.12)
-      .hexPolygonColor(() => 'rgba(255,255,255,0.7)')
-      .arcsData(ROUTES)
-      .arcColor('color')
-      .arcAltitude('arcAlt')
-      .arcStroke(() => [0.32, 0.28, 0.3][Math.round(Math.random() * 2)])
-      .arcDashLength(0.9)
-      .arcDashGap(2)
-      .arcDashInitialGap('order')
-      .arcDashAnimateTime(900)
-      .pointsData(globePoints)
-      .pointColor('color')
-      .pointsMerge(true)
-      .pointAltitude(0)
-      .pointRadius(2)
-      .ringsData([])
-      .ringColor(() => (t) => `rgba(255,255,255,${1 - t})`)
-      .ringMaxRadius(3)
-      .ringPropagationSpeed(3)
-      .ringRepeatPeriod((1000 * 0.9) / 1);
-    globe.globeMaterial().color = new THREE.Color('#062056');
-    globe.globeMaterial().emissive = new THREE.Color('#062056');
-    globe.globeMaterial().emissiveIntensity = 0.1;
-    globe.globeMaterial().shininess = 0.9;
-
-    // Sürekli, hiç durmayan nabız efekti — her bölgede her an bir şey aktif olsun
-    // diye çok sık aralıkla noktaların büyük bir kısmı yeniden örnekleniyor.
-    setInterval(() => {
-      const sample = globePoints
-        .map(p => ({ p, r: Math.random() }))
-        .sort((a,b) => a.r - b.r)
-        .slice(0, Math.floor(globePoints.length * 0.85))
-        .map(x => x.p);
-      globe.ringsData(sample);
-    }, 500);
-
-    const width = stage.clientWidth, height = stage.clientHeight;
-    const scene = new THREE.Scene();
-    scene.add(globe);
-    scene.add(new THREE.AmbientLight('#38bdf8', 0.8));
-    const dLight1 = new THREE.DirectionalLight(0xffffff, 0.7);
-    dLight1.position.set(-400, 100, 400);
-    scene.add(dLight1);
-    const dLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
-    dLight2.position.set(-200, 500, 200);
-    scene.add(dLight2);
-    const pLight = new THREE.PointLight(0xffffff, 0.8);
-    pLight.position.set(-200, 500, 200);
-    scene.add(pLight);
-
-    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 2000);
-    camera.position.z = 280;
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(width, height);
-    stage.appendChild(renderer.domElement);
-    loading.style.opacity = '0';
-    setTimeout(() => loading.remove(), 400);
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableZoom = false;
-    controls.enablePan = false;
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.6;
-    controls.minPolarAngle = Math.PI / 3.2;
-    controls.maxPolarAngle = Math.PI - Math.PI / 3.2;
-
-    function onResize() {
-      const w = stage.clientWidth, h = stage.clientHeight;
-      camera.aspect = w / h; camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
+    <!-- Gerçek 3D küre — three.js + three-globe, saf JS (React/Next.js olmadan). -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://esm.sh/three@0.160.0",
+        "three/examples/jsm/controls/OrbitControls.js": "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js",
+        "three/examples/jsm/": "https://esm.sh/three@0.160.0/examples/jsm/"
+      }
     }
-    window.addEventListener('resize', onResize);
-
-    let raf;
-    (function animate(){
-      raf = requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
+    </script>
+    <script type="module">
+    (async () => {
+      const stage = document.getElementById('globeStage');
+      const loading = document.getElementById('globeLoading');
+      if (!stage) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        loading.textContent = 'Küre görselleştirmesi hareket azaltma modunda devre dışı.';
+        return;
+      }
+      await new Promise(resolve => {
+        const io = new IntersectionObserver(entries => {
+          if (entries[0].isIntersecting) { io.disconnect(); resolve(); }
+        }, { rootMargin: '200px' });
+        io.observe(stage);
+      });
+      try {
+        const [THREE, { OrbitControls }, { default: ThreeGlobe }] = await Promise.all([
+          import('three'),
+          import('three/examples/jsm/controls/OrbitControls.js'),
+          import('https://esm.sh/three-globe@2.31.0?external=three'),
+        ]);
+        const countries = await fetch('/data/countries.geo.json').then(r => r.json());
+        const ARC_COLORS = ['#06b6d4', '#3b82f6', '#6366f1'];
+        const rndColor = () => ARC_COLORS[Math.floor(Math.random() * ARC_COLORS.length)];
+        const CN_TR = [
+          [31.2304,121.4737, 41.0082,28.9784], [22.5431,114.0579, 41.0082,28.9784],
+          [39.9042,116.4074, 40.1885,29.0610], [23.1291,113.2644, 38.4237,27.1428],
+          [31.2304,121.4737, 36.8969,30.7133], [30.5928,114.3055, 40.7654,29.9408],
+        ];
+        const GLOBAL = [
+          [22.5431,114.0579, 1.3521,103.8198], [1.3521,103.8198, 12.9716,77.5946],
+          [12.9716,77.5946, 25.2048,55.2708], [25.2048,55.2708, 41.0082,28.9784],
+          [41.0082,28.9784, 52.5200,13.4050], [52.5200,13.4050, 51.5072,-0.1276],
+          [19.0760,72.8777, 25.2048,55.2708], [28.6139,77.2090, 19.0760,72.8777],
+          [55.7558,37.6173, 52.5200,13.4050], [39.9042,116.4074, 55.7558,37.6173],
+          [48.8566,2.3522, 41.0082,28.9784], [31.2304,121.4737, 35.6762,139.6503],
+          [35.6762,139.6503, 37.5665,126.9780], [37.5665,126.9780, -6.2088,106.8456],
+          [51.5072,-0.1276, 40.7128,-74.0060], [40.7128,-74.0060, 34.0522,-118.2437],
+          [34.0522,-118.2437, 49.2827,-123.1207], [49.2827,-123.1207, 45.5017,-73.5673],
+          [45.5017,-73.5673, 41.8781,-87.6298], [41.8781,-87.6298, 29.7604,-95.3698],
+          [29.7604,-95.3698, 25.7617,-80.1918], [40.7128,-74.0060, 19.4326,-99.1332],
+          [19.4326,-99.1332, 4.7110,-74.0721], [4.7110,-74.0721, -12.0464,-77.0428],
+          [-12.0464,-77.0428, -33.4489,-70.6693], [-33.4489,-70.6693, -34.6037,-58.3816],
+          [-34.6037,-58.3816, -22.9068,-43.1729], [-22.9068,-43.1729, -15.7939,-47.8828],
+          [22.5431,114.0579, -1.3026,36.8219], [-1.3026,36.8219, -33.9249,18.4241],
+          [-33.9249,18.4241, -22.9068,-43.1729], [30.0444,31.2357, -1.3026,36.8219],
+          [6.5244,3.3792, 30.0444,31.2357], [6.5244,3.3792, -33.9249,18.4241],
+          [41.0082,28.9784, 30.0444,31.2357],
+          [34.0522,-118.2437, -33.8688,151.2093], [-6.2088,106.8456, -33.8688,151.2093],
+          [-33.8688,151.2093, -36.8485,174.7633], [-33.8688,151.2093, -22.9068,-43.1729],
+          [1.3521,103.8198, -33.8688,151.2093], [22.5431,114.0579, -33.8688,151.2093],
+        ];
+        const ROUTES = [
+          ...CN_TR.map(([sLa,sLo,eLa,eLo]) => ({ startLat:sLa, startLng:sLo, endLat:eLa, endLng:eLo, color: rndColor() })),
+          ...GLOBAL.map(([sLa,sLo,eLa,eLo]) => ({ startLat:sLa, startLng:sLo, endLat:eLa, endLng:eLo, color: rndColor() })),
+        ].map(r => ({ ...r, order: Math.round(Math.random() * 3), arcAlt: .15 + Math.random() * .35 }));
+        const globePoints = ROUTES.flatMap(r => [
+          { lat:r.startLat, lng:r.startLng, color:r.color },
+          { lat:r.endLat, lng:r.endLng, color:r.color },
+        ]);
+        const globe = new ThreeGlobe()
+          .hexPolygonsData(countries.features)
+          .hexPolygonResolution(3)
+          .hexPolygonMargin(0.7)
+          .showAtmosphere(true)
+          .atmosphereColor('#FFFFFF')
+          .atmosphereAltitude(0.12)
+          .hexPolygonColor(() => 'rgba(255,255,255,0.7)')
+          .arcsData(ROUTES)
+          .arcColor('color')
+          .arcAltitude('arcAlt')
+          .arcStroke(() => [0.32, 0.28, 0.3][Math.round(Math.random() * 2)])
+          .arcDashLength(0.9)
+          .arcDashGap(2)
+          .arcDashInitialGap('order')
+          .arcDashAnimateTime(900)
+          .pointsData(globePoints)
+          .pointColor('color')
+          .pointsMerge(true)
+          .pointAltitude(0)
+          .pointRadius(2)
+          .ringsData([])
+          .ringColor(() => (t) => `rgba(255,255,255,${1 - t})`)
+          .ringMaxRadius(3)
+          .ringPropagationSpeed(3)
+          .ringRepeatPeriod((1000 * 0.9) / 1);
+        globe.globeMaterial().color = new THREE.Color('#062056');
+        globe.globeMaterial().emissive = new THREE.Color('#062056');
+        globe.globeMaterial().emissiveIntensity = 0.1;
+        globe.globeMaterial().shininess = 0.9;
+        setInterval(() => {
+          const sample = globePoints
+            .map(p => ({ p, r: Math.random() }))
+            .sort((a,b) => a.r - b.r)
+            .slice(0, Math.floor(globePoints.length * 0.85))
+            .map(x => x.p);
+          globe.ringsData(sample);
+        }, 500);
+        const width = stage.clientWidth, height = stage.clientHeight;
+        const scene = new THREE.Scene();
+        scene.add(globe);
+        scene.add(new THREE.AmbientLight('#38bdf8', 0.8));
+        const dLight1 = new THREE.DirectionalLight(0xffffff, 0.7);
+        dLight1.position.set(-400, 100, 400);
+        scene.add(dLight1);
+        const dLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+        dLight2.position.set(-200, 500, 200);
+        scene.add(dLight2);
+        const pLight = new THREE.PointLight(0xffffff, 0.8);
+        pLight.position.set(-200, 500, 200);
+        scene.add(pLight);
+        const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 2000);
+        camera.position.z = 280;
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(width, height);
+        stage.appendChild(renderer.domElement);
+        loading.style.opacity = '0';
+        setTimeout(() => loading.remove(), 400);
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableZoom = false;
+        controls.enablePan = false;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.6;
+        controls.minPolarAngle = Math.PI / 3.2;
+        controls.maxPolarAngle = Math.PI - Math.PI / 3.2;
+        function onResize() {
+          const w = stage.clientWidth, h = stage.clientHeight;
+          camera.aspect = w / h; camera.updateProjectionMatrix();
+          renderer.setSize(w, h);
+        }
+        window.addEventListener('resize', onResize);
+        let raf;
+        (function animate(){
+          raf = requestAnimationFrame(animate);
+          controls.update();
+          renderer.render(scene, camera);
+        })();
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) cancelAnimationFrame(raf);
+          else animate();
+        });
+      } catch (err) {
+        console.error('Küre yüklenemedi:', err);
+        if (loading) loading.textContent = 'Küre yüklenemedi (bağlantı sorunu).';
+      }
     })();
-
-    // Sekme arka plana geçtiğinde render döngüsünü durdurup pil/CPU tasarrufu yap.
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) cancelAnimationFrame(raf);
-      else animate();
-    });
-  } catch (err) {
-    console.error('Küre yüklenemedi:', err);
-    if (loading) loading.textContent = 'Küre yüklenemedi (bağlantı sorunu).';
-  }
-})();
-</script>
+    </script>
 </body>
+
 </html>
