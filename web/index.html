@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GTİP Vergi Hesaplama Motoru</title>
+<title>Çin Tedarik Ağı — Çin'den Türkiye'ye Şeffaf Tedarik</title>
+<meta name="description" content="Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip edin. Çoklu fabrika ağı, yerinde kalite kontrol ve yazılı risk güvencesiyle Çin'den ithalat.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
@@ -14,7 +15,6 @@
     --signal:#b6452e; --signal-ink:#8f3423; --border:#ded6c3;
     --font-display: "Inter Tight","Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --font-body: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-    --font-mono: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --font-code: ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
   }
   @media (prefers-color-scheme: dark){
@@ -30,89 +30,117 @@
     --signal:#e2795f; --signal-ink:#f0a58e; --border:#2a3140;
   }
   *{box-sizing:border-box;}
-  .theme-toggle{ position:fixed; top:16px; right:16px; z-index:50; display:flex; gap:2px; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:3px; box-shadow:0 4px 14px rgba(0,0,0,.1); }
+  html{scroll-behavior:smooth;}
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.55; }
+  a{ color:inherit; }
+  ::selection{ background:var(--accent); color:#1c1508; }
+
+  .theme-toggle{ position:fixed; top:16px; right:16px; z-index:60; display:flex; gap:2px; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:3px; box-shadow:0 4px 14px rgba(0,0,0,.1); }
   .theme-toggle button{ width:auto; border:none; background:transparent; color:var(--text-muted); font-family:var(--font-body); font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:16px; cursor:pointer; }
   .theme-toggle button.active{ background:var(--accent2); color:#fff; }
-  body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.5; }
-  .wrap{ max-width:920px; margin:0 auto; padding:48px 24px 80px; }
-  .banner{ display:flex; align-items:center; gap:10px; font-family:var(--font-mono); font-size:12px; color:var(--accent2-ink); background:color-mix(in srgb, var(--accent2) 12%, transparent); border:1px solid color-mix(in srgb, var(--accent2) 35%, transparent); padding:9px 14px; border-radius:3px; margin-bottom:24px; }
-  header h1{ font-family:var(--font-display); font-weight:600; font-size:clamp(24px,4vw,34px); margin:0 0 6px; }
-  header p{ color:var(--text-muted); font-size:14.5px; max-width:64ch; margin:0 0 32px; }
-  .stats{ display:flex; gap:22px; flex-wrap:wrap; margin-bottom:32px; font-family:var(--font-mono); font-size:12.5px; color:var(--text-muted); }
-  .stats b{ color:var(--accent-ink); font-family:var(--font-body); font-size:15px; display:block; }
 
-  .search-wrap{ position:relative; }
-  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:24px; }
-  label{ display:block; font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); margin-bottom:7px; }
-  input, select{ width:100%; font-size:15px; padding:11px 12px; border-radius:3px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; }
-  select{ height:44px; }
-  input:focus, select:focus{ outline:2px solid var(--accent); outline-offset:1px; }
-  .suggestions{ position:absolute; left:0; right:0; top:100%; margin-top:4px; background:var(--surface); border:1px solid var(--border); border-radius:3px; max-height:280px; overflow-y:auto; z-index:10; display:none; box-shadow:0 8px 20px rgba(0,0,0,.12); }
-  .suggestions.show{ display:block; }
-  .suggestion{ padding:10px 14px; cursor:pointer; border-bottom:1px solid var(--border); font-size:13.5px; }
-  .suggestion:last-child{ border-bottom:none; }
-  .suggestion:hover, .suggestion.active{ background:var(--bg-alt); }
-  .suggestion .g{ font-family:var(--font-code); font-weight:500; color:var(--accent-ink); margin-right:8px; }
+  /* ---- Nav ---- */
+  nav{ position:sticky; top:0; z-index:50; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); }
+  .nav-inner{ max-width:1120px; margin:0 auto; padding:16px 24px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+  .logo{ display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:800; font-size:16px; letter-spacing:-.01em; text-decoration:none; }
+  .logo .mark{ width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg, var(--accent2), var(--accent)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; font-weight:800; flex:none; }
+  .nav-links{ display:flex; align-items:center; gap:28px; font-size:14.5px; font-weight:600; }
+  .nav-links a{ text-decoration:none; color:var(--text-muted); }
+  .nav-links a:hover{ color:var(--text); }
+  .nav-cta{ background:var(--accent); color:#fff !important; padding:10px 18px; border-radius:6px; font-weight:700; }
+  .nav-cta:hover{ background:var(--accent-ink); }
+  @media (max-width:760px){ .nav-links a:not(.nav-cta){ display:none; } }
 
-  .result{ margin-top:28px; display:none; }
-  .result.show{ display:block; }
-  .result-head{ margin-bottom:20px; }
-  .result-head .g{ font-family:var(--font-code); font-size:13px; font-weight:500; letter-spacing:.02em; color:var(--accent-ink); }
-  .result-head h2{ font-family:var(--font-display); font-size:20px; margin:4px 0 0; }
-  .btb-warn{ margin-bottom:20px; font-size:13px; line-height:1.5; color:var(--signal-ink); background:color-mix(in srgb, var(--signal) 10%, transparent); border:1px solid color-mix(in srgb, var(--signal) 30%, transparent); border-radius:3px; padding:10px 14px; }
+  .wrap{ max-width:1120px; margin:0 auto; padding:0 24px; }
 
-  .summary-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); border:1px solid var(--border); margin-bottom:2px; }
-  .sum-tile{ background:var(--surface); padding:16px 16px; }
-  .sum-tile .l{ font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; color:var(--text-muted); }
-  .sum-tile .v{ font-family:var(--font-body); font-variant-numeric:tabular-nums; font-weight:700; font-size:21px; margin-top:4px; letter-spacing:-.01em; }
+  /* ---- Hero ---- */
+  .hero{ padding:88px 0 80px; position:relative; overflow:hidden; }
+  .hero-grain{ position:absolute; inset:0; background-image:repeating-linear-gradient(135deg, rgba(169,114,48,0.05) 0 1px, transparent 1px 26px); pointer-events:none; }
+  @media (prefers-color-scheme: dark){ .hero-grain{ background-image:repeating-linear-gradient(135deg, rgba(217,160,84,0.06) 0 1px, transparent 1px 26px); } }
+  .eyebrow{ font-family:var(--font-code); font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-ink); margin:0 0 16px; display:flex; align-items:center; gap:8px; }
+  .eyebrow::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--accent2); display:inline-block; }
+  .hero h1{ font-family:var(--font-display); font-weight:800; font-size:clamp(34px,5.2vw,58px); line-height:1.06; letter-spacing:-.02em; margin:0 0 22px; max-width:16ch; }
+  .hero h1 .hl{ background-image:linear-gradient(100deg, var(--accent2) 0%, var(--accent) 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .hero .sub{ color:var(--text-muted); font-size:18px; max-width:56ch; margin:0 0 36px; }
+  .hero-ctas{ display:flex; gap:14px; flex-wrap:wrap; }
+  .btn{ display:inline-flex; align-items:center; gap:8px; padding:14px 26px; border-radius:6px; font-weight:700; font-size:15px; text-decoration:none; border:1px solid transparent; cursor:pointer; font-family:var(--font-body); }
+  .btn-primary{ background:var(--accent); color:#fff; }
+  .btn-primary:hover{ background:var(--accent-ink); }
+  .btn-ghost{ background:var(--surface); color:var(--text); border-color:var(--border); }
+  .btn-ghost:hover{ border-color:var(--accent); }
+  .hero-meta{ margin-top:56px; display:flex; gap:40px; flex-wrap:wrap; font-family:var(--font-code); font-size:12px; color:var(--text-muted); border-top:1px solid var(--border); padding-top:20px; }
+  .hero-meta b{ display:block; color:var(--text); font-family:var(--font-body); font-size:16px; margin-top:4px; font-weight:700; }
 
-  .bedel-panel{ margin-top:20px; display:flex; gap:16px; align-items:flex-end; flex-wrap:wrap; }
-  .bedel-field{ flex:1; min-width:180px; }
-  .bedel-field input{ font-family:var(--font-body); font-variant-numeric:tabular-nums; font-weight:600; font-size:17px; }
-  .vadeli-field{ display:flex; align-items:center; gap:8px; padding-bottom:11px; }
-  .vadeli-field input[type=checkbox]{ width:auto; }
-  .vadeli-field label{ margin:0; text-transform:none; font-family:var(--font-body); font-size:13.5px; color:var(--text); letter-spacing:0; }
+  section{ padding:76px 0; border-bottom:1px solid var(--border); }
+  section:nth-of-type(even){ background:var(--bg-alt); }
+  .section-head{ max-width:640px; margin-bottom:44px; }
+  .eyebrow2{ font-family:var(--font-code); font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent-ink); margin:0 0 12px; }
+  h2{ font-family:var(--font-display); font-weight:800; font-size:clamp(24px,3vw,32px); letter-spacing:-.015em; margin:0 0 12px; line-height:1.15; }
+  .section-head p{ color:var(--text-muted); font-size:16px; margin:0; max-width:60ch; }
 
-  .tax-table{ margin-top:24px; border:1px solid var(--border); border-radius:4px; overflow:hidden; }
-  .tax-table-head{ display:grid; grid-template-columns:1.6fr 1fr 1fr; gap:12px; padding:9px 16px; background:var(--bg-alt); font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); }
-  .tax-table-head .c3{ text-align:right; }
-  .tax-row{ background:var(--surface); border-top:1px solid var(--border); }
-  .tax-row.inactive .tax-head .name, .tax-row.inactive .tax-head .rate{ opacity:.45; }
-  .tax-head{ display:grid; grid-template-columns:1.6fr 1fr 1fr; gap:12px; align-items:center; padding:13px 16px; cursor:pointer; }
-  .tax-head:hover{ background:var(--bg-alt); }
-  .name-col{ display:flex; align-items:center; gap:9px; min-width:0; }
-  .dot{ width:8px; height:8px; border-radius:50%; flex:none; }
-  .dot-duty{ background:var(--accent2); } .dot-igv{ background:var(--accent); }
-  .dot-gozetim{ background:color-mix(in srgb, var(--accent) 55%, var(--signal) 45%); }
-  .dot-damping{ background:var(--signal); } .dot-kdv{ background:color-mix(in srgb, var(--accent2) 55%, var(--accent) 45%); }
-  .dot-kkdf{ background:var(--text-muted); }
-  .dot-uygunluk{ background:color-mix(in srgb, var(--accent2) 70%, var(--accent) 30%); }
-  .name{ font-family:var(--font-display); font-size:15.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .pill{ font-family:var(--font-mono); font-size:9.5px; text-transform:uppercase; letter-spacing:.03em; padding:2px 7px; border-radius:20px; flex:none; border:1px solid transparent; }
-  .pill-tahmini{ color:var(--accent-ink); background:color-mix(in srgb, var(--accent) 14%, transparent); border-color:color-mix(in srgb, var(--accent) 35%, transparent); }
-  .pill-kosullu{ color:var(--signal-ink); background:color-mix(in srgb, var(--signal) 12%, transparent); border-color:color-mix(in srgb, var(--signal) 32%, transparent); }
-  .pill-bilinmiyor{ color:var(--text-muted); background:var(--bg-alt); border-color:var(--border); }
-  .pill-gercek{ color:var(--accent2-ink); background:color-mix(in srgb, var(--accent2) 12%, transparent); border-color:color-mix(in srgb, var(--accent2) 32%, transparent); }
-  .rate-c{ font-family:var(--font-body); font-variant-numeric:tabular-nums; font-weight:500; font-size:13.5px; color:var(--text-muted); text-align:right; }
-  .amount-c{ font-family:var(--font-body); font-variant-numeric:tabular-nums; font-weight:700; font-size:15px; text-align:right; }
-  .chev{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); margin-left:4px; }
-  .explain{ padding:0 16px 15px 33px; font-size:13.5px; color:var(--text-muted); display:none; }
-  .tax-row.open .explain{ display:block; }
-  .tax-row.open .chev{ transform:rotate(90deg); display:inline-block; }
-  .warn{ color: var(--signal-ink); font-family: var(--font-mono); font-size: 11.5px; }
-  .kaynak-link{ display:inline-flex; align-items:center; gap:4px; margin-top:6px; font-family:var(--font-body); font-weight:600; font-size:12.5px; color:var(--accent2-ink); text-decoration:none; }
-  .kaynak-link:hover{ text-decoration:underline; }
-  .kaynak-label{ font-weight:400; color:var(--text-muted); }
-  .odeme-secim{ display:flex; align-items:center; gap:7px; font-size:13.5px; color:var(--text); margin-bottom:8px; cursor:pointer; }
-  .odeme-secim input{ width:auto; }
-  .empty{ color:var(--text-muted); font-size:14px; margin-top:20px; }
-  .err{ color:var(--signal-ink); margin-top:16px; font-size:14px; }
+  /* ---- Pain points ---- */
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  @media (max-width:820px){ .grid3{ grid-template-columns:1fr; } }
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:26px; }
+  .card .tag{ display:inline-block; font-family:var(--font-code); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--signal-ink); background:color-mix(in srgb, var(--signal) 12%, transparent); border:1px solid color-mix(in srgb, var(--signal) 30%, transparent); padding:3px 9px; border-radius:20px; margin-bottom:14px; }
+  .card h3{ font-family:var(--font-display); font-size:18px; margin:0 0 8px; font-weight:700; }
+  .card p{ color:var(--text-muted); font-size:14.5px; margin:0; }
 
-  .total-row{ margin-top:2px; background:var(--text); color:var(--bg); border-radius:3px; padding:18px 16px; display:flex; align-items:center; justify-content:space-between; }
-  @media (prefers-color-scheme: dark){ .total-row{ background:var(--accent-ink); color:#171310; } }
-  .total-row .l{ font-family:var(--font-display); font-size:17px; }
-  .total-row .v{ font-family:var(--font-body); font-variant-numeric:tabular-nums; font-weight:800; font-size:26px; letter-spacing:-.01em; }
-  .total-note{ font-size:12px; color:var(--text-muted); margin-top:10px; }
+  /* ---- Pillars ---- */
+  .pillar{ display:flex; gap:20px; padding:26px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+  .pillar:last-child{ border-bottom:none; }
+  .pillar .letter{ width:52px; height:52px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:18px; box-shadow:0 4px 12px rgba(0,0,0,.14); }
+  .pillar:nth-child(1) .letter{ background:var(--accent2); }
+  .pillar:nth-child(2) .letter{ background:color-mix(in srgb, var(--accent2) 55%, var(--accent) 45%); }
+  .pillar:nth-child(3) .letter{ background:var(--accent); }
+  .pillar:nth-child(4) .letter{ background:var(--signal); }
+  .pillar h3{ font-family:var(--font-display); font-size:19px; margin:0 0 6px; font-weight:700; }
+  .pillar p{ color:var(--text-muted); font-size:15px; margin:0; max-width:66ch; }
+
+  /* ---- Process stepper ---- */
+  .stepper{ display:flex; flex-direction:column; }
+  .step{ display:grid; grid-template-columns:44px 1fr; gap:20px; position:relative; padding-bottom:30px; }
+  .step:last-child{ padding-bottom:0; }
+  .step .marker{ width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-code); font-weight:700; font-size:14px; position:relative; z-index:1; box-shadow:0 2px 6px rgba(0,0,0,0.12); }
+  .step:nth-child(6n+1) .marker{ background:var(--accent2); }
+  .step:nth-child(6n+2) .marker{ background:color-mix(in srgb, var(--accent2) 70%, var(--accent) 30%); }
+  .step:nth-child(6n+3) .marker{ background:color-mix(in srgb, var(--accent2) 40%, var(--accent) 60%); }
+  .step:nth-child(6n+4) .marker{ background:var(--accent); }
+  .step:nth-child(6n+5) .marker{ background:color-mix(in srgb, var(--accent) 55%, var(--signal) 45%); }
+  .step:nth-child(6n+6) .marker{ background:var(--signal); }
+  .step:not(:last-child)::before{ content:""; position:absolute; left:21px; top:44px; bottom:0; width:1px; background:var(--border); }
+  .step .content{ padding-top:5px; }
+  .step .content h3{ font-family:var(--font-display); font-size:16.5px; margin:0 0 5px; font-weight:700; }
+  .step .content p{ font-size:14px; color:var(--text-muted); margin:0 0 8px; max-width:60ch; }
+  .portal-tag{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-code); font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent2-ink); background:color-mix(in srgb, var(--accent2) 12%, transparent); border:1px solid color-mix(in srgb, var(--accent2) 30%, transparent); padding:3px 9px; border-radius:20px; }
+  .portal-tag::before{ content:"◎ "; }
+
+  /* ---- Trust cards ---- */
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:820px){ .grid2{ grid-template-columns:1fr; } }
+  .card .tag.brass{ color:var(--accent-ink); background:color-mix(in srgb, var(--accent) 14%, transparent); border-color:color-mix(in srgb, var(--accent) 35%, transparent); }
+
+  /* ---- Tool cards (GTİP + Takip) ---- */
+  .tool-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  @media (max-width:820px){ .tool-grid{ grid-template-columns:1fr; } }
+  .tool-card{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:32px; display:flex; flex-direction:column; }
+  .tool-card .icon-badge{ width:48px; height:48px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:18px; }
+  .tool-card.a .icon-badge{ background:color-mix(in srgb, var(--accent) 16%, transparent); }
+  .tool-card.b .icon-badge{ background:color-mix(in srgb, var(--accent2) 16%, transparent); }
+  .tool-card h3{ font-family:var(--font-display); font-size:21px; margin:0 0 8px; font-weight:800; }
+  .tool-card p{ color:var(--text-muted); font-size:14.5px; margin:0 0 22px; flex:1; }
+
+  /* ---- CTA band ---- */
+  .cta-band{ background:var(--text); color:var(--bg); text-align:center; padding:80px 24px; }
+  @media (prefers-color-scheme: dark){ .cta-band{ background:var(--accent-ink); color:#171310; } }
+  .cta-band h2{ color:inherit; }
+  .cta-band p{ color:color-mix(in srgb, var(--bg) 70%, transparent); font-size:16px; max-width:52ch; margin:0 auto 30px; }
+  @media (prefers-color-scheme: dark){ .cta-band p{ color:color-mix(in srgb, #171310 65%, transparent); } }
+  .cta-band .btn-primary{ background:var(--accent); }
+
+  footer{ padding:44px 24px; text-align:center; }
+  footer p{ color:var(--text-muted); font-size:13px; margin:0; }
+  footer a{ color:var(--accent-ink); text-decoration:none; font-weight:600; }
 </style>
 </head>
 <body>
@@ -121,401 +149,144 @@
   <button data-mode="dark">☾ Koyu</button>
   <button data-mode="system">Sistem</button>
 </div>
-<div class="wrap">
-  <div class="banner">✓ Canlı veri — Ticaret Bakanlığı 2026 TGTC + İGV Kararı'ndan gerçek zamanlı sorgulanıyor</div>
-  <header>
-    <h1>GTİP Vergi Hesaplama Motoru</h1>
-    <p>GTİP kodu veya ürün adı yazmaya başlayın. Çin menşeli ithalat varsayımıyla gümrük vergisi, İGV, gözetim ve KDV otomatik hesaplanır.</p>
-    <div class="stats" id="stats"></div>
-    <p style="margin-top:10px;"><a href="/takip.html" style="font-weight:600;">Zaten müşterimiz misiniz? → Sipariş takibinizi görüntüleyin</a></p>
-  </header>
 
-  <div class="panel search-wrap">
-    <label for="q">GTİP kodu veya ürün adı</label>
-    <input id="q" type="text" placeholder="ör. 8536.69 veya priz" autocomplete="off">
-    <div class="suggestions" id="suggestions"></div>
-  </div>
-
-  <div class="panel bedel-panel" style="margin-top:12px;">
-    <div class="bedel-field" style="max-width:170px;">
-      <label for="menseUlke">Menşe Ülke</label>
-      <select id="menseUlke">
-        <option value="CN">Çin</option>
-        <option value="DE">Almanya</option>
-        <option value="VN">Vietnam</option>
-        <option value="KR">Güney Kore</option>
-        <option value="US">ABD</option>
-        <option value="GB">İngiltere</option>
-      </select>
-    </div>
-    <div class="bedel-field">
-      <label for="malBedeli">Mal Bedeli (Fatura / CIF, USD)</label>
-      <input id="malBedeli" type="number" min="0" step="0.01" placeholder="ör. 10000" inputmode="decimal">
-    </div>
-    <div class="bedel-field" style="max-width:160px;">
-      <label for="miktar">Miktar <span style="text-transform:none;">(opsiyonel)</span></label>
-      <input id="miktar" type="number" min="0" step="0.01" placeholder="ör. 2500" inputmode="decimal">
-    </div>
-    <div class="bedel-field" style="max-width:120px;">
-      <label for="miktarBirim">Birim</label>
-      <select id="miktarBirim">
-        <option value="Kg">Kg</option>
-        <option value="Ton">Ton</option>
-        <option value="Adet">Adet</option>
-        <option value="M2">m²</option>
-        <option value="M">Metre</option>
-        <option value="Litre">Litre</option>
-      </select>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo"><span class="mark">ÇT</span> Çin Tedarik Ağı</a>
+    <div class="nav-links">
+      <a href="#surec">Süreç</a>
+      <a href="#neden-biz">Neden Biz</a>
+      <a href="/hesapla.html">Vergi Hesaplama</a>
+      <a href="/takip.html">Sipariş Takip</a>
+      <a href="/takip.html#rfq" class="nav-cta">Ücretsiz Teklif Al</a>
     </div>
   </div>
-  <div id="menseWarn"></div>
+</nav>
 
-  <div class="result" id="result"></div>
+<header class="hero">
+  <div class="hero-grain"></div>
+  <div class="wrap">
+    <p class="eyebrow">Çin — Türkiye tedarik köprüsü</p>
+    <h1>Çin'den Türkiye'ye,<br><span class="hl">şeffaf ve garantili</span> tedarik.</h1>
+    <p class="sub">Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip portalından izleyin. Çoklu fabrika ağı, yerinde kalite kontrol ve yazılı risk güvencesiyle — kara kutu değil, sistemli bir süreç.</p>
+    <div class="hero-ctas">
+      <a href="/takip.html#rfq" class="btn btn-primary">Ücretsiz Teklif Talebi (RFQ) Oluştur</a>
+      <a href="/hesapla.html" class="btn btn-ghost">Gümrük Vergisi Hesapla</a>
+    </div>
+    <div class="hero-meta">
+      <div>Süreç şeffaflığı<b>Canlı Takip Portalı</b></div>
+      <div>Kalite güvencesi<b>Yerinde QC Ekibi</b></div>
+      <div>Risk yönetimi<b>Yazılı Taahhüt</b></div>
+    </div>
+  </div>
+</header>
+
+<section id="acilar">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow2">Sektörün çözemediği sorun</p>
+      <h2>Rekabet parçalı — güven hâlâ eksik.</h2>
+      <p>Klasik ithalat danışmanları, serbest sourcing ajanları, Alibaba'nın kendisi — hepsi bir şekilde rakip. Ortak eksik: hiçbiri süreci uçtan uca şeffaf göstermiyor.</p>
+    </div>
+    <div class="grid3">
+      <div class="card"><span class="tag">Acı noktası</span><h3>Kara kutu süreç</h3><p>Numune, üretim ve sevkiyat aşamaları görünmüyor; müşteri sadece WhatsApp mesajlarına güveniyor.</p></div>
+      <div class="card"><span class="tag">Acı noktası</span><h3>Tutarsız kalite</h3><p>Tek fabrikaya bağımlı ajanlar kalite sorununda alternatif sunamıyor; risk tamamen müşteride.</p></div>
+      <div class="card"><span class="tag">Acı noktası</span><h3>Yavaş yanıt</h3><p>Manuel WhatsApp trafiği teklif sürecini günlerce uzatıyor.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="neden-biz">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow2">Konumlandırma</p>
+      <h2>Dört sütun üzerine kurulu bir fark.</h2>
+      <p>"Çin'den ürün buluruz" artık yeterli değil. Gerçek fark aşağıdaki dört sütunda kurulur — hepsi sisteme gömülü, tek seferlik bir vaat değil.</p>
+    </div>
+    <div class="pillar"><div class="letter">A</div><div><h3>Uçtan uca şeffaflık</h3><p>Fabrika görüşmesinden gümrüğe kadar her aşama, canlı takip portalında görünür — güvensizliği sistemle çözüyoruz.</p></div></div>
+    <div class="pillar"><div class="letter">B</div><div><h3>Ağın derinliği</h3><p>Kaç fabrika, hangi dikeyde, yerinde QC ekibi, tek tedarikçiye bağımlı olmayan alternatif önerisi — sadece "ofisimiz var" değil.</p></div></div>
+    <div class="pillar"><div class="letter">C</div><div><h3>Dikey uzmanlaşma</h3><p>"Her şeyi getiririz" yerine seçili kategorilerde derinlemesine uzmanlık ve fabrika ilişkisi.</p></div></div>
+    <div class="pillar"><div class="letter">D</div><div><h3>Yazılı risk üstlenme</h3><p>Numune/ilk parti garantisi ve kalite uyuşmazlığında yazılı müdahale taahhüdü — somut güvence.</p></div></div>
+  </div>
+</section>
+
+<section id="surec">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow2">Talepten teslimata</p>
+      <h2>Fabrikadan kapınıza, her adım tek ekranda.</h2>
+      <p>Sipariş takip portalınızda 19 aşamalı süreç canlı olarak işlenir; aşağıda öne çıkan kilometre taşları.</p>
+    </div>
+    <div class="stepper">
+      <div class="step"><div class="marker">01</div><div class="content"><h3>RFQ alınır</h3><p>Ürün, miktar ve hedef fiyatı portaldaki formdan iletirsiniz.</p><span class="portal-tag">Talep Alındı</span></div></div>
+      <div class="step"><div class="marker">02</div><div class="content"><h3>Fabrika eşleştirme &amp; teklif</h3><p>Uygun fabrikalar belirlenir, karşılaştırmalı teklif hazırlanır.</p><span class="portal-tag">Teklif Hazır</span></div></div>
+      <div class="step"><div class="marker">03</div><div class="content"><h3>Numune süreci</h3><p>Numune üretilir, yerinde QC ekibi kontrol eder, onayınız beklenir.</p><span class="portal-tag">Numune Onayınızı Bekliyor</span></div></div>
+      <div class="step"><div class="marker">04</div><div class="content"><h3>Seri üretim</h3><p>Numune onaylanınca üretim başlar; kalite kontrolü ile ilerleme paylaşılır.</p><span class="portal-tag">Üretimde</span></div></div>
+      <div class="step"><div class="marker">05</div><div class="content"><h3>Konteyner &amp; gemi</h3><p>Ürünler konteynere yüklenir, gemiye biner; canlı konum takibi başlar.</p><span class="portal-tag">Gemide</span></div></div>
+      <div class="step"><div class="marker">06</div><div class="content"><h3>Gümrük &amp; teslimat</h3><p>Beyanname, vergi ve muayene süreci takip edilir; mal adresinize ulaşır.</p><span class="portal-tag">Teslim Edildi</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="guven">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow2">Sütun D'nin somutlaştığı yer</p>
+      <h2>Riski müşteriden alıp sisteme yüklüyoruz.</h2>
+    </div>
+    <div class="grid2">
+      <div class="card"><span class="tag brass">Ödeme güvenliği</span><h3>Kademeli ödeme</h3><p>Bedel tek seferde değil; RFQ onayı, numune onayı, yükleme öncesi ve teslimat sonrası olmak üzere aşamalara bölünerek ödenir.</p></div>
+      <div class="card"><span class="tag brass">Sözleşme</span><h3>Yazılı taahhüt</h3><p>Her siparişte fiyat, termin, kalite şartnamesi ve uyuşmazlık durumunda müdahale prosedürü yazılı olarak imzalanır.</p></div>
+      <div class="card"><span class="tag brass">Kalite güvencesi</span><h3>Numune onayı şartı</h3><p>Numune fiziksel olarak onaylanmadan seri üretime geçilmez; üretim sırasında da rastgele denetim yapılır.</p></div>
+      <div class="card"><span class="tag brass">Belge arşivi</span><h3>Tüm evrak tek yerde</h3><p>Konşimento, fatura, çeki listesi ve gümrük belgeleri portalınızda arşivlenir, e-posta karmaşası yok.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="araclar">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow2">Sizin için hazırladığımız araçlar</p>
+      <h2>Karar vermeden önce deneyin.</h2>
+    </div>
+    <div class="tool-grid">
+      <div class="tool-card a">
+        <div class="icon-badge">🧮</div>
+        <h3>GTİP Vergi Hesaplama Motoru</h3>
+        <p>GTİP kodu veya ürün adı yazın; gümrük vergisi, İGV, gözetim, ÖTV, TRT bandrolü ve KDV kalem kalem, gerçek zamanlı hesaplansın. Çin menşeli ithalat için.</p>
+        <a href="/hesapla.html" class="btn btn-ghost">Vergiyi Hesapla →</a>
+      </div>
+      <div class="tool-card b">
+        <div class="icon-badge">📦</div>
+        <h3>Sipariş Takip Portalı</h3>
+        <p>Zaten müşterimiz misiniz? Talebinizin durumunu, belgelerinizi ve süreç geçmişini tek ekrandan görüntüleyin — ya da yeni bir teklif talebi oluşturun.</p>
+        <a href="/takip.html" class="btn btn-ghost">Siparişimi Görüntüle →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-band">
+  <h2>Önce ilk teklifinizi birlikte tasarlayalım.</h2>
+  <p>Ürün, miktar ve hedef fiyatınızı iletin — fabrika görüşmelerine hemen başlayalım. Aynı anda bir takip hesabınız da oluşur.</p>
+  <a href="/takip.html#rfq" class="btn btn-primary">Ücretsiz Teklif Talebi Oluştur</a>
 </div>
 
+<footer>
+  <p>Çin Tedarik Ağı — <a href="/hesapla.html">Vergi Hesaplama</a> · <a href="/takip.html">Sipariş Takip</a></p>
+</footer>
+
 <script>
-const API = "";
-const qInput = document.getElementById('q');
-const sugBox = document.getElementById('suggestions');
-const resultBox = document.getElementById('result');
-let debounceTimer = null;
-
-fetch(API + '/api/istatistik').then(r=>r.json()).then(s=>{
-  document.getElementById('stats').innerHTML = `
-    <div><b>${s.gtip_toplam.toLocaleString('tr-TR')}</b>toplam GTİP</div>
-    <div><b>${s.igv_uygulanan.toLocaleString('tr-TR')}</b>İGV uygulanan</div>
-    <div><b>${s.gozetim_bilinen}</b>gözetim kaydı</div>
-    <div><b>${s.damping_bilinen}</b>damping kaydı</div>
-  `;
-}).catch(()=>{});
-
-qInput.addEventListener('input', () => {
-  clearTimeout(debounceTimer);
-  const q = qInput.value.trim();
-  if (q.length < 2) { sugBox.classList.remove('show'); return; }
-  debounceTimer = setTimeout(async () => {
-    const res = await fetch(API + '/api/ara?q=' + encodeURIComponent(q));
-    const items = await res.json();
-    if (!items.length) { sugBox.classList.remove('show'); return; }
-    sugBox.innerHTML = items.map(it =>
-      `<div class="suggestion" data-code="${it.gtip_no}"><span class="g">${it.gtip_no}</span>${it.aciklama}</div>`
-    ).join('');
-    sugBox.classList.add('show');
-  }, 200);
-});
-
-sugBox.addEventListener('click', (e) => {
-  const row = e.target.closest('.suggestion');
-  if (!row) return;
-  qInput.value = row.dataset.code;
-  sugBox.classList.remove('show');
-  loadGtip(row.dataset.code);
-});
-
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('.search-wrap')) sugBox.classList.remove('show');
-});
-
-const fmtPct = n => (n ?? 0).toLocaleString('tr-TR', {maximumFractionDigits:1}) + '%';
-const fmtUsd = n => '$' + (n ?? 0).toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
-
-let currentData = null;
-let vadeliState = false;
-
-async function loadGtip(kod) {
-  resultBox.innerHTML = '<p class="empty">Yükleniyor…</p>';
-  resultBox.classList.add('show');
-  try {
-    const res = await fetch(API + '/api/gtip/' + encodeURIComponent(kod));
-    if (!res.ok) {
-      const e = await res.json();
-      currentData = null;
-      resultBox.innerHTML = `<p class="err">${e.detail}</p>`;
-      return;
-    }
-    currentData = await res.json();
-    render(currentData);
-  } catch (err) {
-    currentData = null;
-    resultBox.innerHTML = `<p class="err">Bağlantı hatası: ${err}</p>`;
+(function(){
+  const btns = document.querySelectorAll('#themeToggle button');
+  function apply(mode){
+    if (mode === 'system') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', mode);
+    btns.forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+    localStorage.setItem('tema', mode);
   }
-}
-
-// Hesaplama mantığı ARTIK burada değil — tek doğruluk kaynağı backend'deki
-// Rule Engine (src/rule_engine.py). Bu fonksiyon sadece /api/hesapla'yı çağırır
-// ve sonucu render eder; kendi vergi hesabını yapmaz.
-let renderSeq = 0;
-
-function pill(kind, label) { return `<span class="pill pill-${kind}">${label}</span>`; }
-
-// Bir vergi satırı üretir: dot rengi, isim, durum rozeti, oran, tutar, detay metni.
-function taxRow(opts) {
-  const { id, dotClass, name, badge, rate, amount, explain, active = true } = opts;
-  return `
-    <div class="tax-row ${active ? '' : 'inactive'}" data-row="${id}">
-      <div class="tax-head" onclick="toggleRow('${id}')">
-        <div class="name-col">
-          <span class="dot ${dotClass}"></span>
-          <span class="name">${name}</span>
-          ${badge ? badge : ''}
-          <span class="chev">▸</span>
-        </div>
-        <div class="rate-c">${rate}</div>
-        <div class="amount-c">${amount || ''}</div>
-      </div>
-      <div class="explain">${explain}</div>
-    </div>`;
-}
-
-function toggleRow(id) {
-  const el = document.querySelector(`.tax-row[data-row="${id}"]`);
-  if (el) el.classList.toggle('open');
-}
-
-async function renderTaxRows() {
-  const d = currentData;
-  if (!d) return;
-  if (!checkMenseUlke()) {
-    document.getElementById('taxList').innerHTML = '';
-    document.getElementById('totalArea').innerHTML = '';
-    return;
-  }
-  const bedel = parseFloat(document.getElementById('malBedeli').value) || 0;
-  const miktar = parseFloat(document.getElementById('miktar').value) || null;
-  const miktarBirim = document.getElementById('miktarBirim').value;
-  const vadeli = vadeliState;
-
-  const mySeq = ++renderSeq;
-  let hesap = null;
-  if (bedel > 0) {
-    try {
-      const res = await fetch(API + '/api/hesapla', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gtip: d.gtip12, mal_bedeli: bedel, vadeli, miktar, miktar_birim: miktarBirim }),
-      });
-      if (res.ok) hesap = await res.json();
-    } catch (err) { /* bağlantı hatası — hesap null kalır, oranlar yine de gösterilir */ }
-  }
-  if (mySeq !== renderSeq) return; // kullanıcı bu arada yeni bir değer girdiyse eski cevabı çizme
-
-  const amt = v => hesap ? fmtUsd(v) : '';
-  const rows = [];
-
-  // Her kalem, genel bir bakanlık sayfasına değil — gerçek Resmi Gazete yayın sayfasına
-  // ("orijinal kaynağa git") bağlanır. 3350/3351 aynı gün (31.12.2020), aynı mükerrer
-  // sayıda (RG 31351, 3. Mükerrer) art arda yayımlandı — sadece ek sıra numarası farklı.
-  const TGTC_URL = 'https://www.resmigazete.gov.tr/eskiler/2025/12/20251230M1.pdf'; // Karar 10781, RG 30.12.2025/33123, 1. Mükerrer
-  const REJIM_RG_URL = 'https://www.resmigazete.gov.tr/eskiler/2020/12/20201231M3-1.pdf'; // İthalat Rejimi Kararı (Karar 3350), RG 31.12.2020/31351, 3. Mükerrer
-  const IGV_RG_URL = 'https://www.resmigazete.gov.tr/eskiler/2020/12/20201231M3-2.pdf'; // İGV Kararı (Karar 3351), aynı RG sayısı
-  const KDV_URL = 'https://cdn.gib.gov.tr/api/gibportal-file/file/getFile?objectKey=MEVZUAT_TEBLIGLER%2FUNIVERSAL%2F2026%2Fkdv_genteb.pdf'; // KDV Genel Uygulama Tebliği, RG 26.04.2014/28983 — GİB güncel konsolide metin
-  const kaynakLink = (url, label) => `<a class="kaynak-link" href="${url}" target="_blank" rel="noopener">→ Orijinal kaynağa git <span class="kaynak-label">(${label})</span></a>`;
-
-  // KKDF, GTİP'e değil ödeme şekline bağlı GENEL bir kural — her GTİP'te aynı,
-  // bu yüzden her zaman en üstte, tek bir tık kutusu olarak gösteriliyor.
-  if (d.kkdf) {
-    rows.push(taxRow({
-      id: 'kkdf', dotClass: 'dot-kkdf', name: 'KKDF', active: vadeli,
-      badge: pill('kosullu', 'opsiyonel'),
-      rate: vadeli ? fmtPct(d.kkdf.oran_pct) : 'Peşinde yok',
-      amount: vadeli ? amt(hesap?.kkdf) : '',
-      explain: `<span class="warn">GTİP'e değil ödeme şekline bağlı, tüm GTİP'lere uygulanır.</span><br>`
-        + `<label class="odeme-secim"><input type="checkbox" id="vadeliChk" ${vadeli ? 'checked' : ''} onclick="event.stopPropagation()" onchange="vadeliState=this.checked; renderTaxRows();"> Vadeli ödeme (kabul kredili / vadeli akreditif / mal mukabili) — işaretlenirse KKDF hesaba katılır</label>`
-        + `${d.kkdf.uygulama_kosulu}. Matrah: mal bedeli. ${kaynakLink(d.kkdf.kaynak_url, d.kkdf.hukuki_dayanak)}`
-        + `<br><span class="warn">Ayrıca 2015/7511 sayılı Karar eki listede yer alan bazı hammadde/yatırım malı GTİP'lerinde oran ödeme şekli ne olursa olsun sıfırdır — bu liste henüz sistemimizde değil, teyit edilmeli.</span>`,
-    }));
-  }
-
-  const gvGercek = d.gumruk_vergisi_guvenilirlik === 'ithalat_rejimi_ek2_du';
-  const gvVar = d.gumruk_vergisi_pct != null && d.gumruk_vergisi_pct > 0;
-  if (gvVar) rows.push(taxRow({
-    id: 'gv', dotClass: 'dot-duty', name: 'Gümrük Vergisi',
-    badge: gvGercek ? pill('gercek', 'gerçek') : pill('tahmini', 'tahmini'),
-    rate: fmtPct(d.gumruk_vergisi_pct), amount: amt(hesap?.gumruk_vergisi),
-    explain: gvGercek
-      ? `Temel ithalat vergisi, Diğer Ülkeler sütunu (Çin bu sütuna girer). Matrah: mal bedeli. ${kaynakLink(REJIM_RG_URL, 'İthalat Rejimi Kararı, Karar 3350, Ek-2')}`
-      : `<span class="warn">Bu fasıl (genelde tarım ürünleri, 1-24) henüz İthalat Rejimi Kararı'nın doğru sütunundan doğrulanmadı — TGTC'nin nominal "vergi haddi" değeri gösteriliyor, gerçek uygulanan oran farklı olabilir.</span> ${kaynakLink(TGTC_URL, '2026 TGTC, Karar 10781')}`,
-  }));
-
-  if (d.igv_pct) rows.push(taxRow({
-    id: 'igv', dotClass: 'dot-igv', name: 'İlave Gümrük Vergisi',
-    rate: fmtPct(d.igv_pct), amount: amt(hesap?.igv),
-    explain: `Çin menşeli eşyaya uygulanan ek vergi (Diğer Ülkeler sütunu). Matrah: mal bedeli. ${kaynakLink(IGV_RG_URL, 'İGV Kararı, Karar 3351')}`,
-  }));
-
-  if (d.trt) rows.push(taxRow({
-    id: 'trt', dotClass: 'dot-igv', name: 'TRT Bandrolü',
-    badge: pill('kosullu', 'cihaz özelliğine bağlı'),
-    rate: fmtPct(d.trt.oran_pct), amount: amt(hesap?.trt),
-    explain: `<b>${d.trt.cihaz_cinsi}</b>. Matrah: mal bedeli. Tek seferlik, cihazın SIM kart/radyo-TV yayını alma özelliğine bağlı — eşya bu tanıma uymuyorsa uygulanmaz.`
-      + `<br>${kaynakLink('https://www.trt.net.tr/bandrol/mevzuat/2015-7757-sayili-bakanlar-kurulu-karari', '2015/7757 sayılı BKK, 3093 sayılı Kanun')}`,
-  }));
-
-  if (d.otv) {
-    const otvBelirsiz = d.otv.guvenilirlik === 'kaynak_tarihi_belirsiz';
-    const otvTlUyari = (d.otv.sabit_tutar != null || d.otv.asgari_maktu_tutar != null);
-    rows.push(taxRow({
-      id: 'otv', dotClass: 'dot-igv', name: 'ÖTV',
-      badge: otvBelirsiz ? pill('kosullu', 'tarih doğrulanmadı') : (otvTlUyari ? pill('kosullu', 'TL tutar — kur yok') : pill('gercek', 'gerçek')),
-      rate: d.otv.oran_pct != null ? fmtPct(d.otv.oran_pct) : `${d.otv.sabit_tutar} ${d.otv.birim || ''}`,
-      amount: amt(hesap?.otv),
-      explain: `<b>${d.otv.aciklama}</b> (Liste ${d.otv.liste}). Matrah: mal bedeli + gümrük vergisi.`
-        + (otvBelirsiz ? `<br><span class="warn">⚠ Bu oranın güncelliği doğrulanmadı — bazı ÖTV oranları (özellikle elektronik/telekom) sık değişiyor. Resmi kaynaktan teyit etmeden kullanma.</span>` : '')
-        + (d.otv.sabit_tutar != null ? `<br><span class="warn">⚠ Ayrıca ₺${d.otv.sabit_tutar}/${d.otv.birim} sabit ÖTV tutarı var — kur girişi olmadığı için toplama dahil edilmedi.</span>` : '')
-        + (d.otv.asgari_maktu_tutar != null ? `<br><span class="warn">⚠ Ayrıca ₺${d.otv.asgari_maktu_tutar}/${d.otv.asgari_maktu_birim} asgari maktu tutar var (oransaldan yüksekse o uygulanır) — kur girişi olmadığı için toplama dahil edilmedi.</span>` : '')
-        + `<br>${kaynakLink('https://www.mevzuat.gov.tr/mevzuatmetin/1.5.4760.pdf', '4760 sayılı ÖTV Kanunu')}`,
-    }));
-  }
-
-  if (d.gozetim) {
-    const gzNotlar = (hesap?.notlar || []).filter(n => n.includes('Gözetim') || n.includes('gözetim') || n.includes('Beyan edilen birim'));
-    rows.push(taxRow({
-      id: 'gz', dotClass: 'dot-gozetim', name: 'Gözetim (Referans Değer)',
-      badge: pill('kosullu', 'eşik'),
-      rate: `$${d.gozetim.referans_deger}/${d.gozetim.birim}`,
-      amount: '',
-      explain: `Bu bir vergi değil, $/${d.gozetim.birim} bazlı bir referans birim değer: beyan edilen birim değer bu referansın altındaysa, aşağıdaki tüm vergiler (gümrük vergisi/İGV/damping/KDV) beyan bedeli yerine <b>referans değer × miktar</b> üzerinden hesaplanır. ${kaynakLink(d.gozetim.kaynak_url, d.gozetim.tebligno)}`
-        + (gzNotlar.length ? '<br>' + gzNotlar.map(n => `<span class="warn">${n}</span>`).join('<br>') : (miktar ? '' : '<br><span class="warn">Karşılaştırma için yukarıda "Miktar" gir.</span>')),
-    }));
-  }
-
-  const dampingActive = d.damping && d.damping.length > 0;
-  const dampingHasRate = dampingActive && d.damping.some(x => x.oran_pct != null || x.sabit_tutar != null);
-  if (dampingActive) rows.push(taxRow({
-    id: 'dp', dotClass: 'dot-damping', name: 'Dampinge Karşı Vergi',
-    badge: dampingHasRate ? pill('gercek', 'gerçek') : pill('kosullu', 'oran yok'),
-    rate: dampingHasRate ? d.damping.map(x => x.oran_pct != null ? fmtPct(x.oran_pct) : (x.sabit_tutar + ' ' + (x.birim || ''))).join(' / ') : d.damping.length + ' kayıt',
-    amount: dampingHasRate ? amt(hesap?.damping) : '',
-    explain: d.damping.map(x => `<b>${x.mense_ulke}</b>${x.oran_pct != null ? ': ' + fmtPct(x.oran_pct) + ' (CIF üzerinden)' : ''} — ${kaynakLink(x.kaynak_url, x.tebligno)}${x.oran_pct == null ? ' <span class="warn">(oran henüz veritabanında yok, orijinal tebliğ teyit edilmeli)</span>' : ''}`).join('<br>') + (dampingHasRate ? '<br><span class="warn">Toplamda, kayıtlı en yüksek oran kullanıldı — gerçek oran üretici/ihracatçıya göre değişir.</span>' : ''),
-  }));
-
-  const kdvBadge = {
-    liste_i_gercek: pill('gercek', 'Liste I — gerçek'),
-    liste_ii_gercek: pill('gercek', 'Liste II — gerçek'),
-    kosullu_ruhsat: pill('kosullu', 'ruhsata bağlı'),
-    cakismali_kaynak: pill('kosullu', 'kaynak çelişkili'),
-    varsayilan_genel_oran: pill('tahmini', 'genel oran'),
-  }[d.kdv_guvenilirlik] || pill('tahmini', 'tahmini');
-  const kdvExplain = {
-    liste_i_gercek: 'KDV Genel Uygulama Tebliği eki (I) Sayılı Liste ile eşleşti — gerçek kaynak.',
-    liste_ii_gercek: 'KDV Genel Uygulama Tebliği eki (II) Sayılı Liste ile eşleşti — gerçek kaynak.',
-    kosullu_ruhsat: `⚠ ${d.kdv_kosul || 'Bu oran ilgili Bakanlık ruhsatı/izni şartına bağlı — ruhsatlı değilse genel oran (%20) uygulanır.'}`,
-    cakismali_kaynak: `⚠ ${d.kdv_kosul || 'Kaynak metinde bu GTİP için birden fazla farklı oran bulundu, çelişki teyit edilmeli.'}`,
-    varsayilan_genel_oran: 'Bu GTİP, KDV Genel Uygulama Tebliği eki (I)/(II) Sayılı Liste\'de bulunamadı — genel oran (%20) varsayıldı. Listelerde olmadığı doğrulandı ama madde-madde tam teyit tüm GTİP\'ler için yapılmadı.',
-  }[d.kdv_guvenilirlik] || 'Fasıl bazlı yaklaşık kural ile belirlendi.';
-  rows.push(taxRow({
-    id: 'kdv', dotClass: 'dot-kdv', name: 'KDV',
-    badge: kdvBadge,
-    rate: fmtPct(d.kdv_pct), amount: amt(hesap?.kdv),
-    explain: kdvExplain + ` Matrah: mal bedeli + gümrük vergisi + İGV + damping. ${kaynakLink(KDV_URL, 'KDV Genel Uygulama Tebliği')}`,
-  }));
-
-  const uygunlukVar = d.uygunluk_belgeleri && d.uygunluk_belgeleri.length > 0;
-  if (uygunlukVar) rows.push(taxRow({
-    id: 'ug', dotClass: 'dot-uygunluk', name: 'Uygunluk / İthalat Denetimi',
-    badge: pill('gercek', 'gerekli'),
-    rate: d.uygunluk_belgeleri.map(u => u.kategori).filter((v, i, a) => a.indexOf(v) === i).join(', '),
-    amount: '',
-    explain: d.uygunluk_belgeleri.map(u => `<b>${u.kategori}</b> — ${u.madde_ismi} — ${kaynakLink(u.kaynak_url, u.teblig_no)}`).join('<br>') +
-        (d.gerekli_belgeler && d.gerekli_belgeler.length ? '<br><br><b>Gerekli belgeler:</b><br>' + d.gerekli_belgeler.map(b => b.belgeler).join('<br>') : ''),
-  }));
-
-  const gvSupheliUyari = !gvGercek
-    ? `⚠ Toplama dahil edilen Gümrük Vergisi (%${d.gumruk_vergisi_pct}) bu fasılda henüz gerçek kaynaktan doğrulanmadı, TGTC'nin nominal tavan değeri gösteriliyor — gerçek oran farklı olabilir.`
-    : '';
-  const dampingBelirsiz = (d.damping || []).length > 0 && !(d.damping || []).some(x => x.oran_pct != null || x.sabit_tutar != null);
-  const dampingSupheliUyari = dampingBelirsiz
-    ? '⚠ Bu GTİP için damping kaydı var ama oran/tutar veritabanında henüz yok — toplama dahil edilmedi, gerçek yük daha yüksek olabilir.'
-    : '';
-  const kdvKesin = d.kdv_guvenilirlik === 'liste_i_gercek' || d.kdv_guvenilirlik === 'liste_ii_gercek';
-  const kdvSupheliUyari = !kdvKesin ? {
-    kosullu_ruhsat: `⚠ Toplama dahil edilen KDV (%${d.kdv_pct}) bir Bakanlık ruhsatı şartına bağlı — ruhsat yoksa gerçek KDV %20 olur ve toplam değişir.`,
-    cakismali_kaynak: `⚠ Toplama dahil edilen KDV (%${d.kdv_pct}) kaynakta çelişkili bulundu, teyit edilmeden kesin sayılmamalı.`,
-    varsayilan_genel_oran: `⚠ Toplama dahil edilen KDV (%${d.kdv_pct}) bu GTİP için doğrudan kaynak eşleşmesi değil, genel oran varsayımı — en ufak şüphede resmi kaynaktan teyit edin.`,
-  }[d.kdv_guvenilirlik] : '';
-  let otvSupheliUyari = '';
-  if (d.otv && d.otv.guvenilirlik === 'kaynak_tarihi_belirsiz') {
-    otvSupheliUyari = `⚠ Toplama dahil edilen ÖTV (%${d.otv.oran_pct}) kaynağının güncelliği doğrulanmadı — resmi kaynaktan teyit edin.`;
-  } else if (d.otv && (d.otv.sabit_tutar != null || d.otv.asgari_maktu_tutar != null)) {
-    otvSupheliUyari = `⚠ Bu GTİP'te TL bazlı sabit/asgari ÖTV tutarı var, kur girişi olmadığı için toplama dahil edilmedi — gerçek toplam yük burada gösterilenden yüksek olabilir.`;
-  }
-  const totalHtml = hesap ? `
-    <div class="total-row">
-      <div class="l">Toplam Vergi Yükü</div>
-      <div class="v">${fmtUsd(hesap.toplam_vergi)}</div>
-    </div>
-    <div class="total-note">Mal bedeli $${bedel.toLocaleString('tr-TR')} üzerinden, CIF = mal bedeli varsayımıyla (navlun/sigorta hariçse gerçek CIF farklı olabilir).${hesap.gozetim_yukseltildi ? ` <span class="warn">Gözetim eşiği nedeniyle vergi matrahı $${hesap.vergi_matrahi.toLocaleString('tr-TR')}'ye yükseltilerek hesaplandı.</span>` : ''}${gvSupheliUyari ? ` <span class="warn">${gvSupheliUyari}</span>` : ''}${otvSupheliUyari ? ` <span class="warn">${otvSupheliUyari}</span>` : ''}${kdvSupheliUyari ? ` <span class="warn">${kdvSupheliUyari}</span>` : ''}${dampingSupheliUyari ? ` <span class="warn">${dampingSupheliUyari}</span>` : ''} Nihai beyan öncesi gümrük müşaviri teyidi gerekir.</div>
-  ` : '';
-
-  document.getElementById('taxList').innerHTML = `
-    <div class="tax-table-head"><div>Kalem</div><div class="c3" style="text-align:right">Oran</div><div class="c3">Tutar</div></div>
-    ${rows.join('')}
-  `;
-  document.getElementById('totalArea').innerHTML = totalHtml;
-}
-
-function render(d) {
-  resultBox.innerHTML = `
-    <div class="result-head">
-      <div class="g">${d.gtip_no}</div>
-      <h2>${d.aciklama}</h2>
-    </div>
-    <div class="btb-warn">⚠ Bu bir <b>ön analizdir</b>, bağlayıcı bir tespit değildir. GTİP sınıflandırması eşyanın teknik özelliklerine göre tartışmalı olabilir — kesin ve hukuken bağlayıcı bir kod için Ticaret Bakanlığı'ndan <b>Bağlayıcı Tarife Bilgisi (BTB)</b> alınması, nihai beyan öncesi ise bir gümrük müşaviri teyidi önerilir.</div>
-    <div class="summary-row">
-      <div class="sum-tile"><div class="l">Ölçü Birimi</div><div class="v">${d.olcu_birimi || '—'}</div></div>
-      <div class="sum-tile"><div class="l">Gümrük + İGV</div><div class="v">${fmtPct((d.gumruk_vergisi_pct||0) + (d.igv_pct||0))}</div></div>
-      <div class="sum-tile"><div class="l">+ KDV</div><div class="v">${fmtPct(d.kdv_pct)}</div></div>
-    </div>
-    <div class="tax-table" id="taxList"></div>
-    <div id="totalArea"></div>
-  `;
-  renderTaxRows();
-}
-
-function checkMenseUlke() {
-  const val = document.getElementById('menseUlke').value;
-  const warnBox = document.getElementById('menseWarn');
-  if (val !== 'CN') {
-    const adSelect = document.getElementById('menseUlke');
-    const ad = adSelect.options[adSelect.selectedIndex].text;
-    warnBox.innerHTML = `<div class="btb-warn" style="margin-top:12px;">⚠ <b>${ad} için henüz veri yok.</b> Sistemde şu an sadece Çin (Diğer Ülkeler sütunu) için gerçek vergi/mevzuat verisi var. Diğer ülkeler zamanla eklenecek — uydurma rakam göstermek yerine sonucu gizliyoruz.</div>`;
-    return false;
-  }
-  warnBox.innerHTML = '';
-  return true;
-}
-document.getElementById('menseUlke').addEventListener('change', () => {
-  checkMenseUlke();
-  if (currentData) renderTaxRows();
-});
-document.getElementById('malBedeli').addEventListener('input', renderTaxRows);
-document.getElementById('miktar').addEventListener('input', renderTaxRows);
-document.getElementById('miktarBirim').addEventListener('change', renderTaxRows);
-
-// Enter tuşuyla tam kod girildiyse doğrudan sorgula
-qInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    sugBox.classList.remove('show');
-    loadGtip(qInput.value.trim());
-  }
-});
-
-// Tema seçimi: açık / koyu / sistem — localStorage'da kalıcı
-(function initTheme() {
-  const root = document.documentElement;
-  const buttons = document.querySelectorAll('#themeToggle button');
-  function apply(mode) {
-    if (mode === 'light') root.setAttribute('data-theme', 'light');
-    else if (mode === 'dark') root.setAttribute('data-theme', 'dark');
-    else root.removeAttribute('data-theme');
-    buttons.forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-  }
-  const saved = localStorage.getItem('tema') || 'system';
-  apply(saved);
-  buttons.forEach(b => b.addEventListener('click', () => {
-    localStorage.setItem('tema', b.dataset.mode);
-    apply(b.dataset.mode);
-  }));
+  btns.forEach(b => b.addEventListener('click', () => apply(b.dataset.mode)));
+  apply(localStorage.getItem('tema') || 'system');
 })();
 </script>
 </body>

@@ -9,24 +9,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#f8fafc; --bg-alt:#f1f5f9; --surface:#ffffff; --text:#0f172a; --text-muted:#64748b;
-    --accent:#2451c4; --accent-ink:#1c3d99; --accent2:#0f766e; --accent2-ink:#0b5750;
-    --signal:#c0362c; --signal-ink:#9c2c23; --border:#e2e8f0;
+    /* Marka paleti — sunumla (cin-tedarik-sunum.html) birebir aynı: sıcak krem + pirinç/çam yeşili vurgu */
+    --bg:#f6f3ec; --bg-alt:#eee9dd; --surface:#ffffff; --text:#211d16; --text-muted:#6b6152;
+    --accent:#a97230; --accent-ink:#7a5322; --accent2:#2f6f63; --accent2-ink:#1e4a42;
+    --signal:#b6452e; --signal-ink:#8f3423; --border:#ded6c3;
     --font-display: "Inter Tight","Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --font-body: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --font-code: ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#0b1220; --bg-alt:#111a2c; --surface:#141d31; --text:#e7ecf5; --text-muted:#8a94a8;
-      --accent:#5b8def; --accent-ink:#8fb0f5; --accent2:#2fb8a6; --accent2-ink:#6fd6c8;
-      --signal:#ef6b60; --signal-ink:#f29a92; --border:#243252;
+      --bg:#12151c; --bg-alt:#1a1f2b; --surface:#1c2230; --text:#eae6da; --text-muted:#9aa0ac;
+      --accent:#d9a054; --accent-ink:#f0c07d; --accent2:#4fa593; --accent2-ink:#7ccabd;
+      --signal:#e2795f; --signal-ink:#f0a58e; --border:#2a3140;
     }
   }
   :root[data-theme="dark"]{
-    --bg:#0b1220; --bg-alt:#111a2c; --surface:#141d31; --text:#e7ecf5; --text-muted:#8a94a8;
-    --accent:#5b8def; --accent-ink:#8fb0f5; --accent2:#2fb8a6; --accent2-ink:#6fd6c8;
-    --signal:#ef6b60; --signal-ink:#f29a92; --border:#243252;
+    --bg:#12151c; --bg-alt:#1a1f2b; --surface:#1c2230; --text:#eae6da; --text-muted:#9aa0ac;
+    --accent:#d9a054; --accent-ink:#f0c07d; --accent2:#4fa593; --accent2-ink:#7ccabd;
+    --signal:#e2795f; --signal-ink:#f0a58e; --border:#2a3140;
   }
   *{box-sizing:border-box;}
   body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:15px; line-height:1.5; }
