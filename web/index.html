@@ -10,7 +10,7 @@
     <meta property="og:title" content="Çin Tedarik Ağı — Çin'den Türkiye'ye Şeffaf Tedarik">
     <meta property="og:description" content="Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip edin.">
 
-    <link href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%230f3d63%22/><text x=%2216%22 y=%2222%22 font-family=%22Georgia,serif%22 font-size=%2216%22 font-weight=%22700%22 fill=%22white%22 text-anchor=%22middle%22>CT</text></svg>" rel="icon">
+    <link href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><rect width=%2240%22 height=%2240%22 rx=%229%22 fill=%22%230f3d63%22/><ellipse cx=%2220%22 cy=%2220%22 rx=%2214%22 ry=%227%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.16%22 stroke-width=%221%22/><ellipse cx=%2220%22 cy=%2220%22 rx=%227%22 ry=%2214%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.16%22 stroke-width=%221%22/><path d=%22M9,28 C15,24 25,16 31,12%22 fill=%22none%22 stroke=%22%23d99a2b%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-dasharray=%220.5 4.2%22/><circle cx=%229%22 cy=%2228%22 r=%222.6%22 fill=%22%23ffffff%22/><circle cx=%2231%22 cy=%2212%22 r=%222.6%22 fill=%22%23d99a2b%22/></svg>" rel="icon">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,7 +37,8 @@
          renkli, dengeli boşluklu, profesyonel bir bar hâline getiriyoruz. ---- */
       nav.navbar{ padding:0 !important; box-shadow:0 1px 0 rgba(10,28,49,.06) !important; border-top:none !important; }
       nav.navbar .navbar-brand{ padding-top:18px; padding-bottom:18px; gap:11px; }
-      .brand-mark{ width:34px; height:34px; border-radius:7px; background:var(--primary); color:#fff; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; flex:none; }
+      .brand-mark{ width:34px; height:34px; flex:none; }
+      .footer-brand-mark{ width:30px; height:30px; flex:none; }
       .brand-word{ font-weight:800; font-size:17px; letter-spacing:-.01em; color:var(--dark); }
       @media (max-width:400px){ .brand-word{ display:none; } }
       nav.navbar .navbar-nav{ gap:2px; }
@@ -76,7 +77,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg bg-white navbar-light border-top border-3 border-primary sticky-top p-0">
         <a href="/" class="navbar-brand d-flex align-items-center ps-4 ps-lg-5">
-            <span class="brand-mark">ÇT</span>
+            <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0f3d63"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.16"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.16"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#d99a2b" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#d99a2b"/></svg>
             <span class="brand-word">Çin Tedarik Ağı</span>
         </a>
         <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
@@ -453,7 +454,10 @@
         <div class="container py-5">
             <div class="row g-5">
                 <div class="col-lg-4 col-md-6">
-                    <h4 class="text-light mb-4">Çin Tedarik Ağı</h4>
+                    <div class="d-flex align-items-center mb-4">
+                        <svg class="footer-brand-mark" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0f3d63"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.2"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.2"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#d99a2b" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#d99a2b"/></svg>
+                        <h4 class="text-light mb-0 ms-2">Çin Tedarik Ağı</h4>
+                    </div>
                     <p class="mb-2">Çin'den Türkiye'ye şeffaf ve garantili tedarik — fabrika görüşmesinden gümrüğe kadar her aşama canlı takip portalında.</p>
                 </div>
                 <div class="col-lg-4 col-md-6">

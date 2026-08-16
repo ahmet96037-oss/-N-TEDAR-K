@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%230f3d63%22/><text x=%2216%22 y=%2222%22 font-family=%22Georgia,serif%22 font-size=%2216%22 font-weight=%22700%22 fill=%22white%22 text-anchor=%22middle%22>CT</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><rect width=%2240%22 height=%2240%22 rx=%229%22 fill=%22%230f3d63%22/><ellipse cx=%2220%22 cy=%2220%22 rx=%2214%22 ry=%227%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.16%22 stroke-width=%221%22/><ellipse cx=%2220%22 cy=%2220%22 rx=%227%22 ry=%2214%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.16%22 stroke-width=%221%22/><path d=%22M9,28 C15,24 25,16 31,12%22 fill=%22none%22 stroke=%22%23d99a2b%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-dasharray=%220.5 4.2%22/><circle cx=%229%22 cy=%2228%22 r=%222.6%22 fill=%22%23ffffff%22/><circle cx=%2231%22 cy=%2212%22 r=%222.6%22 fill=%22%23d99a2b%22/></svg>">
 <title>Admin — Çin Tedarik Ağı</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -76,7 +76,8 @@
   /* ---- App shell ---- */
   .app-shell{ display:flex; min-height:100vh; align-items:stretch; }
   .sidebar{ width:240px; flex:none; background:var(--surface); border-right:1px solid var(--border); padding:26px 18px; display:flex; flex-direction:column; }
-  .sidebar .brand{ font-family:var(--font-display); font-weight:700; font-size:16px; text-decoration:none; color:var(--text); margin-bottom:6px; padding:0 6px; }
+  .sidebar .brand{ font-family:var(--font-display); font-weight:700; font-size:16px; text-decoration:none; color:var(--text); margin-bottom:6px; padding:0 6px; display:flex; align-items:center; gap:9px; }
+  .sidebar .brand svg{ width:24px; height:24px; flex:none; }
   .sidebar .brand-sub{ font-family:var(--font-code); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent-ink); padding:0 6px; margin-bottom:30px; }
   .side-nav{ display:flex; flex-direction:column; gap:2px; }
   .side-nav button{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:6px; font-weight:600; font-size:14px; color:var(--text-muted); cursor:pointer; border:none; background:none; text-align:left; width:100%; font-family:var(--font-body); }
@@ -202,7 +203,7 @@ function panelShell(innerHtml, activeView) {
   return `
     <div class="app-shell">
       <div class="sidebar">
-        <div class="brand">Çin Tedarik Ağı</div>
+        <div class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0f3d63"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.16"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.16"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#d99a2b" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#d99a2b"/></svg>Çin Tedarik Ağı</div>
         <div class="brand-sub">Admin Paneli</div>
         <div class="side-nav">
           <button class="${activeView==='liste'||activeView==='detay' ? 'active' : ''}" onclick="view='liste'; render();"><span class="ico">📋</span> Siparişler</button>
