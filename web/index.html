@@ -30,8 +30,26 @@
       body{ font-family:'Inter',sans-serif; overflow-x:hidden; }
       .navbar-brand h2{ font-family:'Inter',sans-serif; font-weight:800; font-size:22px; }
       .mono{ font-family:'IBM Plex Mono',ui-monospace,monospace; }
-      .staff-link{ font-size:18px; opacity:.55; text-decoration:none; margin-left:18px; }
-      .staff-link:hover{ opacity:1; }
+      .staff-link{ font-size:15px; opacity:.4; color:var(--dark); text-decoration:none; }
+      .staff-link:hover{ opacity:.9; }
+
+      /* ---- Nav ince ayarı: şablonun kaba "renk bloğu" markasını kaldırıp tek
+         renkli, dengeli boşluklu, profesyonel bir bar hâline getiriyoruz. ---- */
+      nav.navbar{ padding:0 !important; box-shadow:0 1px 0 rgba(10,28,49,.06) !important; border-top:none !important; }
+      nav.navbar .navbar-brand{ padding-top:18px; padding-bottom:18px; gap:11px; }
+      .brand-mark{ width:34px; height:34px; border-radius:7px; background:var(--primary); color:#fff; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; flex:none; }
+      .brand-word{ font-weight:800; font-size:17px; letter-spacing:-.01em; color:var(--dark); }
+      @media (max-width:400px){ .brand-word{ display:none; } }
+      nav.navbar .navbar-nav{ gap:2px; }
+      nav.navbar .nav-link{ position:relative; padding:10px 16px !important; font-weight:600; font-size:14.5px; color:#4a5568; }
+      nav.navbar .nav-link:hover, nav.navbar .nav-link.active{ color:var(--primary); }
+      nav.navbar .nav-link.active::after{ content:""; position:absolute; left:16px; right:16px; bottom:4px; height:2px; background:var(--primary); border-radius:2px; }
+      .nav-cta-btn{ border-radius:5px; font-weight:700; font-size:14px; padding:9px 20px !important; }
+      @media (max-width:991px){
+        nav.navbar .navbar-nav{ gap:0; }
+        .nav-cta-btn{ width:100%; text-align:center; margin:6px 0 4px !important; }
+        nav.navbar .navbar-collapse{ border-top:1px solid #eef0f3; }
+      }
       .portal-pill{ display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.04em; padding:4px 10px; border-radius:20px; background:rgba(15,61,99,.1); color:var(--primary); border:1px solid rgba(15,61,99,.25); margin-top:10px; }
       .price-item .display-5{ font-size:0; }
       .price-item ul{ list-style:none; padding:0; margin:0; }
@@ -56,9 +74,10 @@
     </div>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg bg-white navbar-light shadow border-top border-5 border-primary sticky-top p-0">
-        <a href="/" class="navbar-brand bg-primary d-flex align-items-center px-4 px-lg-5">
-            <h2 class="mb-2 text-white">ÇİN TEDARİK AĞI</h2>
+    <nav class="navbar navbar-expand-lg bg-white navbar-light border-top border-3 border-primary sticky-top p-0">
+        <a href="/" class="navbar-brand d-flex align-items-center ps-4 ps-lg-5">
+            <span class="brand-mark">ÇT</span>
+            <span class="brand-word">Çin Tedarik Ağı</span>
         </a>
         <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon"></span>
@@ -71,8 +90,10 @@
                 <a href="/hesapla.html" class="nav-item nav-link">Vergi Hesaplama</a>
                 <a href="/takip.html" class="nav-item nav-link">Müşteri Girişi</a>
             </div>
-            <a href="/takip.html#rfq" class="btn btn-primary py-2 px-4 me-3 fw-bold">Ücretsiz Teklif Al</a>
-            <a href="/admin.html" class="staff-link d-none d-lg-inline" title="Çalışan Girişi"><i class="fa fa-lock"></i></a>
+            <div class="d-flex align-items-center pe-lg-5">
+                <a href="/takip.html#rfq" class="btn btn-primary nav-cta-btn me-3">Ücretsiz Teklif Al</a>
+                <a href="/admin.html" class="staff-link" title="Çalışan Girişi"><i class="fa fa-lock"></i></a>
+            </div>
         </div>
     </nav>
     <!-- Navbar End -->
