@@ -63,7 +63,7 @@ def gtip_detay(kod: str):
                 break
 
     damping = conn.execute(
-        "SELECT * FROM trade_measures WHERE measure_type='ANTI_DAMPING' AND gtip12 = ? AND valid_to IS NULL",
+        "SELECT * FROM trade_measures WHERE measure_type IN ('ANTI_DAMPING','ANTI_SUBSIDY') AND gtip12 = ? AND valid_to IS NULL",
         (code,),
     ).fetchall()
 
@@ -204,7 +204,7 @@ def istatistik():
         "SELECT COUNT(*) AS n FROM trade_measures WHERE measure_type='GOZETIM' AND valid_to IS NULL"
     ).fetchone()["n"]
     n_damping = conn.execute(
-        "SELECT COUNT(DISTINCT gtip12) AS n FROM trade_measures WHERE measure_type='ANTI_DAMPING' AND valid_to IS NULL"
+        "SELECT COUNT(DISTINCT gtip12) AS n FROM trade_measures WHERE measure_type IN ('ANTI_DAMPING','ANTI_SUBSIDY') AND valid_to IS NULL"
     ).fetchone()["n"]
     conn.close()
     return {
