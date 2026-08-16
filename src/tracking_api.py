@@ -263,11 +263,11 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
         raise HTTPException(status_code=403, detail="Bu sipariş size ait değil")
 
     gecmis = conn.execute(
-        "SELECT durum, not_metni, ek_veri, tarih FROM tk_durum_gecmisi WHERE siparis_id = ? ORDER BY tarih ASC",
+        "SELECT durum, not_metni, ek_veri, tarih, degistiren_email FROM tk_durum_gecmisi WHERE siparis_id = ? ORDER BY tarih ASC",
         (siparis["id"],),
     ).fetchall()
     belgeler = conn.execute(
-        "SELECT belge_tipi, dosya_adi, dosya_url, aciklama, yuklenme_tarihi FROM tk_belgeler WHERE siparis_id = ? ORDER BY yuklenme_tarihi DESC",
+        "SELECT belge_tipi, dosya_adi, dosya_url, aciklama, yuklenme_tarihi, yukleyen_email FROM tk_belgeler WHERE siparis_id = ? ORDER BY yuklenme_tarihi DESC",
         (siparis["id"],),
     ).fetchall()
 
@@ -321,6 +321,7 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
                 "not_metni": g["not_metni"],
                 "ek_veri": g["ek_veri"],
                 "tarih": g["tarih"].isoformat() if g["tarih"] else None,
+                "degistiren_email": g["degistiren_email"],
             }
             for g in gecmis
         ],
@@ -331,6 +332,7 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
                 "dosya_url": b["dosya_url"],
                 "aciklama": b["aciklama"],
                 "yuklenme_tarihi": b["yuklenme_tarihi"].isoformat() if b["yuklenme_tarihi"] else None,
+                "yukleyen_email": b["yukleyen_email"],
             }
             for b in belgeler
         ],
@@ -351,15 +353,18 @@ def admin_giris(istek: GirisIstek, request: Request):
 
 
 def _admin_dogrula(authorization: str = None):
+    """Admin oturumunu doğrular; (conn, oturum, admin_email) döner — admin_email
+    her durum/sevkiyat/belge değişikliğinde 'kim yaptı' bilgisini kaydetmek için."""
     conn, oturum = _oturum_dogrula(authorization)
     if not oturum["admin_id"]:
         raise HTTPException(status_code=403, detail="Admin oturumu gerekli")
-    return conn, oturum
+    admin = conn.execute("SELECT email FROM tk_admin WHERE id = ?", (oturum["admin_id"],)).fetchone()
+    return conn, oturum, (admin["email"] if admin else None)
 
 
 @router.get("/admin/siparisler")
 def admin_tum_siparisler(authorization: str = Header(None)):
-    conn, _ = _admin_dogrula(authorization)
+    conn, _, _ = _admin_dogrula(authorization)
     rows = conn.execute(
         """SELECT s.siparis_no, s.urun_aciklamasi, s.durum, s.olusturulma, m.ad_soyad, m.firma, m.email
            FROM tk_siparisler s JOIN tk_musteriler m ON m.id = s.musteri_id
@@ -387,7 +392,7 @@ class DurumGuncelleIstek(BaseModel):
 
 @router.post("/admin/siparis/{siparis_no}/durum")
 def admin_durum_guncelle(siparis_no: str, istek: DurumGuncelleIstek, authorization: str = Header(None)):
-    conn, _ = _admin_dogrula(authorization)
+    conn, _, admin_email = _admin_dogrula(authorization)
     if istek.durum not in DURUM_KODLARI:
         raise HTTPException(status_code=400, detail=f"Geçersiz durum kodu. Geçerli kodlar: {sorted(DURUM_KODLARI)}")
     siparis = conn.execute("SELECT id FROM tk_siparisler WHERE siparis_no = ?", (siparis_no,)).fetchone()
@@ -395,8 +400,8 @@ def admin_durum_guncelle(siparis_no: str, istek: DurumGuncelleIstek, authorizati
         raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
     conn.execute("UPDATE tk_siparisler SET durum = ?, guncellenme = now() WHERE id = ?", (istek.durum, siparis["id"]))
     conn.execute(
-        "INSERT INTO tk_durum_gecmisi (siparis_id, durum, not_metni) VALUES (?, ?, ?)",
-        (siparis["id"], istek.durum, istek.not_metni),
+        "INSERT INTO tk_durum_gecmisi (siparis_id, durum, not_metni, degistiren_email) VALUES (?, ?, ?, ?)",
+        (siparis["id"], istek.durum, istek.not_metni, admin_email),
     )
     conn._conn.commit()
     return {"ok": True}
@@ -423,7 +428,7 @@ def admin_sevkiyat_guncelle(siparis_no: str, istek: SevkiyatBilgisiIstek, author
     linkinin gösterilebilmesi için. tasiyici_takip_url admin
     tarafından o sevkiyat için gerçekten alınan linktir; sistem hiçbir zaman
     taşıyıcıya özel bir takip URL'i TAHMİN ETMEZ (yanlış/kırık link riski)."""
-    conn, _ = _admin_dogrula(authorization)
+    conn, _, admin_email = _admin_dogrula(authorization)
     if istek.tasiyici_key and istek.tasiyici_key not in CARRIER_REGISTRY:
         raise HTTPException(status_code=400, detail="Bilinmeyen taşıyıcı anahtarı")
     siparis = conn.execute("SELECT id FROM tk_siparisler WHERE siparis_no = ?", (siparis_no,)).fetchone()
@@ -449,13 +454,13 @@ class BelgeEkleIstek(BaseModel):
 
 @router.post("/admin/siparis/{siparis_no}/belge")
 def admin_belge_ekle(siparis_no: str, istek: BelgeEkleIstek, authorization: str = Header(None)):
-    conn, _ = _admin_dogrula(authorization)
+    conn, _, admin_email = _admin_dogrula(authorization)
     siparis = conn.execute("SELECT id FROM tk_siparisler WHERE siparis_no = ?", (siparis_no,)).fetchone()
     if not siparis:
         raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
     conn.execute(
-        "INSERT INTO tk_belgeler (siparis_id, belge_tipi, dosya_adi, dosya_url, aciklama) VALUES (?, ?, ?, ?, ?)",
-        (siparis["id"], istek.belge_tipi, istek.dosya_adi, istek.dosya_url, istek.aciklama),
+        "INSERT INTO tk_belgeler (siparis_id, belge_tipi, dosya_adi, dosya_url, aciklama, yukleyen_email) VALUES (?, ?, ?, ?, ?, ?)",
+        (siparis["id"], istek.belge_tipi, istek.dosya_adi, istek.dosya_url, istek.aciklama, admin_email),
     )
     conn._conn.commit()
     return {"ok": True}
@@ -472,7 +477,7 @@ async def admin_belge_yukle(
     """Gerçek dosya yükleme — admin panelinden doğrudan konşimento/fatura vb. dosyayı
     seçip yükler, elle URL girmeye gerek kalmaz. Dosya sunucunun /uploads dizinine
     rastgele adla kaydedilir, orijinal ad ayrı sütunda tutulur."""
-    conn, _ = _admin_dogrula(authorization)
+    conn, _, admin_email = _admin_dogrula(authorization)
     siparis = conn.execute("SELECT id FROM tk_siparisler WHERE siparis_no = ?", (siparis_no,)).fetchone()
     if not siparis:
         raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
@@ -489,8 +494,8 @@ async def admin_belge_yukle(
 
     dosya_url = f"/api/tk/belge-indir/{guvenli_ad}"
     conn.execute(
-        "INSERT INTO tk_belgeler (siparis_id, belge_tipi, dosya_adi, dosya_url, aciklama) VALUES (?, ?, ?, ?, ?)",
-        (siparis["id"], belge_tipi, dosya.filename or guvenli_ad, dosya_url, aciklama),
+        "INSERT INTO tk_belgeler (siparis_id, belge_tipi, dosya_adi, dosya_url, aciklama, yukleyen_email) VALUES (?, ?, ?, ?, ?, ?)",
+        (siparis["id"], belge_tipi, dosya.filename or guvenli_ad, dosya_url, aciklama, admin_email),
     )
     conn._conn.commit()
     return {"ok": True, "dosya_url": dosya_url}
