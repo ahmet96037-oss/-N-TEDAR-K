@@ -76,22 +76,25 @@
   .btn-ghost{ background:var(--surface); color:var(--text); border-color:var(--border); }
   .btn-ghost:hover{ border-color:var(--accent); }
 
-  /* Rota illüstrasyonu */
-  .route-wrap{ position:relative; }
-  .route-svg{ width:100%; height:auto; display:block; }
-  .route-svg .path{ stroke:var(--accent2); stroke-width:1.6; fill:none; stroke-dasharray:5 6; opacity:.8; }
-  .route-svg .path2{ stroke:var(--accent); stroke-width:1.6; fill:none; stroke-dasharray:2 5; opacity:.55; }
-  .route-svg .node{ fill:var(--surface); stroke:var(--accent2); stroke-width:2.5; }
-  .route-svg .node.tr{ stroke:var(--accent); }
-  .route-svg text{ font-family:var(--font-code); font-size:12px; letter-spacing:.08em; fill:var(--text-muted); }
-  .route-svg .ship{ fill:var(--accent-ink); stroke:var(--accent-ink); stroke-width:1.4; stroke-linejoin:round; }
-  .float-card{ position:absolute; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 18px; box-shadow:0 12px 30px rgba(33,29,22,.1); font-size:13px; }
-  @media (prefers-color-scheme: dark){ .float-card{ box-shadow:0 12px 30px rgba(0,0,0,.35); } }
-  .float-card .l{ font-family:var(--font-code); font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); }
-  .float-card .v{ font-family:var(--font-display); font-weight:600; font-size:16px; margin-top:2px; }
-  .fc1{ top:6%; left:2%; }
-  .fc2{ bottom:10%; right:0; }
-  @media (max-width:960px){ .float-card{ display:none; } }
+  /* Panel önizlemesi — soyut illüstrasyon yerine gerçek ürünün küçük bir
+     modeli: ne satın aldığını somut gösteriyor, daha inandırıcı. */
+  .preview-card{ background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:0 20px 50px rgba(33,29,22,.09); overflow:hidden; }
+  @media (prefers-color-scheme: dark){ .preview-card{ box-shadow:0 20px 50px rgba(0,0,0,.4); } }
+  .preview-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); background:var(--bg-alt); }
+  .preview-head .no{ font-family:var(--font-code); font-size:11.5px; font-weight:600; color:var(--accent-ink); }
+  .preview-head .pill{ font-family:var(--font-body); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; padding:3px 9px; border-radius:20px; background:color-mix(in srgb, var(--accent2) 14%, transparent); color:var(--accent2-ink); border:1px solid color-mix(in srgb, var(--accent2) 32%, transparent); }
+  .preview-body{ padding:20px 22px; }
+  .preview-body .bar-track{ height:6px; border-radius:6px; background:var(--bg-alt); overflow:hidden; margin-bottom:22px; }
+  .preview-body .bar-fill{ height:100%; width:58%; background:linear-gradient(90deg, var(--accent2), var(--accent)); }
+  .pv-step{ display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+  .pv-step:last-child{ border-bottom:none; }
+  .pv-step .dot{ width:18px; height:18px; border-radius:50%; flex:none; margin-top:1px; display:flex; align-items:center; justify-content:center; font-size:10px; color:#fff; }
+  .pv-step.done .dot{ background:var(--accent2); }
+  .pv-step.current .dot{ background:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+  .pv-step.pending .dot{ background:var(--border); }
+  .pv-step .t{ font-size:13.5px; font-weight:600; }
+  .pv-step.pending .t{ color:var(--text-muted); font-weight:500; }
+  .pv-step .d{ font-size:12px; color:var(--text-muted); margin-top:1px; }
 
   /* İstatistik bandı — gerçek rakamlar */
   .stat-band{ border-top:1px solid var(--border); margin-top:60px; padding:34px 0; display:grid; grid-template-columns:repeat(4,1fr); }
@@ -108,30 +111,26 @@
   h2{ font-family:var(--font-display); font-weight:600; font-size:clamp(24px,3vw,32px); letter-spacing:-.015em; margin:0 0 12px; line-height:1.15; }
   .section-head p{ color:var(--text-muted); font-size:16px; margin:0; max-width:60ch; }
 
-  /* ---- Pain points: editorial index list ---- */
+  /* ---- Pain points ---- */
   .pain-list{ border-top:1px solid var(--border); }
-  .pain-row{ display:grid; grid-template-columns:88px 1fr; gap:28px; padding:32px 0; border-bottom:1px solid var(--border); align-items:baseline; }
-  @media (max-width:640px){ .pain-row{ grid-template-columns:44px 1fr; gap:18px; } }
-  .pain-row .idx{ font-family:var(--font-display); font-style:italic; font-weight:400; font-size:40px; color:var(--signal); opacity:.55; line-height:1; }
-  .pain-row h3{ font-family:var(--font-display); font-size:19px; margin:0 0 6px; font-weight:600; }
+  .pain-row{ display:grid; grid-template-columns:44px 1fr; gap:20px; padding:26px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+  .pain-row .idx{ width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-code); font-size:13px; font-weight:600; color:var(--signal-ink); background:color-mix(in srgb, var(--signal) 12%, transparent); border:1px solid color-mix(in srgb, var(--signal) 30%, transparent); }
+  .pain-row h3{ font-family:var(--font-display); font-size:18px; margin:0 0 6px; font-weight:600; }
   .pain-row p{ color:var(--text-muted); font-size:15px; margin:0; max-width:60ch; }
 
-  /* ---- Pillars: big ghost serif letter ---- */
-  .pillar{ display:grid; grid-template-columns:88px 1fr; gap:28px; padding:32px 0; border-bottom:1px solid var(--border); align-items:baseline; }
-  @media (max-width:640px){ .pillar{ grid-template-columns:44px 1fr; gap:18px; } }
+  /* ---- Pillars ---- */
+  .pillar{ display:grid; grid-template-columns:44px 1fr; gap:20px; padding:26px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
   .pillar:last-child{ border-bottom:none; }
-  .pillar .letter{ font-family:var(--font-display); font-style:italic; font-weight:400; font-size:44px; color:var(--accent); opacity:.65; line-height:1; }
-  .pillar h3{ font-family:var(--font-display); font-size:20px; margin:0 0 8px; font-weight:600; }
-  .pillar p{ color:var(--text-muted); font-size:15.5px; margin:0; max-width:66ch; }
+  .pillar .letter{ width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-code); font-size:13px; font-weight:600; color:var(--accent-ink); background:color-mix(in srgb, var(--accent) 14%, transparent); border:1px solid color-mix(in srgb, var(--accent) 32%, transparent); }
+  .pillar h3{ font-family:var(--font-display); font-size:19px; margin:0 0 6px; font-weight:600; }
+  .pillar p{ color:var(--text-muted); font-size:15px; margin:0; max-width:66ch; }
 
-  /* ---- Process: alternating editorial rows ---- */
+  /* ---- Process ---- */
   .proc-list{ border-top:1px solid var(--border); }
-  .proc-row{ display:grid; grid-template-columns:140px 1fr; gap:36px; padding:44px 0; border-bottom:1px solid var(--border); align-items:start; }
-  @media (max-width:760px){ .proc-row{ grid-template-columns:64px 1fr; gap:20px; } }
-  .proc-row .idx{ font-family:var(--font-display); font-weight:500; font-size:56px; line-height:.9; color:var(--accent2); letter-spacing:-.02em; }
-  @media (max-width:760px){ .proc-row .idx{ font-size:34px; } }
-  .proc-row:nth-child(2n) .idx{ color:var(--accent); }
-  .proc-row .content h3{ font-family:var(--font-display); font-size:22px; margin:0 0 10px; font-weight:600; letter-spacing:-.005em; }
+  .proc-row{ display:grid; grid-template-columns:44px 1fr; gap:20px; padding:30px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+  .proc-row .idx{ width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-code); font-size:13px; font-weight:600; color:#fff; background:var(--accent2); }
+  .proc-row:nth-child(2n) .idx{ background:var(--accent); }
+  .proc-row .content h3{ font-family:var(--font-display); font-size:19px; margin:0 0 8px; font-weight:600; letter-spacing:-.005em; }
   .proc-row .content p{ font-size:15.5px; color:var(--text-muted); margin:0 0 14px; max-width:62ch; }
   .portal-tag{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-code); font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent2-ink); background:color-mix(in srgb, var(--accent2) 12%, transparent); border:1px solid color-mix(in srgb, var(--accent2) 30%, transparent); padding:4px 10px; border-radius:20px; }
   .portal-tag::before{ content:"◎ "; }
@@ -215,18 +214,20 @@
           <a href="/hesapla.html" class="btn btn-ghost">Gümrük Vergisi Hesapla</a>
         </div>
       </div>
-      <div class="route-wrap">
-        <svg class="route-svg" viewBox="0 0 480 320" aria-hidden="true">
-          <path class="path" d="M50,250 C150,100 300,260 420,70"/>
-          <path class="path2" d="M50,250 C160,140 270,220 420,70"/>
-          <circle class="node" cx="50" cy="250" r="8"/>
-          <text x="26" y="278">ÇİN</text>
-          <circle class="node tr" cx="420" cy="70" r="8"/>
-          <text x="382" y="50">TÜRKİYE</text>
-          <g transform="translate(235,165) rotate(-30)"><path class="ship" d="M-15,3 L15,3 L11,13 L-11,13 Z"/><path class="ship" d="M0,-14 L0,3 L11,3 Z" opacity=".85"/></g>
-        </svg>
-        <div class="float-card fc1"><div class="l">Panelde canlı</div><div class="v">19 aşamalı takip</div></div>
-        <div class="float-card fc2"><div class="l">Garanti</div><div class="v">Yazılı risk taahhüdü</div></div>
+      <div>
+        <div class="preview-card">
+          <div class="preview-head">
+            <span class="no">CTA-2026-0114</span>
+            <span class="pill">Üretimde</span>
+          </div>
+          <div class="preview-body">
+            <div class="bar-track"><div class="bar-fill"></div></div>
+            <div class="pv-step done"><div class="dot">✓</div><div><div class="t">Talep &amp; Teklif</div><div class="d">Tamamlandı — 3/3 aşama</div></div></div>
+            <div class="pv-step done"><div class="dot">✓</div><div><div class="t">Numune</div><div class="d">Tamamlandı — 4/4 aşama</div></div></div>
+            <div class="pv-step current"><div class="dot"></div><div><div class="t">Üretim</div><div class="d">Sürüyor — 2/3 aşama</div></div></div>
+            <div class="pv-step pending"><div class="dot"></div><div><div class="t">Sevkiyat</div><div class="d">Henüz başlamadı</div></div></div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="stat-band">
