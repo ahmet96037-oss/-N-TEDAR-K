@@ -286,6 +286,13 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
     if siparis["gemi_adi"]:
         vesselfinder_url = f"https://www.vesselfinder.com/vessels?name={_url_quote(siparis['gemi_adi'])}"
 
+    # Konteyner bazlı takip — taşıyıcıdan bağımsız, konteyner no formatından
+    # (SCAC kodu ilk 4 harf) taşıyıcıyı kendi tespit eden track-trace.com
+    # kullanılıyor; gemi adı yerine doğrudan konteyner no ile arama yapıyor.
+    konteyner_takip_url = None
+    if siparis["konteyner_no"]:
+        konteyner_takip_url = f"https://www.track-trace.com/container?number={_url_quote(siparis['konteyner_no'])}"
+
     # Taşıyıcı takip linki önceliği:
     # 1) admin'in o sevkiyat için elle girdiği gerçek link (varsa en doğru olan budur)
     # 2) kayıtlı taşıyıcının doğrulanmış deep-link'i (konşimento no otomatik dolar)
@@ -319,9 +326,11 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
             "gemi_adi": siparis["gemi_adi"],
             "sefer_no": siparis["sefer_no"],
             "konsimento_no": siparis["konsimento_no"],
+            "konteyner_no": siparis["konteyner_no"],
             "tasiyici_takip_url": tasiyici_url,
             "vesselfinder_url": vesselfinder_url,
-        } if any([tasiyici_ad, siparis["gemi_adi"], siparis["konsimento_no"]]) else None,
+            "konteyner_takip_url": konteyner_takip_url,
+        } if any([tasiyici_ad, siparis["gemi_adi"], siparis["konsimento_no"], siparis["konteyner_no"]]) else None,
         "gecmis": [
             {
                 "durum": g["durum"],
@@ -527,6 +536,7 @@ class SevkiyatBilgisiIstek(BaseModel):
     gemi_adi: str | None = None
     sefer_no: str | None = None
     konsimento_no: str | None = None
+    konteyner_no: str | None = None  # ör. MSCU1234567 — konteyner bazlı takip linki için
     tasiyici_takip_url: str | None = None  # her zaman öncelikli — o sevkiyata özel gerçek link
 
 
@@ -551,9 +561,9 @@ def admin_sevkiyat_guncelle(siparis_no: str, istek: SevkiyatBilgisiIstek, author
     tasiyici_firma = istek.tasiyici_firma or (CARRIER_REGISTRY[istek.tasiyici_key]["ad"] if istek.tasiyici_key else None)
     conn.execute(
         """UPDATE tk_siparisler SET tasiyici_key = ?, tasiyici_firma = ?, gemi_adi = ?, sefer_no = ?,
-           konsimento_no = ?, tasiyici_takip_url = ?, guncellenme = now() WHERE id = ?""",
+           konsimento_no = ?, konteyner_no = ?, tasiyici_takip_url = ?, guncellenme = now() WHERE id = ?""",
         (istek.tasiyici_key, tasiyici_firma, istek.gemi_adi, istek.sefer_no, istek.konsimento_no,
-         istek.tasiyici_takip_url, siparis["id"]),
+         istek.konteyner_no, istek.tasiyici_takip_url, siparis["id"]),
     )
     conn._conn.commit()
     return {"ok": True}

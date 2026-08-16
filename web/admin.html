@@ -567,6 +567,8 @@ async function detayYukle(siparisNo) {
         <div><label>Sefer no (opsiyonel)</label><input id="sSefer" value="${d.sevkiyat?.sefer_no || ''}"></div>
         <div><label>Konşimento no (B/L)</label><input id="sKonsimento" value="${d.sevkiyat?.konsimento_no || ''}"></div>
       </div>
+      <label>Konteyner no (opsiyonel — girilirse müşteri panelinde ayrı bir "Konteyner Takibi" butonu görünür)</label>
+      <input id="sKonteyner" placeholder="ör. MSCU1234567" value="${d.sevkiyat?.konteyner_no || ''}">
       <label>Taşıyıcı takip linki — SADECE bu sevkiyat için taşıyıcıdan gerçekten aldığınız link varsa girin (girilirse yukarıdaki kayıtlı taşıyıcı otomatik linkinin önüne geçer)</label>
       <input id="sUrl" placeholder="https://www.maersk.com/tracking/..." value="${d.sevkiyat?.tasiyici_takip_url || ''}">
       <button class="primary" onclick="sevkiyatGuncelle('${d.siparis_no}')">Sevkiyat Bilgisini Kaydet</button>
@@ -616,6 +618,7 @@ async function sevkiyatGuncelle(siparisNo) {
     gemi_adi: document.getElementById('sGemi').value.trim() || null,
     sefer_no: document.getElementById('sSefer').value.trim() || null,
     konsimento_no: document.getElementById('sKonsimento').value.trim() || null,
+    konteyner_no: document.getElementById('sKonteyner').value.trim() || null,
     tasiyici_takip_url: document.getElementById('sUrl').value.trim() || null,
   };
   await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/sevkiyat', {

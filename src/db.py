@@ -33,6 +33,13 @@ class Connection:
             user=url.username, password=url.password, host=url.hostname,
             port=url.port or 5432, database=url.path.lstrip("/"), ssl_context=True,
         )
+        # pg8000 varsayılan olarak her sorguyu bir transaction'a açar ve elle commit
+        # ister — okuma-amaçlı (GET) endpoint'ler hiç commit çağırmadığı için bağlantı
+        # "idle in transaction" olarak asılı kalıyordu; zamanla biriken bu bağlantılar
+        # ALTER TABLE gibi DDL işlemlerini kilitleyebiliyordu. autocommit ile her
+        # sorgu kendi transaction'ını hemen kapatıyor (yazma endpoint'lerindeki elle
+        # commit() çağrıları artık no-op ama zararsız, dokunmaya gerek yok).
+        self._conn.autocommit = True
 
     def execute(self, sql: str, params: tuple = ()):
         # sqlite tarzı '?' placeholder'ları, psycopg/pg8000 tarzı '%s'e çevrilir
