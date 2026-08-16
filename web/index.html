@@ -66,6 +66,10 @@
       /* Küre bölümü: gerçek WebGL 3D küre (three.js + three-globe) — şablona ait değil,
          sitenin kendi tedarik ağı görselleştirmesi. Beyaz zemin üzerinde. */
       .globe-wrap{ background:#fff; padding:80px 0; text-align:center; }
+      .globe-side-item{ text-align:left; padding:22px 4px; }
+      .globe-side-item h5{ font-weight:700; margin-bottom:6px; }
+      .globe-side-item p{ font-size:14px; }
+      @media (max-width:991px){ .globe-side-item{ text-align:center; } }
       .globe-stage{ position:relative; width:min(560px, 90vw); height:min(560px, 90vw); margin:0 auto; cursor:grab; }
       .globe-stage:active{ cursor:grabbing; }
       .globe-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#8a94a3; }
@@ -109,8 +113,8 @@
 
 
     <!-- Hero Carousel -->
-    <div class="container-fluid p-0 pb-5">
-        <div class="owl-carousel header-carousel position-relative mb-5">
+    <div class="container-fluid p-0">
+        <div class="owl-carousel header-carousel position-relative">
             <div class="owl-carousel-item position-relative">
                 <img class="img-fluid" src="assets/theme/img/carousel-1.jpg" alt="">
                 <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center" style="background: rgba(10, 28, 49, .72);">
@@ -181,7 +185,7 @@
 
 
     <!-- About -->
-    <div class="container-fluid overflow-hidden py-5 px-lg-0" id="neden-biz">
+    <div class="container-fluid overflow-hidden pb-5 px-lg-0" id="neden-biz">
         <div class="container about py-5 px-lg-0">
             <div class="row g-5 mx-lg-0">
                 <div class="col-lg-6 ps-lg-0 wow fadeInLeft" data-wow-delay="0.1s" style="min-height: 400px;">
@@ -373,13 +377,43 @@
     <!-- Feature End -->
 
 
-    <!-- Globe: gerçek WebGL 3D küre -->
+    <!-- Globe: gerçek WebGL 3D küre + yanlarında ağın somut rakamları -->
     <div class="globe-wrap">
         <div class="container">
-            <h6 class="text-secondary text-uppercase">Küresel Ağ</h6>
-            <h1 class="mb-5">Tedarik ağımız Çin'in tek bir şehrinden ibaret değil</h1>
-            <div class="globe-stage" id="globeStage">
-                <div class="globe-loading" id="globeLoading">Küre yükleniyor…</div>
+            <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+                <h6 class="text-secondary text-uppercase">Küresel Ağ</h6>
+                <h1 class="mb-5">Tedarik ağımız Çin'in tek bir şehrinden ibaret değil</h1>
+            </div>
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-3 order-lg-1">
+                    <div class="globe-side-item wow fadeInLeft" data-wow-delay="0.2s">
+                        <i class="fa fa-industry text-primary fa-2x mb-3"></i>
+                        <h5>Çoklu Fabrika Ağı</h5>
+                        <p class="text-muted mb-0">Tek tedarikçiye bağımlı değiliz; kalite sorununda alternatif fabrikaya anında geçiş.</p>
+                    </div>
+                    <div class="globe-side-item wow fadeInLeft" data-wow-delay="0.4s">
+                        <i class="fa fa-user-shield text-primary fa-2x mb-3"></i>
+                        <h5>Yerinde QC Ekibi</h5>
+                        <p class="text-muted mb-0">Numune ve üretim, sahada fiziksel olarak kontrol edilir — uzaktan güvene değil.</p>
+                    </div>
+                </div>
+                <div class="col-lg-6 order-lg-2">
+                    <div class="globe-stage" id="globeStage">
+                        <div class="globe-loading" id="globeLoading">Küre yükleniyor…</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 order-lg-3">
+                    <div class="globe-side-item wow fadeInRight" data-wow-delay="0.2s">
+                        <i class="fa fa-route text-primary fa-2x mb-3"></i>
+                        <h5>Kesintisiz Rota</h5>
+                        <p class="text-muted mb-0">Çin'in farklı bölgelerinden Türkiye limanlarına düzenli sevkiyat hatları.</p>
+                    </div>
+                    <div class="globe-side-item wow fadeInRight" data-wow-delay="0.4s">
+                        <i class="fa fa-clock text-primary fa-2x mb-3"></i>
+                        <h5>7/24 Panel Erişimi</h5>
+                        <p class="text-muted mb-0">Saat farkı gözetmeden, siparişinizin durumunu istediğiniz an panelden görün.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
