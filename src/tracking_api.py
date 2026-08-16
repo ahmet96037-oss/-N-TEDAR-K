@@ -44,7 +44,13 @@ def _rate_sinirla(anahtar: str, limit: int = 10, pencere_sn: int = 60):
 
 # Belgeler (konşimento, fatura vb.) sunucunun yerel diskinde saklanıyor —
 # ayrı bir dosya depolama servisi (S3 vb.) bu aşamada gereksiz karmaşıklık.
-BELGE_DIZINI = os.path.join(os.path.dirname(__file__), "..", "uploads", "belgeler")
+# Vercel gibi serverless ortamlarda proje dizini salt-okunur; sadece /tmp
+# yazılabilir (ve isteğe/soğuk başlatmaya göre kalıcı DEĞİL — bu ortamda dosya
+# yükleme demo amaçlı, kalıcı depolama için ileride S3/Blob gerekir).
+if os.environ.get("VERCEL"):
+    BELGE_DIZINI = "/tmp/belgeler"
+else:
+    BELGE_DIZINI = os.path.join(os.path.dirname(__file__), "..", "uploads", "belgeler")
 os.makedirs(BELGE_DIZINI, exist_ok=True)
 
 # ---- Durum akışı — sunumdaki Bölüm 07-08'in genişletilmiş hâli ----

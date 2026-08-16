@@ -1,0 +1,7 @@
+# Sadece tek seferlik veri çıkarma script'leri için (src/parse_*.py, src/build_kdv.py) —
+# çalışan API bunlara ihtiyaç duymuyor, bu yüzden ana requirements.txt'den (Vercel
+# deploy paketini şişirmemesi için) ayrıldı. GTİP/vergi verisi güncellemesi
+# gerektiğinde: pip install -r requirements-tools.txt
+openpyxl
+xlrd
+PyMuPDF

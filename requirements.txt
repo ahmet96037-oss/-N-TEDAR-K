@@ -3,6 +3,4 @@ uvicorn
 pydantic
 pg8000
 python-dotenv
-openpyxl
-xlrd
-PyMuPDF
+python-multipart

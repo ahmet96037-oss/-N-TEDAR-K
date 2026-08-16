@@ -1,0 +1,15 @@
+# Bu dosyalar çalışan API için gerekli değil (veri Neon/Postgres'te) — deploy
+# paketini 300MB+ şişirdikleri için Vercel'e yüklenmiyor.
+# DİKKAT: "/data/" başında slash ile — yoksa web/data/countries.geo.json
+# (küre için gerekli ülke sınırı verisi) da yanlışlıkla hariç tutulur.
+/data/
+/uploads/
+docs/
+.git/
+src/parse_tgtc.py
+src/parse_igv.py
+src/build_kdv.py
+src/migrate_to_pg.py
+requirements-tools.txt
+__pycache__/
+*.pyc

@@ -9,3 +9,4 @@ __pycache__/
 .claude/settings.local.json
 uploads/belgeler/*
 !uploads/belgeler/.gitkeep
+.vercel
