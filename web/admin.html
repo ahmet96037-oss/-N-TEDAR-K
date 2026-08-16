@@ -132,6 +132,16 @@ const OZEL_DURUMLAR = [
   ['beklemede','⚠ Süreç Beklemede'],
   ['iptal_edildi','✕ İptal Edildi'],
 ];
+// Backend CARRIER_REGISTRY ile birebir aynı (src/tracking_api.py) — sadece
+// gerçekten headless tarayıcıyla test edilip doğrulanan taşıyıcılar.
+const TASIYICILAR = [
+  ['maersk','Maersk'],
+  ['cosco','COSCO Shipping'],
+  ['msc','MSC'],
+  ['cma_cgm','CMA CGM'],
+  ['hapag_lloyd','Hapag-Lloyd'],
+  ['one','ONE (Ocean Network Express)'],
+];
 
 function themeToggleHtml() {
   return `<div class="theme-toggle" id="themeToggle">
@@ -259,14 +269,25 @@ async function detayYukle(siparisNo) {
       <h2>Sevkiyat &amp; Gemi Takibi</h2>
       <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Bu bilgiler girilince müşteri panelinde Marine Traffic araması ve taşıyıcı takip linki otomatik görünür.</p>
       <div class="row2">
-        <div><label>Taşıyıcı firma</label><input id="sTasiyici" placeholder="ör. Maersk, MSC, CMA CGM" value="${d.sevkiyat?.tasiyici_firma || ''}"></div>
+        <div>
+          <label>Taşıyıcı (kayıtlı — konşimento no otomatik dolar)</label>
+          <select id="sTasiyiciKey" onchange="document.getElementById('sTasiyiciDiger').style.display = this.value==='diger' ? 'block' : 'none';">
+            <option value="">— Seçilmedi —</option>
+            ${TASIYICILAR.map(([k,a]) => `<option value="${k}" ${d.sevkiyat?.tasiyici_key===k?'selected':''}>${a}</option>`).join('')}
+            <option value="diger" ${(!d.sevkiyat?.tasiyici_key && d.sevkiyat?.tasiyici_firma) ? 'selected' : ''}>Diğer / listede yok</option>
+          </select>
+        </div>
         <div><label>Gemi adı</label><input id="sGemi" placeholder="ör. MSC ISTANBUL" value="${d.sevkiyat?.gemi_adi || ''}"></div>
+      </div>
+      <div id="sTasiyiciDiger" style="display:${(!d.sevkiyat?.tasiyici_key && d.sevkiyat?.tasiyici_firma) ? 'block' : 'none'};">
+        <label>Taşıyıcı adı (serbest metin)</label>
+        <input id="sTasiyici" placeholder="ör. Yang Ming" value="${(!d.sevkiyat?.tasiyici_key && d.sevkiyat?.tasiyici_firma) ? d.sevkiyat.tasiyici_firma : ''}">
       </div>
       <div class="row2">
         <div><label>Sefer no (opsiyonel)</label><input id="sSefer" value="${d.sevkiyat?.sefer_no || ''}"></div>
         <div><label>Konşimento no (B/L)</label><input id="sKonsimento" value="${d.sevkiyat?.konsimento_no || ''}"></div>
       </div>
-      <label>Taşıyıcı takip linki (o sevkiyat için taşıyıcıdan aldığınız gerçek link — sistem tahmin etmez)</label>
+      <label>Taşıyıcı takip linki — SADECE bu sevkiyat için taşıyıcıdan gerçekten aldığınız link varsa girin (girilirse yukarıdaki kayıtlı taşıyıcı otomatik linkinin önüne geçer)</label>
       <input id="sUrl" placeholder="https://www.maersk.com/tracking/..." value="${d.sevkiyat?.tasiyici_takip_url || ''}">
       <button class="primary" onclick="sevkiyatGuncelle('${d.siparis_no}')">Sevkiyat Bilgisini Kaydet</button>
     </div>
@@ -291,8 +312,10 @@ async function detayYukle(siparisNo) {
 }
 
 async function sevkiyatGuncelle(siparisNo) {
+  const secilenKey = document.getElementById('sTasiyiciKey').value;
   const body = {
-    tasiyici_firma: document.getElementById('sTasiyici').value.trim() || null,
+    tasiyici_key: (secilenKey && secilenKey !== 'diger') ? secilenKey : null,
+    tasiyici_firma: secilenKey === 'diger' ? (document.getElementById('sTasiyici').value.trim() || null) : null,
     gemi_adi: document.getElementById('sGemi').value.trim() || null,
     sefer_no: document.getElementById('sSefer').value.trim() || null,
     konsimento_no: document.getElementById('sKonsimento').value.trim() || null,

@@ -90,6 +90,29 @@ OZEL_ISIMLERI = dict(OZEL_DURUMLAR)
 DURUM_KODLARI = {kod for kod, _ in DURUM_SIRASI} | {kod for kod, _ in OZEL_DURUMLAR}
 TUM_DURUM_ISIMLERI = {**DURUM_ISIMLERI, **OZEL_ISIMLERI}
 
+# Taşıyıcı (ana acente) kaydı — SADECE tek tek headless tarayıcıyla test edilip
+# gerçekten çalıştığı doğrulanan formatlar burada. "deeplink" olanlarda konşimento
+# no otomatik dolup arama tetikleniyor (müşteri sadece siteye gidince sonucu görüyor);
+# "deeplink" olmayanlarda parametre formatı doğrulanamadığı için sadece taşıyıcının
+# resmi takip sayfasının ana adresine yönlendiriyoruz — kırık/yanlış bir deep-link
+# UYDURMUYORUZ. Yeni bir taşıyıcı eklerken önce gerçekten test edilmeli.
+from urllib.parse import quote as _url_quote
+
+CARRIER_REGISTRY = {
+    "maersk": {
+        "ad": "Maersk",
+        "deeplink": lambda no: f"https://www.maersk.com/tracking/{_url_quote(no)}",
+    },
+    "cosco": {
+        "ad": "COSCO Shipping",
+        "deeplink": lambda no: f"https://elines.coscoshipping.com/ebusiness/cargoTracking?trackingType=BILLOFLADING&number={_url_quote(no)}",
+    },
+    "msc": {"ad": "MSC", "homepage": "https://www.msc.com/en/track-a-shipment"},
+    "cma_cgm": {"ad": "CMA CGM", "homepage": "https://www.cma-cgm.com/ebusiness/tracking"},
+    "hapag_lloyd": {"ad": "Hapag-Lloyd", "homepage": "https://www.hapag-lloyd.com/en/online-business/track/track-by-booking-solution.html"},
+    "one": {"ad": "ONE (Ocean Network Express)", "homepage": "https://ecomm.one-line.com/one-ecom/manage-shipment/cargo-tracking"},
+}
+
 
 def _hash_sifre(sifre: str, salt: bytes = None) -> str:
     salt = salt or os.urandom(16)
@@ -257,8 +280,22 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
     # deseni asla üretilmiyor.
     marine_traffic_url = None
     if siparis["gemi_adi"]:
-        from urllib.parse import quote
-        marine_traffic_url = f"https://www.marinetraffic.com/en/ais/index/search/all?keyword={quote(siparis['gemi_adi'])}"
+        marine_traffic_url = f"https://www.marinetraffic.com/en/ais/index/search/all?keyword={_url_quote(siparis['gemi_adi'])}"
+
+    # Taşıyıcı takip linki önceliği:
+    # 1) admin'in o sevkiyat için elle girdiği gerçek link (varsa en doğru olan budur)
+    # 2) kayıtlı taşıyıcının doğrulanmış deep-link'i (konşimento no otomatik dolar)
+    # 3) kayıtlı taşıyıcının ana takip sayfası (parametre formatı doğrulanamadı)
+    tasiyici_url = siparis["tasiyici_takip_url"]
+    tasiyici_ad = siparis["tasiyici_firma"]
+    carrier = CARRIER_REGISTRY.get(siparis["tasiyici_key"]) if siparis["tasiyici_key"] else None
+    if carrier:
+        tasiyici_ad = carrier["ad"]
+        if not tasiyici_url:
+            if "deeplink" in carrier and siparis["konsimento_no"]:
+                tasiyici_url = carrier["deeplink"](siparis["konsimento_no"])
+            elif "homepage" in carrier:
+                tasiyici_url = carrier["homepage"]
 
     return {
         "siparis_no": siparis["siparis_no"],
@@ -271,13 +308,14 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
         "ozel_durumlar": [{"kod": k, "ad": a} for k, a in OZEL_DURUMLAR],
         "ozel_durum_mu": siparis["durum"] in OZEL_ISIMLERI,
         "sevkiyat": {
-            "tasiyici_firma": siparis["tasiyici_firma"],
+            "tasiyici_key": siparis["tasiyici_key"],
+            "tasiyici_firma": tasiyici_ad,
             "gemi_adi": siparis["gemi_adi"],
             "sefer_no": siparis["sefer_no"],
             "konsimento_no": siparis["konsimento_no"],
-            "tasiyici_takip_url": siparis["tasiyici_takip_url"],
+            "tasiyici_takip_url": tasiyici_url,
             "marine_traffic_url": marine_traffic_url,
-        } if any([siparis["tasiyici_firma"], siparis["gemi_adi"], siparis["konsimento_no"]]) else None,
+        } if any([tasiyici_ad, siparis["gemi_adi"], siparis["konsimento_no"]]) else None,
         "gecmis": [
             {
                 "durum": g["durum"],
@@ -367,11 +405,18 @@ def admin_durum_guncelle(siparis_no: str, istek: DurumGuncelleIstek, authorizati
 
 
 class SevkiyatBilgisiIstek(BaseModel):
-    tasiyici_firma: str | None = None
+    tasiyici_key: str | None = None  # CARRIER_REGISTRY anahtarı, ör. "maersk" — biliniyorsa
+    tasiyici_firma: str | None = None  # kayıtlı taşıyıcı yoksa serbest metin
     gemi_adi: str | None = None
     sefer_no: str | None = None
     konsimento_no: str | None = None
-    tasiyici_takip_url: str | None = None
+    tasiyici_takip_url: str | None = None  # her zaman öncelikli — o sevkiyata özel gerçek link
+
+
+@router.get("/tasiyicilar")
+def tasiyici_listesi():
+    """Kayıtlı (doğrulanmış) taşıyıcı listesi — admin formundaki seçim kutusu için."""
+    return [{"key": k, "ad": v["ad"], "deeplink_var": "deeplink" in v} for k, v in CARRIER_REGISTRY.items()]
 
 
 @router.post("/admin/siparis/{siparis_no}/sevkiyat")
@@ -381,13 +426,16 @@ def admin_sevkiyat_guncelle(siparis_no: str, istek: SevkiyatBilgisiIstek, author
     tarafından o sevkiyat için gerçekten alınan linktir; sistem hiçbir zaman
     taşıyıcıya özel bir takip URL'i TAHMİN ETMEZ (yanlış/kırık link riski)."""
     conn, _ = _admin_dogrula(authorization)
+    if istek.tasiyici_key and istek.tasiyici_key not in CARRIER_REGISTRY:
+        raise HTTPException(status_code=400, detail="Bilinmeyen taşıyıcı anahtarı")
     siparis = conn.execute("SELECT id FROM tk_siparisler WHERE siparis_no = ?", (siparis_no,)).fetchone()
     if not siparis:
         raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
+    tasiyici_firma = istek.tasiyici_firma or (CARRIER_REGISTRY[istek.tasiyici_key]["ad"] if istek.tasiyici_key else None)
     conn.execute(
-        """UPDATE tk_siparisler SET tasiyici_firma = ?, gemi_adi = ?, sefer_no = ?,
+        """UPDATE tk_siparisler SET tasiyici_key = ?, tasiyici_firma = ?, gemi_adi = ?, sefer_no = ?,
            konsimento_no = ?, tasiyici_takip_url = ?, guncellenme = now() WHERE id = ?""",
-        (istek.tasiyici_firma, istek.gemi_adi, istek.sefer_no, istek.konsimento_no,
+        (istek.tasiyici_key, tasiyici_firma, istek.gemi_adi, istek.sefer_no, istek.konsimento_no,
          istek.tasiyici_takip_url, siparis["id"]),
     )
     conn._conn.commit()
