@@ -16,14 +16,31 @@ DB'den oturum sorgulamak yeterince hızlı).
 import hashlib
 import os
 import secrets
+import time
+from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, HTTPException, Header, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, Header, Request, UploadFile, File, Form
 from pydantic import BaseModel
 
 from src.db import db
 
 router = APIRouter(prefix="/api/tk")
+
+# Basit bellek-içi rate limiter — giriş/RFQ gibi kaba kuvvet denemesine açık
+# uçlarda IP başına istek sayısını sınırlar. Redis/harici servis gerektirmez;
+# tek sunuculu bu sistem için yeterli. Süreç yeniden başlayınca sıfırlanır,
+# bu kabul edilebilir (kalıcı bir ban listesi değil, sadece deneme frenleme).
+_rate_gecmisi: dict[str, list[float]] = defaultdict(list)
+
+
+def _rate_sinirla(anahtar: str, limit: int = 10, pencere_sn: int = 60):
+    simdi = time.time()
+    gecmis = _rate_gecmisi[anahtar]
+    gecmis[:] = [t for t in gecmis if simdi - t < pencere_sn]
+    if len(gecmis) >= limit:
+        raise HTTPException(status_code=429, detail="Çok fazla deneme yapıldı, lütfen biraz sonra tekrar deneyin.")
+    gecmis.append(simdi)
 
 # Belgeler (konşimento, fatura vb.) sunucunun yerel diskinde saklanıyor —
 # ayrı bir dosya depolama servisi (S3 vb.) bu aşamada gereksiz karmaşıklık.
@@ -134,11 +151,20 @@ class RfqIstek(BaseModel):
 
 
 @router.post("/rfq")
-def rfq_gonder(istek: RfqIstek):
+def rfq_gonder(istek: RfqIstek, request: Request):
     """Yeni talep formu — müşteri yoksa kayıt olur, siparişi oluşturulur."""
+    _rate_sinirla("rfq:" + request.client.host, limit=8, pencere_sn=300)
     conn = db()
     musteri = conn.execute("SELECT * FROM tk_musteriler WHERE email = ?", (istek.email,)).fetchone()
     if musteri:
+        # Güvenlik: e-posta zaten kayıtlıysa şifre doğrulanmadan o hesaba oturum
+        # AÇILMAZ — aksi hâlde herkes başkasının e-postasıyla RFQ gönderip
+        # o müşterinin mevcut siparişlerine erişebilirdi (hesap ele geçirme).
+        if not _sifre_dogrula(istek.sifre, musteri["sifre_hash"]):
+            raise HTTPException(
+                status_code=409,
+                detail="Bu e-posta zaten kayıtlı. Devam etmek için mevcut şifrenizle giriş yapın.",
+            )
         musteri_id = musteri["id"]
     else:
         conn.execute(
@@ -171,7 +197,8 @@ class GirisIstek(BaseModel):
 
 
 @router.post("/giris")
-def musteri_giris(istek: GirisIstek):
+def musteri_giris(istek: GirisIstek, request: Request):
+    _rate_sinirla("giris:" + request.client.host, limit=10, pencere_sn=60)
     conn = db()
     musteri = conn.execute("SELECT * FROM tk_musteriler WHERE email = ?", (istek.email,)).fetchone()
     if not musteri or not _sifre_dogrula(istek.sifre, musteri["sifre_hash"]):
@@ -257,7 +284,8 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
 # ==================== ADMIN TARAFI ====================
 
 @router.post("/admin/giris")
-def admin_giris(istek: GirisIstek):
+def admin_giris(istek: GirisIstek, request: Request):
+    _rate_sinirla("admin_giris:" + request.client.host, limit=10, pencere_sn=60)
     conn = db()
     admin = conn.execute("SELECT * FROM tk_admin WHERE email = ?", (istek.email,)).fetchone()
     if not admin or not _sifre_dogrula(istek.sifre, admin["sifre_hash"]):

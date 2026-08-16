@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232f6f63%22/><text x=%2216%22 y=%2222%22 font-family=%22Georgia,serif%22 font-size=%2216%22 font-weight=%22700%22 fill=%22white%22 text-anchor=%22middle%22>CT</text></svg>">
 <title>Sipariş Takip — Çin Tedarik Ağı</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -114,22 +115,60 @@
   .siparis-kart h3{ font-family:var(--font-display); font-weight:700; font-size:17px; margin:6px 0 10px; letter-spacing:-.005em; }
   .pill{ display:inline-block; font-family:var(--font-body); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:4px 10px; border-radius:20px; background:color-mix(in srgb, var(--accent2) 12%, transparent); color:var(--accent2-ink); border:1px solid color-mix(in srgb, var(--accent2) 30%, transparent); }
   .back{ background:none; border:none; color:var(--text-muted); font-size:13.5px; cursor:pointer; margin-bottom:18px; padding:0; font-weight:600; }
-  .stepper{ margin-top:4px; }
-  .step{ display:grid; grid-template-columns:36px 1fr; gap:16px; position:relative; padding-bottom:24px; }
-  .step:last-child{ padding-bottom:0; }
-  .step .marker{ width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-code); font-weight:700; font-size:13px; position:relative; z-index:1; background:var(--border); color:var(--text-muted); }
-  .step.done .marker{ background:var(--accent2); color:#fff; }
-  .step.current .marker{ background:var(--accent); color:#fff; box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent); }
-  .step:not(:last-child)::before{ content:""; position:absolute; left:17px; top:36px; bottom:0; width:2px; background:var(--border); }
-  .step.done:not(:last-child)::before{ background:var(--accent2); }
-  .step .content h4{ font-family:var(--font-display); font-weight:600; font-size:15.5px; margin:0 0 4px; }
-  .step .content p{ font-size:13px; color:var(--text-muted); margin:0; }
-  .step .content .tarih{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); margin-top:4px; }
-  .belge-item{ display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:var(--bg-alt); border-radius:6px; margin-bottom:8px; }
-  .belge-item .ad{ font-size:14px; font-weight:600; }
-  .belge-item .tip{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); }
-  .belge-item a{ color:var(--accent2-ink); font-size:13px; font-weight:600; text-decoration:none; }
   .siparis-no-tag{ font-family:var(--font-code); font-variant-numeric:tabular-nums; font-weight:600; font-size:13px; color:var(--accent-ink); letter-spacing:.02em; margin-bottom:6px; }
+
+  /* ================= Sipariş detay: özet kartı ================= */
+  .ozet-card{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:26px 28px; margin-bottom:22px; }
+  .ozet-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:18px; }
+  .ozet-top h2{ font-size:22px; margin:2px 0 0; }
+  .durum-pill{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:6px 13px; border-radius:20px; background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent-ink); border:1px solid color-mix(in srgb, var(--accent) 32%, transparent); white-space:nowrap; }
+  .ozet-meta{ display:flex; gap:28px; flex-wrap:wrap; font-size:13.5px; color:var(--text-muted); margin-bottom:20px; }
+  .ozet-meta b{ display:block; color:var(--text); font-family:var(--font-code); font-size:14px; margin-top:2px; font-weight:600; }
+  .ilerleme-bar-wrap{ display:flex; align-items:center; gap:12px; }
+  .ilerleme-bar{ flex:1; height:8px; border-radius:6px; background:var(--bg-alt); overflow:hidden; }
+  .ilerleme-bar .fill{ height:100%; background:linear-gradient(90deg, var(--accent2), var(--accent)); border-radius:6px; transition:width .3s; }
+  .ilerleme-txt{ font-family:var(--font-code); font-size:12px; color:var(--text-muted); white-space:nowrap; }
+
+  /* ================= Tabs ================= */
+  .tabs{ display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:22px; }
+  .tab-btn{ background:none; border:none; padding:11px 4px; margin-right:24px; font-family:var(--font-body); font-weight:700; font-size:14px; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab-btn.active{ color:var(--text); border-bottom-color:var(--accent); }
+  .tab-btn .cnt{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); margin-left:4px; }
+
+  /* ================= Faz akordeonu ================= */
+  .faz-list{ display:flex; flex-direction:column; gap:10px; }
+  .faz{ background:var(--surface); border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+  .faz.current{ border-color:var(--accent); }
+  .faz-head{ display:flex; align-items:center; gap:14px; padding:16px 18px; cursor:pointer; user-select:none; }
+  .faz-head:hover{ background:var(--bg-alt); }
+  .faz-num{ width:30px; height:30px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; font-family:var(--font-code); font-weight:700; font-size:12.5px; background:var(--border); color:var(--text-muted); }
+  .faz.done .faz-num{ background:var(--accent2); color:#fff; }
+  .faz.current .faz-num{ background:var(--accent); color:#fff; }
+  .faz-title{ flex:1; min-width:0; }
+  .faz-title .ad{ font-family:var(--font-display); font-weight:600; font-size:15.5px; }
+  .faz-title .alt{ font-size:12.5px; color:var(--text-muted); margin-top:2px; }
+  .faz-badge{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); white-space:nowrap; }
+  .faz.done .faz-badge{ color:var(--accent2-ink); }
+  .faz.current .faz-badge{ color:var(--accent-ink); font-weight:600; }
+  .faz-chev{ color:var(--text-muted); font-size:12px; transition:transform .15s; flex:none; }
+  .faz.open .faz-chev{ transform:rotate(90deg); }
+  .faz-body{ display:none; padding:2px 18px 18px 62px; border-top:1px solid var(--border); }
+  .faz.open .faz-body{ display:block; padding-top:14px; }
+  .mini-step{ display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); align-items:baseline; }
+  .mini-step:last-child{ border-bottom:none; }
+  .mini-step .ico{ width:16px; flex:none; font-size:12px; color:var(--text-muted); }
+  .mini-step.done .ico{ color:var(--accent2-ink); }
+  .mini-step.current .ico{ color:var(--accent-ink); }
+  .mini-step .body{ flex:1; min-width:0; }
+  .mini-step .ad{ font-size:14px; font-weight:600; }
+  .mini-step.pending .ad{ color:var(--text-muted); font-weight:500; }
+  .mini-step .not{ font-size:12.5px; color:var(--text-muted); margin-top:2px; }
+  .mini-step .tarih{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); flex:none; white-space:nowrap; }
+
+  .belge-item{ display:flex; justify-content:space-between; align-items:center; padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:8px; margin-bottom:10px; }
+  .belge-item .ad{ font-size:14px; font-weight:600; }
+  .belge-item .tip{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); margin-top:2px; }
+  .belge-item a{ color:var(--accent2-ink); font-size:13px; font-weight:700; text-decoration:none; }
 </style>
 </head>
 <body>
@@ -145,8 +184,9 @@
 const API = '';
 let token = localStorage.getItem('tk_token');
 let musteriAdi = localStorage.getItem('tk_ad') || '';
-let view = token ? 'liste' : (location.hash === '#rfq' ? 'rfq' : 'giris'); // giris | rfq | liste | detay
-let aktifSiparisNo = null;
+const _siparisParam = new URLSearchParams(location.search).get('siparis');
+let view = token ? (_siparisParam ? 'detay' : 'liste') : (location.hash === '#rfq' ? 'rfq' : 'giris'); // giris | rfq | liste | detay
+let aktifSiparisNo = _siparisParam || null;
 
 function render() {
   const app = document.getElementById('app');
@@ -316,6 +356,22 @@ async function siparisListesiYukle() {
   } catch (e) { main.innerHTML = '<div class="panel err">Yüklenemedi, bağlantınızı kontrol edin.</div>'; }
 }
 
+// Süreç, kullanıcıya tek düz liste yerine altı mantıksal FAZ hâlinde gösterilir
+// (RFQ→teklif, numune, üretim, sevkiyat, gümrük, teslimat — sunumun Bölüm 07-08
+// ayrımıyla aynı). Tamamlanan/gelecek fazlar özet satıra sıkışır, mevcut faz
+// otomatik açık gelir — 19 adımı tek uzun sütun hâlinde dökmek yerine.
+const FAZLAR = [
+  { ad: 'Talep &amp; Teklif', kodlar: ['talep_alindi','fabrika_gorusuluyor','teklif_hazir'] },
+  { ad: 'Numune', kodlar: ['numune_odeme_bekleniyor','numune_uretiliyor','numune_kalite_kontrolde','numune_onayinizi_bekliyor'] },
+  { ad: 'Üretim', kodlar: ['uretim_odeme_bekleniyor','uretimde','uretim_kalite_kontrolde'] },
+  { ad: 'Sevkiyat', kodlar: ['sevkiyat_belgeleri_hazirlaniyor','konteyner','yukleme_odeme_bekleniyor','gemide'] },
+  { ad: 'Gümrük', kodlar: ['gumruk_beyanname','gumruk_vergi_odeme','gumruk_muayene'] },
+  { ad: 'Teslimat', kodlar: ['teslimat_yolda','teslim_edildi'] },
+];
+let detayTab = 'surec';
+let acikFazIndex = 0;
+let detayVeriCache = null;
+
 async function siparisDetayYukle(siparisNo) {
   const main = document.querySelector('.main');
   try {
@@ -323,9 +379,10 @@ async function siparisDetayYukle(siparisNo) {
     if (res.status === 401) { cikisYap(); return; }
     if (!res.ok) { main.innerHTML = '<div class="panel err">Sipariş bulunamadı.</div>'; return; }
     const d = await res.json();
+    detayVeriCache = d;
 
     // Özel durum (revizyon/beklemede/iptal) ana akışta bir "adım" değil, üstüne
-    // binen bir durum — stepper'ı en son ulaşılan LİNEER adıma göre çiziyoruz,
+    // binen bir durum — ilerlemeyi en son ulaşılan LİNEER adıma göre hesaplıyoruz,
     // özel durumu ayrı bir uyarı bandında gösteriyoruz.
     const lineerKodlar = new Set(d.durum_sirasi.map(s => s.kod));
     let sonLineerDurum = null;
@@ -333,55 +390,147 @@ async function siparisDetayYukle(siparisNo) {
       if (lineerKodlar.has(d.gecmis[i].durum)) { sonLineerDurum = d.gecmis[i].durum; break; }
     }
     const suankiIndex = d.durum_sirasi.findIndex(s => s.kod === sonLineerDurum);
+    acikFazIndex = FAZLAR.findIndex(f => f.kodlar.includes(sonLineerDurum));
+    if (acikFazIndex < 0) acikFazIndex = 0;
 
-    let ozelBanner = '';
-    if (d.ozel_durum_mu) {
-      const ozelBilgi = (d.ozel_durumlar || []).find(o => o.kod === d.durum);
-      const sonKayit = d.gecmis[d.gecmis.length - 1];
-      const renk = d.durum === 'iptal_edildi' ? 'var(--signal)' : 'var(--accent)';
-      const bg = d.durum === 'iptal_edildi' ? 'color-mix(in srgb, var(--signal) 10%, transparent)' : 'color-mix(in srgb, var(--accent) 10%, transparent)';
-      ozelBanner = `<div class="panel" style="border-color:${renk}; background:${bg};">
-        <div style="font-weight:700; font-size:15px; color:${renk};">⚠ ${ozelBilgi ? ozelBilgi.ad : d.durum}</div>
-        ${sonKayit && sonKayit.not_metni ? `<p style="margin:6px 0 0; color:var(--text-muted); font-size:14px;">${sonKayit.not_metni}</p>` : ''}
-      </div>`;
-    }
+    main.innerHTML = detaySayfasi(d, suankiIndex);
+  } catch (e) { main.innerHTML = '<div class="panel err">Yüklenemedi.</div>'; }
+}
 
-    let stepperHtml = '<div class="stepper">';
-    d.durum_sirasi.forEach((s, i) => {
-      const gecmisKaydi = d.gecmis.find(g => g.durum === s.kod);
-      const cls = i < suankiIndex ? 'done' : (i === suankiIndex ? 'done current' : '');
-      stepperHtml += `<div class="step ${cls}">
-        <div class="marker">${i < suankiIndex || i === suankiIndex ? '✓' : (i+1)}</div>
-        <div class="content">
-          <h4>${s.ad}</h4>
-          ${gecmisKaydi ? `<p>${gecmisKaydi.not_metni || ''}</p><div class="tarih">${new Date(gecmisKaydi.tarih).toLocaleString('tr-TR')}</div>` : `<p style="opacity:.5">Henüz gelmedi</p>`}
+function detaySayfasi(d, suankiIndex) {
+  const toplam = d.durum_sirasi.length;
+  const tamamlanan = Math.max(suankiIndex, 0) + (suankiIndex >= 0 ? 1 : 0);
+  const yuzde = d.durum === 'teslim_edildi' ? 100 : Math.round((tamamlanan / toplam) * 100);
+
+  let ozelBanner = '';
+  if (d.ozel_durum_mu) {
+    const ozelBilgi = (d.ozel_durumlar || []).find(o => o.kod === d.durum);
+    const sonKayit = d.gecmis[d.gecmis.length - 1];
+    const renk = d.durum === 'iptal_edildi' ? 'var(--signal)' : 'var(--accent)';
+    const bg = d.durum === 'iptal_edildi' ? 'color-mix(in srgb, var(--signal) 10%, transparent)' : 'color-mix(in srgb, var(--accent) 10%, transparent)';
+    ozelBanner = `<div class="panel" style="border-color:${renk}; background:${bg}; padding:18px 22px; margin-bottom:20px;">
+      <div style="font-weight:700; font-size:15px; color:${renk};">⚠ ${ozelBilgi ? ozelBilgi.ad : d.durum}</div>
+      ${sonKayit && sonKayit.not_metni ? `<p style="margin:6px 0 0; color:var(--text-muted); font-size:14px;">${sonKayit.not_metni}</p>` : ''}
+    </div>`;
+  }
+
+  const suankiAd = suankiIndex >= 0 ? d.durum_sirasi[suankiIndex].ad : 'Talep Alındı';
+
+  return `
+    <button class="back" onclick="view='liste'; render();">← Siparişlerime dön</button>
+    <div class="ozet-card">
+      <div class="ozet-top">
+        <div>
+          <div class="siparis-no-tag">${d.siparis_no}</div>
+          <h2>${d.urun_aciklamasi}</h2>
         </div>
+        <span class="durum-pill">${d.ozel_durum_mu ? d.durum_adi : suankiAd}</span>
+      </div>
+      <div class="ozet-meta">
+        <div>Miktar<b>${d.miktar || '—'}</b></div>
+        <div>Hedef fiyat<b>${d.hedef_fiyat || '—'}</b></div>
+        <div>Toplam aşama<b>${toplam}</b></div>
+      </div>
+      <div class="ilerleme-bar-wrap">
+        <div class="ilerleme-bar"><div class="fill" style="width:${yuzde}%;"></div></div>
+        <div class="ilerleme-txt">${yuzde}%</div>
+      </div>
+    </div>
+    ${ozelBanner}
+    <div class="tabs">
+      <button class="tab-btn ${detayTab==='surec'?'active':''}" onclick="detayTab='surec'; rerenderDetay();">Süreç Takibi</button>
+      <button class="tab-btn ${detayTab==='belgeler'?'active':''}" onclick="detayTab='belgeler'; rerenderDetay();">Belgeler <span class="cnt">${d.belgeler.length}</span></button>
+    </div>
+    <div id="detayIcerik">${detayTab === 'surec' ? fazAkordeonu(d, suankiIndex) : belgelerListesi(d)}</div>
+  `;
+}
+
+function rerenderDetay() {
+  if (!detayVeriCache) return;
+  const d = detayVeriCache;
+  const lineerKodlar = new Set(d.durum_sirasi.map(s => s.kod));
+  let sonLineerDurum = null;
+  for (let i = d.gecmis.length - 1; i >= 0; i--) {
+    if (lineerKodlar.has(d.gecmis[i].durum)) { sonLineerDurum = d.gecmis[i].durum; break; }
+  }
+  const suankiIndex = d.durum_sirasi.findIndex(s => s.kod === sonLineerDurum);
+  document.querySelector('.main').innerHTML = detaySayfasi(d, suankiIndex);
+}
+
+function fazToggle(i) {
+  acikFazIndex = (acikFazIndex === i) ? -1 : i;
+  document.getElementById('detayIcerik').innerHTML = fazAkordeonu(detayVeriCache, hesaplaSuankiIndex(detayVeriCache));
+}
+
+function hesaplaSuankiIndex(d) {
+  const lineerKodlar = new Set(d.durum_sirasi.map(s => s.kod));
+  let sonLineerDurum = null;
+  for (let i = d.gecmis.length - 1; i >= 0; i--) {
+    if (lineerKodlar.has(d.gecmis[i].durum)) { sonLineerDurum = d.gecmis[i].durum; break; }
+  }
+  return d.durum_sirasi.findIndex(s => s.kod === sonLineerDurum);
+}
+
+function fazAkordeonu(d, suankiIndex) {
+  const suankiKod = suankiIndex >= 0 ? d.durum_sirasi[suankiIndex].kod : null;
+  let html = '<div class="faz-list">';
+  FAZLAR.forEach((faz, fi) => {
+    const adimlar = faz.kodlar.map(kod => d.durum_sirasi.find(s => s.kod === kod)).filter(Boolean);
+    const fazIndeksleri = adimlar.map(a => d.durum_sirasi.findIndex(s => s.kod === a.kod));
+    const fazBaslangic = Math.min(...fazIndeksleri);
+    const fazBitis = Math.max(...fazIndeksleri);
+    const durumCls = fazBitis <= suankiIndex ? 'done' : (fazBaslangic <= suankiIndex && suankiIndex <= fazBitis ? 'current' : '');
+    const tamamlananSayi = adimlar.filter(a => d.durum_sirasi.findIndex(s => s.kod === a.kod) <= suankiIndex).length;
+    const acik = acikFazIndex === fi;
+    const badge = durumCls === 'done' ? `✓ Tamamlandı (${adimlar.length}/${adimlar.length})`
+      : durumCls === 'current' ? `${tamamlananSayi}/${adimlar.length} · sürüyor`
+      : `${adimlar.length} aşama · başlamadı`;
+
+    let miniSteps = '';
+    adimlar.forEach(s => {
+      const idx = d.durum_sirasi.findIndex(x => x.kod === s.kod);
+      const gecmisKaydi = d.gecmis.find(g => g.durum === s.kod);
+      const cls = idx < suankiIndex ? 'done' : (idx === suankiIndex ? 'current' : 'pending');
+      const ico = cls === 'pending' ? '○' : (cls === 'current' ? '●' : '✓');
+      miniSteps += `<div class="mini-step ${cls}">
+        <div class="ico">${ico}</div>
+        <div class="body">
+          <div class="ad">${s.ad}</div>
+          ${gecmisKaydi && gecmisKaydi.not_metni ? `<div class="not">${gecmisKaydi.not_metni}</div>` : ''}
+        </div>
+        ${gecmisKaydi ? `<div class="tarih">${new Date(gecmisKaydi.tarih).toLocaleDateString('tr-TR')}</div>` : ''}
       </div>`;
     });
-    stepperHtml += '</div>';
 
-    let belgeHtml = '';
-    if (d.belgeler.length) {
-      belgeHtml = '<div class="panel"><h2 style="font-size:18px;">Belgeler</h2>';
-      d.belgeler.forEach(b => {
-        belgeHtml += `<div class="belge-item">
-          <div><div class="ad">${b.dosya_adi}</div><div class="tip">${b.belge_tipi}</div></div>
-          <a href="${b.dosya_url}" target="_blank" rel="noopener">İndir →</a>
-        </div>`;
-      });
-      belgeHtml += '</div>';
-    }
+    html += `<div class="faz ${durumCls} ${acik ? 'open' : ''}">
+      <div class="faz-head" onclick="fazToggle(${fi})">
+        <div class="faz-num">${durumCls === 'done' ? '✓' : (fi+1)}</div>
+        <div class="faz-title">
+          <div class="ad">${faz.ad}</div>
+          <div class="alt">${adimlar.length} aşama</div>
+        </div>
+        <div class="faz-badge">${badge}</div>
+        <div class="faz-chev">▸</div>
+      </div>
+      <div class="faz-body">${miniSteps}</div>
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
 
-    main.innerHTML = `
-      <button class="back" onclick="view='liste'; render();">← Siparişlerime dön</button>
-      <div class="siparis-no-tag">${d.siparis_no}</div>
-      <h2>${d.urun_aciklamasi}</h2>
-      <p style="color:var(--text-muted); margin:4px 0 24px;">Miktar: ${d.miktar || '—'} ${d.hedef_fiyat ? '· Hedef fiyat: ' + d.hedef_fiyat : ''}</p>
-      ${ozelBanner}
-      <div class="panel">${stepperHtml}</div>
-      ${belgeHtml}
-    `;
-  } catch (e) { main.innerHTML = '<div class="panel err">Yüklenemedi.</div>'; }
+function belgelerListesi(d) {
+  if (!d.belgeler.length) {
+    return '<div class="empty-state">Henüz belge yüklenmedi. Süreç ilerledikçe konşimento, fatura ve diğer belgeler burada görünecek.</div>';
+  }
+  let html = '';
+  d.belgeler.forEach(b => {
+    html += `<div class="belge-item">
+      <div><div class="ad">${b.dosya_adi}</div><div class="tip">${b.belge_tipi}</div></div>
+      <a href="${b.dosya_url}" target="_blank" rel="noopener">İndir →</a>
+    </div>`;
+  });
+  return html;
 }
 
 render();
