@@ -3,32 +3,32 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232f6f63%22/><text x=%2216%22 y=%2222%22 font-family=%22Georgia,serif%22 font-size=%2216%22 font-weight=%22700%22 fill=%22white%22 text-anchor=%22middle%22>CT</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%230f3d63%22/><text x=%2216%22 y=%2222%22 font-family=%22Georgia,serif%22 font-size=%2216%22 font-weight=%22700%22 fill=%22white%22 text-anchor=%22middle%22>CT</text></svg>">
 <title>Sipariş Takip — Çin Tedarik Ağı</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    /* Marka paleti — sunumla (cin-tedarik-sunum.html) birebir aynı: sıcak krem + pirinç/çam yeşili vurgu */
-    --bg:#f6f3ec; --bg-alt:#eee9dd; --surface:#ffffff; --text:#211d16; --text-muted:#6b6152;
-    --accent:#a97230; --accent-ink:#7a5322; --accent2:#2f6f63; --accent2-ink:#1e4a42;
-    --signal:#b6452e; --signal-ink:#8f3423; --border:#ded6c3;
+    /* Marka paleti — ithalat/ihracat/lojistik sektörünün tanıdık dili: koyu lacivert + amber/sarı vurgu (TransitFlow ve benzeri profesyonel lojistik temalarından esinlenildi) */
+    --bg:#f5f6f8; --bg-alt:#eaedf2; --surface:#ffffff; --text:#0b1f38; --text-muted:#5b6b80;
+    --accent:#d99a2b; --accent-ink:#a8721a; --accent2:#0f3d63; --accent2-ink:#0a2c47;
+    --signal:#c0392b; --signal-ink:#96271b; --border:#dbe0e8;
     --font-display: "Fraunces","Iowan Old Style",Georgia,ui-serif,serif;
     --font-body: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --font-code: "IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#12151c; --bg-alt:#1a1f2b; --surface:#1c2230; --text:#eae6da; --text-muted:#9aa0ac;
-      --accent:#d9a054; --accent-ink:#f0c07d; --accent2:#4fa593; --accent2-ink:#7ccabd;
-      --signal:#e2795f; --signal-ink:#f0a58e; --border:#2a3140;
+      --bg:#0b1420; --bg-alt:#101c2c; --surface:#132132; --text:#e8edf3; --text-muted:#93a3b8;
+      --accent:#e8b355; --accent-ink:#f3c878; --accent2:#4f8fc0; --accent2-ink:#7ab3dd;
+      --signal:#e2725f; --signal-ink:#f0a08e; --border:#233246;
     }
   }
   :root[data-theme="dark"]{
-    --bg:#12151c; --bg-alt:#1a1f2b; --surface:#1c2230; --text:#eae6da; --text-muted:#9aa0ac;
-    --accent:#d9a054; --accent-ink:#f0c07d; --accent2:#4fa593; --accent2-ink:#7ccabd;
-    --signal:#e2795f; --signal-ink:#f0a58e; --border:#2a3140;
+    --bg:#0b1420; --bg-alt:#101c2c; --surface:#132132; --text:#e8edf3; --text-muted:#93a3b8;
+    --accent:#e8b355; --accent-ink:#f3c878; --accent2:#4f8fc0; --accent2-ink:#7ab3dd;
+    --signal:#e2725f; --signal-ink:#f0a08e; --border:#233246;
   }
   *{box-sizing:border-box;}
   body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.5; overflow-x:hidden; }
