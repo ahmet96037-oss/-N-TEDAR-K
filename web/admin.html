@@ -254,12 +254,41 @@ async function detayYukle(siparisNo) {
   const d = await res.json();
   let durumOpts = '<optgroup label="Ana Akış">' + DURUMLAR.map(([k,a]) => `<option value="${k}" ${k===d.durum?'selected':''}>${a}</option>`).join('') + '</optgroup>'
     + '<optgroup label="Özel Durumlar">' + OZEL_DURUMLAR.map(([k,a]) => `<option value="${k}" ${k===d.durum?'selected':''}>${a}</option>`).join('') + '</optgroup>';
+
+  // Ana akışta sıradaki aşama — admin tek tıkla ilerletebilsin diye. Özel bir
+  // durumdaysa (ör. beklemede) veya zaten son aşamadaysa "ilerlet" butonu
+  // gösterilmiyor, sadece aşağıdaki serbest seçim kutusu kullanılıyor.
+  const suankiIdx = DURUMLAR.findIndex(([k]) => k === d.durum);
+  const siradaki = (suankiIdx >= 0 && suankiIdx < DURUMLAR.length - 1) ? DURUMLAR[suankiIdx + 1] : null;
+  const ilerlemeYuzde = suankiIdx >= 0 ? Math.round(((suankiIdx + 1) / DURUMLAR.length) * 100) : null;
+
   main.innerHTML = `
     <button class="back" onclick="view='liste'; render();">← Listeye dön</button>
     <div class="panel">
-      <h2>${d.siparis_no}</h2>
-      <div class="meta">${d.urun_aciklamasi} · ${d.miktar||'—'}</div>
-      <label>Durum güncelle</label>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+        <div>
+          <h2>${d.siparis_no}</h2>
+          <div class="meta" style="margin-bottom:0;">${d.urun_aciklamasi} · ${d.miktar||'—'}</div>
+        </div>
+        <span class="pill" style="font-size:12.5px; padding:6px 14px;">${d.durum_adi}</span>
+      </div>
+      ${ilerlemeYuzde !== null ? `
+        <div style="height:6px; border-radius:6px; background:var(--bg-alt); overflow:hidden; margin:16px 0 6px;">
+          <div style="height:100%; width:${ilerlemeYuzde}%; background:linear-gradient(90deg, var(--accent2), var(--accent));"></div>
+        </div>
+        <div style="font-family:var(--font-code); font-size:11.5px; color:var(--text-muted);">${suankiIdx+1}/${DURUMLAR.length} aşama · %${ilerlemeYuzde}</div>
+      ` : ''}
+      ${siradaki ? `
+        <div style="margin-top:18px; padding:16px; background:var(--bg-alt); border-radius:8px; display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap;">
+          <div><div style="font-size:11.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em;">Sıradaki aşama</div><div style="font-weight:700; font-size:15px; margin-top:2px;">${siradaki[1]}</div></div>
+          <button class="primary" style="width:auto;" onclick="ilerlet('${d.siparis_no}','${siradaki[0]}')">Bu Aşamaya İlerlet →</button>
+        </div>
+      ` : suankiIdx === DURUMLAR.length - 1 ? `<p style="color:var(--accent2-ink); font-weight:600; font-size:13.5px; margin-top:16px;">✓ Sipariş son aşamada (Teslim Edildi).</p>` : ''}
+    </div>
+    <div class="panel">
+      <h2 style="font-size:16px;">Durumu Elle Ayarla</h2>
+      <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Bir aşama geri almak, atlamak veya özel bir duruma (beklemede, iptal, revizyon) almak için kullanın.</p>
+      <label>Durum</label>
       <select id="durumSec">${durumOpts}</select>
       <label>Not (opsiyonel)</label>
       <textarea id="durumNot" rows="2"></textarea>
@@ -267,7 +296,7 @@ async function detayYukle(siparisNo) {
     </div>
     <div class="panel">
       <h2>Sevkiyat &amp; Gemi Takibi</h2>
-      <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Bu bilgiler girilince müşteri panelinde Marine Traffic araması ve taşıyıcı takip linki otomatik görünür.</p>
+      <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Bu bilgiler girilince müşteri panelinde taşıyıcı takip linki ve VesselFinder araması otomatik görünür.</p>
       <div class="row2">
         <div>
           <label>Taşıyıcı (kayıtlı — konşimento no otomatik dolar)</label>
@@ -293,10 +322,23 @@ async function detayYukle(siparisNo) {
     </div>
     <div class="panel">
       <h2>Belge Ekle</h2>
+      <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Sürecin herhangi bir aşamasında PDF veya JPG olarak belge ekleyebilirsiniz — konşimento, fatura, çeki listesi, numune/QC raporu, gümrük beyannamesi vb.</p>
       <div class="row2">
-        <div><label>Belge tipi</label><input id="belgeTipi" placeholder="ör. Konşimento"></div>
-        <div><label>Dosya</label><input id="belgeDosya" type="file"></div>
+        <div>
+          <label>Belge tipi</label>
+          <select id="belgeTipi" onchange="document.getElementById('belgeTipiDiger').style.display = this.value==='diger' ? 'block' : 'none';">
+            <option value="Konşimento (B/L)">Konşimento (B/L)</option>
+            <option value="Ticari Fatura">Ticari Fatura</option>
+            <option value="Çeki Listesi">Çeki Listesi (Packing List)</option>
+            <option value="Menşe Şehadetnamesi">Menşe Şehadetnamesi</option>
+            <option value="Numune / QC Raporu">Numune / QC Raporu</option>
+            <option value="Gümrük Beyannamesi">Gümrük Beyannamesi</option>
+            <option value="diger">Diğer</option>
+          </select>
+        </div>
+        <div><label>Dosya (PDF veya JPG)</label><input id="belgeDosya" type="file" accept=".pdf,.jpg,.jpeg,.png"></div>
       </div>
+      <div id="belgeTipiDiger" style="display:none;"><label>Belge tipi (serbest metin)</label><input id="belgeTipiOzel" placeholder="ör. Sigorta poliçesi"></div>
       <label>Açıklama (opsiyonel)</label><input id="belgeAciklama">
       <button class="primary" onclick="belgeEkle('${d.siparis_no}')" id="belgeEkleBtn">Belgeyi Yükle</button>
     </div>
@@ -328,6 +370,14 @@ async function sevkiyatGuncelle(siparisNo) {
   detayYukle(siparisNo);
 }
 
+async function ilerlet(siparisNo, durum) {
+  await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/durum', {
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body: JSON.stringify({durum, not_metni: null})
+  });
+  detayYukle(siparisNo);
+}
+
 async function durumGuncelle(siparisNo) {
   const durum = document.getElementById('durumSec').value;
   const not_metni = document.getElementById('durumNot').value.trim() || null;
@@ -339,7 +389,8 @@ async function durumGuncelle(siparisNo) {
 }
 
 async function belgeEkle(siparisNo) {
-  const belge_tipi = document.getElementById('belgeTipi').value.trim();
+  const secilenTip = document.getElementById('belgeTipi').value;
+  const belge_tipi = secilenTip === 'diger' ? document.getElementById('belgeTipiOzel').value.trim() : secilenTip;
   const dosyaInput = document.getElementById('belgeDosya');
   const dosya = dosyaInput.files[0];
   const aciklama = document.getElementById('belgeAciklama').value.trim() || null;
