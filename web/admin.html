@@ -256,6 +256,21 @@ async function detayYukle(siparisNo) {
       <button class="primary" onclick="durumGuncelle('${d.siparis_no}')">Durumu Kaydet</button>
     </div>
     <div class="panel">
+      <h2>Sevkiyat &amp; Gemi Takibi</h2>
+      <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Bu bilgiler girilince müşteri panelinde Marine Traffic araması ve taşıyıcı takip linki otomatik görünür.</p>
+      <div class="row2">
+        <div><label>Taşıyıcı firma</label><input id="sTasiyici" placeholder="ör. Maersk, MSC, CMA CGM" value="${d.sevkiyat?.tasiyici_firma || ''}"></div>
+        <div><label>Gemi adı</label><input id="sGemi" placeholder="ör. MSC ISTANBUL" value="${d.sevkiyat?.gemi_adi || ''}"></div>
+      </div>
+      <div class="row2">
+        <div><label>Sefer no (opsiyonel)</label><input id="sSefer" value="${d.sevkiyat?.sefer_no || ''}"></div>
+        <div><label>Konşimento no (B/L)</label><input id="sKonsimento" value="${d.sevkiyat?.konsimento_no || ''}"></div>
+      </div>
+      <label>Taşıyıcı takip linki (o sevkiyat için taşıyıcıdan aldığınız gerçek link — sistem tahmin etmez)</label>
+      <input id="sUrl" placeholder="https://www.maersk.com/tracking/..." value="${d.sevkiyat?.tasiyici_takip_url || ''}">
+      <button class="primary" onclick="sevkiyatGuncelle('${d.siparis_no}')">Sevkiyat Bilgisini Kaydet</button>
+    </div>
+    <div class="panel">
       <h2>Belge Ekle</h2>
       <div class="row2">
         <div><label>Belge tipi</label><input id="belgeTipi" placeholder="ör. Konşimento"></div>
@@ -273,6 +288,21 @@ async function detayYukle(siparisNo) {
       ${d.gecmis.map(g => `<div style="padding:8px 0; border-bottom:1px solid var(--border);"><b>${g.durum_adi}</b> — ${g.not_metni||''} <span style="color:var(--text-muted);font-size:12px;">(${new Date(g.tarih).toLocaleString('tr-TR')})</span></div>`).join('')}
     </div>
   `;
+}
+
+async function sevkiyatGuncelle(siparisNo) {
+  const body = {
+    tasiyici_firma: document.getElementById('sTasiyici').value.trim() || null,
+    gemi_adi: document.getElementById('sGemi').value.trim() || null,
+    sefer_no: document.getElementById('sSefer').value.trim() || null,
+    konsimento_no: document.getElementById('sKonsimento').value.trim() || null,
+    tasiyici_takip_url: document.getElementById('sUrl').value.trim() || null,
+  };
+  await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/sevkiyat', {
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body: JSON.stringify(body)
+  });
+  detayYukle(siparisNo);
 }
 
 async function durumGuncelle(siparisNo) {

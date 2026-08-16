@@ -248,6 +248,18 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
         (siparis["id"],),
     ).fetchall()
 
+    # Marine Traffic'in resmi/genel arama URL'i — gemi adına göre gerçek, çalışan
+    # bir arama sonucu açar (MMSI bilinmediği için doğrudan gemi sayfası değil,
+    # ama tahmini/uydurma bir link değil — Marine Traffic'in kendi arama uç
+    # noktası). Taşıyıcının (Maersk/MSC/CMA CGM vb.) KENDİ takip sayfası ise
+    # sevkiyata özel olduğu ve tahmin edilemeyeceği için admin tarafından o
+    # sevkiyat için gerçekten aldığı linki elle giriyor — uydurma bir URL
+    # deseni asla üretilmiyor.
+    marine_traffic_url = None
+    if siparis["gemi_adi"]:
+        from urllib.parse import quote
+        marine_traffic_url = f"https://www.marinetraffic.com/en/ais/index/search/all?keyword={quote(siparis['gemi_adi'])}"
+
     return {
         "siparis_no": siparis["siparis_no"],
         "urun_aciklamasi": siparis["urun_aciklamasi"],
@@ -258,6 +270,14 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
         "durum_sirasi": [{"kod": k, "ad": a} for k, a in DURUM_SIRASI],
         "ozel_durumlar": [{"kod": k, "ad": a} for k, a in OZEL_DURUMLAR],
         "ozel_durum_mu": siparis["durum"] in OZEL_ISIMLERI,
+        "sevkiyat": {
+            "tasiyici_firma": siparis["tasiyici_firma"],
+            "gemi_adi": siparis["gemi_adi"],
+            "sefer_no": siparis["sefer_no"],
+            "konsimento_no": siparis["konsimento_no"],
+            "tasiyici_takip_url": siparis["tasiyici_takip_url"],
+            "marine_traffic_url": marine_traffic_url,
+        } if any([siparis["tasiyici_firma"], siparis["gemi_adi"], siparis["konsimento_no"]]) else None,
         "gecmis": [
             {
                 "durum": g["durum"],
@@ -341,6 +361,34 @@ def admin_durum_guncelle(siparis_no: str, istek: DurumGuncelleIstek, authorizati
     conn.execute(
         "INSERT INTO tk_durum_gecmisi (siparis_id, durum, not_metni) VALUES (?, ?, ?)",
         (siparis["id"], istek.durum, istek.not_metni),
+    )
+    conn._conn.commit()
+    return {"ok": True}
+
+
+class SevkiyatBilgisiIstek(BaseModel):
+    tasiyici_firma: str | None = None
+    gemi_adi: str | None = None
+    sefer_no: str | None = None
+    konsimento_no: str | None = None
+    tasiyici_takip_url: str | None = None
+
+
+@router.post("/admin/siparis/{siparis_no}/sevkiyat")
+def admin_sevkiyat_guncelle(siparis_no: str, istek: SevkiyatBilgisiIstek, authorization: str = Header(None)):
+    """Taşıyıcı/gemi/konşimento bilgisi — müşteri panelinde Marine Traffic ve
+    taşıyıcı takip linklerinin gösterilebilmesi için. tasiyici_takip_url admin
+    tarafından o sevkiyat için gerçekten alınan linktir; sistem hiçbir zaman
+    taşıyıcıya özel bir takip URL'i TAHMİN ETMEZ (yanlış/kırık link riski)."""
+    conn, _ = _admin_dogrula(authorization)
+    siparis = conn.execute("SELECT id FROM tk_siparisler WHERE siparis_no = ?", (siparis_no,)).fetchone()
+    if not siparis:
+        raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
+    conn.execute(
+        """UPDATE tk_siparisler SET tasiyici_firma = ?, gemi_adi = ?, sefer_no = ?,
+           konsimento_no = ?, tasiyici_takip_url = ?, guncellenme = now() WHERE id = ?""",
+        (istek.tasiyici_firma, istek.gemi_adi, istek.sefer_no, istek.konsimento_no,
+         istek.tasiyici_takip_url, siparis["id"]),
     )
     conn._conn.commit()
     return {"ok": True}

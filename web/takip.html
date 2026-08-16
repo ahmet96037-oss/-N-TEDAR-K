@@ -109,12 +109,22 @@
   .panel{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:28px; margin-bottom:20px; }
   .empty-state{ background:var(--surface); border:1px dashed var(--border); border-radius:8px; padding:40px; text-align:center; color:var(--text-muted); }
 
-  .siparis-kart{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:20px; margin-bottom:12px; cursor:pointer; transition:border-color .15s, box-shadow .15s, transform .1s; }
-  .siparis-kart:hover{ border-color:var(--accent); box-shadow:0 6px 18px rgba(33,29,22,.07); transform:translateY(-1px); }
-  .siparis-kart .no{ font-family:var(--font-code); font-variant-numeric:tabular-nums; font-weight:600; font-size:12px; color:var(--accent-ink); letter-spacing:.02em; }
-  .siparis-kart h3{ font-family:var(--font-display); font-weight:700; font-size:17px; margin:6px 0 10px; letter-spacing:-.005em; }
-  .pill{ display:inline-block; font-family:var(--font-body); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:4px 10px; border-radius:20px; background:color-mix(in srgb, var(--accent2) 12%, transparent); color:var(--accent2-ink); border:1px solid color-mix(in srgb, var(--accent2) 30%, transparent); }
-  .back{ background:none; border:none; color:var(--text-muted); font-size:13.5px; cursor:pointer; margin-bottom:18px; padding:0; font-weight:600; }
+  /* Sipariş listesi — kutu-kutu kartlar yerine tek panel içinde satır satır
+     liste (tablo hissi): bilgi yoğunluğu daha yüksek, gerçek bir SaaS
+     panelindeki liste görünümüne daha yakın. */
+  .siparis-liste{ background:var(--surface); border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+  .siparis-satir{ display:flex; align-items:center; gap:16px; padding:16px 20px; cursor:pointer; border-bottom:1px solid var(--border); transition:background .1s; }
+  .siparis-satir:last-child{ border-bottom:none; }
+  .siparis-satir:hover{ background:var(--bg-alt); }
+  .siparis-satir .ico{ width:38px; height:38px; border-radius:8px; background:var(--bg-alt); display:flex; align-items:center; justify-content:center; font-size:16px; flex:none; }
+  .siparis-satir .info{ flex:1; min-width:0; }
+  .siparis-satir .no{ font-family:var(--font-code); font-variant-numeric:tabular-nums; font-size:11.5px; color:var(--text-muted); letter-spacing:.02em; }
+  .siparis-satir .ad{ font-weight:600; font-size:14.5px; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .siparis-satir .sag{ display:flex; align-items:center; gap:14px; flex:none; }
+  .siparis-satir .chev{ color:var(--text-muted); font-size:13px; }
+  .pill{ display:inline-block; font-family:var(--font-body); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; padding:4px 10px; border-radius:20px; background:color-mix(in srgb, var(--accent2) 12%, transparent); color:var(--accent2-ink); border:1px solid color-mix(in srgb, var(--accent2) 30%, transparent); white-space:nowrap; }
+  .back{ background:none; border:none; color:var(--text-muted); font-size:13.5px; cursor:pointer; margin-bottom:18px; padding:0; font-weight:600; display:inline-flex; align-items:center; gap:4px; }
+  .back:hover{ color:var(--text); }
   .siparis-no-tag{ font-family:var(--font-code); font-variant-numeric:tabular-nums; font-weight:600; font-size:13px; color:var(--accent-ink); letter-spacing:.02em; margin-bottom:6px; }
 
   /* ================= Sipariş detay: özet kartı ================= */
@@ -341,16 +351,24 @@ async function siparisListesiYukle() {
       html += `<div class="empty-state">Henüz siparişiniz yok.<br><button class="linklike" style="margin-top:10px;" onclick="view='rfq'; render();">İlk talebinizi oluşturun →</button></div>`;
     } else {
       const OZEL = new Set(['numune_revizyon_istendi','beklemede','iptal_edildi']);
+      html += '<div class="siparis-liste">';
       rows.forEach(r => {
         const ozelStil = r.durum === 'iptal_edildi'
           ? 'background:color-mix(in srgb, var(--signal) 14%, transparent); color:var(--signal-ink); border-color:color-mix(in srgb, var(--signal) 35%, transparent);'
           : (OZEL.has(r.durum) ? 'background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent-ink); border-color:color-mix(in srgb, var(--accent) 35%, transparent);' : '');
-        html += `<div class="siparis-kart" onclick="aktifSiparisNo='${r.siparis_no}'; view='detay'; render();">
-          <div class="no">${r.siparis_no}</div>
-          <h3>${r.urun_aciklamasi}</h3>
-          <span class="pill" style="${ozelStil}">${r.durum_adi}</span>
+        html += `<div class="siparis-satir" onclick="aktifSiparisNo='${r.siparis_no}'; view='detay'; render();">
+          <div class="ico">📦</div>
+          <div class="info">
+            <div class="no">${r.siparis_no}</div>
+            <div class="ad">${r.urun_aciklamasi}</div>
+          </div>
+          <div class="sag">
+            <span class="pill" style="${ozelStil}">${r.durum_adi}</span>
+            <span class="chev">›</span>
+          </div>
         </div>`;
       });
+      html += '</div>';
     }
     main.innerHTML = html;
   } catch (e) { main.innerHTML = '<div class="panel err">Yüklenemedi, bağlantınızı kontrol edin.</div>'; }
@@ -416,6 +434,24 @@ function detaySayfasi(d, suankiIndex) {
 
   const suankiAd = suankiIndex >= 0 ? d.durum_sirasi[suankiIndex].ad : 'Talep Alındı';
 
+  let sevkiyatCard = '';
+  if (d.sevkiyat) {
+    const s = d.sevkiyat;
+    sevkiyatCard = `<div class="panel" style="margin-bottom:20px;">
+      <h2 style="font-size:16px; margin-bottom:14px;">🚢 Gemi &amp; Taşıyıcı Takibi</h2>
+      <div class="ozet-meta" style="margin-bottom:${s.tasiyici_takip_url || s.marine_traffic_url ? '18px' : '0'};">
+        ${s.tasiyici_firma ? `<div>Taşıyıcı<b style="font-family:var(--font-body);">${s.tasiyici_firma}</b></div>` : ''}
+        ${s.gemi_adi ? `<div>Gemi adı<b style="font-family:var(--font-body);">${s.gemi_adi}</b></div>` : ''}
+        ${s.sefer_no ? `<div>Sefer no<b>${s.sefer_no}</b></div>` : ''}
+        ${s.konsimento_no ? `<div>Konşimento (B/L)<b>${s.konsimento_no}</b></div>` : ''}
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        ${s.tasiyici_takip_url ? `<a href="${s.tasiyici_takip_url}" target="_blank" rel="noopener" class="btn btn-primary">${s.tasiyici_firma || 'Taşıyıcı'} Sitesinde Takip Et →</a>` : ''}
+        ${s.marine_traffic_url ? `<a href="${s.marine_traffic_url}" target="_blank" rel="noopener" class="btn">Marine Traffic'te Ara →</a>` : ''}
+      </div>
+    </div>`;
+  }
+
   return `
     <button class="back" onclick="view='liste'; render();">← Siparişlerime dön</button>
     <div class="ozet-card">
@@ -437,6 +473,7 @@ function detaySayfasi(d, suankiIndex) {
       </div>
     </div>
     ${ozelBanner}
+    ${sevkiyatCard}
     <div class="tabs">
       <button class="tab-btn ${detayTab==='surec'?'active':''}" onclick="detayTab='surec'; rerenderDetay();">Süreç Takibi</button>
       <button class="tab-btn ${detayTab==='belgeler'?'active':''}" onclick="detayTab='belgeler'; rerenderDetay();">Belgeler <span class="cnt">${d.belgeler.length}</span></button>
