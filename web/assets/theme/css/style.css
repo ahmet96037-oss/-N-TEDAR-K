@@ -163,17 +163,27 @@
 
 
 /*** Header ***/
+/* Slaytlar farklı en-boy oranındaki fotoğraflardan oluştuğu için (liman, kargo,
+   uçak vb.) sabit yükseklik + object-fit:cover ile HER boyutta aynı yüksekliği
+   koruyorlar — aksi hâlde her slaytta kart boyu değişip altta boşluk kalıyordu. */
+.header-carousel .owl-carousel-item {
+    position: relative;
+    height: 640px;
+    overflow: hidden;
+}
+
+.header-carousel .owl-carousel-item img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
 @media (max-width: 768px) {
     .header-carousel .owl-carousel-item {
-        position: relative;
-        min-height: 500px;
-    }
-    
-    .header-carousel .owl-carousel-item img {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+        height: 500px;
     }
 
     .header-carousel .owl-carousel-item h5,
