@@ -31,7 +31,7 @@
     --signal:#e2795f; --signal-ink:#f0a58e; --border:#2a3140;
   }
   *{box-sizing:border-box;}
-  body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:15px; line-height:1.5; }
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:15px; line-height:1.5; overflow-x:hidden; }
   a{ color:inherit; }
 
   .theme-toggle{ display:flex; gap:2px; background:var(--bg-alt); border:1px solid var(--border); border-radius:20px; padding:3px; flex:none; }
@@ -49,6 +49,7 @@
   .linklike{ background:none; border:none; color:var(--accent-ink); font-weight:600; cursor:pointer; padding:0; font-size:13px; text-decoration:underline; }
   .err{ color:var(--signal-ink); font-size:13px; margin-bottom:10px; }
   .row2{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:600px){ .row2{ grid-template-columns:1fr; } }
   h2{ font-family:var(--font-display); font-weight:700; font-size:20px; letter-spacing:-.01em; margin:0 0 10px; }
   .liste-satir{ display:flex; justify-content:space-between; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid var(--border); }
   .liste-satir:last-child{ border-bottom:none; }

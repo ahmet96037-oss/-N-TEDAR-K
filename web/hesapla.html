@@ -34,7 +34,7 @@
   .theme-toggle{ display:flex; gap:2px; background:var(--bg-alt); border:1px solid var(--border); border-radius:20px; padding:3px; flex:none; }
   .theme-toggle button{ width:auto; border:none; background:transparent; color:var(--text-muted); font-family:var(--font-body); font-size:12px; font-weight:600; padding:5px 10px; border-radius:16px; cursor:pointer; }
   .theme-toggle button.active{ background:var(--accent2); color:#fff; }
-  body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.5; }
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.5; overflow-x:hidden; }
   .wrap{ max-width:920px; margin:0 auto; padding:48px 24px 80px; }
   .banner{ display:flex; align-items:center; gap:10px; font-family:var(--font-mono); font-size:12px; color:var(--accent2-ink); background:color-mix(in srgb, var(--accent2) 12%, transparent); border:1px solid color-mix(in srgb, var(--accent2) 35%, transparent); padding:9px 14px; border-radius:3px; margin-bottom:24px; }
   header h1{ font-family:var(--font-display); font-weight:600; font-size:clamp(24px,4vw,34px); margin:0 0 6px; }
@@ -114,7 +114,9 @@
   .total-row .l{ font-family:var(--font-display); font-size:17px; }
   .total-row .v{ font-family:var(--font-code); font-variant-numeric:tabular-nums; font-weight:600; font-size:27px; letter-spacing:-.005em; }
   .total-note{ font-size:12px; color:var(--text-muted); margin-top:10px; }
-  .site-nav{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:28px; font-size:14px; }
+  .site-nav{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; row-gap:10px; margin-bottom:28px; font-size:14px; }
+  .site-nav .links{ flex-wrap:wrap; row-gap:8px; }
+  @media (max-width:480px){ .site-nav .theme-toggle{ display:none; } }
   .site-nav a{ color:var(--text-muted); text-decoration:none; font-weight:600; }
   .site-nav a:hover{ color:var(--text); }
   .site-nav .logo{ font-family:var(--font-display); font-weight:800; color:var(--text); }

@@ -48,23 +48,47 @@
 
   /* ---- Nav ---- */
   nav{ position:sticky; top:0; z-index:50; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); }
-  .nav-inner{ max-width:1200px; margin:0 auto; padding:16px 24px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+  .nav-inner{ max-width:1200px; margin:0 auto; padding:16px 24px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; row-gap:8px; }
+  @media (max-width:560px){ .nav-inner{ padding:12px 14px; } }
   .logo{ display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:800; font-size:16px; letter-spacing:-.01em; text-decoration:none; flex:none; }
   .logo .mark{ width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg, var(--accent2), var(--accent)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; font-weight:800; flex:none; }
-  .nav-links{ display:flex; align-items:center; gap:24px; font-size:14.5px; font-weight:600; }
+  .nav-links{ display:flex; flex-wrap:wrap; align-items:center; gap:14px; row-gap:8px; font-size:14.5px; font-weight:600; }
   .nav-links a{ text-decoration:none; color:var(--text-muted); white-space:nowrap; }
   .nav-links a:hover{ color:var(--text); }
-  .nav-cta{ background:var(--accent); color:#fff !important; padding:10px 18px; border-radius:6px; font-weight:700; }
+  .nav-cta{ background:var(--accent); color:#fff !important; padding:10px 18px; border-radius:6px; font-weight:700; white-space:nowrap; }
   .nav-cta:hover{ background:var(--accent-ink); }
-  .staff-link{ font-size:15px; opacity:.4; filter:grayscale(1); transition:opacity .15s; line-height:1; }
+  .staff-link{ font-size:15px; opacity:.4; filter:grayscale(1); transition:opacity .15s; line-height:1; flex:none; }
   .staff-link:hover{ opacity:.85; }
   @media (max-width:900px){ .nav-links a:not(.nav-cta):not(.staff-link){ display:none; } }
+  @media (max-width:600px){
+    .nav-inner .logo-text{ display:none; }
+    .nav-cta{ padding:9px 12px; font-size:13px; }
+    .theme-toggle{ display:none; }
+  }
 
   .wrap{ max-width:1200px; margin:0 auto; padding:0 24px; }
 
   /* ================= HERO — split, illüstrasyonlu ================= */
   .hero{ padding:76px 0 0; position:relative; overflow:hidden; }
+  /* Yumuşak, markaya uygun gradient katmanı — sayfa açılışında hafifçe belirir */
+  .hero-gradient{
+    position:absolute; inset:0; z-index:-1; opacity:0;
+    background-image:
+      linear-gradient(180deg, var(--bg) 0%, color-mix(in srgb, var(--accent2) 7%, var(--bg)) 30%, color-mix(in srgb, var(--accent) 9%, var(--bg)) 60%, var(--bg) 100%),
+      radial-gradient(at 15% 20%, color-mix(in srgb, var(--accent2) 14%, transparent) 0%, transparent 55%),
+      radial-gradient(at 85% 15%, color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 60%);
+    animation: heroGradeIn 1.6s ease-out forwards;
+  }
+  @keyframes heroGradeIn{ from{ opacity:0; transform:translateY(-14px); } to{ opacity:1; transform:translateY(0); } }
+  @media (prefers-reduced-motion: reduce){ .hero-gradient{ animation:none; opacity:1; } }
+  /* Kademeli blur-in giriş animasyonu — hero metinleri sırayla belirir */
+  .reveal{ opacity:0; filter:blur(10px); transform:translateY(10px); animation:heroReveal .9s cubic-bezier(.2,.7,.3,1) forwards; }
+  .reveal-1{ animation-delay:.05s; } .reveal-2{ animation-delay:.16s; }
+  .reveal-3{ animation-delay:.27s; } .reveal-4{ animation-delay:.38s; }
+  @keyframes heroReveal{ to{ opacity:1; filter:blur(0); transform:translateY(0); } }
+  @media (prefers-reduced-motion: reduce){ .reveal{ animation:none; opacity:1; filter:none; transform:none; } }
   .hero-grid{ display:grid; grid-template-columns:1.05fr .95fr; gap:40px; align-items:center; }
+  .hero-grid > *{ min-width:0; }
   @media (max-width:960px){ .hero-grid{ grid-template-columns:1fr; } }
   .eyebrow{ font-family:var(--font-code); font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-ink); margin:0 0 18px; display:flex; align-items:center; gap:8px; }
   .eyebrow::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--accent2); display:inline-block; }
@@ -80,9 +104,9 @@
 
   /* Panel önizlemesi — soyut illüstrasyon yerine gerçek ürünün küçük bir
      modeli: ne satın aldığını somut gösteriyor, daha inandırıcı. */
-  .preview-card{ background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:0 20px 50px rgba(33,29,22,.09); overflow:hidden; }
+  .preview-card{ background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:0 20px 50px rgba(33,29,22,.09); overflow:hidden; max-width:100%; }
   @media (prefers-color-scheme: dark){ .preview-card{ box-shadow:0 20px 50px rgba(0,0,0,.4); } }
-  .preview-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); background:var(--bg-alt); }
+  .preview-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; padding:14px 18px; border-bottom:1px solid var(--border); background:var(--bg-alt); }
   .preview-head .no{ font-family:var(--font-code); font-size:11.5px; font-weight:600; color:var(--accent-ink); }
   .preview-head .pill{ font-family:var(--font-body); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; padding:3px 9px; border-radius:20px; background:color-mix(in srgb, var(--accent2) 14%, transparent); color:var(--accent2-ink); border:1px solid color-mix(in srgb, var(--accent2) 32%, transparent); }
   .preview-body{ padding:20px 22px; }
@@ -188,7 +212,7 @@
 
 <nav>
   <div class="nav-inner">
-    <a href="/" class="logo"><span class="mark">ÇT</span> Çin Tedarik Ağı</a>
+    <a href="/" class="logo"><span class="mark">ÇT</span> <span class="logo-text">Çin Tedarik Ağı</span></a>
     <div class="nav-links">
       <a href="#surec">Süreç</a>
       <a href="#neden-biz">Neden Biz</a>
@@ -206,19 +230,20 @@
 </nav>
 
 <header class="hero">
+  <div class="hero-gradient"></div>
   <div class="wrap">
     <div class="hero-grid">
       <div>
-        <p class="eyebrow">Çin — Türkiye tedarik köprüsü</p>
-        <h1>Çin'den Türkiye'ye,<br><span class="hl">şeffaf ve garantili</span> tedarik.</h1>
-        <p class="sub">Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip portalından izleyin. Çoklu fabrika ağı, yerinde kalite kontrol ve yazılı risk güvencesiyle — kara kutu değil, sistemli bir süreç.</p>
-        <div class="hero-ctas">
+        <p class="eyebrow reveal reveal-1">Çin — Türkiye tedarik köprüsü</p>
+        <h1 class="reveal reveal-2">Çin'den Türkiye'ye,<br><span class="hl">şeffaf ve garantili</span> tedarik.</h1>
+        <p class="sub reveal reveal-3">Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip portalından izleyin. Çoklu fabrika ağı, yerinde kalite kontrol ve yazılı risk güvencesiyle — kara kutu değil, sistemli bir süreç.</p>
+        <div class="hero-ctas reveal reveal-4">
           <a href="/takip.html#rfq" class="btn btn-primary">Ücretsiz Teklif Talebi (RFQ) Oluştur</a>
           <a href="/hesapla.html" class="btn btn-ghost">Gümrük Vergisi Hesapla</a>
         </div>
       </div>
       <div>
-        <div class="preview-card">
+        <div class="preview-card reveal reveal-4">
           <div class="preview-head">
             <span class="no">CTA-2026-0114</span>
             <span class="pill">Üretimde</span>
@@ -337,7 +362,7 @@
 <footer>
   <div class="footer-grid">
     <div class="footer-brand">
-      <a href="/" class="logo"><span class="mark">ÇT</span> Çin Tedarik Ağı</a>
+      <a href="/" class="logo"><span class="mark">ÇT</span> <span class="logo-text">Çin Tedarik Ağı</span></a>
       <p>Çin'den Türkiye'ye şeffaf ve garantili tedarik — fabrika görüşmesinden gümrüğe kadar her aşama canlı takip portalında.</p>
     </div>
     <div class="footer-col">
