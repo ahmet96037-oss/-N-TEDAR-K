@@ -92,6 +92,14 @@
   }
 
   .panel-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:22px; flex-wrap:wrap; }
+  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:24px; }
+  @media (max-width:760px){ .stat-grid{ grid-template-columns:repeat(2,1fr); } }
+  .stat-card{ background:var(--surface); padding:18px 20px; border-top:3px solid var(--accent2); }
+  .stat-card .v{ font-family:var(--font-code); font-weight:600; font-size:26px; color:var(--accent-ink); }
+  .stat-card .l{ font-size:12px; color:var(--text-muted); margin-top:4px; line-height:1.4; }
+  .filter-row{ display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .filter-row input{ flex:1; min-width:220px; margin-bottom:0; }
+  .filter-row select{ width:auto; min-width:180px; margin-bottom:0; }
   .panel-head p{ color:var(--text-muted); font-size:14px; margin:6px 0 0; }
   .panel{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:24px; margin-bottom:20px; }
   .empty-state{ background:var(--surface); border:1px dashed var(--border); border-radius:8px; padding:36px; text-align:center; color:var(--text-muted); }
@@ -167,10 +175,12 @@ function themeToggleHtml() {
 function render() {
   const app = document.getElementById('app');
   if (view === 'giris') { app.innerHTML = authShell(girisEkrani()); initTheme(); return; }
-  app.innerHTML = panelShell('<div class="empty-state">Yükleniyor…</div>');
+  app.innerHTML = panelShell('<div class="empty-state">Yükleniyor…</div>', view);
   initTheme();
   if (view === 'liste') listeYukle();
   else if (view === 'detay') detayYukle(aktifSiparisNo);
+  else if (view === 'musteriler') musterilerYukle();
+  else if (view === 'yeni-siparis') { document.querySelector('.main').innerHTML = yeniSiparisEkrani(); ysMusteriDropdownDoldur(); }
 }
 
 function authShell(innerHtml) {
@@ -181,7 +191,7 @@ function authShell(innerHtml) {
     </div>`;
 }
 
-function panelShell(innerHtml) {
+function panelShell(innerHtml, activeView) {
   const initial = (adminEmail || '?').trim().charAt(0).toUpperCase();
   return `
     <div class="app-shell">
@@ -189,7 +199,9 @@ function panelShell(innerHtml) {
         <div class="brand">Çin Tedarik Ağı</div>
         <div class="brand-sub">Admin Paneli</div>
         <div class="side-nav">
-          <button class="active"><span class="ico">📋</span> Siparişler</button>
+          <button class="${activeView==='liste'||activeView==='detay' ? 'active' : ''}" onclick="view='liste'; render();"><span class="ico">📋</span> Siparişler</button>
+          <button class="${activeView==='yeni-siparis' ? 'active' : ''}" onclick="view='yeni-siparis'; render();"><span class="ico">＋</span> Yeni Sipariş</button>
+          <button class="${activeView==='musteriler' ? 'active' : ''}" onclick="view='musteriler'; render();"><span class="ico">🏢</span> Müşteriler</button>
         </div>
         <div class="sidebar-foot">
           ${themeToggleHtml()}
@@ -235,30 +247,185 @@ function cikisYap() {
   token = null; adminEmail = ''; view = 'giris'; render();
 }
 
+let siparisRowsCache = [];
+
 async function listeYukle() {
   const main = document.querySelector('.main');
   const res = await fetch(API + '/api/tk/admin/siparisler', {headers:{'Authorization':'Bearer '+token}});
   if (res.status === 401) { cikisYap(); return; }
-  const rows = await res.json();
+  siparisRowsCache = await res.json();
+
+  const ozelSet = new Set(['numune_revizyon_istendi','beklemede','iptal_edildi']);
+  const yediGunOnce = Date.now() - 7*24*60*60*1000;
+  const stats = {
+    toplam: siparisRowsCache.length,
+    aktif: siparisRowsCache.filter(r => r.durum !== 'teslim_edildi' && !ozelSet.has(r.durum)).length,
+    ozel: siparisRowsCache.filter(r => ozelSet.has(r.durum)).length,
+    buHafta: siparisRowsCache.filter(r => new Date(r.olusturulma).getTime() >= yediGunOnce).length,
+  };
+
   let html = `<div class="panel-head">
-    <div><h2>Tüm Siparişler</h2><p>${rows.length} sipariş listeleniyor.</p></div>
-  </div>`;
+    <div><h2>Tüm Siparişler</h2><p>${siparisRowsCache.length} sipariş listeleniyor.</p></div>
+    <button class="primary" style="width:auto;" onclick="view='yeni-siparis'; render();">＋ Yeni Sipariş</button>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="v">${stats.toplam}</div><div class="l">Toplam sipariş</div></div>
+    <div class="stat-card"><div class="v">${stats.aktif}</div><div class="l">Aktif süreçte</div></div>
+    <div class="stat-card" style="${stats.ozel ? 'border-top-color:var(--signal);' : ''}"><div class="v" style="${stats.ozel ? 'color:var(--signal-ink);' : ''}">${stats.ozel}</div><div class="l">Dikkat gerektiren (beklemede/revizyon/iptal)</div></div>
+    <div class="stat-card"><div class="v">${stats.buHafta}</div><div class="l">Bu hafta gelen talep</div></div>
+  </div>
+  <div class="filter-row">
+    <input id="filtreArama" placeholder="Sipariş no, müşteri, firma veya ürün ara..." oninput="siparisListesiCiz()">
+    <select id="filtreDurum" onchange="siparisListesiCiz()">
+      <option value="">Tüm durumlar</option>
+      <optgroup label="Ana Akış">${DURUMLAR.map(([k,a]) => `<option value="${k}">${a}</option>`).join('')}</optgroup>
+      <optgroup label="Özel Durumlar">${OZEL_DURUMLAR.map(([k,a]) => `<option value="${k}">${a}</option>`).join('')}</optgroup>
+    </select>
+  </div>
+  <div id="siparisTablo"></div>`;
+  main.innerHTML = html;
+  siparisListesiCiz();
+}
+
+function siparisListesiCiz() {
+  const kutu = document.getElementById('siparisTablo');
+  if (!kutu) return;
+  const arama = (document.getElementById('filtreArama').value || '').toLowerCase().trim();
+  const durumFiltre = document.getElementById('filtreDurum').value;
+  const rows = siparisRowsCache.filter(r => {
+    if (durumFiltre && r.durum !== durumFiltre) return false;
+    if (!arama) return true;
+    return [r.siparis_no, r.musteri, r.firma, r.email, r.urun_aciklamasi].some(v => (v||'').toLowerCase().includes(arama));
+  });
   if (rows.length === 0) {
-    html += '<div class="empty-state">Henüz sipariş yok.</div>';
+    kutu.innerHTML = '<div class="empty-state">Kriterlere uyan sipariş yok.</div>';
+    return;
+  }
+  let html = '<div class="table-card"><div class="table-wrap"><table><thead><tr><th>Sipariş No</th><th>Müşteri</th><th>Ürün</th><th>Durum</th><th>Tarih</th></tr></thead><tbody>';
+  rows.forEach(r => {
+    html += `<tr onclick="aktifSiparisNo='${r.siparis_no}'; view='detay'; render();">
+      <td class="siparis-no">${r.siparis_no}</td>
+      <td>${r.musteri}${r.firma ? ' ('+r.firma+')' : ''}<br><span style="color:var(--text-muted);font-size:12px;">${r.email}</span></td>
+      <td>${r.urun_aciklamasi}</td>
+      <td><span class="pill" style="${r.durum==='iptal_edildi' ? 'background:color-mix(in srgb, var(--signal) 14%, transparent); color:var(--signal-ink); border-color:color-mix(in srgb, var(--signal) 35%, transparent);' : (['numune_revizyon_istendi','beklemede'].includes(r.durum) ? 'background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent-ink); border-color:color-mix(in srgb, var(--accent) 35%, transparent);' : '')}">${r.durum_adi}</span></td>
+      <td style="font-family:var(--font-code); font-variant-numeric:tabular-nums;">${new Date(r.olusturulma).toLocaleDateString('tr-TR')}</td>
+    </tr>`;
+  });
+  html += '</tbody></table></div></div>';
+  kutu.innerHTML = html;
+}
+
+async function musterilerYukle() {
+  const main = document.querySelector('.main');
+  const res = await fetch(API + '/api/tk/admin/musteriler', {headers:{'Authorization':'Bearer '+token}});
+  if (res.status === 401) { cikisYap(); return; }
+  const rows = await res.json();
+  let html = `<div class="panel-head"><div><h2>Müşteriler</h2><p>${rows.length} kayıtlı müşteri.</p></div></div>`;
+  if (rows.length === 0) {
+    html += '<div class="empty-state">Henüz müşteri yok.</div>';
   } else {
-    html += '<div class="table-card"><div class="table-wrap"><table><thead><tr><th>Sipariş No</th><th>Müşteri</th><th>Ürün</th><th>Durum</th><th>Tarih</th></tr></thead><tbody>';
-    rows.forEach(r => {
-      html += `<tr onclick="aktifSiparisNo='${r.siparis_no}'; view='detay'; render();">
-        <td class="siparis-no">${r.siparis_no}</td>
-        <td>${r.musteri}${r.firma ? ' ('+r.firma+')' : ''}<br><span style="color:var(--text-muted);font-size:12px;">${r.email}</span></td>
-        <td>${r.urun_aciklamasi}</td>
-        <td><span class="pill" style="${r.durum==='iptal_edildi' ? 'background:color-mix(in srgb, var(--signal) 14%, transparent); color:var(--signal-ink); border-color:color-mix(in srgb, var(--signal) 35%, transparent);' : (['numune_revizyon_istendi','beklemede'].includes(r.durum) ? 'background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent-ink); border-color:color-mix(in srgb, var(--accent) 35%, transparent);' : '')}">${r.durum_adi}</span></td>
-        <td style="font-family:var(--font-code); font-variant-numeric:tabular-nums;">${new Date(r.olusturulma).toLocaleDateString('tr-TR')}</td>
+    html += '<div class="table-card"><div class="table-wrap"><table><thead><tr><th>Ad Soyad</th><th>Firma</th><th>İletişim</th><th>Sipariş</th><th>Son sipariş</th></tr></thead><tbody>';
+    rows.forEach(m => {
+      html += `<tr>
+        <td>${m.ad_soyad}</td>
+        <td>${m.firma || '—'}</td>
+        <td>${m.email}${m.telefon ? '<br><span style="color:var(--text-muted);font-size:12px;">'+m.telefon+'</span>' : ''}</td>
+        <td class="siparis-no">${m.siparis_sayisi}</td>
+        <td style="font-family:var(--font-code); font-variant-numeric:tabular-nums;">${m.son_siparis ? new Date(m.son_siparis).toLocaleDateString('tr-TR') : '—'}</td>
       </tr>`;
     });
     html += '</tbody></table></div></div>';
   }
   main.innerHTML = html;
+}
+
+function yeniSiparisEkrani() {
+  return `
+    <button class="back" onclick="view='liste'; render();">← Listeye dön</button>
+    <div class="panel" style="max-width:640px;">
+      <h2>Yeni Sipariş Oluştur</h2>
+      <p style="color:var(--text-muted); font-size:13px; margin:0 0 18px;">Telefon veya e-postayla gelen bir talebi doğrudan sisteme girin.</p>
+      <div id="ysErr" class="err"></div>
+      <div id="ysBasari"></div>
+      <label>Müşteri</label>
+      <select id="ysMusteriMod" onchange="document.getElementById('ysYeniMusteri').style.display = this.value==='yeni' ? 'block' : 'none'; document.getElementById('ysMevcutMusteri').style.display = this.value==='mevcut' ? 'block' : 'none';">
+        <option value="mevcut">Mevcut müşteri seç</option>
+        <option value="yeni">Yeni müşteri</option>
+      </select>
+      <div id="ysMevcutMusteri">
+        <label>Müşteri</label>
+        <select id="ysMusteriId"><option value="">Yükleniyor…</option></select>
+      </div>
+      <div id="ysYeniMusteri" style="display:none;">
+        <div class="row2">
+          <div><label>Ad Soyad</label><input id="ysAd"></div>
+          <div><label>Firma (opsiyonel)</label><input id="ysFirma"></div>
+        </div>
+        <div class="row2">
+          <div><label>E-posta</label><input id="ysEmail" type="email"></div>
+          <div><label>Telefon (opsiyonel)</label><input id="ysTel"></div>
+        </div>
+      </div>
+      <label>Ürün açıklaması</label>
+      <textarea id="ysUrun" rows="2"></textarea>
+      <div class="row2">
+        <div><label>Miktar (opsiyonel)</label><input id="ysMiktar" placeholder="ör. 5000 adet"></div>
+        <div><label>Hedef fiyat (opsiyonel)</label><input id="ysFiyat" placeholder="ör. 2000 USD"></div>
+      </div>
+      <label>Başlangıç durumu</label>
+      <select id="ysDurum">${DURUMLAR.map(([k,a]) => `<option value="${k}" ${k==='talep_alindi'?'selected':''}>${a}</option>`).join('')}</select>
+      <button class="primary" onclick="siparisOlustur()">Siparişi Oluştur</button>
+    </div>
+  `;
+}
+
+async function ysMusteriDropdownDoldur() {
+  const sec = document.getElementById('ysMusteriId');
+  if (!sec) return;
+  const res = await fetch(API + '/api/tk/admin/musteriler', {headers:{'Authorization':'Bearer '+token}});
+  const rows = await res.json();
+  sec.innerHTML = rows.map(m => `<option value="${m.id}">${m.ad_soyad}${m.firma ? ' — '+m.firma : ''} (${m.email})</option>`).join('') || '<option value="">Kayıtlı müşteri yok</option>';
+}
+
+async function siparisOlustur() {
+  const mod = document.getElementById('ysMusteriMod').value;
+  const errBox = document.getElementById('ysErr');
+  const basariBox = document.getElementById('ysBasari');
+  errBox.textContent = ''; basariBox.innerHTML = '';
+  const body = {
+    urun_aciklamasi: document.getElementById('ysUrun').value.trim(),
+    miktar: document.getElementById('ysMiktar').value.trim() || null,
+    hedef_fiyat: document.getElementById('ysFiyat').value.trim() || null,
+    baslangic_durumu: document.getElementById('ysDurum').value,
+  };
+  if (mod === 'mevcut') {
+    const id = document.getElementById('ysMusteriId').value;
+    if (!id) { errBox.textContent = 'Bir müşteri seçin veya "Yeni müşteri" seçeneğini kullanın.'; return; }
+    body.musteri_id = parseInt(id, 10);
+  } else {
+    body.yeni_ad_soyad = document.getElementById('ysAd').value.trim();
+    body.yeni_firma = document.getElementById('ysFirma').value.trim() || null;
+    body.yeni_email = document.getElementById('ysEmail').value.trim();
+    body.yeni_telefon = document.getElementById('ysTel').value.trim() || null;
+    if (!body.yeni_ad_soyad || !body.yeni_email) { errBox.textContent = 'Yeni müşteri için ad soyad ve e-posta zorunlu.'; return; }
+  }
+  if (!body.urun_aciklamasi) { errBox.textContent = 'Ürün açıklaması zorunlu.'; return; }
+  try {
+    const res = await fetch(API + '/api/tk/admin/siparis-olustur', {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) { const d = await res.json(); errBox.textContent = d.detail || 'Bir hata oluştu'; return; }
+    const d = await res.json();
+    if (d.gecici_sifre) {
+      basariBox.innerHTML = `<div class="panel" style="border-color:var(--accent2); background:color-mix(in srgb, var(--accent2) 8%, transparent); margin-bottom:16px;">
+        <b>${d.siparis_no}</b> oluşturuldu. Yeni müşteri hesabı açıldı — geçici şifre: <b style="font-family:var(--font-code);">${d.gecici_sifre}</b><br>
+        <span style="font-size:12.5px; color:var(--text-muted);">Bu şifreyi müşteriye iletin, panelinize giriş yaptıktan sonra bir daha gösterilmeyecek.</span>
+      </div>`;
+    } else {
+      aktifSiparisNo = d.siparis_no; view = 'detay'; render(); return;
+    }
+  } catch (e) { errBox.textContent = 'Bağlantı hatası'; }
 }
 
 async function detayYukle(siparisNo) {

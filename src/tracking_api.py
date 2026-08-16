@@ -385,6 +385,92 @@ def admin_tum_siparisler(authorization: str = Header(None)):
     ]
 
 
+@router.get("/admin/musteriler")
+def admin_musteri_listesi(authorization: str = Header(None)):
+    """Firma/müşteri listesi — her müşterinin kaç siparişi olduğu ve en son
+    sipariş tarihiyle birlikte. Admin panelindeki 'Müşteriler' sekmesi için."""
+    conn, _, _ = _admin_dogrula(authorization)
+    rows = conn.execute(
+        """SELECT m.id, m.ad_soyad, m.firma, m.email, m.telefon, m.olusturulma,
+                  COUNT(s.id) AS siparis_sayisi, MAX(s.olusturulma) AS son_siparis
+           FROM tk_musteriler m
+           LEFT JOIN tk_siparisler s ON s.musteri_id = m.id
+           GROUP BY m.id
+           ORDER BY m.olusturulma DESC"""
+    ).fetchall()
+    return [
+        {
+            "id": r["id"],
+            "ad_soyad": r["ad_soyad"],
+            "firma": r["firma"],
+            "email": r["email"],
+            "telefon": r["telefon"],
+            "kayit_tarihi": r["olusturulma"].isoformat() if r["olusturulma"] else None,
+            "siparis_sayisi": r["siparis_sayisi"],
+            "son_siparis": r["son_siparis"].isoformat() if r["son_siparis"] else None,
+        }
+        for r in rows
+    ]
+
+
+class AdminSiparisOlusturIstek(BaseModel):
+    musteri_id: int | None = None  # mevcut müşteri seçildiyse
+    # Yeni müşteri bilgileri (musteri_id boşsa kullanılır — geçici şifre üretilip
+    # bir kereliğine admin'e gösterilir, müşteriye iletmesi admin'in sorumluluğunda)
+    yeni_ad_soyad: str | None = None
+    yeni_firma: str | None = None
+    yeni_email: str | None = None
+    yeni_telefon: str | None = None
+    urun_aciklamasi: str
+    miktar: str | None = None
+    hedef_fiyat: str | None = None
+    baslangic_durumu: str = "talep_alindi"
+
+
+@router.post("/admin/siparis-olustur")
+def admin_siparis_olustur(istek: AdminSiparisOlusturIstek, authorization: str = Header(None)):
+    """Admin'in telefonla/e-postayla gelen bir talebi doğrudan sisteme girmesi
+    için — müşterinin kendisinin RFQ formunu doldurmasını beklemeden."""
+    conn, _, admin_email = _admin_dogrula(authorization)
+    if istek.baslangic_durumu not in DURUM_KODLARI:
+        raise HTTPException(status_code=400, detail="Geçersiz başlangıç durumu")
+
+    gecici_sifre = None
+    if istek.musteri_id:
+        musteri = conn.execute("SELECT id FROM tk_musteriler WHERE id = ?", (istek.musteri_id,)).fetchone()
+        if not musteri:
+            raise HTTPException(status_code=404, detail="Müşteri bulunamadı")
+        musteri_id = musteri["id"]
+    else:
+        if not istek.yeni_ad_soyad or not istek.yeni_email:
+            raise HTTPException(status_code=400, detail="Yeni müşteri için ad soyad ve e-posta zorunlu")
+        mevcut = conn.execute("SELECT id FROM tk_musteriler WHERE email = ?", (istek.yeni_email,)).fetchone()
+        if mevcut:
+            musteri_id = mevcut["id"]
+        else:
+            gecici_sifre = secrets.token_urlsafe(9)
+            conn.execute(
+                "INSERT INTO tk_musteriler (ad_soyad, firma, email, telefon, sifre_hash) VALUES (?, ?, ?, ?, ?)",
+                (istek.yeni_ad_soyad, istek.yeni_firma, istek.yeni_email, istek.yeni_telefon, _hash_sifre(gecici_sifre)),
+            )
+            conn._conn.commit()
+            musteri_id = conn.execute("SELECT id FROM tk_musteriler WHERE email = ?", (istek.yeni_email,)).fetchone()["id"]
+
+    siparis_no = _siparis_no_uret(conn)
+    conn.execute(
+        "INSERT INTO tk_siparisler (siparis_no, musteri_id, urun_aciklamasi, miktar, hedef_fiyat, durum) VALUES (?, ?, ?, ?, ?, ?)",
+        (siparis_no, musteri_id, istek.urun_aciklamasi, istek.miktar, istek.hedef_fiyat, istek.baslangic_durumu),
+    )
+    conn._conn.commit()
+    siparis_id = conn.execute("SELECT id FROM tk_siparisler WHERE siparis_no = ?", (siparis_no,)).fetchone()["id"]
+    conn.execute(
+        "INSERT INTO tk_durum_gecmisi (siparis_id, durum, not_metni, degistiren_email) VALUES (?, ?, ?, ?)",
+        (siparis_id, istek.baslangic_durumu, "Admin tarafından oluşturuldu.", admin_email),
+    )
+    conn._conn.commit()
+    return {"siparis_no": siparis_no, "gecici_sifre": gecici_sifre}
+
+
 class DurumGuncelleIstek(BaseModel):
     durum: str
     not_metni: str | None = None
