@@ -120,6 +120,10 @@
   /* Gemi/konteyner takip linkleri — mobilde PC'deki gibi doğrudan, büyük ve
      tek dokunuşla tıklanabilir olsun diye tam genişlik + alt alta diziliyor
      (yan yana küçük butonlarda parmakla isabet etmek zorlaşıyordu). */
+  /* Özet kartının hemen altında, sayfayı kaydırmaya gerek kalmadan gemi/konteyner
+     takip kartına atlayan kısayol — özellikle mobilde işe yarıyor. */
+  .jump-link{ display:inline-flex; align-items:center; gap:6px; margin-top:16px; font-size:13.5px; font-weight:700; color:var(--accent2-ink); text-decoration:none; background:color-mix(in srgb, var(--accent2) 10%, transparent); border:1px solid color-mix(in srgb, var(--accent2) 28%, transparent); padding:9px 14px; border-radius:6px; }
+  .jump-link:hover{ background:color-mix(in srgb, var(--accent2) 16%, transparent); }
   .tracking-links{ display:flex; gap:10px; flex-wrap:wrap; }
   .tracking-links .btn{ padding:13px 20px; font-size:14px; }
   @media (max-width:560px){
@@ -461,7 +465,7 @@ function detaySayfasi(d, suankiIndex) {
   let sevkiyatCard = '';
   if (d.sevkiyat) {
     const s = d.sevkiyat;
-    sevkiyatCard = `<div class="panel" style="margin-bottom:20px;">
+    sevkiyatCard = `<div class="panel" id="gemi-takip" style="margin-bottom:20px; scroll-margin-top:16px;">
       <h2 style="font-size:16px; margin-bottom:14px;">🚢 Gemi &amp; Taşıyıcı Takibi</h2>
       <div class="ozet-meta" style="margin-bottom:18px;">
         ${s.tasiyici_firma ? `<div>Taşıyıcı<b style="font-family:var(--font-body);">${s.tasiyici_firma}</b></div>` : ''}
@@ -497,6 +501,7 @@ function detaySayfasi(d, suankiIndex) {
         <div class="ilerleme-bar"><div class="fill" style="width:${yuzde}%;"></div></div>
         <div class="ilerleme-txt">${yuzde}%</div>
       </div>
+      ${d.sevkiyat ? `<a href="#gemi-takip" class="jump-link">🚢 Gemi &amp; Konteyner Takip Ekranına Git ↓</a>` : ''}
     </div>
     ${ozelBanner}
     ${sevkiyatCard}
