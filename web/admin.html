@@ -127,8 +127,8 @@
   .stat-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:24px; }
   @media (max-width:960px){ .stat-grid{ grid-template-columns:repeat(3,1fr); } }
   @media (max-width:600px){ .stat-grid{ grid-template-columns:repeat(2,1fr); } }
-  .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px 18px; box-shadow:0 1px 2px 0 rgba(0,0,0,.05); }
-  .stat-card .stat-head{ display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:500; color:var(--text-muted); margin-bottom:10px; }
+  .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:14px 16px; box-shadow:0 1px 2px 0 rgba(0,0,0,.05); }
+  .stat-card .stat-head{ display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; color:var(--text-muted); margin-bottom:8px; }
   .stat-card .stat-head .ico{ font-size:13px; opacity:.7; }
   .stat-card .v{ font-family:var(--font-display); font-weight:700; font-size:34px; color:var(--text); letter-spacing:-.02em; font-variant-numeric:tabular-nums; line-height:1.15; }
   .stat-card .l{ font-size:11.5px; color:var(--text-muted); margin-top:2px; line-height:1.4; }
@@ -150,6 +150,9 @@
   .btn-outline{ background:var(--surface); color:var(--text); border:1px solid var(--border); padding:9px 16px; border-radius:6px; font-weight:600; font-size:13.5px; cursor:pointer; font-family:var(--font-body); }
   .btn-outline:hover{ background:var(--bg-alt); }
   .chart-card svg{ display:block; }
+  .chart-row{ display:grid; grid-template-columns:1.4fr 1fr; gap:16px; margin-bottom:20px; }
+  .chart-row .panel{ margin-bottom:0; }
+  @media (max-width:900px){ .chart-row{ grid-template-columns:1fr; } }
   .filter-row{ display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
   .filter-row input{ flex:1; min-width:220px; margin-bottom:0; }
   .filter-row select{ width:auto; min-width:180px; margin-bottom:0; }
@@ -380,38 +383,63 @@ function statCard(icon, label, value, caption, colorMode, trendPct) {
   </div>`;
 }
 
-// Basit, bağımlılıksız SVG çizgi grafik — son 6 haftanın gerçek sipariş
-// sayılarını gösterir (uydurma demo veri değil, siparisRowsCache'ten hesaplanır).
-function miniChart(rows) {
+// İki seri (yeni talep / tamamlanan) alan grafiği — referanstaki turuncu+yeşil
+// iki katmanlı area chart diliyle, ama uydurma değil gerçek haftalık verilerle.
+function alanGrafigi(rows) {
   const haftalar = [];
   const simdi = Date.now();
   for (let i = 5; i >= 0; i--) {
     const bas = simdi - (i+1)*7*24*60*60*1000;
     const bit = simdi - i*7*24*60*60*1000;
-    const n = rows.filter(r => { const t = new Date(r.olusturulma).getTime(); return t >= bas && t < bit; }).length;
-    const etiket = new Date(bit).toLocaleDateString('tr-TR', {day:'2-digit', month:'2-digit'});
-    haftalar.push({n, etiket});
+    const yeni = rows.filter(r => { const t = new Date(r.olusturulma).getTime(); return t >= bas && t < bit; }).length;
+    const tamam = rows.filter(r => { if (r.durum !== 'teslim_edildi' || !r.guncellenme) return false; const t = new Date(r.guncellenme).getTime(); return t >= bas && t < bit; }).length;
+    haftalar.push({yeni, tamam, etiket: new Date(bit).toLocaleDateString('tr-TR', {day:'2-digit', month:'2-digit'})});
   }
-  const maxN = Math.max(1, ...haftalar.map(h => h.n));
-  const W = 600, H = 120, PAD = 24;
+  const maxN = Math.max(1, ...haftalar.map(h => Math.max(h.yeni, h.tamam)));
+  const W = 560, H = 160, PAD = 26;
   const stepX = (W - PAD*2) / (haftalar.length - 1);
-  const pts = haftalar.map((h,i) => {
-    const x = PAD + i*stepX;
-    const y = H - PAD - (h.n / maxN) * (H - PAD*2);
-    return [x,y];
-  });
-  const path = pts.map((p,i) => (i===0?'M':'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
-  const area = path + ` L${pts[pts.length-1][0]},${H-PAD} L${pts[0][0]},${H-PAD} Z`;
-  const dots = pts.map((p,i) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="#ea580c"/>`).join('');
-  const labels = haftalar.map((h,i) => `<text x="${(PAD+i*stepX).toFixed(1)}" y="${H-4}" font-size="9" fill="var(--text-muted)" text-anchor="middle">${h.etiket}</text>`).join('');
+  const seri = (key, renk) => {
+    const pts = haftalar.map((h,i) => [PAD + i*stepX, H - PAD - (h[key] / maxN) * (H - PAD*2)]);
+    const path = pts.map((p,i) => (i===0?'M':'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+    const area = path + ` L${pts[pts.length-1][0]},${H-PAD} L${pts[0][0]},${H-PAD} Z`;
+    return `<path d="${area}" fill="${renk}" fill-opacity="0.14"/><path d="${path}" fill="none" stroke="${renk}" stroke-width="2"/>`;
+  };
+  const labels = haftalar.map((h,i) => `<text x="${(PAD+i*stepX).toFixed(1)}" y="${H-6}" font-size="9.5" fill="var(--text-muted)" text-anchor="middle">${h.etiket}</text>`).join('');
   return `<div class="panel chart-card">
     <h2 style="font-size:15px;">Haftalık Sipariş Hacmi</h2>
-    <p style="color:var(--text-muted); font-size:12.5px; margin:0 0 10px;">Son 6 hafta, gerçek talep sayısı</p>
+    <p style="color:var(--text-muted); font-size:12.5px; margin:0 0 10px;">Turuncu: yeni talep · Yeşil: tamamlanan (son 6 hafta, gerçek veri)</p>
     <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto;">
-      <path d="${area}" fill="#ea580c" fill-opacity="0.12"/>
-      <path d="${path}" fill="none" stroke="#ea580c" stroke-width="2"/>
-      ${dots}${labels}
+      ${seri('yeni', '#ea580c')}${seri('tamam', '#14b8a6')}${labels}
     </svg>
+  </div>`;
+}
+
+// Süreç fazına göre gerçek sipariş dağılımı — turuncu/yeşil dönüşümlü çubuk
+// grafik (referanstaki "Subscriptions" bar chart diliyle).
+function barGrafigi(rows) {
+  const fazlar = [
+    ['Talep/Teklif', r => ['talep_alindi','fabrika_gorusuluyor','teklif_hazir'].includes(r.durum)],
+    ['Numune', r => r.durum.startsWith('numune_')],
+    ['Üretim', r => r.durum.startsWith('uretim_') || r.durum === 'uretimde'],
+    ['Sevkiyat', r => ['sevkiyat_belgeleri_hazirlaniyor','konteyner','yukleme_odeme_bekleniyor','gemide','teslimat_yolda'].includes(r.durum)],
+    ['Gümrük', r => r.durum.startsWith('gumruk_')],
+    ['Teslim', r => r.durum === 'teslim_edildi'],
+  ];
+  const veriler = fazlar.map(([ad, f], i) => ({ad, n: rows.filter(f).length, renk: i % 2 === 0 ? '#ea580c' : '#14b8a6'}));
+  const maxN = Math.max(1, ...veriler.map(v => v.n));
+  const W = 380, H = 160, PAD = 22, barW = (W - PAD*2) / veriler.length * 0.55;
+  const stepX = (W - PAD*2) / veriler.length;
+  const bars = veriler.map((v,i) => {
+    const h = (v.n / maxN) * (H - PAD*2 - 14);
+    const x = PAD + i*stepX + (stepX - barW)/2;
+    const y = H - PAD - h;
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="${v.renk}"/>
+      <text x="${(x+barW/2).toFixed(1)}" y="${(H-PAD+12).toFixed(1)}" font-size="8.5" fill="var(--text-muted)" text-anchor="middle">${v.ad}</text>`;
+  }).join('');
+  return `<div class="panel chart-card">
+    <h2 style="font-size:15px;">Süreç Fazına Göre Dağılım</h2>
+    <p style="color:var(--text-muted); font-size:12.5px; margin:0 0 10px;">Aktif ve tamamlanan tüm siparişler, gerçek sayım</p>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto;">${bars}</svg>
   </div>`;
 }
 
@@ -483,7 +511,7 @@ async function listeYukle() {
     ${statCard('<i class="bi bi-calendar-week"></i>', 'Bu Hafta', stats.buHafta, 'geçen hafta: ' + stats.gecenHafta, null, stats.haftaTrend)}
     ${statCard('<i class="bi bi-hourglass-split"></i>', 'Gecikme Riski', stats.geciken, '5+ gündür aynı aşamada', stats.geciken > 0 ? 'bad' : 'good')}
   </div>
-  ${miniChart(siparisRowsCache)}
+  <div class="chart-row">${alanGrafigi(siparisRowsCache)}${barGrafigi(siparisRowsCache)}</div>
   <div id="siparisListe"></div>
   <div class="filter-row">
     <input id="filtreArama" placeholder="Sipariş no, müşteri, firma veya ürün ara..." oninput="siparisListesiCiz()">
