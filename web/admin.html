@@ -137,6 +137,13 @@
   .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:22px 20px; box-shadow:0 4px 16px -4px rgba(70,95,255,.08); transition:transform .15s, box-shadow .15s; }
   .stat-card:hover{ transform:translateY(-2px); box-shadow:0 10px 24px -6px rgba(70,95,255,.16); }
   .stat-ico-badge{ width:44px; height:44px; border-radius:50%; background:color-mix(in srgb, var(--accent2) 12%, transparent); color:var(--accent2); display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:14px; }
+  /* Referanstaki gibi kart başına farklı renk — hepsi aynı indigo yerine
+     mavi/mor/turuncu/kırmızı dönüşümlü, göz için daha canlı bir dashboard. */
+  .stat-ico-badge.tone-blue{ background:#eff6ff; color:#2563eb; }
+  .stat-ico-badge.tone-purple{ background:#faf5ff; color:#9333ea; }
+  .stat-ico-badge.tone-orange{ background:#fff7ed; color:#ea580c; }
+  .stat-ico-badge.tone-red{ background:var(--bad-bg); color:var(--bad); }
+  .stat-ico-badge.tone-indigo{ background:color-mix(in srgb, var(--accent2) 12%, transparent); color:var(--accent2); }
   .stat-card .stat-head{ display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; color:var(--text-muted); margin-bottom:6px; }
   .stat-card .stat-head .ico{ font-size:13px; opacity:.7; }
   .stat-card .v{ font-family:var(--font-display); font-weight:700; font-size:34px; color:var(--text); letter-spacing:-.02em; font-variant-numeric:tabular-nums; line-height:1.15; }
@@ -159,7 +166,7 @@
   .btn-outline{ background:var(--surface); color:var(--text); border:1px solid var(--border); padding:9px 16px; border-radius:30px; font-weight:600; font-size:13.5px; cursor:pointer; font-family:var(--font-body); }
   .btn-outline:hover{ background:var(--bg-alt); }
   .chart-card svg{ display:block; }
-  .chart-row{ display:grid; grid-template-columns:1.4fr 1fr; gap:16px; margin-bottom:20px; }
+  .chart-row{ display:grid; grid-template-columns:1.3fr 1fr .8fr; gap:16px; margin-bottom:20px; }
   .chart-row .panel{ margin-bottom:0; }
   @media (max-width:900px){ .chart-row{ grid-template-columns:1fr; } }
   .filter-row{ display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
@@ -374,7 +381,7 @@ let musteriRowsCache = [];
 // Stat kartı — paylaşılan referans tasarımdaki gibi ikon+etiket başlığı, büyük
 // rakam, alt açıklama ve (varsa GERÇEK, hesaplanmış) yeşil/kırmızı trend rozeti.
 // trendPct null ise rozet hiç basılmıyor — uydurma yüzde göstermiyoruz.
-function statCard(icon, label, value, caption, colorMode, trendPct) {
+function statCard(icon, label, value, caption, colorMode, trendPct, badgeTone) {
   const valColor = colorMode === 'bad' ? 'var(--bad)' : (colorMode === 'good' ? 'var(--good)' : 'var(--text)');
   let badge = '';
   if (trendPct !== undefined && trendPct !== null) {
@@ -382,7 +389,7 @@ function statCard(icon, label, value, caption, colorMode, trendPct) {
     badge = `<span class="trend-badge ${up ? 'up' : 'down'}">${up ? '▲' : '▼'} %${Math.abs(trendPct)}</span>`;
   }
   return `<div class="stat-card">
-    <div class="stat-ico-badge">${icon}</div>
+    <div class="stat-ico-badge tone-${badgeTone || 'indigo'}">${icon}</div>
     <div class="stat-head">${label} <span class="info-ico" title="${caption}">ⓘ</span></div>
     <div class="v" style="color:${valColor};">${Number(value).toLocaleString('tr-TR')}</div>
     <div class="l">${caption}</div>
@@ -453,6 +460,27 @@ function barGrafigi(rows) {
   </div>`;
 }
 
+// Referanstaki halka/donut gösterge — ortada büyük rakamla. Uydurma bir "ilerleme"
+// değil: gerçekten teslim edilmiş sipariş oranını gösteriyor.
+function tamamlanmaHalkasi(rows) {
+  const toplam = rows.length;
+  const tamamlanan = rows.filter(r => r.durum === 'teslim_edildi').length;
+  const yuzde = toplam > 0 ? Math.round((tamamlanan / toplam) * 100) : 0;
+  const R = 70, C = 2 * Math.PI * R;
+  const dolu = (yuzde / 100) * C;
+  return `<div class="panel chart-card" style="display:flex; flex-direction:column; align-items:center; text-align:center;">
+    <h2 style="font-size:15px; align-self:flex-start;">Tamamlanma Oranı</h2>
+    <p style="color:var(--text-muted); font-size:12.5px; margin:0 0 10px; align-self:flex-start;">Teslim edilen / toplam sipariş</p>
+    <svg viewBox="0 0 180 180" style="width:170px; height:170px;">
+      <circle cx="90" cy="90" r="${R}" fill="none" stroke="var(--bg-alt)" stroke-width="16"/>
+      <circle cx="90" cy="90" r="${R}" fill="none" stroke="var(--accent2)" stroke-width="16" stroke-linecap="round"
+        stroke-dasharray="${dolu.toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 90 90)"/>
+      <text x="90" y="84" text-anchor="middle" font-size="30" font-weight="700" fill="var(--text)" font-family="var(--font-display)">%${yuzde}</text>
+      <text x="90" y="106" text-anchor="middle" font-size="11" fill="var(--text-muted)">${tamamlanan}/${toplam} sipariş</text>
+    </svg>
+  </div>`;
+}
+
 // Basit CSV dışa aktarma — harici kütüphane gerektirmez. Değerlerdeki
 // virgül/tırnak/satır sonu CSV kaçış kuralına göre işlenir.
 function csvIndir(rows, alanlar, dosyaAdi) {
@@ -515,13 +543,13 @@ async function listeYukle() {
     </div>
   </div>
   <div class="stat-grid">
-    ${statCard('<i class="bi bi-box-seam"></i>', 'Toplam Sipariş', stats.toplam, 'tüm zamanlar')}
-    ${statCard('<i class="bi bi-gear-wide-connected"></i>', 'Aktif Süreçte', stats.aktif, 'devam eden sipariş')}
-    ${statCard('<i class="bi bi-exclamation-triangle"></i>', 'Dikkat Gerektiren', stats.ozel, 'beklemede / revizyon / iptal', stats.ozel > 0 ? 'bad' : null)}
-    ${statCard('<i class="bi bi-calendar-week"></i>', 'Bu Hafta', stats.buHafta, 'geçen hafta: ' + stats.gecenHafta, null, stats.haftaTrend)}
-    ${statCard('<i class="bi bi-hourglass-split"></i>', 'Gecikme Riski', stats.geciken, '5+ gündür aynı aşamada', stats.geciken > 0 ? 'bad' : 'good')}
+    ${statCard('<i class="bi bi-box-seam"></i>', 'Toplam Sipariş', stats.toplam, 'tüm zamanlar', null, null, 'blue')}
+    ${statCard('<i class="bi bi-gear-wide-connected"></i>', 'Aktif Süreçte', stats.aktif, 'devam eden sipariş', null, null, 'purple')}
+    ${statCard('<i class="bi bi-exclamation-triangle"></i>', 'Dikkat Gerektiren', stats.ozel, 'beklemede / revizyon / iptal', stats.ozel > 0 ? 'bad' : null, null, 'orange')}
+    ${statCard('<i class="bi bi-calendar-week"></i>', 'Bu Hafta', stats.buHafta, 'geçen hafta: ' + stats.gecenHafta, null, stats.haftaTrend, 'indigo')}
+    ${statCard('<i class="bi bi-hourglass-split"></i>', 'Gecikme Riski', stats.geciken, '5+ gündür aynı aşamada', stats.geciken > 0 ? 'bad' : 'good', null, 'red')}
   </div>
-  <div class="chart-row">${alanGrafigi(siparisRowsCache)}${barGrafigi(siparisRowsCache)}</div>
+  <div class="chart-row">${alanGrafigi(siparisRowsCache)}${barGrafigi(siparisRowsCache)}${tamamlanmaHalkasi(siparisRowsCache)}</div>
   <div id="siparisListe"></div>
   <div class="filter-row">
     <input id="filtreArama" placeholder="Sipariş no, müşteri, firma veya ürün ara..." oninput="siparisListesiCiz()">
