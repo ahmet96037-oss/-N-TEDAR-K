@@ -76,26 +76,32 @@
 
   /* ---- App shell ---- */
   .app-shell{ display:flex; min-height:100vh; align-items:stretch; }
-  /* ---- Sidebar: ana sayfadaki koyu lacivert + amber navbar diliyle birebir aynı
-     kimlik — kapsül aktif sekme, amber vurgu, beyaz marka yazısı. ---- */
-  .sidebar{ width:240px; flex:none; background:linear-gradient(180deg, #0d2138, #0a1c31); border-right:none; padding:26px 16px; display:flex; flex-direction:column; }
-  .sidebar .brand{ font-family:var(--font-display); font-weight:800; font-size:16px; text-decoration:none; color:#fff; margin-bottom:2px; padding:0 6px; display:flex; align-items:center; gap:9px; }
-  .sidebar .brand svg{ width:26px; height:26px; flex:none; }
-  .sidebar .brand-sub{ font-family:var(--font-code); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:#e8b355; padding:0 6px; margin-bottom:28px; }
-  .side-nav{ display:flex; flex-direction:column; gap:3px; }
-  .side-nav button{ display:flex; align-items:center; gap:10px; padding:10px 13px; border-radius:22px; font-weight:600; font-size:13.8px; color:rgba(255,255,255,.66); cursor:pointer; border:none; background:none; text-align:left; width:100%; font-family:var(--font-body); transition:background .15s, color .15s; }
-  .side-nav button:hover{ background:rgba(255,255,255,.08); color:#fff; }
-  .side-nav button.active{ background:#e8b355; color:#0a1c31; }
-  .side-nav .ico{ width:18px; text-align:center; flex:none; }
-  .sidebar-foot{ margin-top:auto; padding-top:16px; border-top:1px solid rgba(255,255,255,.1); }
-  .user-chip{ display:flex; align-items:center; gap:10px; padding:8px 6px; margin-bottom:8px; }
-  .user-chip .av{ width:30px; height:30px; border-radius:50%; background:#e8b355; color:#0a1c31; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:800; font-size:13px; flex:none; }
-  .user-chip b{ color:#fff; }
-  .user-chip .role{ font-size:11.5px; color:rgba(255,255,255,.5); }
-  .sidebar-foot .theme-toggle{ margin-bottom:10px; width:100%; justify-content:center; background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.12); }
-  .sidebar-foot .theme-toggle button{ color:rgba(255,255,255,.6); }
-  .sidebar-foot .linklike{ color:rgba(255,255,255,.5); }
-  .main{ flex:1; padding:40px 44px; max-width:1080px; }
+  /* ---- Sidebar: shadcn admin dashboard referansıyla birebir — açık/beyaz zemin,
+     ince sağ kenarlık, seçili sekme açık gri kapsül, ikon+etiket satırı. ---- */
+  .sidebar{ width:240px; flex:none; background:var(--surface); border-right:1px solid var(--border); padding:20px 14px; display:flex; flex-direction:column; }
+  .sidebar .brand{ font-family:var(--font-display); font-weight:800; font-size:15px; text-decoration:none; color:var(--text); margin-bottom:2px; padding:6px; display:flex; align-items:center; gap:9px; border-radius:8px; }
+  .sidebar .brand svg{ width:24px; height:24px; flex:none; }
+  .sidebar .brand-sub{ font-family:var(--font-code); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); padding:0 6px; margin-bottom:22px; }
+  .side-nav{ display:flex; flex-direction:column; gap:1px; }
+  .side-nav button{ display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; font-weight:500; font-size:13.5px; color:var(--text-muted); cursor:pointer; border:none; background:none; text-align:left; width:100%; font-family:var(--font-body); transition:background .12s, color .12s; }
+  .side-nav button:hover{ background:var(--bg-alt); color:var(--text); }
+  .side-nav button.active{ background:var(--bg-alt); color:var(--text); font-weight:600; }
+  .side-nav .ico{ width:16px; text-align:center; flex:none; opacity:.75; }
+  .sidebar-foot{ margin-top:auto; padding-top:14px; border-top:1px solid var(--border); }
+  .user-chip{ display:flex; align-items:center; gap:10px; padding:6px; margin-bottom:6px; }
+  .user-chip .av{ width:28px; height:28px; border-radius:50%; background:var(--accent2); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:12px; flex:none; }
+  .user-chip b{ color:var(--text); }
+  .user-chip .role{ font-size:11px; color:var(--text-muted); }
+  .sidebar-foot .theme-toggle{ margin-bottom:8px; width:100%; justify-content:center; }
+  .main-col{ flex:1; display:flex; flex-direction:column; min-width:0; }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px 24px; border-bottom:1px solid var(--border); background:var(--surface); }
+  .topbar-search{ display:flex; align-items:center; gap:8px; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:7px 12px; max-width:380px; flex:1; }
+  .topbar-search .ico{ font-size:13px; opacity:.5; }
+  .topbar-search input{ border:none; background:none; margin:0; padding:0; font-size:13.5px; flex:1; }
+  .topbar-search input:focus{ outline:none; }
+  .topbar-search .kbd{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); background:var(--bg-alt); border:1px solid var(--border); border-radius:4px; padding:1px 6px; }
+  .topbar-toggle .theme-toggle{ position:static; box-shadow:none; }
+  .main{ flex:1; padding:28px 40px; max-width:1120px; }
   @media (max-width:820px){
     .app-shell{ flex-direction:column; }
     .sidebar{ width:100%; padding:14px 16px; border-right:none; border-bottom:1px solid var(--border); }
@@ -104,12 +110,18 @@
   }
 
   .panel-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:22px; flex-wrap:wrap; }
-  .stat-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:24px; }
+  /* shadcn admin dashboard referansındaki stat kartlarıyla birebir: ikon+etiket
+     başlık satırı, büyük rakam, alt açıklama, alt satırda "Detaylar" linki. */
+  .stat-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:24px; }
   @media (max-width:960px){ .stat-grid{ grid-template-columns:repeat(3,1fr); } }
   @media (max-width:600px){ .stat-grid{ grid-template-columns:repeat(2,1fr); } }
-  .stat-card{ background:var(--surface); padding:18px 20px; border-top:3px solid var(--accent2); }
-  .stat-card .v{ font-family:var(--font-code); font-weight:600; font-size:26px; color:var(--accent-ink); }
-  .stat-card .l{ font-size:12px; color:var(--text-muted); margin-top:4px; line-height:1.4; }
+  .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px 18px; box-shadow:0 1px 2px 0 rgba(0,0,0,.05); }
+  .stat-card .stat-head{ display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:500; color:var(--text-muted); margin-bottom:10px; }
+  .stat-card .stat-head .ico{ font-size:13px; opacity:.7; }
+  .stat-card .v{ font-family:var(--font-code); font-weight:700; font-size:24px; color:var(--text); letter-spacing:-.01em; font-variant-numeric:tabular-nums; }
+  .stat-card .l{ font-size:11.5px; color:var(--text-muted); margin-top:2px; line-height:1.4; }
+  .stat-card .stat-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid var(--border); font-size:11.5px; }
+  .stat-card .stat-foot .det{ color:var(--accent2-ink); font-weight:600; text-decoration:none; cursor:pointer; }
   .filter-row{ display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
   .filter-row input{ flex:1; min-width:220px; margin-bottom:0; }
   .filter-row select{ width:auto; min-width:180px; margin-bottom:0; }
@@ -219,7 +231,6 @@ function panelShell(innerHtml, activeView) {
           <button class="${activeView==='musteriler' ? 'active' : ''}" onclick="view='musteriler'; render();"><span class="ico">🏢</span> Müşteriler</button>
         </div>
         <div class="sidebar-foot">
-          ${themeToggleHtml()}
           <div class="user-chip">
             <div class="av">${initial}</div>
             <div><div style="font-size:13px; font-weight:700;">${adminEmail || 'Admin'}</div><div class="role">Yönetici</div></div>
@@ -227,8 +238,28 @@ function panelShell(innerHtml, activeView) {
           <button class="linklike" onclick="cikisYap()">Çıkış Yap</button>
         </div>
       </div>
-      <div class="main panel-fade">${innerHtml}</div>
+      <div class="main-col">
+        <div class="topbar">
+          <div class="topbar-search">
+            <span class="ico">🔍</span>
+            <input placeholder="Sipariş no, müşteri, firma veya ürün ara..." oninput="topbarAra(this.value)">
+            <span class="kbd">⌘K</span>
+          </div>
+          <div class="topbar-toggle">${themeToggleHtml()}</div>
+        </div>
+        <div class="main panel-fade">${innerHtml}</div>
+      </div>
     </div>`;
+}
+
+function topbarAra(v) {
+  // Üstteki arama kutusu, liste görünümündeki filtre kutusuyla aynı işi görür —
+  // liste ekranında değilsek önce oraya geçip aramayı uyguluyoruz.
+  if (view !== 'liste') { view = 'liste'; render(); }
+  setTimeout(() => {
+    const el = document.getElementById('filtreArama');
+    if (el) { el.value = v; siparisListesiCiz(); }
+  }, 0);
 }
 
 function girisEkrani() {
@@ -316,12 +347,13 @@ async function listeYukle() {
     <button class="primary" style="width:auto;" onclick="view='yeni-siparis'; render();">＋ Yeni Sipariş</button>
   </div>
   <div class="stat-grid">
-    <div class="stat-card"><div class="v">${stats.toplam}</div><div class="l">Toplam sipariş</div></div>
-    <div class="stat-card"><div class="v">${stats.aktif}</div><div class="l">Aktif süreçte</div></div>
-    <div class="stat-card" style="${stats.ozel ? 'border-top-color:var(--signal);' : ''}"><div class="v" style="${stats.ozel ? 'color:var(--signal-ink);' : ''}">${stats.ozel}</div><div class="l">Dikkat gerektiren (beklemede/revizyon/iptal)</div></div>
-    <div class="stat-card"><div class="v">${stats.buHafta}</div><div class="l">Bu hafta gelen talep</div></div>
-    <div class="stat-card" style="${stats.geciken ? 'border-top-color:var(--signal);' : ''}"><div class="v" style="${stats.geciken ? 'color:var(--signal-ink);' : ''}">${stats.geciken}</div><div class="l">5+ gündür aynı aşamada</div></div>
+    <div class="stat-card"><div class="stat-head"><span class="ico">📦</span> Toplam Sipariş</div><div class="v">${stats.toplam}</div><div class="l">tüm zamanlar</div><div class="stat-foot"><a class="det" onclick="document.getElementById('siparisListe').scrollIntoView({behavior:'smooth'})">Detaylar →</a></div></div>
+    <div class="stat-card"><div class="stat-head"><span class="ico">⚙️</span> Aktif Süreçte</div><div class="v">${stats.aktif}</div><div class="l">devam eden sipariş</div><div class="stat-foot"><a class="det" onclick="document.getElementById('siparisListe').scrollIntoView({behavior:'smooth'})">Detaylar →</a></div></div>
+    <div class="stat-card"><div class="stat-head"><span class="ico">⚠️</span> Dikkat Gerektiren</div><div class="v" style="${stats.ozel ? 'color:var(--signal-ink);' : ''}">${stats.ozel}</div><div class="l">beklemede / revizyon / iptal</div><div class="stat-foot"><a class="det" onclick="document.getElementById('siparisListe').scrollIntoView({behavior:'smooth'})">Detaylar →</a></div></div>
+    <div class="stat-card"><div class="stat-head"><span class="ico">🆕</span> Bu Hafta</div><div class="v">${stats.buHafta}</div><div class="l">yeni gelen talep</div><div class="stat-foot"><a class="det" onclick="document.getElementById('siparisListe').scrollIntoView({behavior:'smooth'})">Detaylar →</a></div></div>
+    <div class="stat-card"><div class="stat-head"><span class="ico">⏳</span> Gecikme Riski</div><div class="v" style="${stats.geciken ? 'color:var(--signal-ink);' : ''}">${stats.geciken}</div><div class="l">5+ gündür aynı aşamada</div><div class="stat-foot"><a class="det" onclick="document.getElementById('siparisListe').scrollIntoView({behavior:'smooth'})">Detaylar →</a></div></div>
   </div>
+  <div id="siparisListe"></div>
   <div class="filter-row">
     <input id="filtreArama" placeholder="Sipariş no, müşteri, firma veya ürün ara..." oninput="siparisListesiCiz()">
     <select id="filtreDurum" onchange="siparisListesiCiz()">
