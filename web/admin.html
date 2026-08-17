@@ -19,17 +19,21 @@
     --font-body: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --font-code: "IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   }
+  /* Karanlık mod da aynı referans tasarımın (shadcn) kendi koyu paletiyle —
+     eski lacivert marka rengi değil, nötr zinc tonları. */
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#0b1420; --bg-alt:#101c2c; --surface:#132132; --text:#e8edf3; --text-muted:#93a3b8;
+      --bg:#09090b; --bg-alt:#18181b; --surface:#18181b; --text:#fafafa; --text-muted:#a1a1aa;
+      --good:#4ade80; --good-bg:#052e16; --good-bd:#166534; --bad:#f87171; --bad-bg:#450a0a; --bad-bd:#991b1b;
       --accent:#e8b355; --accent-ink:#f3c878; --accent2:#4f8fc0; --accent2-ink:#7ab3dd;
-      --signal:#e2725f; --signal-ink:#f0a08e; --border:#233246;
+      --signal:#e2725f; --signal-ink:#f0a08e; --border:#27272a;
     }
   }
   :root[data-theme="dark"]{
-    --bg:#0b1420; --bg-alt:#101c2c; --surface:#132132; --text:#e8edf3; --text-muted:#93a3b8;
+    --bg:#09090b; --bg-alt:#18181b; --surface:#18181b; --text:#fafafa; --text-muted:#a1a1aa;
+    --good:#4ade80; --good-bg:#052e16; --good-bd:#166534; --bad:#f87171; --bad-bg:#450a0a; --bad-bd:#991b1b;
     --accent:#e8b355; --accent-ink:#f3c878; --accent2:#4f8fc0; --accent2-ink:#7ab3dd;
-    --signal:#e2725f; --signal-ink:#f0a08e; --border:#233246;
+    --signal:#e2725f; --signal-ink:#f0a08e; --border:#27272a;
   }
   *{box-sizing:border-box;}
   body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:15px; line-height:1.5; overflow-x:hidden; }
@@ -125,7 +129,7 @@
   .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px 18px; box-shadow:0 1px 2px 0 rgba(0,0,0,.05); }
   .stat-card .stat-head{ display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:500; color:var(--text-muted); margin-bottom:10px; }
   .stat-card .stat-head .ico{ font-size:13px; opacity:.7; }
-  .stat-card .v{ font-family:var(--font-code); font-weight:700; font-size:24px; color:var(--text); letter-spacing:-.01em; font-variant-numeric:tabular-nums; }
+  .stat-card .v{ font-family:var(--font-display); font-weight:700; font-size:34px; color:var(--text); letter-spacing:-.02em; font-variant-numeric:tabular-nums; line-height:1.15; }
   .stat-card .l{ font-size:11.5px; color:var(--text-muted); margin-top:2px; line-height:1.4; }
   .stat-card .stat-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid var(--border); font-size:11.5px; }
   .stat-card .stat-foot .det{ color:#2563eb; font-weight:600; text-decoration:none; cursor:pointer; }
@@ -341,7 +345,7 @@ function statCard(icon, label, value, caption, colorMode, trendPct) {
   }
   return `<div class="stat-card">
     <div class="stat-head"><span class="ico">${icon}</span> ${label} <span class="info-ico" title="${caption}">ⓘ</span></div>
-    <div class="v" style="color:${valColor};">${value}</div>
+    <div class="v" style="color:${valColor};">${Number(value).toLocaleString('tr-TR')}</div>
     <div class="l">${caption}</div>
     <div class="stat-foot">
       <a class="det" onclick="document.getElementById('siparisListe').scrollIntoView({behavior:'smooth'})">Detaylar →</a>
