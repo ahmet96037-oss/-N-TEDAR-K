@@ -179,6 +179,22 @@
   .panel{ background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:26px; margin-bottom:20px; box-shadow:0 4px 16px -4px rgba(70,95,255,.06); }
   .panel h2{ letter-spacing:-.02em; }
   .empty-state{ background:var(--surface); border:1px dashed var(--border); border-radius:16px; padding:36px; text-align:center; color:var(--text-muted); }
+  /* Müşteri panelindekiyle birebir aynı adım göstergesi. */
+  .adim-takip{ display:flex; align-items:flex-start; padding:6px 4px; }
+  .adim{ flex:1; display:flex; flex-direction:column; align-items:center; position:relative; text-align:center; }
+  .adim-daire{ width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; background:var(--bg-alt); color:var(--text-muted); border:2px solid var(--border); z-index:1; flex:none; transition:all .2s; }
+  .adim.done .adim-daire{ background:var(--accent2); color:#fff; border-color:var(--accent2); }
+  .adim.current .adim-daire{ background:#fff; color:var(--accent2); border-color:var(--accent2); box-shadow:0 0 0 4px color-mix(in srgb, var(--accent2) 16%, transparent); }
+  .adim.iptal .adim-daire{ background:var(--bad-bg); color:var(--bad); border-color:var(--bad-bd); }
+  .adim-ad{ font-size:11.5px; font-weight:600; color:var(--text-muted); margin-top:8px; max-width:80px; line-height:1.3; }
+  .adim.done .adim-ad, .adim.current .adim-ad{ color:var(--text); }
+  .adim-cizgi{ position:absolute; top:19px; left:50%; width:100%; height:2px; background:var(--border); z-index:0; }
+  .adim.done .adim-cizgi{ background:var(--accent2); }
+  @media (max-width:600px){ .adim-ad{ display:none; } .adim-daire{ width:30px; height:30px; font-size:12px; } .adim-cizgi{ top:15px; } }
+  /* Önceki/Sıradaki aşama kartları — ikon rozetli, pill butonlu. */
+  .faz-nav-card{ flex:1; min-width:220px; padding:18px; background:var(--bg-alt); border-radius:16px; border:1px solid var(--border); }
+  .faz-nav-card .faz-nav-label{ display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; font-weight:700; }
+  .faz-nav-card .faz-nav-ad{ font-weight:800; font-size:16px; margin:6px 0 14px; }
 
   /* Kurumsal tablo: mono/kod fontu yok (Inter + tabular-nums), satır başına
      müşteri avatarı, kategoriye göre renklendirilmiş durum rozetleri. */
@@ -220,6 +236,35 @@ let adminEmail = localStorage.getItem('tk_admin_email') || '';
 const _siparisParam = new URLSearchParams(location.search).get('siparis');
 let view = token ? (_siparisParam ? 'detay' : 'liste') : 'giris';
 let aktifSiparisNo = _siparisParam || null;
+// Müşteri panelindeki adım göstergesiyle BİREBİR aynı — admin da aynı görsel
+// dilde "neredeyiz" görsün, iki panel arasında tutarsızlık olmasın.
+const ANA_FAZLAR = [
+  { ad:'Talep & Teklif', ico:'bi-file-earmark-text', test: k => ['talep_alindi','fabrika_gorusuluyor','teklif_hazir'].includes(k) },
+  { ad:'Numune', ico:'bi-flask', test: k => k.startsWith('numune_') },
+  { ad:'Üretim', ico:'bi-gear', test: k => k.startsWith('uretim_') || k === 'uretimde' },
+  { ad:'Sevkiyat', ico:'bi-truck', test: k => ['sevkiyat_belgeleri_hazirlaniyor','konteyner','yukleme_odeme_bekleniyor','gemide','teslimat_yolda'].includes(k) },
+  { ad:'Gümrük', ico:'bi-shield-check', test: k => k.startsWith('gumruk_') },
+  { ad:'Teslim', ico:'bi-box-seam', test: k => k === 'teslim_edildi' },
+];
+function adimTakipcisi(durum) {
+  let fazIdx = ANA_FAZLAR.findIndex(f => f.test(durum));
+  if (fazIdx === -1 && durum === 'numune_revizyon_istendi') fazIdx = 1;
+  const iptal = durum === 'iptal_edildi';
+  return `<div class="adim-takip">
+    ${ANA_FAZLAR.map((f, i) => {
+      let d = 'pending';
+      if (iptal) d = 'iptal';
+      else if (i < fazIdx) d = 'done';
+      else if (i === fazIdx) d = 'current';
+      return `<div class="adim ${d}">
+        <div class="adim-daire"><i class="bi ${d==='done' ? 'bi-check-lg' : f.ico}"></i></div>
+        <div class="adim-ad">${f.ad}</div>
+        ${i < ANA_FAZLAR.length - 1 ? '<div class="adim-cizgi"></div>' : ''}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
 const DURUMLAR = [
   ['talep_alindi','Talep Alındı'],
   ['fabrika_gorusuluyor','Fabrika Görüşülüyor'],
@@ -769,6 +814,7 @@ async function detayYukle(siparisNo) {
   const ilerlemeYuzde = suankiIdx >= 0 ? Math.round(((suankiIdx + 1) / DURUMLAR.length) * 100) : null;
 
   main.innerHTML = `
+    <div class="breadcrumb">Genel <i class="bi bi-chevron-right"></i> Siparişler <i class="bi bi-chevron-right"></i> ${d.siparis_no}</div>
     <button class="back" onclick="view='liste'; render();">← Listeye dön</button>
     <div class="panel">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
@@ -776,34 +822,37 @@ async function detayYukle(siparisNo) {
           <h2>${d.siparis_no}</h2>
           <div class="meta" style="margin-bottom:0;">${d.urun_aciklamasi} · ${d.miktar||'—'}</div>
         </div>
-        <span class="pill" style="font-size:12.5px; padding:6px 14px;">${d.durum_adi}</span>
+        <span class="pill ${durumRenkSinifi(d.durum)}" style="font-size:12.5px; padding:6px 14px;">${d.durum_adi}</span>
       </div>
       ${ilerlemeYuzde !== null ? `
         <div style="height:6px; border-radius:6px; background:var(--bg-alt); overflow:hidden; margin:16px 0 6px;">
           <div style="height:100%; width:${ilerlemeYuzde}%; background:linear-gradient(90deg, var(--accent2), var(--accent));"></div>
         </div>
-        <div style="font-family:var(--font-code); font-size:11.5px; color:var(--text-muted);">${suankiIdx+1}/${DURUMLAR.length} aşama · %${ilerlemeYuzde}</div>
+        <div style="font-size:11.5px; color:var(--text-muted); font-variant-numeric:tabular-nums;">${suankiIdx+1}/${DURUMLAR.length} aşama · %${ilerlemeYuzde}</div>
       ` : ''}
-      <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap;">
+    </div>
+    <div class="panel">${adimTakipcisi(d.durum)}</div>
+    <div class="panel">
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
         ${onceki ? `
-          <div style="flex:1; min-width:220px; padding:16px; background:var(--bg-alt); border-radius:8px;">
-            <div style="font-size:11.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em;">← Önceki aşama</div>
-            <div style="font-weight:700; font-size:14.5px; margin:2px 0 10px;">${onceki[1]}</div>
+          <div class="faz-nav-card">
+            <div class="faz-nav-label"><i class="bi bi-arrow-left"></i> Önceki Aşama</div>
+            <div class="faz-nav-ad">${onceki[1]}</div>
             <button class="secondary" style="width:100%;" onclick="ilerlet('${d.siparis_no}','${onceki[0]}')">Bu Aşamaya Geri Al</button>
           </div>
-        ` : ''}
+        ` : '<div class="faz-nav-card" style="display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:13px;">İlk aşamadasınız</div>'}
         ${siradaki ? `
-          <div style="flex:1; min-width:220px; padding:16px; background:var(--bg-alt); border-radius:8px;">
-            <div style="font-size:11.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em;">Sıradaki aşama →</div>
-            <div style="font-weight:700; font-size:14.5px; margin:2px 0 10px;">${siradaki[1]}</div>
+          <div class="faz-nav-card" style="background:color-mix(in srgb, var(--accent2) 6%, var(--bg-alt)); border-color:color-mix(in srgb, var(--accent2) 25%, var(--border));">
+            <div class="faz-nav-label" style="color:var(--accent2);">Sıradaki Aşama <i class="bi bi-arrow-right"></i></div>
+            <div class="faz-nav-ad">${siradaki[1]}</div>
             <button class="primary" style="width:100%;" onclick="ilerlet('${d.siparis_no}','${siradaki[0]}')">Bu Aşamaya İlerlet</button>
           </div>
-        ` : ''}
+        ` : `<div class="faz-nav-card" style="display:flex; align-items:center; justify-content:center; gap:8px; color:var(--good); font-weight:700; font-size:13.5px;"><i class="bi bi-check-circle"></i> Son aşamada</div>`}
       </div>
-      ${(!siradaki && suankiIdx === DURUMLAR.length - 1) ? `<p style="color:var(--accent2-ink); font-weight:600; font-size:13.5px; margin-top:16px;">✓ Sipariş son aşamada (Teslim Edildi).</p>` : ''}
     </div>
-    <div class="panel" style="border-color:color-mix(in srgb, var(--accent) 35%, var(--border));">
-      <h2 style="font-size:16px;">🔒 İç Not <span style="font-weight:400; font-size:12px; color:var(--text-muted); text-transform:none; letter-spacing:0;">— sadece ekip görür</span></h2>
+    <div class="panel">
+      <div class="stat-ico-badge tone-orange" style="margin-bottom:10px;"><i class="bi bi-lock"></i></div>
+      <h2 style="font-size:16px;">İç Not <span style="font-weight:400; font-size:12px; color:var(--text-muted); text-transform:none; letter-spacing:0;">— sadece ekip görür</span></h2>
       <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Müşteri panelinde asla görünmez. Ör. "ödeme gecikmesi yaşadı, takip et", "zor müşteri, dikkatli ol".</p>
       <textarea id="icNot" rows="3" placeholder="Ekip içi not...">${d.ic_not || ''}</textarea>
       <button class="secondary" onclick="icNotKaydet('${d.siparis_no}')">İç Notu Kaydet</button>
