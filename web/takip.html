@@ -7,17 +7,17 @@
 <title>Sipariş Takip — Çin Tedarik Ağı</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 <style>
   :root{
     /* Marka paleti — ithalat/ihracat/lojistik sektörünün tanıdık dili: koyu lacivert + amber/sarı vurgu (TransitFlow ve benzeri profesyonel lojistik temalarından esinlenildi) */
     --bg:#fafafa; --bg-alt:#f4f4f5; --surface:#ffffff; --text:#09090b; --text-muted:#71717a;
-    --good:#16a34a; --good-bg:#f0fdf4; --good-bd:#bbf7d0; --bad:#dc2626; --bad-bg:#fef2f2; --bad-bd:#fecaca;
-    --accent:#d99a2b; --accent-ink:#a8721a; --accent2:#0f3d63; --accent2-ink:#0a2c47;
+    --good:#12b76a; --good-bg:#ecfdf3; --good-bd:#6ce9a6; --bad:#f04438; --bad-bg:#fef3f2; --bad-bd:#fda29b;
+    --accent:#d99a2b; --accent-ink:#a8721a; --accent2:#465fff; --accent2-ink:#3641f5;
     --signal:#c0392b; --signal-ink:#96271b; --border:#dbe0e8;
-    --font-display: "Geist",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-    --font-body: "Geist",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-display: "Outfit",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-body: "Outfit",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --font-code: "IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   }
   /* Karanlık mod da aynı referans tasarımın (shadcn) kendi koyu paletiyle —
@@ -25,15 +25,15 @@
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
       --bg:#09090b; --bg-alt:#18181b; --surface:#18181b; --text:#fafafa; --text-muted:#a1a1aa;
-      --good:#4ade80; --good-bg:#052e16; --good-bd:#166534; --bad:#f87171; --bad-bg:#450a0a; --bad-bd:#991b1b;
-      --accent:#e8b355; --accent-ink:#f3c878; --accent2:#4f8fc0; --accent2-ink:#7ab3dd;
+      --good:#6ce9a6; --good-bg:#052e16; --good-bd:#039855; --bad:#fda29b; --bad-bg:#450a0a; --bad-bd:#d92d20;
+      --accent:#e8b355; --accent-ink:#f3c878; --accent2:#7592ff; --accent2-ink:#9cb9ff;
       --signal:#e2725f; --signal-ink:#f0a08e; --border:#27272a;
     }
   }
   :root[data-theme="dark"]{
     --bg:#09090b; --bg-alt:#18181b; --surface:#18181b; --text:#fafafa; --text-muted:#a1a1aa;
-    --good:#4ade80; --good-bg:#052e16; --good-bd:#166534; --bad:#f87171; --bad-bg:#450a0a; --bad-bd:#991b1b;
-    --accent:#e8b355; --accent-ink:#f3c878; --accent2:#4f8fc0; --accent2-ink:#7ab3dd;
+    --good:#6ce9a6; --good-bg:#052e16; --good-bd:#039855; --bad:#fda29b; --bad-bg:#450a0a; --bad-bd:#d92d20;
+    --accent:#e8b355; --accent-ink:#f3c878; --accent2:#7592ff; --accent2-ink:#9cb9ff;
     --signal:#e2725f; --signal-ink:#f0a08e; --border:#27272a;
   }
   *{box-sizing:border-box;}
