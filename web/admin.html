@@ -304,6 +304,20 @@ const TASIYICILAR = [
 
 // Durum kodunu, tablo/pill'lerde kullanılan renk kategorisine çevirir —
 // 19 aşamalı gerçek süreç fazlarına göre (Talep/Numune/Üretim/Sevkiyat/Gümrük/Teslim).
+// Müşteri avatarlarına isimden türetilmiş, sabit (her seferinde aynı) bir renk
+// atar — hepsi tek bir indigo yerine mavi/mor/turuncu/pembe/camgöbeği/yeşil
+// arasında dönerek görsel çeşitlilik ve "kimin kim olduğunu" ayırt etmeyi kolaylaştırır.
+const AVATAR_PALET = [
+  ['#eff6ff', '#2563eb'], ['#faf5ff', '#9333ea'], ['#fff7ed', '#ea580c'],
+  ['#fdf2f8', '#db2777'], ['#ecfeff', '#0e7490'], ['#ecfdf3', '#12b76a'],
+  ['#fefce8', '#a16207'], ['#eef2ff', '#4f46e5'],
+];
+function avatarRengi(isim) {
+  let h = 0;
+  for (let i = 0; i < (isim||'?').length; i++) h = (h * 31 + isim.charCodeAt(i)) >>> 0;
+  return AVATAR_PALET[h % AVATAR_PALET.length];
+}
+
 function durumRenkSinifi(durum) {
   if (durum === 'iptal_edildi') return 'st-red';
   if (['numune_revizyon_istendi','beklemede'].includes(durum)) return 'st-amber';
@@ -658,9 +672,10 @@ function siparisListesiCiz() {
   let html = '<div class="table-card"><div class="table-wrap"><table><thead><tr><th>Sipariş No</th><th>Müşteri</th><th>Ürün</th><th>Durum</th><th>Tarih</th></tr></thead><tbody>';
   rows.forEach(r => {
     const baslar = (r.musteri || '?').trim().charAt(0).toUpperCase();
+    const [avBg, avFg] = avatarRengi(r.musteri || r.email || '?');
     html += `<tr onclick="aktifSiparisNo='${r.siparis_no}'; view='detay'; render();">
       <td class="siparis-no">${r.siparis_no} <span onclick="kopyala('${r.siparis_no}', event)" title="Kopyala" style="cursor:pointer; opacity:.4; font-size:11px;"><i class="bi bi-copy"></i></span></td>
-      <td><div class="row-cust"><div class="av">${baslar}</div><div>${r.musteri}${r.firma ? ' <span style=\"color:var(--text-muted); font-weight:400;\">('+r.firma+')</span>' : ''}<br><a href="mailto:${r.email}" onclick="event.stopPropagation()" style="color:var(--text-muted); font-size:12px; text-decoration:none;">${r.email}</a></div></div></td>
+      <td><div class="row-cust"><div class="av" style="background:${avBg}; color:${avFg};">${baslar}</div><div>${r.musteri}${r.firma ? ' <span style=\"color:var(--text-muted); font-weight:400;\">('+r.firma+')</span>' : ''}<br><a href="mailto:${r.email}" onclick="event.stopPropagation()" style="color:var(--text-muted); font-size:12px; text-decoration:none;">${r.email}</a></div></div></td>
       <td>${r.urun_aciklamasi}</td>
       <td><span class="pill ${durumRenkSinifi(r.durum)}">${r.durum_adi}</span></td>
       <td style="font-variant-numeric:tabular-nums; color:var(--text-muted);">${new Date(r.olusturulma).toLocaleDateString('tr-TR', {day:'2-digit', month:'short', year:'numeric'})}</td>
@@ -691,12 +706,14 @@ async function musterilerYukle() {
     html += '<div class="table-card"><div class="table-wrap"><table><thead><tr><th>Ad Soyad</th><th>Firma</th><th>İletişim</th><th>Sipariş</th><th>Son sipariş</th></tr></thead><tbody>';
     rows.forEach(m => {
       const waNo = (m.telefon || '').replace(/[^0-9]/g, '');
+      const baslar = (m.ad_soyad || '?').trim().charAt(0).toUpperCase();
+      const [avBg, avFg] = avatarRengi(m.ad_soyad || m.email || '?');
       html += `<tr>
-        <td>${m.ad_soyad}</td>
+        <td><div class="row-cust"><div class="av" style="background:${avBg}; color:${avFg};">${baslar}</div><div style="font-weight:700;">${m.ad_soyad}</div></div></td>
         <td>${m.firma || '—'}</td>
         <td>
-          <a href="mailto:${m.email}" style="color:var(--accent-ink); text-decoration:none; font-weight:600;">✉ ${m.email}</a>
-          ${m.telefon ? `<br><a href="https://wa.me/${waNo}" target="_blank" rel="noopener" style="color:var(--accent2-ink); text-decoration:none; font-size:12.5px; font-weight:600;">💬 ${m.telefon}</a>` : ''}
+          <a href="mailto:${m.email}" style="color:var(--accent2); text-decoration:none; font-weight:600; font-size:13px;"><i class="bi bi-envelope"></i> ${m.email}</a>
+          ${m.telefon ? `<br><a href="https://wa.me/${waNo}" target="_blank" rel="noopener" style="color:var(--good); text-decoration:none; font-size:12.5px; font-weight:600;"><i class="bi bi-whatsapp"></i> ${m.telefon}</a>` : ''}
         </td>
         <td class="siparis-no">${m.siparis_sayisi}</td>
         <td style="font-variant-numeric:tabular-nums; color:var(--text-muted);">${m.son_siparis ? new Date(m.son_siparis).toLocaleDateString('tr-TR', {day:'2-digit', month:'short', year:'numeric'}) : '—'}</td>
