@@ -131,7 +131,10 @@
     .tracking-links .btn{ width:100%; justify-content:center; padding:15px 18px; }
   }
 
-  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:28px; margin-bottom:20px; }
+  /* shadcn/ui "Card" bileşeniyle birebir: rounded-lg + ince kenarlık + shadow-sm */
+  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:28px; margin-bottom:20px; box-shadow:0 1px 2px 0 rgba(0,0,0,.05); }
+  .panel h2{ letter-spacing:-.02em; }
+  .tarih, .ozet-meta b, .durum-pill, .ilerleme-txt, .liste-baslik .no{ font-variant-numeric:tabular-nums; }
   .empty-state{ background:var(--surface); border:1px dashed var(--border); border-radius:8px; padding:40px; text-align:center; color:var(--text-muted); }
 
   /* Sipariş listesi — kutu-kutu kartlar yerine tek panel içinde satır satır

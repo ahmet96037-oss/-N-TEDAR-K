@@ -114,7 +114,9 @@
   .filter-row input{ flex:1; min-width:220px; margin-bottom:0; }
   .filter-row select{ width:auto; min-width:180px; margin-bottom:0; }
   .panel-head p{ color:var(--text-muted); font-size:14px; margin:6px 0 0; }
-  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:24px; margin-bottom:20px; }
+  /* shadcn/ui "Card" bileşeniyle birebir: rounded-lg + ince kenarlık + shadow-sm */
+  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:24px; margin-bottom:20px; box-shadow:0 1px 2px 0 rgba(0,0,0,.05); }
+  .panel h2{ letter-spacing:-.02em; }
   .empty-state{ background:var(--surface); border:1px dashed var(--border); border-radius:8px; padding:36px; text-align:center; color:var(--text-muted); }
 
   .table-card{ background:var(--surface); border:1px solid var(--border); border-radius:8px; overflow:hidden; }
