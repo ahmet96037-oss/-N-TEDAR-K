@@ -186,6 +186,17 @@
   .adim.done .adim-daire{ background:var(--accent2); color:#fff; border-color:var(--accent2); }
   .adim.current .adim-daire{ background:#fff; color:var(--accent2); border-color:var(--accent2); box-shadow:0 0 0 4px color-mix(in srgb, var(--accent2) 16%, transparent); }
   .adim.iptal .adim-daire{ background:var(--bad-bg); color:var(--bad); border-color:var(--bad-bd); }
+  .adim.done.renk-blue .adim-daire, .adim.current.renk-blue .adim-daire{ background:#2563eb; border-color:#2563eb; }
+  .adim.current.renk-blue .adim-daire{ background:#fff; color:#2563eb; box-shadow:0 0 0 4px rgba(37,99,235,.16); }
+  .adim.done.renk-purple .adim-daire, .adim.current.renk-purple .adim-daire{ background:#9333ea; border-color:#9333ea; }
+  .adim.current.renk-purple .adim-daire{ background:#fff; color:#9333ea; box-shadow:0 0 0 4px rgba(147,51,234,.16); }
+  .adim.done.renk-orange .adim-daire, .adim.current.renk-orange .adim-daire{ background:#ea580c; border-color:#ea580c; }
+  .adim.current.renk-orange .adim-daire{ background:#fff; color:#ea580c; box-shadow:0 0 0 4px rgba(234,88,12,.16); }
+  .adim.done.renk-cyan .adim-daire, .adim.current.renk-cyan .adim-daire{ background:#0e7490; border-color:#0e7490; }
+  .adim.current.renk-cyan .adim-daire{ background:#fff; color:#0e7490; box-shadow:0 0 0 4px rgba(14,116,144,.16); }
+  .adim.done.renk-green .adim-daire, .adim.current.renk-green .adim-daire{ background:var(--good); border-color:var(--good); }
+  .adim.current.renk-green .adim-daire{ background:#fff; color:var(--good); box-shadow:0 0 0 4px var(--good-bg); }
+  .adim.done .adim-daire{ color:#fff; }
   .adim-ad{ font-size:11.5px; font-weight:600; color:var(--text-muted); margin-top:8px; max-width:80px; line-height:1.3; }
   .adim.done .adim-ad, .adim.current .adim-ad{ color:var(--text); }
   .adim-cizgi{ position:absolute; top:19px; left:50%; width:100%; height:2px; background:var(--border); z-index:0; }
@@ -239,12 +250,12 @@ let aktifSiparisNo = _siparisParam || null;
 // Müşteri panelindeki adım göstergesiyle BİREBİR aynı — admin da aynı görsel
 // dilde "neredeyiz" görsün, iki panel arasında tutarsızlık olmasın.
 const ANA_FAZLAR = [
-  { ad:'Talep & Teklif', ico:'bi-file-earmark-text', test: k => ['talep_alindi','fabrika_gorusuluyor','teklif_hazir'].includes(k) },
-  { ad:'Numune', ico:'bi-flask', test: k => k.startsWith('numune_') },
-  { ad:'Üretim', ico:'bi-gear', test: k => k.startsWith('uretim_') || k === 'uretimde' },
-  { ad:'Sevkiyat', ico:'bi-truck', test: k => ['sevkiyat_belgeleri_hazirlaniyor','konteyner','yukleme_odeme_bekleniyor','gemide','teslimat_yolda'].includes(k) },
-  { ad:'Gümrük', ico:'bi-shield-check', test: k => k.startsWith('gumruk_') },
-  { ad:'Teslim', ico:'bi-box-seam', test: k => k === 'teslim_edildi' },
+  { ad:'Talep & Teklif', ico:'bi-file-earmark-text', renk:'blue', test: k => ['talep_alindi','fabrika_gorusuluyor','teklif_hazir'].includes(k) },
+  { ad:'Numune', ico:'bi-flask', renk:'purple', test: k => k.startsWith('numune_') },
+  { ad:'Üretim', ico:'bi-gear', renk:'orange', test: k => k.startsWith('uretim_') || k === 'uretimde' },
+  { ad:'Sevkiyat', ico:'bi-truck', renk:'cyan', test: k => ['sevkiyat_belgeleri_hazirlaniyor','konteyner','yukleme_odeme_bekleniyor','gemide','teslimat_yolda'].includes(k) },
+  { ad:'Gümrük', ico:'bi-shield-check', renk:'cyan', test: k => k.startsWith('gumruk_') },
+  { ad:'Teslim', ico:'bi-box-seam', renk:'green', test: k => k === 'teslim_edildi' },
 ];
 function adimTakipcisi(durum) {
   let fazIdx = ANA_FAZLAR.findIndex(f => f.test(durum));
@@ -256,7 +267,7 @@ function adimTakipcisi(durum) {
       if (iptal) d = 'iptal';
       else if (i < fazIdx) d = 'done';
       else if (i === fazIdx) d = 'current';
-      return `<div class="adim ${d}">
+      return `<div class="adim ${d} renk-${f.renk}">
         <div class="adim-daire"><i class="bi ${d==='done' ? 'bi-check-lg' : f.ico}"></i></div>
         <div class="adim-ad">${f.ad}</div>
         ${i < ANA_FAZLAR.length - 1 ? '<div class="adim-cizgi"></div>' : ''}
@@ -435,6 +446,14 @@ async function girisYap() {
     adminEmail = email; localStorage.setItem('tk_admin_email', email);
     view = 'liste'; render();
   } catch(e) { err.textContent = 'Bağlantı hatası'; }
+}
+
+function musteriSiparislerineGit(email) {
+  view = 'liste'; render();
+  setTimeout(() => {
+    const el = document.getElementById('filtreArama');
+    if (el) { el.value = email; siparisSayfa = 1; siparisListesiCiz(); }
+  }, 60);
 }
 
 function cikisYap() {
@@ -708,12 +727,12 @@ async function musterilerYukle() {
       const waNo = (m.telefon || '').replace(/[^0-9]/g, '');
       const baslar = (m.ad_soyad || '?').trim().charAt(0).toUpperCase();
       const [avBg, avFg] = avatarRengi(m.ad_soyad || m.email || '?');
-      html += `<tr>
+      html += `<tr onclick="musteriSiparislerineGit('${m.email}')" style="cursor:pointer;">
         <td><div class="row-cust"><div class="av" style="background:${avBg}; color:${avFg};">${baslar}</div><div style="font-weight:700;">${m.ad_soyad}</div></div></td>
         <td>${m.firma || '—'}</td>
         <td>
-          <a href="mailto:${m.email}" style="color:var(--accent2); text-decoration:none; font-weight:600; font-size:13px;"><i class="bi bi-envelope"></i> ${m.email}</a>
-          ${m.telefon ? `<br><a href="https://wa.me/${waNo}" target="_blank" rel="noopener" style="color:var(--good); text-decoration:none; font-size:12.5px; font-weight:600;"><i class="bi bi-whatsapp"></i> ${m.telefon}</a>` : ''}
+          <a href="mailto:${m.email}" onclick="event.stopPropagation()" style="color:var(--accent2); text-decoration:none; font-weight:600; font-size:13px;"><i class="bi bi-envelope"></i> ${m.email}</a>
+          ${m.telefon ? `<br><a href="https://wa.me/${waNo}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:var(--good); text-decoration:none; font-size:12.5px; font-weight:600;"><i class="bi bi-whatsapp"></i> ${m.telefon}</a>` : ''}
         </td>
         <td class="siparis-no">${m.siparis_sayisi}</td>
         <td style="font-variant-numeric:tabular-nums; color:var(--text-muted);">${m.son_siparis ? new Date(m.son_siparis).toLocaleDateString('tr-TR', {day:'2-digit', month:'short', year:'numeric'}) : '—'}</td>
@@ -830,6 +849,46 @@ async function detayYukle(siparisNo) {
   const onceki = (suankiIdx > 0) ? DURUMLAR[suankiIdx - 1] : null;
   const ilerlemeYuzde = suankiIdx >= 0 ? Math.round(((suankiIdx + 1) / DURUMLAR.length) * 100) : null;
 
+  // Sevkiyat & Gemi Takibi formu her aşamada gereksiz yere görünmesin diye
+  // sadece "sevkiyat belgeleri hazırlanıyor" ile "gümrükte muayene" arasında
+  // (konteynere yükleme, gemi, gümrük süreci) gösteriliyor — daha önceki
+  // aşamalarda (talep/numune/üretim) veya sonrasında (teslim edildi) alakasız.
+  // Zaten sevkiyat bilgisi girilmiş bir siparişte, aşama ne olursa olsun
+  // (ör. teslim edildi) veriyi görüp düzenleyebilsin diye yine gösteriliyor.
+  const sevkiyatBasIdx = DURUMLAR.findIndex(([k]) => k === 'sevkiyat_belgeleri_hazirlaniyor');
+  const sevkiyatBitIdx = DURUMLAR.findIndex(([k]) => k === 'gumruk_muayene');
+  const sevkiyatSuAsamaDaMi = suankiIdx >= sevkiyatBasIdx && suankiIdx <= sevkiyatBitIdx;
+  const sevkiyatVeriVarMi = d.sevkiyat && (d.sevkiyat.gemi_adi || d.sevkiyat.tasiyici_firma || d.sevkiyat.konteyner_no);
+  const sevkiyatPaneliHtml = (!sevkiyatSuAsamaDaMi && !sevkiyatVeriVarMi) ? '' : `<div class="panel">
+      <h2>Sevkiyat &amp; Gemi Takibi</h2>
+      <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Bu bilgiler girilince müşteri panelinde taşıyıcı takip linki ve VesselFinder araması otomatik görünür.</p>
+      <div class="row2">
+        <div>
+          <label>Taşıyıcı (kayıtlı — konşimento no otomatik dolar)</label>
+          <select id="sTasiyiciKey" onchange="document.getElementById('sTasiyiciDiger').style.display = this.value==='diger' ? 'block' : 'none'; konteynerOnizlemeGuncelle();">
+            <option value="">— Seçilmedi —</option>
+            ${TASIYICILAR.map(([k,a]) => `<option value="${k}" ${d.sevkiyat?.tasiyici_key===k?'selected':''}>${a}</option>`).join('')}
+            <option value="diger" ${(!d.sevkiyat?.tasiyici_key && d.sevkiyat?.tasiyici_firma) ? 'selected' : ''}>Diğer / listede yok</option>
+          </select>
+        </div>
+        <div><label>Gemi adı</label><input id="sGemi" placeholder="ör. MSC ISTANBUL" value="${d.sevkiyat?.gemi_adi || ''}"></div>
+      </div>
+      <div id="sTasiyiciDiger" style="display:${(!d.sevkiyat?.tasiyici_key && d.sevkiyat?.tasiyici_firma) ? 'block' : 'none'};">
+        <label>Taşıyıcı adı (serbest metin)</label>
+        <input id="sTasiyici" placeholder="ör. Yang Ming" value="${(!d.sevkiyat?.tasiyici_key && d.sevkiyat?.tasiyici_firma) ? d.sevkiyat.tasiyici_firma : ''}">
+      </div>
+      <div class="row2">
+        <div><label>Sefer no (opsiyonel)</label><input id="sSefer" value="${d.sevkiyat?.sefer_no || ''}"></div>
+        <div><label>Konşimento no (B/L)</label><input id="sKonsimento" value="${d.sevkiyat?.konsimento_no || ''}"></div>
+      </div>
+      <label>Konteyner no (opsiyonel — girilirse müşteri panelinde ayrı bir "Konteyner Takibi" butonu görünür)</label>
+      <input id="sKonteyner" placeholder="ör. MSCU1234567" value="${d.sevkiyat?.konteyner_no || ''}" oninput="konteynerOnizlemeGuncelle()">
+      <div id="sKonteynerOnizleme" style="margin:-10px 0 16px; font-size:12.5px;"></div>
+      <label>Taşıyıcı takip linki — SADECE bu sevkiyat için taşıyıcıdan gerçekten aldığınız link varsa girin (girilirse yukarıdaki kayıtlı taşıyıcı otomatik linkinin önüne geçer)</label>
+      <input id="sUrl" placeholder="https://www.maersk.com/tracking/..." value="${d.sevkiyat?.tasiyici_takip_url || ''}">
+      <button class="primary" onclick="sevkiyatGuncelle('${d.siparis_no}')">Sevkiyat Bilgisini Kaydet</button>
+    </div>`;
+
   main.innerHTML = `
     <div class="breadcrumb">Genel <i class="bi bi-chevron-right"></i> Siparişler <i class="bi bi-chevron-right"></i> ${d.siparis_no}</div>
     <button class="back" onclick="view='liste'; render();">← Listeye dön</button>
@@ -883,34 +942,7 @@ async function detayYukle(siparisNo) {
       <textarea id="durumNot" rows="2"></textarea>
       <button class="primary" onclick="durumGuncelle('${d.siparis_no}')">Durumu Kaydet</button>
     </div>
-    <div class="panel">
-      <h2>Sevkiyat &amp; Gemi Takibi</h2>
-      <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Bu bilgiler girilince müşteri panelinde taşıyıcı takip linki ve VesselFinder araması otomatik görünür.</p>
-      <div class="row2">
-        <div>
-          <label>Taşıyıcı (kayıtlı — konşimento no otomatik dolar)</label>
-          <select id="sTasiyiciKey" onchange="document.getElementById('sTasiyiciDiger').style.display = this.value==='diger' ? 'block' : 'none';">
-            <option value="">— Seçilmedi —</option>
-            ${TASIYICILAR.map(([k,a]) => `<option value="${k}" ${d.sevkiyat?.tasiyici_key===k?'selected':''}>${a}</option>`).join('')}
-            <option value="diger" ${(!d.sevkiyat?.tasiyici_key && d.sevkiyat?.tasiyici_firma) ? 'selected' : ''}>Diğer / listede yok</option>
-          </select>
-        </div>
-        <div><label>Gemi adı</label><input id="sGemi" placeholder="ör. MSC ISTANBUL" value="${d.sevkiyat?.gemi_adi || ''}"></div>
-      </div>
-      <div id="sTasiyiciDiger" style="display:${(!d.sevkiyat?.tasiyici_key && d.sevkiyat?.tasiyici_firma) ? 'block' : 'none'};">
-        <label>Taşıyıcı adı (serbest metin)</label>
-        <input id="sTasiyici" placeholder="ör. Yang Ming" value="${(!d.sevkiyat?.tasiyici_key && d.sevkiyat?.tasiyici_firma) ? d.sevkiyat.tasiyici_firma : ''}">
-      </div>
-      <div class="row2">
-        <div><label>Sefer no (opsiyonel)</label><input id="sSefer" value="${d.sevkiyat?.sefer_no || ''}"></div>
-        <div><label>Konşimento no (B/L)</label><input id="sKonsimento" value="${d.sevkiyat?.konsimento_no || ''}"></div>
-      </div>
-      <label>Konteyner no (opsiyonel — girilirse müşteri panelinde ayrı bir "Konteyner Takibi" butonu görünür)</label>
-      <input id="sKonteyner" placeholder="ör. MSCU1234567" value="${d.sevkiyat?.konteyner_no || ''}">
-      <label>Taşıyıcı takip linki — SADECE bu sevkiyat için taşıyıcıdan gerçekten aldığınız link varsa girin (girilirse yukarıdaki kayıtlı taşıyıcı otomatik linkinin önüne geçer)</label>
-      <input id="sUrl" placeholder="https://www.maersk.com/tracking/..." value="${d.sevkiyat?.tasiyici_takip_url || ''}">
-      <button class="primary" onclick="sevkiyatGuncelle('${d.siparis_no}')">Sevkiyat Bilgisini Kaydet</button>
-    </div>
+    ${sevkiyatPaneliHtml}
     <div class="panel">
       <h2>Belge Ekle</h2>
       <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Sürecin herhangi bir aşamasında PDF veya JPG olarak belge ekleyebilirsiniz — konşimento, fatura, çeki listesi, numune/QC raporu, gümrük beyannamesi vb.</p>
@@ -946,6 +978,28 @@ async function detayYukle(siparisNo) {
       </div>`).join('')}
     </div>
   `;
+  konteynerOnizlemeGuncelle();
+}
+
+// Backend'deki CARRIER_REGISTRY'nin container_deeplink kısmıyla birebir aynı —
+// admin taşıyıcı seçince/konteyner no girince, müşteri panelinde çıkacak GERÇEK
+// linki burada canlı önizleme olarak görsün.
+const KONTEYNER_DEEPLINK = {
+  maersk: no => `https://www.maersk.com/tracking/${encodeURIComponent(no)}`,
+  cosco: no => `https://elines.coscoshipping.com/ebusiness/cargoTracking?trackingType=CONTAINER&number=${encodeURIComponent(no)}`,
+};
+function konteynerOnizlemeGuncelle() {
+  const kutu = document.getElementById('sKonteynerOnizleme');
+  if (!kutu) return;
+  const key = document.getElementById('sTasiyiciKey')?.value;
+  const no = document.getElementById('sKonteyner')?.value.trim();
+  if (!no) { kutu.innerHTML = ''; return; }
+  if (key && KONTEYNER_DEEPLINK[key]) {
+    const url = KONTEYNER_DEEPLINK[key](no);
+    kutu.innerHTML = `<i class="bi bi-link-45deg"></i> Müşteriye gösterilecek link (otomatik, ${TASIYICILAR.find(t=>t[0]===key)?.[1] || key}): <a href="${url}" target="_blank" style="color:var(--accent2);">${url}</a>`;
+  } else {
+    kutu.innerHTML = `<span style="color:var(--text-muted);"><i class="bi bi-info-circle"></i> ${key ? 'Bu taşıyıcı için otomatik firma linki henüz doğrulanmadı' : 'Taşıyıcı seçilmedi'} — genel track-trace.com araması gösterilecek.</span>`;
+  }
 }
 
 async function sevkiyatGuncelle(siparisNo) {
