@@ -51,8 +51,8 @@
   input:focus, textarea:focus{ outline:2px solid var(--accent); outline-offset:1px; }
   .row2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
   @media (max-width:600px){ .row2{ grid-template-columns:1fr; } }
-  button.primary{ width:100%; background:var(--accent); color:#fff; border:none; padding:13px; border-radius:6px; font-family:var(--font-body); font-weight:700; font-size:15px; cursor:pointer; letter-spacing:-.01em; transition:background .12s; }
-  button.primary:hover{ background:var(--accent-ink); }
+  button.primary{ width:100%; background:var(--accent2); color:#fff; border:none; padding:13px; border-radius:30px; font-family:var(--font-body); font-weight:700; font-size:15px; cursor:pointer; letter-spacing:-.01em; transition:background .12s; }
+  button.primary:hover{ background:var(--accent2-ink); }
   .linklike{ background:none; border:none; color:var(--accent-ink); font-weight:600; cursor:pointer; padding:0; font-size:14px; text-decoration:underline; }
   .toggle-row{ text-align:center; margin-top:16px; font-size:14px; color:var(--text-muted); }
   .err{ color:var(--signal-ink); font-size:13.5px; margin-bottom:12px; }
@@ -101,7 +101,7 @@
   .side-group-label{ font-size:11px; font-weight:600; color:var(--text-muted); padding:0 10px; margin:16px 0 6px; }
   .side-group-label:first-of-type{ margin-top:0; }
   .side-nav{ display:flex; flex-direction:column; gap:1px; }
-  .side-nav button, .side-nav a{ display:flex; align-items:center; gap:11px; padding:7px 10px; border-radius:6px; font-weight:500; font-size:13.5px; color:var(--text); cursor:pointer; border:none; background:none; text-align:left; width:100%; font-family:var(--font-body); text-decoration:none; transition:background .12s, color .12s; }
+  .side-nav button, .side-nav a{ display:flex; align-items:center; gap:11px; padding:7px 10px; border-radius:10px; font-weight:500; font-size:13.5px; color:var(--text); cursor:pointer; border:none; background:none; text-align:left; width:100%; font-family:var(--font-body); text-decoration:none; transition:background .12s, color .12s; }
   .side-nav button:hover, .side-nav a:hover{ background:var(--bg-alt); }
   .side-nav button.active{ background:var(--bg-alt); font-weight:600; }
   .side-nav .ico{ width:16px; text-align:center; flex:none; font-size:14.5px; color:var(--text-muted); }
@@ -129,10 +129,10 @@
   }
   .panel-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:26px; flex-wrap:wrap; }
   .panel-head p{ color:var(--text-muted); font-size:14.5px; margin:6px 0 0; }
-  .btn{ display:inline-flex; align-items:center; gap:6px; padding:10px 18px; border-radius:6px; font-weight:700; font-size:13.5px; text-decoration:none; border:1px solid var(--border); cursor:pointer; font-family:var(--font-body); background:var(--surface); color:var(--text); }
+  .btn{ display:inline-flex; align-items:center; gap:6px; padding:10px 18px; border-radius:30px; font-weight:700; font-size:13.5px; text-decoration:none; border:1px solid var(--border); cursor:pointer; font-family:var(--font-body); background:var(--surface); color:var(--text); }
   .btn:hover{ border-color:var(--accent); }
-  .btn-primary{ background:var(--accent); color:#fff; border-color:var(--accent); }
-  .btn-primary:hover{ background:var(--accent-ink); border-color:var(--accent-ink); }
+  .btn-primary{ background:var(--accent2); color:#fff; border-color:var(--accent2); }
+  .btn-primary:hover{ background:var(--accent2-ink); border-color:var(--accent2-ink); }
   /* Gemi/konteyner takip linkleri — mobilde PC'deki gibi doğrudan, büyük ve
      tek dokunuşla tıklanabilir olsun diye tam genişlik + alt alta diziliyor
      (yan yana küçük butonlarda parmakla isabet etmek zorlaşıyordu). */
@@ -148,10 +148,10 @@
   }
 
   /* shadcn/ui "Card" bileşeniyle birebir: rounded-lg + ince kenarlık + shadow-sm */
-  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:28px; margin-bottom:20px; box-shadow:0 1px 2px 0 rgba(0,0,0,.05); }
+  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:28px; margin-bottom:20px; box-shadow:0 1px 2px 0 rgba(0,0,0,.05); }
   .panel h2{ letter-spacing:-.02em; }
   .tarih, .ozet-meta b, .durum-pill, .ilerleme-txt, .liste-baslik .no{ font-variant-numeric:tabular-nums; }
-  .empty-state{ background:var(--surface); border:1px dashed var(--border); border-radius:8px; padding:40px; text-align:center; color:var(--text-muted); }
+  .empty-state{ background:var(--surface); border:1px dashed var(--border); border-radius:16px; padding:40px; text-align:center; color:var(--text-muted); }
 
   /* Sipariş listesi — kutu-kutu kartlar yerine tek panel içinde satır satır
      liste (tablo hissi): bilgi yoğunluğu daha yüksek, gerçek bir SaaS
