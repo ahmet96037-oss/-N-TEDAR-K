@@ -107,12 +107,20 @@ from urllib.parse import quote as _url_quote
 CARRIER_REGISTRY = {
     "maersk": {
         "ad": "Maersk",
+        # Maersk'in tracking sayfası B/L, booking veya konteyner no'yu aynı
+        # alanda kabul ediyor (headless tarayıcıyla doğrulandı) — bu yüzden
+        # hem B/L hem konteyner deeplink'i aynı fonksiyonu kullanıyor.
         "deeplink": lambda no: f"https://www.maersk.com/tracking/{_url_quote(no)}",
+        "container_deeplink": lambda no: f"https://www.maersk.com/tracking/{_url_quote(no)}",
     },
     "cosco": {
         "ad": "COSCO Shipping",
         "deeplink": lambda no: f"https://elines.coscoshipping.com/ebusiness/cargoTracking?trackingType=BILLOFLADING&number={_url_quote(no)}",
+        "container_deeplink": lambda no: f"https://elines.coscoshipping.com/ebusiness/cargoTracking?trackingType=CONTAINER&number={_url_quote(no)}",
     },
+    # Aşağıdaki taşıyıcılar için konteyner no bazlı bir deeplink parametresi
+    # doğrulanamadı (resmi API/URL dokümantasyonu bulunamadı) — tahmini bir
+    # URL uydurmak yerine sadece ana sayfaya yönlendiriyoruz.
     "msc": {"ad": "MSC", "homepage": "https://www.msc.com/en/track-a-shipment"},
     "cma_cgm": {"ad": "CMA CGM", "homepage": "https://www.cma-cgm.com/ebusiness/tracking"},
     "hapag_lloyd": {"ad": "Hapag-Lloyd", "homepage": "https://www.hapag-lloyd.com/en/online-business/track/track-by-booking-solution.html"},
@@ -277,29 +285,37 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
         (siparis["id"],),
     ).fetchall()
 
-    # Gemi konum takibi — VesselFinder kullanılıyor. Marine Traffic iki kez
-    # denendi, ikisinde de kullanıcı tarafında açılmadığı bildirildi (kendi
-    # sitesinin bot koruması otomatik/gerçek kullanıcı ayrımı yapmadan
-    # engelliyor olmalı) — ısrar etmek yerine kaldırıldı. VesselFinder aynı
-    # işi görüyor (gemi adına göre arama) ve testlerde güvenilir açıldı.
+    # Gemi konum takibi — hem VesselFinder hem Marine Traffic gösteriliyor.
+    # (Marine Traffic daha önce bir kullanıcıda açılmama şikayeti almıştı,
+    # muhtemelen o cihaza/ağa özel bir engelleme idi — kullanıcı isteği
+    # üzerine tekrar eklendi; VesselFinder yedek olarak kalmaya devam ediyor.)
     vesselfinder_url = None
+    marinetraffic_url = None
     if siparis["gemi_adi"]:
         vesselfinder_url = f"https://www.vesselfinder.com/vessels?name={_url_quote(siparis['gemi_adi'])}"
+        marinetraffic_url = f"https://www.marinetraffic.com/en/ais/index/search/all?keyword={_url_quote(siparis['gemi_adi'])}"
 
-    # Konteyner bazlı takip — taşıyıcıdan bağımsız, konteyner no formatından
-    # (SCAC kodu ilk 4 harf) taşıyıcıyı kendi tespit eden track-trace.com
-    # kullanılıyor; gemi adı yerine doğrudan konteyner no ile arama yapıyor.
+    carrier = CARRIER_REGISTRY.get(siparis["tasiyici_key"]) if siparis["tasiyici_key"] else None
+
+    # Konteyner bazlı takip: ÖNCE seçili taşıyıcının kendi, doğrulanmış konteyner
+    # arama adresi denenir (otomatik) — yoksa taşıyıcıdan bağımsız, konteyner no
+    # formatından (SCAC kodu) taşıyıcıyı kendi tespit eden track-trace.com'a düşer.
     konteyner_takip_url = None
+    konteyner_takip_kaynagi = None
     if siparis["konteyner_no"]:
-        konteyner_takip_url = f"https://www.track-trace.com/container?number={_url_quote(siparis['konteyner_no'])}"
+        if carrier and "container_deeplink" in carrier:
+            konteyner_takip_url = carrier["container_deeplink"](siparis["konteyner_no"])
+            konteyner_takip_kaynagi = carrier["ad"]
+        else:
+            konteyner_takip_url = f"https://www.track-trace.com/container?number={_url_quote(siparis['konteyner_no'])}"
+            konteyner_takip_kaynagi = "track-trace.com (genel)"
 
-    # Taşıyıcı takip linki önceliği:
+    # Taşıyıcı (B/L) takip linki önceliği:
     # 1) admin'in o sevkiyat için elle girdiği gerçek link (varsa en doğru olan budur)
     # 2) kayıtlı taşıyıcının doğrulanmış deep-link'i (konşimento no otomatik dolar)
     # 3) kayıtlı taşıyıcının ana takip sayfası (parametre formatı doğrulanamadı)
     tasiyici_url = siparis["tasiyici_takip_url"]
     tasiyici_ad = siparis["tasiyici_firma"]
-    carrier = CARRIER_REGISTRY.get(siparis["tasiyici_key"]) if siparis["tasiyici_key"] else None
     if carrier:
         tasiyici_ad = carrier["ad"]
         if not tasiyici_url:
@@ -329,7 +345,9 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
             "konteyner_no": siparis["konteyner_no"],
             "tasiyici_takip_url": tasiyici_url,
             "vesselfinder_url": vesselfinder_url,
+            "marinetraffic_url": marinetraffic_url,
             "konteyner_takip_url": konteyner_takip_url,
+            "konteyner_takip_kaynagi": konteyner_takip_kaynagi,
         } if any([tasiyici_ad, siparis["gemi_adi"], siparis["konsimento_no"], siparis["konteyner_no"]]) else None,
         "gecmis": [
             {
