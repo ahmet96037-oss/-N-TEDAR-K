@@ -189,6 +189,19 @@
   .pill.st-red{ background:var(--bad-bg); color:var(--bad); border-color:var(--bad-bd); }
   .ozet-meta{ display:flex; gap:28px; flex-wrap:wrap; font-size:13.5px; color:var(--text-muted); margin-bottom:20px; }
   .ozet-meta b{ display:block; color:var(--text); font-family:var(--font-code); font-size:14px; margin-top:2px; font-weight:600; }
+  /* Adım adım süreç göstergesi — kurumsal kargo takip siteleri gibi net,
+     tek bakışta "neredeyim" cevabı. */
+  .adim-takip{ display:flex; align-items:flex-start; padding:6px 4px; }
+  .adim{ flex:1; display:flex; flex-direction:column; align-items:center; position:relative; text-align:center; }
+  .adim-daire{ width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; background:var(--bg-alt); color:var(--text-muted); border:2px solid var(--border); z-index:1; flex:none; transition:all .2s; }
+  .adim.done .adim-daire{ background:var(--accent2); color:#fff; border-color:var(--accent2); }
+  .adim.current .adim-daire{ background:#fff; color:var(--accent2); border-color:var(--accent2); box-shadow:0 0 0 4px color-mix(in srgb, var(--accent2) 16%, transparent); }
+  .adim.iptal .adim-daire{ background:var(--bad-bg); color:var(--bad); border-color:var(--bad-bd); }
+  .adim-ad{ font-size:11.5px; font-weight:600; color:var(--text-muted); margin-top:8px; max-width:80px; line-height:1.3; }
+  .adim.done .adim-ad, .adim.current .adim-ad{ color:var(--text); }
+  .adim-cizgi{ position:absolute; top:19px; left:50%; width:100%; height:2px; background:var(--border); z-index:0; }
+  .adim.done .adim-cizgi{ background:var(--accent2); }
+  @media (max-width:600px){ .adim-ad{ display:none; } .adim-daire{ width:30px; height:30px; font-size:12px; } .adim-cizgi{ top:15px; } }
   .ilerleme-bar-wrap{ display:flex; align-items:center; gap:12px; }
   .ilerleme-bar{ flex:1; height:8px; border-radius:6px; background:var(--bg-alt); overflow:hidden; }
   .ilerleme-bar .fill{ height:100%; background:linear-gradient(90deg, var(--accent2), var(--accent)); border-radius:6px; transition:width .3s; }
@@ -525,12 +538,43 @@ async function siparisDetayYukle(siparisNo) {
     for (let i = d.gecmis.length - 1; i >= 0; i--) {
       if (lineerKodlar.has(d.gecmis[i].durum)) { sonLineerDurum = d.gecmis[i].durum; break; }
     }
+    if (sonLineerDurum === null && lineerKodlar.has(d.durum)) sonLineerDurum = d.durum;
     const suankiIndex = d.durum_sirasi.findIndex(s => s.kod === sonLineerDurum);
     acikFazIndex = FAZLAR.findIndex(f => f.kodlar.includes(sonLineerDurum));
     if (acikFazIndex < 0) acikFazIndex = 0;
 
     main.innerHTML = '<div class="panel-fade">' + detaySayfasi(d, suankiIndex) + '</div>';
   } catch (e) { main.innerHTML = '<div class="panel err">Yüklenemedi.</div>'; }
+}
+
+// Adım adım, kolay takip edilebilir yatay süreç göstergesi — 19 durumu tek tek
+// değil, gerçek 6 ana faza indirger. Kargo takip siteleri gibi "neredeyim"
+// sorusuna tek bakışta cevap verir.
+const ANA_FAZLAR = [
+  { ad:'Talep & Teklif', ico:'bi-file-earmark-text', test: k => ['talep_alindi','fabrika_gorusuluyor','teklif_hazir'].includes(k) },
+  { ad:'Numune', ico:'bi-flask', test: k => k.startsWith('numune_') },
+  { ad:'Üretim', ico:'bi-gear', test: k => k.startsWith('uretim_') || k === 'uretimde' },
+  { ad:'Sevkiyat', ico:'bi-truck', test: k => ['sevkiyat_belgeleri_hazirlaniyor','konteyner','yukleme_odeme_bekleniyor','gemide','teslimat_yolda'].includes(k) },
+  { ad:'Gümrük', ico:'bi-shield-check', test: k => k.startsWith('gumruk_') },
+  { ad:'Teslim', ico:'bi-box-seam', test: k => k === 'teslim_edildi' },
+];
+function adimTakipcisi(d) {
+  let fazIdx = ANA_FAZLAR.findIndex(f => f.test(d.durum));
+  if (fazIdx === -1 && d.durum === 'numune_revizyon_istendi') fazIdx = 1;
+  const iptal = d.durum === 'iptal_edildi';
+  return `<div class="adim-takip">
+    ${ANA_FAZLAR.map((f, i) => {
+      let durum = 'pending';
+      if (iptal) durum = 'iptal';
+      else if (i < fazIdx) durum = 'done';
+      else if (i === fazIdx) durum = 'current';
+      return `<div class="adim ${durum}">
+        <div class="adim-daire"><i class="bi ${durum==='done' ? 'bi-check-lg' : f.ico}"></i></div>
+        <div class="adim-ad">${f.ad}</div>
+        ${i < ANA_FAZLAR.length - 1 ? '<div class="adim-cizgi"></div>' : ''}
+      </div>`;
+    }).join('')}
+  </div>`;
 }
 
 function detaySayfasi(d, suankiIndex) {
@@ -593,6 +637,7 @@ function detaySayfasi(d, suankiIndex) {
       </div>
       ${d.sevkiyat ? `<a href="#gemi-takip" class="jump-link">🚢 Gemi &amp; Konteyner Takip Ekranına Git ↓</a>` : ''}
     </div>
+    <div class="panel">${adimTakipcisi(d)}</div>
     ${ozelBanner}
     ${sevkiyatCard}
     <div class="tabs">
@@ -626,6 +671,10 @@ function hesaplaSuankiIndex(d) {
   for (let i = d.gecmis.length - 1; i >= 0; i--) {
     if (lineerKodlar.has(d.gecmis[i].durum)) { sonLineerDurum = d.gecmis[i].durum; break; }
   }
+  // Geçmiş kaydında eşleşme yoksa (ör. durum elle/toplu güncellenmiş, geçmiş
+  // satırı hiç oluşmamış) siparişin GERÇEK durumuna düşüyoruz — sessizce
+  // "Talep Alındı"ya (index 0) geri dönüp yanlış aşama göstermek yerine.
+  if (sonLineerDurum === null && lineerKodlar.has(d.durum)) sonLineerDurum = d.durum;
   return d.durum_sirasi.findIndex(s => s.kod === sonLineerDurum);
 }
 
