@@ -157,6 +157,8 @@
 
   /* Sayfa başlığı — paylaşılan referanstaki gibi büyük kalın H1 + sağda
      dolgu(dark)/çerçeveli(outline) buton ikilisi. */
+  .breadcrumb{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-muted); margin-bottom:10px; }
+  .breadcrumb i{ font-size:10px; opacity:.6; }
   .page-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:22px; flex-wrap:wrap; }
   .page-head h1{ font-family:var(--font-display); font-weight:700; font-size:26px; letter-spacing:-.02em; margin:0; }
   .page-head p{ color:var(--text-muted); font-size:13.5px; margin:4px 0 0; }
@@ -181,6 +183,12 @@
   /* Kurumsal tablo: mono/kod fontu yok (Inter + tabular-nums), satır başına
      müşteri avatarı, kategoriye göre renklendirilmiş durum rozetleri. */
   .table-card{ background:var(--surface); border:1px solid var(--border); border-radius:20px; overflow:hidden; box-shadow:0 4px 16px -4px rgba(70,95,255,.06); }
+  .pagination{ display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-top:1px solid var(--border); font-size:12.5px; color:var(--text-muted); flex-wrap:wrap; gap:10px; }
+  .pagination-btns{ display:flex; align-items:center; gap:10px; }
+  .pagination-btns button{ width:28px; height:28px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; }
+  .pagination-btns button:hover:not(:disabled){ background:var(--bg-alt); }
+  .pagination-btns button:disabled{ opacity:.35; cursor:not-allowed; }
+  .pagination-sayfa{ font-weight:600; color:var(--text); }
   .table-wrap{ overflow-x:auto; }
   table{ width:100%; border-collapse:collapse; font-size:13.5px; font-family:var(--font-body); }
   th,td{ text-align:left; padding:16px 20px; border-bottom:1px solid var(--border); white-space:nowrap; }
@@ -433,7 +441,9 @@ function alanGrafigi(rows) {
     const path = yumusakYol(pts);
     const area = path + ` L${pts[pts.length-1][0]},${H-PAD} L${pts[0][0]},${H-PAD} Z`;
     const dots = pts.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.5" fill="${renk}"/>`).join('');
-    return `<path d="${area}" fill="${renk}" fill-opacity="0.14"/><path d="${path}" fill="none" stroke="${renk}" stroke-width="2.5"/>${dots}`;
+    // Referanstaki gibi her noktanın gerçek değeri, noktanın hemen üstünde.
+    const degerEtiketleri = pts.map((p,i) => `<text x="${p[0].toFixed(1)}" y="${(p[1]-9).toFixed(1)}" font-size="9" font-weight="700" fill="${renk}" text-anchor="middle">${haftalar[i][key]}</text>`).join('');
+    return `<path d="${area}" fill="${renk}" fill-opacity="0.14"/><path d="${path}" fill="none" stroke="${renk}" stroke-width="2.5"/>${dots}${degerEtiketleri}`;
   };
   const labels = haftalar.map((h,i) => `<text x="${(PAD+i*stepX).toFixed(1)}" y="${H-6}" font-size="9.5" fill="var(--text-muted)" text-anchor="middle">${h.etiket}</text>`).join('');
   return `<div class="panel chart-card">
@@ -549,7 +559,8 @@ async function listeYukle() {
     geciken: siparisRowsCache.filter(r => !bitmisSet.has(r.durum) && r.guncellenme && new Date(r.guncellenme).getTime() < besGunOnce).length,
   };
 
-  let html = `<div class="page-head">
+  let html = `<div class="breadcrumb">Genel <i class="bi bi-chevron-right"></i> Siparişler</div>
+  <div class="page-head">
     <div><h1>Siparişler</h1><p>${siparisRowsCache.length} sipariş listeleniyor — talepten teslimata tüm süreç.</p></div>
     <div class="page-head-actions">
       <button class="btn-outline" onclick="csvIndir(siparisRowsCache, ['siparis_no','urun_aciklamasi','miktar','durum','olusturulma'], 'siparisler.csv')">⬇ Dışa Aktar</button>
@@ -566,8 +577,8 @@ async function listeYukle() {
   <div class="chart-row">${alanGrafigi(siparisRowsCache)}${barGrafigi(siparisRowsCache)}${tamamlanmaHalkasi(siparisRowsCache)}</div>
   <div id="siparisListe"></div>
   <div class="filter-row">
-    <input id="filtreArama" placeholder="Sipariş no, müşteri, firma veya ürün ara..." oninput="siparisListesiCiz()">
-    <select id="filtreDurum" onchange="siparisListesiCiz()">
+    <input id="filtreArama" placeholder="Sipariş no, müşteri, firma veya ürün ara..." oninput="siparisSayfa=1; siparisListesiCiz()">
+    <select id="filtreDurum" onchange="siparisSayfa=1; siparisListesiCiz()">
       <option value="">Tüm durumlar</option>
       <optgroup label="Ana Akış">${DURUMLAR.map(([k,a]) => `<option value="${k}">${a}</option>`).join('')}</optgroup>
       <optgroup label="Özel Durumlar">${OZEL_DURUMLAR.map(([k,a]) => `<option value="${k}">${a}</option>`).join('')}</optgroup>
@@ -578,20 +589,27 @@ async function listeYukle() {
   siparisListesiCiz();
 }
 
+let siparisSayfa = 1;
+const SIPARIS_SAYFA_BOYU = 8;
+
 function siparisListesiCiz() {
   const kutu = document.getElementById('siparisTablo');
   if (!kutu) return;
   const arama = (document.getElementById('filtreArama').value || '').toLowerCase().trim();
   const durumFiltre = document.getElementById('filtreDurum').value;
-  const rows = siparisRowsCache.filter(r => {
+  const tumRows = siparisRowsCache.filter(r => {
     if (durumFiltre && r.durum !== durumFiltre) return false;
     if (!arama) return true;
     return [r.siparis_no, r.musteri, r.firma, r.email, r.urun_aciklamasi].some(v => (v||'').toLowerCase().includes(arama));
   });
-  if (rows.length === 0) {
+  if (tumRows.length === 0) {
     kutu.innerHTML = '<div class="empty-state">Kriterlere uyan sipariş yok.</div>';
     return;
   }
+  const toplamSayfa = Math.max(1, Math.ceil(tumRows.length / SIPARIS_SAYFA_BOYU));
+  if (siparisSayfa > toplamSayfa) siparisSayfa = toplamSayfa;
+  const bas = (siparisSayfa - 1) * SIPARIS_SAYFA_BOYU;
+  const rows = tumRows.slice(bas, bas + SIPARIS_SAYFA_BOYU);
   let html = '<div class="table-card"><div class="table-wrap"><table><thead><tr><th>Sipariş No</th><th>Müşteri</th><th>Ürün</th><th>Durum</th><th>Tarih</th></tr></thead><tbody>';
   rows.forEach(r => {
     const baslar = (r.musteri || '?').trim().charAt(0).toUpperCase();
@@ -603,7 +621,15 @@ function siparisListesiCiz() {
       <td style="font-variant-numeric:tabular-nums; color:var(--text-muted);">${new Date(r.olusturulma).toLocaleDateString('tr-TR', {day:'2-digit', month:'short', year:'numeric'})}</td>
     </tr>`;
   });
-  html += '</tbody></table></div></div>';
+  html += '</tbody></table></div>';
+  html += `<div class="pagination">
+    <span>${tumRows.length} kayıttan ${bas+1}-${Math.min(bas+SIPARIS_SAYFA_BOYU, tumRows.length)} arası gösteriliyor</span>
+    <div class="pagination-btns">
+      <button ${siparisSayfa<=1?'disabled':''} onclick="siparisSayfa--; siparisListesiCiz();"><i class="bi bi-chevron-left"></i></button>
+      <span class="pagination-sayfa">Sayfa ${siparisSayfa} / ${toplamSayfa}</span>
+      <button ${siparisSayfa>=toplamSayfa?'disabled':''} onclick="siparisSayfa++; siparisListesiCiz();"><i class="bi bi-chevron-right"></i></button>
+    </div>
+  </div></div>`;
   html += `<div style="margin-top:16px;"><button class="secondary" onclick="csvIndir(siparisRowsCache, ['siparis_no','musteri','firma','email','urun_aciklamasi','durum_adi','olusturulma'], 'siparisler.csv')">⬇ CSV Olarak İndir</button></div>`;
   kutu.innerHTML = html;
 }
@@ -613,7 +639,7 @@ async function musterilerYukle() {
   const res = await fetch(API + '/api/tk/admin/musteriler', {headers:{'Authorization':'Bearer '+token}});
   if (res.status === 401) { cikisYap(); return; }
   const rows = await res.json();
-  let html = `<div class="panel-head"><div><h2>Müşteriler</h2><p>${rows.length} kayıtlı müşteri.</p></div></div>`;
+  let html = `<div class="breadcrumb">Genel <i class="bi bi-chevron-right"></i> Müşteriler</div><div class="panel-head"><div><h2>Müşteriler</h2><p>${rows.length} kayıtlı müşteri.</p></div></div>`;
   if (rows.length === 0) {
     html += '<div class="empty-state">Henüz müşteri yok.</div>';
   } else {
