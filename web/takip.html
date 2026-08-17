@@ -7,7 +7,7 @@
 <title>Sipariş Takip — Çin Tedarik Ağı</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 <style>
   :root{
@@ -16,8 +16,8 @@
     --good:#16a34a; --good-bg:#f0fdf4; --good-bd:#bbf7d0; --bad:#dc2626; --bad-bg:#fef2f2; --bad-bd:#fecaca;
     --accent:#d99a2b; --accent-ink:#a8721a; --accent2:#0f3d63; --accent2-ink:#0a2c47;
     --signal:#c0392b; --signal-ink:#96271b; --border:#dbe0e8;
-    --font-display: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-    --font-body: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-display: "Geist",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-body: "Geist",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --font-code: "IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   }
   /* Karanlık mod da aynı referans tasarımın (shadcn) kendi koyu paletiyle —
@@ -424,6 +424,37 @@ function durumRenkSinifi(durum) {
   return '';
 }
 
+// Müşterinin kendi siparişlerinden gerçek bir süreç-fazı dağılım grafiği —
+// admin panelindeki barGrafigi() ile aynı mantık, tek müşteriye özel veriyle.
+function musteriFazGrafigi(rows) {
+  const fazlar = [
+    ['Talep/Teklif', r => ['talep_alindi','fabrika_gorusuluyor','teklif_hazir'].includes(r.durum)],
+    ['Numune', r => r.durum.startsWith('numune_')],
+    ['Üretim', r => r.durum.startsWith('uretim_') || r.durum === 'uretimde'],
+    ['Sevkiyat', r => ['sevkiyat_belgeleri_hazirlaniyor','konteyner','yukleme_odeme_bekleniyor','gemide','teslimat_yolda'].includes(r.durum)],
+    ['Gümrük', r => r.durum.startsWith('gumruk_')],
+    ['Teslim', r => r.durum === 'teslim_edildi'],
+  ];
+  const veriler = fazlar.map(([ad, f], i) => ({ad, n: rows.filter(f).length, renk: i % 2 === 0 ? '#ea580c' : '#14b8a6'}));
+  if (!veriler.some(v => v.n > 0)) return '';
+  const maxN = Math.max(1, ...veriler.map(v => v.n));
+  const W = 560, H = 130, PAD = 20, barW = (W - PAD*2) / veriler.length * 0.55;
+  const stepX = (W - PAD*2) / veriler.length;
+  const bars = veriler.map((v,i) => {
+    const h = (v.n / maxN) * (H - PAD*2 - 14);
+    const x = PAD + i*stepX + (stepX - barW)/2;
+    const y = H - PAD - h;
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(h,2).toFixed(1)}" rx="3" fill="${v.renk}"/>
+      <text x="${(x+barW/2).toFixed(1)}" y="${(y-6).toFixed(1)}" font-size="10" font-weight="700" fill="var(--text)" text-anchor="middle">${v.n}</text>
+      <text x="${(x+barW/2).toFixed(1)}" y="${(H-PAD+12).toFixed(1)}" font-size="8.5" fill="var(--text-muted)" text-anchor="middle">${v.ad}</text>`;
+  }).join('');
+  return `<div class="panel" style="margin-bottom:20px;">
+    <h2 style="font-size:15px;">Siparişleriniz — Süreç Fazına Göre</h2>
+    <p style="color:var(--text-muted); font-size:12.5px; margin:0 0 10px;">Toplam ${rows.length} sipariş, gerçek dağılım</p>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; max-width:480px;">${bars}</svg>
+  </div>`;
+}
+
 async function siparisListesiYukle() {
   const main = document.querySelector('.main');
   try {
@@ -437,6 +468,7 @@ async function siparisListesiYukle() {
     if (rows.length === 0) {
       html += `<div class="empty-state">Henüz siparişiniz yok.<br><button class="linklike" style="margin-top:10px;" onclick="view='rfq'; render();">İlk talebinizi oluşturun →</button></div>`;
     } else {
+      html += musteriFazGrafigi(rows);
       html += '<div class="siparis-liste">';
       rows.forEach(r => {
         html += `<div class="siparis-satir" onclick="aktifSiparisNo='${r.siparis_no}'; view='detay'; render();">
