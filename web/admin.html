@@ -11,7 +11,8 @@
 <style>
   :root{
     /* Marka paleti — ithalat/ihracat/lojistik sektörünün tanıdık dili: koyu lacivert + amber/sarı vurgu (TransitFlow ve benzeri profesyonel lojistik temalarından esinlenildi) */
-    --bg:#f5f6f8; --bg-alt:#eaedf2; --surface:#ffffff; --text:#0b1f38; --text-muted:#5b6b80;
+    --bg:#fafafa; --bg-alt:#f4f4f5; --surface:#ffffff; --text:#09090b; --text-muted:#71717a;
+    --good:#16a34a; --good-bg:#f0fdf4; --good-bd:#bbf7d0; --bad:#dc2626; --bad-bg:#fef2f2; --bad-bd:#fecaca;
     --accent:#d99a2b; --accent-ink:#a8721a; --accent2:#0f3d63; --accent2-ink:#0a2c47;
     --signal:#c0392b; --signal-ink:#96271b; --border:#dbe0e8;
     --font-display: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
@@ -79,9 +80,15 @@
   /* ---- Sidebar: shadcn admin dashboard referansıyla birebir — açık/beyaz zemin,
      ince sağ kenarlık, seçili sekme açık gri kapsül, ikon+etiket satırı. ---- */
   .sidebar{ width:240px; flex:none; background:var(--surface); border-right:1px solid var(--border); padding:20px 14px; display:flex; flex-direction:column; }
-  .sidebar .brand{ font-family:var(--font-display); font-weight:800; font-size:15px; text-decoration:none; color:var(--text); margin-bottom:2px; padding:6px; display:flex; align-items:center; gap:9px; border-radius:8px; }
-  .sidebar .brand svg{ width:24px; height:24px; flex:none; }
-  .sidebar .brand-sub{ font-family:var(--font-code); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); padding:0 6px; margin-bottom:22px; }
+  .brand-row{ display:flex; align-items:center; justify-content:space-between; padding:6px; margin-bottom:18px; border-radius:8px; }
+  .brand-row:hover{ background:var(--bg-alt); }
+  .brand-row .chev{ color:var(--text-muted); font-size:12px; }
+  .sidebar .brand{ font-family:var(--font-display); font-weight:800; font-size:14px; text-decoration:none; color:var(--text); display:flex; align-items:center; gap:9px; }
+  .sidebar .brand svg{ width:26px; height:26px; flex:none; }
+  .sidebar .brand-t{ line-height:1.2; }
+  .sidebar .brand-sub{ font-family:var(--font-body); font-weight:400; font-size:11px; letter-spacing:0; text-transform:none; color:var(--text-muted); }
+  .side-group-label{ font-size:11px; font-weight:600; color:var(--text-muted); padding:0 8px; margin:14px 0 6px; }
+  .side-group-label:first-of-type{ margin-top:0; }
   .side-nav{ display:flex; flex-direction:column; gap:1px; }
   .side-nav button{ display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; font-weight:500; font-size:13.5px; color:var(--text-muted); cursor:pointer; border:none; background:none; text-align:left; width:100%; font-family:var(--font-body); transition:background .12s, color .12s; }
   .side-nav button:hover{ background:var(--bg-alt); color:var(--text); }
@@ -121,7 +128,23 @@
   .stat-card .v{ font-family:var(--font-code); font-weight:700; font-size:24px; color:var(--text); letter-spacing:-.01em; font-variant-numeric:tabular-nums; }
   .stat-card .l{ font-size:11.5px; color:var(--text-muted); margin-top:2px; line-height:1.4; }
   .stat-card .stat-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid var(--border); font-size:11.5px; }
-  .stat-card .stat-foot .det{ color:var(--accent2-ink); font-weight:600; text-decoration:none; cursor:pointer; }
+  .stat-card .stat-foot .det{ color:#2563eb; font-weight:600; text-decoration:none; cursor:pointer; }
+  .stat-card .info-ico{ margin-left:auto; opacity:.4; cursor:help; font-size:11px; }
+  .trend-badge{ display:inline-flex; align-items:center; gap:3px; font-weight:700; font-size:11px; padding:2px 7px; border-radius:20px; }
+  .trend-badge.up{ color:var(--good); background:var(--good-bg); border:1px solid var(--good-bd); }
+  .trend-badge.down{ color:var(--bad); background:var(--bad-bg); border:1px solid var(--bad-bd); }
+
+  /* Sayfa başlığı — paylaşılan referanstaki gibi büyük kalın H1 + sağda
+     dolgu(dark)/çerçeveli(outline) buton ikilisi. */
+  .page-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:22px; flex-wrap:wrap; }
+  .page-head h1{ font-family:var(--font-display); font-weight:700; font-size:26px; letter-spacing:-.02em; margin:0; }
+  .page-head p{ color:var(--text-muted); font-size:13.5px; margin:4px 0 0; }
+  .page-head-actions{ display:flex; gap:10px; flex:none; }
+  .btn-dark{ background:#18181b; color:#fff; border:none; padding:9px 16px; border-radius:6px; font-weight:600; font-size:13.5px; cursor:pointer; font-family:var(--font-body); }
+  .btn-dark:hover{ background:#27272a; }
+  .btn-outline{ background:var(--surface); color:var(--text); border:1px solid var(--border); padding:9px 16px; border-radius:6px; font-weight:600; font-size:13.5px; cursor:pointer; font-family:var(--font-body); }
+  .btn-outline:hover{ background:var(--bg-alt); }
+  .chart-card svg{ display:block; }
   .filter-row{ display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
   .filter-row input{ flex:1; min-width:220px; margin-bottom:0; }
   .filter-row select{ width:auto; min-width:180px; margin-bottom:0; }
@@ -223,12 +246,19 @@ function panelShell(innerHtml, activeView) {
   return `
     <div class="app-shell">
       <div class="sidebar">
-        <div class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0f3d63"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.16"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.16"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#d99a2b" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#d99a2b"/></svg>Çin Tedarik Ağı</div>
-        <div class="brand-sub">Admin Paneli</div>
+        <div class="brand-row">
+          <div class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0f3d63"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.16"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.16"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#d99a2b" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#d99a2b"/></svg><div><div class="brand-t">Çin Tedarik Ağı</div><div class="brand-sub">Admin Paneli</div></div></div>
+          <span class="chev">⌄</span>
+        </div>
+        <div class="side-group-label">Genel</div>
         <div class="side-nav">
           <button class="${activeView==='liste'||activeView==='detay' ? 'active' : ''}" onclick="view='liste'; render();"><span class="ico">📋</span> Siparişler</button>
           <button class="${activeView==='yeni-siparis' ? 'active' : ''}" onclick="view='yeni-siparis'; render();"><span class="ico">＋</span> Yeni Sipariş</button>
           <button class="${activeView==='musteriler' ? 'active' : ''}" onclick="view='musteriler'; render();"><span class="ico">🏢</span> Müşteriler</button>
+        </div>
+        <div class="side-group-label">Hesap</div>
+        <div class="side-nav">
+          <button onclick="document.getElementById('siparisListe')?.scrollIntoView({behavior:'smooth'})"><span class="ico">⚙️</span> Ayarlar</button>
         </div>
         <div class="sidebar-foot">
           <div class="user-chip">
@@ -299,6 +329,62 @@ function cikisYap() {
 let siparisRowsCache = [];
 let musteriRowsCache = [];
 
+// Stat kartı — paylaşılan referans tasarımdaki gibi ikon+etiket başlığı, büyük
+// rakam, alt açıklama ve (varsa GERÇEK, hesaplanmış) yeşil/kırmızı trend rozeti.
+// trendPct null ise rozet hiç basılmıyor — uydurma yüzde göstermiyoruz.
+function statCard(icon, label, value, caption, colorMode, trendPct) {
+  const valColor = colorMode === 'bad' ? 'var(--bad)' : (colorMode === 'good' ? 'var(--good)' : 'var(--text)');
+  let badge = '';
+  if (trendPct !== undefined && trendPct !== null) {
+    const up = trendPct >= 0;
+    badge = `<span class="trend-badge ${up ? 'up' : 'down'}">${up ? '▲' : '▼'} %${Math.abs(trendPct)}</span>`;
+  }
+  return `<div class="stat-card">
+    <div class="stat-head"><span class="ico">${icon}</span> ${label} <span class="info-ico" title="${caption}">ⓘ</span></div>
+    <div class="v" style="color:${valColor};">${value}</div>
+    <div class="l">${caption}</div>
+    <div class="stat-foot">
+      <a class="det" onclick="document.getElementById('siparisListe').scrollIntoView({behavior:'smooth'})">Detaylar →</a>
+      ${badge}
+    </div>
+  </div>`;
+}
+
+// Basit, bağımlılıksız SVG çizgi grafik — son 6 haftanın gerçek sipariş
+// sayılarını gösterir (uydurma demo veri değil, siparisRowsCache'ten hesaplanır).
+function miniChart(rows) {
+  const haftalar = [];
+  const simdi = Date.now();
+  for (let i = 5; i >= 0; i--) {
+    const bas = simdi - (i+1)*7*24*60*60*1000;
+    const bit = simdi - i*7*24*60*60*1000;
+    const n = rows.filter(r => { const t = new Date(r.olusturulma).getTime(); return t >= bas && t < bit; }).length;
+    const etiket = new Date(bit).toLocaleDateString('tr-TR', {day:'2-digit', month:'2-digit'});
+    haftalar.push({n, etiket});
+  }
+  const maxN = Math.max(1, ...haftalar.map(h => h.n));
+  const W = 600, H = 120, PAD = 24;
+  const stepX = (W - PAD*2) / (haftalar.length - 1);
+  const pts = haftalar.map((h,i) => {
+    const x = PAD + i*stepX;
+    const y = H - PAD - (h.n / maxN) * (H - PAD*2);
+    return [x,y];
+  });
+  const path = pts.map((p,i) => (i===0?'M':'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const area = path + ` L${pts[pts.length-1][0]},${H-PAD} L${pts[0][0]},${H-PAD} Z`;
+  const dots = pts.map((p,i) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="#ea580c"/>`).join('');
+  const labels = haftalar.map((h,i) => `<text x="${(PAD+i*stepX).toFixed(1)}" y="${H-4}" font-size="9" fill="var(--text-muted)" text-anchor="middle">${h.etiket}</text>`).join('');
+  return `<div class="panel chart-card">
+    <h2 style="font-size:15px;">Haftalık Sipariş Hacmi</h2>
+    <p style="color:var(--text-muted); font-size:12.5px; margin:0 0 10px;">Son 6 hafta, gerçek talep sayısı</p>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto;">
+      <path d="${area}" fill="#ea580c" fill-opacity="0.12"/>
+      <path d="${path}" fill="none" stroke="#ea580c" stroke-width="2"/>
+      ${dots}${labels}
+    </svg>
+  </div>`;
+}
+
 // Basit CSV dışa aktarma — harici kütüphane gerektirmez. Değerlerdeki
 // virgül/tırnak/satır sonu CSV kaçış kuralına göre işlenir.
 function csvIndir(rows, alanlar, dosyaAdi) {
@@ -332,27 +418,42 @@ async function listeYukle() {
 
   const ozelSet = new Set(['numune_revizyon_istendi','beklemede','iptal_edildi']);
   const bitmisSet = new Set(['teslim_edildi','iptal_edildi']);
-  const yediGunOnce = Date.now() - 7*24*60*60*1000;
-  const besGunOnce = Date.now() - 5*24*60*60*1000;
+  const simdi = Date.now();
+  const yediGunOnce = simdi - 7*24*60*60*1000;
+  const onDortGunOnce = simdi - 14*24*60*60*1000;
+  const besGunOnce = simdi - 5*24*60*60*1000;
+  const buHaftaKayitlar = siparisRowsCache.filter(r => new Date(r.olusturulma).getTime() >= yediGunOnce);
+  const gecenHaftaKayitlar = siparisRowsCache.filter(r => { const t = new Date(r.olusturulma).getTime(); return t >= onDortGunOnce && t < yediGunOnce; });
+  // Trend rozeti SADECE gerçekten karşılaştırılabilir veri varsa (geçen hafta en az
+  // 1 kayıt) gösteriliyor — yoksa uydurma bir yüzde göstermek yerine rozeti hiç basmıyoruz.
+  const haftaTrend = gecenHaftaKayitlar.length > 0
+    ? Math.round(((buHaftaKayitlar.length - gecenHaftaKayitlar.length) / gecenHaftaKayitlar.length) * 100)
+    : null;
   const stats = {
     toplam: siparisRowsCache.length,
     aktif: siparisRowsCache.filter(r => r.durum !== 'teslim_edildi' && !ozelSet.has(r.durum)).length,
     ozel: siparisRowsCache.filter(r => ozelSet.has(r.durum)).length,
-    buHafta: siparisRowsCache.filter(r => new Date(r.olusturulma).getTime() >= yediGunOnce).length,
+    buHafta: buHaftaKayitlar.length,
+    gecenHafta: gecenHaftaKayitlar.length,
+    haftaTrend,
     geciken: siparisRowsCache.filter(r => !bitmisSet.has(r.durum) && r.guncellenme && new Date(r.guncellenme).getTime() < besGunOnce).length,
   };
 
-  let html = `<div class="panel-head">
-    <div><h2>Tüm Siparişler</h2><p>${siparisRowsCache.length} sipariş listeleniyor.</p></div>
-    <button class="primary" style="width:auto;" onclick="view='yeni-siparis'; render();">＋ Yeni Sipariş</button>
+  let html = `<div class="page-head">
+    <div><h1>Siparişler</h1><p>${siparisRowsCache.length} sipariş listeleniyor — talepten teslimata tüm süreç.</p></div>
+    <div class="page-head-actions">
+      <button class="btn-outline" onclick="csvIndir(siparisRowsCache, ['siparis_no','urun_aciklamasi','miktar','durum','olusturulma'], 'siparisler.csv')">⬇ Dışa Aktar</button>
+      <button class="btn-dark" onclick="view='yeni-siparis'; render();">＋ Yeni Sipariş</button>
+    </div>
   </div>
   <div class="stat-grid">
-    <div class="stat-card"><div class="stat-head"><span class="ico">📦</span> Toplam Sipariş</div><div class="v">${stats.toplam}</div><div class="l">tüm zamanlar</div><div class="stat-foot"><a class="det" onclick="document.getElementById('siparisListe').scrollIntoView({behavior:'smooth'})">Detaylar →</a></div></div>
-    <div class="stat-card"><div class="stat-head"><span class="ico">⚙️</span> Aktif Süreçte</div><div class="v">${stats.aktif}</div><div class="l">devam eden sipariş</div><div class="stat-foot"><a class="det" onclick="document.getElementById('siparisListe').scrollIntoView({behavior:'smooth'})">Detaylar →</a></div></div>
-    <div class="stat-card"><div class="stat-head"><span class="ico">⚠️</span> Dikkat Gerektiren</div><div class="v" style="${stats.ozel ? 'color:var(--signal-ink);' : ''}">${stats.ozel}</div><div class="l">beklemede / revizyon / iptal</div><div class="stat-foot"><a class="det" onclick="document.getElementById('siparisListe').scrollIntoView({behavior:'smooth'})">Detaylar →</a></div></div>
-    <div class="stat-card"><div class="stat-head"><span class="ico">🆕</span> Bu Hafta</div><div class="v">${stats.buHafta}</div><div class="l">yeni gelen talep</div><div class="stat-foot"><a class="det" onclick="document.getElementById('siparisListe').scrollIntoView({behavior:'smooth'})">Detaylar →</a></div></div>
-    <div class="stat-card"><div class="stat-head"><span class="ico">⏳</span> Gecikme Riski</div><div class="v" style="${stats.geciken ? 'color:var(--signal-ink);' : ''}">${stats.geciken}</div><div class="l">5+ gündür aynı aşamada</div><div class="stat-foot"><a class="det" onclick="document.getElementById('siparisListe').scrollIntoView({behavior:'smooth'})">Detaylar →</a></div></div>
+    ${statCard('📦', 'Toplam Sipariş', stats.toplam, 'tüm zamanlar')}
+    ${statCard('⚙️', 'Aktif Süreçte', stats.aktif, 'devam eden sipariş')}
+    ${statCard('⚠️', 'Dikkat Gerektiren', stats.ozel, 'beklemede / revizyon / iptal', stats.ozel > 0 ? 'bad' : null)}
+    ${statCard('🆕', 'Bu Hafta', stats.buHafta, 'geçen hafta: ' + stats.gecenHafta, null, stats.haftaTrend)}
+    ${statCard('⏳', 'Gecikme Riski', stats.geciken, '5+ gündür aynı aşamada', stats.geciken > 0 ? 'bad' : 'good')}
   </div>
+  ${miniChart(siparisRowsCache)}
   <div id="siparisListe"></div>
   <div class="filter-row">
     <input id="filtreArama" placeholder="Sipariş no, müşteri, firma veya ürün ara..." oninput="siparisListesiCiz()">
