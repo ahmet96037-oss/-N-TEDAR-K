@@ -97,6 +97,22 @@
       .region-tile h5{ font-weight:800; margin-bottom:8px; font-size:17px; }
       .region-tile p{ font-size:12.5px; color:rgba(255,255,255,.82); margin:0; line-height:1.5; }
       @media (max-width:575px){ .region-tile{ padding:20px 16px 16px; } .region-tile h5{ font-size:15px; } .region-tile p{ font-size:11.5px; } }
+      /* Paketler — Launch UI pricing-column referansından uyarlanan ikon + fiyat +
+         "glow" vurgulu kart stili (React değil, saf CSS/Bootstrap). */
+      .pricing-card{ position:relative; background:#fff; border:1px solid #eef0f4; border-radius:24px; padding:32px 28px; text-align:left; display:flex; flex-direction:column; transition:transform .2s, box-shadow .2s; }
+      .pricing-card:hover{ transform:translateY(-4px); box-shadow:0 20px 40px -16px rgba(9,9,11,.12); }
+      .pricing-glow{ border-color:transparent; box-shadow:0 0 0 1.5px #465fff, 0 24px 50px -18px rgba(70,95,255,.45); background:linear-gradient(180deg, #f5f7ff 0%, #ffffff 40%); }
+      .pricing-badge{ position:absolute; top:-13px; right:28px; background:#465fff; color:#fff; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; padding:5px 14px; border-radius:20px; box-shadow:0 6px 16px -4px rgba(70,95,255,.5); }
+      .pricing-ico{ width:38px; height:38px; border-radius:10px; background:#f4f4f7; display:flex; align-items:center; justify-content:center; color:#465fff; font-size:16px; margin-bottom:16px; }
+      .pricing-glow .pricing-ico{ background:#465fff; color:#fff; }
+      .pricing-name{ font-family:var(--font-display,inherit); font-weight:800; font-size:20px; color:#09090b; margin:0 0 6px; }
+      .pricing-desc{ font-size:13.5px; color:#71717a; min-height:38px; margin:0 0 18px; line-height:1.5; }
+      .pricing-price{ font-family:var(--font-display,inherit); font-weight:800; font-size:34px; color:#09090b; line-height:1; margin-bottom:6px; }
+      .pricing-price .cur{ font-size:20px; vertical-align:top; margin-right:1px; }
+      .pricing-price .per{ font-size:14px; font-weight:600; color:#71717a; margin-left:4px; }
+      .pricing-note{ font-size:12px; color:#a1a1aa; margin:0 0 6px; min-height:32px; line-height:1.5; }
+      .pricing-feats{ margin-top:24px; padding-top:20px; border-top:1px solid #eef0f4; font-size:14px; color:#3f3f46; }
+      .pricing-feats p{ margin-bottom:11px; }
     </style>
 </head>
 
@@ -123,6 +139,7 @@
                     <a href="/" class="nav-item nav-link active">Ana Sayfa</a>
                     <a href="#surec" class="nav-item nav-link">Süreç</a>
                     <a href="#neden-biz" class="nav-item nav-link">Neden Biz</a>
+                    <a href="#paketler" class="nav-item nav-link">Paketler</a>
                     <a href="/hesapla.html" class="nav-item nav-link">Vergi Hesaplama</a>
                 </div>
                 <a href="/takip.html" class="btn btn-light border border-primary rounded-pill text-primary py-2 px-4 me-3">Müşteri Girişi</a>
@@ -389,6 +406,79 @@
     <!-- Globe End -->
 
 
+    <!-- Paketler Start — üç paket, sistemdeki gerçek 6 faza birebir denk gelecek şekilde
+         kapsamlandırıldı: Başlangıç=Talep&Teklif, Profesyonel=+Numune+Üretim,
+         Kurumsal=+Sevkiyat+Gümrük+Teslim (uçtan uca). Başlangıç için verilen 300 USD
+         gerçek bir başlangıç fiyatı; diğer ikisi hacme göre değiştiği için "İletişime
+         Geçin" ile gerçek görüşmeye yönlendiriliyor — uydurma sabit rakam yok. -->
+    <div class="container-fluid price py-5" id="paketler">
+        <div class="container py-5">
+            <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 900px;">
+                <h4 class="text-primary">Paketler</h4>
+                <h1 class="display-5 mb-4">İhtiyacınız Kadar Kapsam</h1>
+                <p class="mb-0">Üç paket de panelinizdeki gerçek süreç fazlarına birebir karşılık gelir — pazarlama vaadi değil, sistemde gördüğünüz aşamaların ta kendisi.</p>
+            </div>
+            <div class="row g-5 justify-content-center align-items-stretch">
+                <div class="col-12 col-md-6 col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="pricing-card h-100">
+                        <div class="pricing-ico"><i class="bi bi-search"></i></div>
+                        <p class="pricing-name">Başlangıç</p>
+                        <p class="pricing-desc">Ürünü ve fabrikayı bulup fiyatlandırmak isteyenler için.</p>
+                        <div class="pricing-price"><span class="cur">$</span>300<span class="per">'den başlar</span></div>
+                        <p class="pricing-note">Tek seferlik hizmet bedeli — kesin fiyat ürün/hacme göre görüşme sonrası netleşir.</p>
+                        <a href="/takip.html#rfq" class="btn btn-light rounded-pill py-2 px-5 w-100 mt-3">Talep Oluştur</a>
+                        <div class="pricing-feats">
+                            <p><i class="fas fa-check text-success me-2"></i> Ürün araştırması</p>
+                            <p><i class="fas fa-check text-success me-2"></i> Uygun fabrika eşleştirme</p>
+                            <p><i class="fas fa-check text-success me-2"></i> Karşılaştırmalı fiyat teklifi</p>
+                            <p><i class="fas fa-check text-success me-2"></i> Canlı takip paneli erişimi</p>
+                            <p class="mb-0"><i class="fas fa-times text-danger me-2"></i> Numune, üretim, sevkiyat, gümrük</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="pricing-card pricing-glow h-100">
+                        <div class="pricing-badge">Popüler</div>
+                        <div class="pricing-ico"><i class="bi bi-person-fill"></i></div>
+                        <p class="pricing-name">Profesyonel</p>
+                        <p class="pricing-desc">Numune onaylayıp üretime geçecek, düzenli sipariş verenler için.</p>
+                        <div class="pricing-price"><span class="cur" style="color:#8fa0ff;"></span><span style="font-size:22px; font-weight:800;">İletişime Geçin</span></div>
+                        <p class="pricing-note">Ürün, miktar ve üretim hacmine göre teklif hazırlanır.</p>
+                        <a href="/takip.html#rfq" class="btn btn-primary rounded-pill py-2 px-5 w-100 mt-3">Teklif İsteyin</a>
+                        <div class="pricing-feats">
+                            <p><i class="fas fa-check text-success me-2"></i> Başlangıç paketinin tamamı</p>
+                            <p><i class="fas fa-check text-success me-2"></i> Numune üretimi ve getirilmesi</p>
+                            <p><i class="fas fa-check text-success me-2"></i> Ürün tedariği ve anlaşmaları</p>
+                            <p><i class="fas fa-check text-success me-2"></i> Üretim süreci takibi</p>
+                            <p><i class="fas fa-check text-success me-2"></i> Anlaşmalı nakliye fiyatları</p>
+                            <p class="mb-0"><i class="fas fa-times text-danger me-2"></i> Sevkiyat, gümrük, teslimat yönetimi</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="pricing-card h-100">
+                        <div class="pricing-ico"><i class="bi bi-people-fill"></i></div>
+                        <p class="pricing-name">Kurumsal</p>
+                        <p class="pricing-desc">Hiçbir şeyle uğraşmadan anahtar teslim çözüm isteyenler için.</p>
+                        <div class="pricing-price"><span style="font-size:22px; font-weight:800;">İletişime Geçin</span></div>
+                        <p class="pricing-note">Kapsam ve hacme özel, anlaşmalı fiyatlandırma.</p>
+                        <a href="/takip.html#rfq" class="btn btn-dark rounded-pill py-2 px-5 w-100 mt-3">Teklif İsteyin</a>
+                        <div class="pricing-feats">
+                            <p><i class="fas fa-check text-success me-2"></i> Profesyonel paketinin tamamı</p>
+                            <p><i class="fas fa-check text-success me-2"></i> Sevkiyat organizasyonu</p>
+                            <p><i class="fas fa-check text-success me-2"></i> Türkiye'deki gümrük işlemleri</p>
+                            <p><i class="fas fa-check text-success me-2"></i> Tüm ithalat evrakı ve beyanname</p>
+                            <p><i class="fas fa-check text-success me-2"></i> Fabrikadan kapınıza teslimat</p>
+                            <p class="mb-0"><i class="fas fa-check text-success me-2"></i> 19 aşamanın tamamı canlı panelde</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Paketler End -->
+
+
     <!-- Ülke Ağımız Start -->
     <div class="container-fluid overflow-hidden py-5" id="ulke-agi" style="background:#f6f6fa;">
         <div class="container py-5">
@@ -453,6 +543,8 @@
         </div>
     </div>
     <!-- Ülke Ağımız End -->
+
+
 
 
     <!-- FAQ Start -->
