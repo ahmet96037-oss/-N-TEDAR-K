@@ -174,7 +174,12 @@
   .stat-card .stat-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid var(--border); font-size:11.5px; }
   .stat-card .stat-foot .det{ color:#2563eb; font-weight:600; text-decoration:none; cursor:pointer; }
   .stat-card .info-ico{ margin-left:auto; opacity:.4; cursor:help; font-size:11px; }
-  .trend-badge{ display:inline-flex; align-items:center; gap:3px; font-weight:700; font-size:11px; padding:2px 7px; border-radius:20px; }
+  .trend-badge{ display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:11px; padding:2px 7px 2px 2px; border-radius:20px; }
+  /* Phoenix (prium.github.io/phoenix-tailwind) referansındaki kompakt dolu
+     renkli daire trend göstergesi — büyük ok yerine küçük, dolu bir nokta. */
+  .trend-badge .dot{ width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:9px; flex:none; }
+  .trend-badge.up .dot{ background:var(--good); color:#fff; }
+  .trend-badge.down .dot{ background:var(--bad); color:#fff; }
   .trend-badge.up{ color:var(--good); background:var(--good-bg); border:1px solid var(--good-bd); }
   .trend-badge.down{ color:var(--bad); background:var(--bad-bg); border:1px solid var(--bad-bd); }
 
@@ -507,7 +512,7 @@ function statCard(icon, label, value, caption, colorMode, trendPct, badgeTone) {
   let badge = '';
   if (trendPct !== undefined && trendPct !== null) {
     const up = trendPct >= 0;
-    badge = `<span class="trend-badge ${up ? 'up' : 'down'}">${up ? '▲' : '▼'} %${Math.abs(trendPct)}</span>`;
+    badge = `<span class="trend-badge ${up ? 'up' : 'down'}"><span class="dot"><i class="bi bi-arrow-${up ? 'up' : 'down'}"></i></span> %${Math.abs(trendPct)}</span>`;
   }
   return `<div class="stat-card">
     <div class="stat-ico-badge tone-${badgeTone || 'indigo'}">${icon}</div>
