@@ -1024,22 +1024,33 @@ const KONTEYNER_HOMEPAGE = {
   cma_cgm: 'https://www.cma-cgm.com/ebusiness/tracking',
   hapag_lloyd: 'https://www.hapag-lloyd.com/en/online-business/track/track-by-booking-solution.html',
 };
+// Otomatik-dolan taşıyıcılarda konteyner no henüz girilmemişken gösterilecek
+// genel (boş) takip sayfası — no girilince yukarıdaki KONTEYNER_DEEPLINK devreye girer.
+const KONTEYNER_HOMEPAGE_ALT = {
+  maersk: 'https://www.maersk.com/tracking',
+  cosco: 'https://elines.coscoshipping.com/ebusiness/cargoTracking',
+  one: 'https://ecomm.one-line.com/one-ecom/manage-shipment/cargo-tracking',
+};
 function konteynerOnizlemeGuncelle() {
   const kutu = document.getElementById('sKonteynerOnizleme');
   if (!kutu) return;
   const key = document.getElementById('sTasiyiciKey')?.value;
   const no = document.getElementById('sKonteyner')?.value.trim();
-  if (!no) { kutu.innerHTML = ''; return; }
   const firmaAdi = TASIYICILAR.find(t=>t[0]===key)?.[1] || key;
-  if (key && KONTEYNER_DEEPLINK[key]) {
-    const url = KONTEYNER_DEEPLINK[key](no);
-    kutu.innerHTML = `<i class="bi bi-link-45deg"></i> Müşteriye gösterilecek link (konteyner no otomatik dolu, ${firmaAdi}): <a href="${url}" target="_blank" style="color:var(--accent2);">${url}</a>`;
-  } else if (key && KONTEYNER_HOMEPAGE[key]) {
+  // Konteyner no henüz girilmemiş olsa bile, taşıyıcı seçilir seçilmez altında
+  // o firmanın linki görünsün (konteyner no varsa otomatik dolu, yoksa firmanın
+  // genel takip sayfası) — "acenteyi seçtiğim gibi link gelsin" isteği bu.
+  if (!key) { kutu.innerHTML = ''; return; }
+  if (KONTEYNER_DEEPLINK[key]) {
+    const url = no ? KONTEYNER_DEEPLINK[key](no) : KONTEYNER_HOMEPAGE_ALT[key];
+    const etiket = no ? 'konteyner no otomatik dolu' : 'konteyner no girilince otomatik dolacak';
+    kutu.innerHTML = `<i class="bi bi-link-45deg"></i> Müşteriye gösterilecek link (${etiket}, ${firmaAdi}): <a href="${url}" target="_blank" style="color:var(--accent2);">${url}</a>`;
+  } else if (KONTEYNER_HOMEPAGE[key]) {
     const url = KONTEYNER_HOMEPAGE[key];
     kutu.innerHTML = `<i class="bi bi-link-45deg"></i> Müşteriye gösterilecek link (${firmaAdi} resmi takip sayfası — bu firma için otomatik doldurma doğrulanamadı, konteyner no'yu müşteri sayfada kendisi girer): <a href="${url}" target="_blank" style="color:var(--accent2);">${url}</a>`;
-  } else {
+  } else if (no) {
     const url = `https://www.track-trace.com/container?number=${encodeURIComponent(no)}`;
-    const kaynakEtiketi = key ? firmaAdi + ' kayıtlı bir taşıyıcı değil' : 'Taşıyıcı seçilmedi';
+    const kaynakEtiketi = firmaAdi + ' kayıtlı bir taşıyıcı değil';
     kutu.innerHTML = `<i class="bi bi-link-45deg"></i> Müşteriye gösterilecek link (genel, ${kaynakEtiketi}): <a href="${url}" target="_blank" style="color:var(--accent2);">${url}</a>`;
   }
 }
