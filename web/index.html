@@ -3,11 +3,11 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Çin Tedarik Ağı — Çin'den Türkiye'ye Şeffaf Tedarik</title>
+    <title>Tedarik Ağı — İthalat İhracat ve Gümrük Danışmanlığı</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta name="description" content="Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip edin. Çoklu fabrika ağı, yerinde kalite kontrol ve yazılı risk güvencesiyle Çin'den ithalat.">
+    <meta name="description" content="Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip edin. Çok ülkeli tedarik ağı, yerinde kalite kontrol ve yazılı risk güvencesiyle ithalat-ihracat danışmanlığı.">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Çin Tedarik Ağı — Çin'den Türkiye'ye Şeffaf Tedarik">
+    <meta property="og:title" content="Tedarik Ağı — İthalat İhracat ve Gümrük Danışmanlığı">
     <meta property="og:description" content="Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip edin.">
 
     <link href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><rect width=%2240%22 height=%2240%22 rx=%229%22 fill=%22%23465fff%22/><ellipse cx=%2220%22 cy=%2220%22 rx=%2214%22 ry=%227%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.16%22 stroke-width=%221%22/><ellipse cx=%2220%22 cy=%2220%22 rx=%227%22 ry=%2214%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.16%22 stroke-width=%221%22/><path d=%22M9,28 C15,24 25,16 31,12%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-dasharray=%220.5 4.2%22/><circle cx=%229%22 cy=%2228%22 r=%222.6%22 fill=%22%23ffffff%22/><circle cx=%2231%22 cy=%2212%22 r=%222.6%22 fill=%22%23ffffff%22/></svg>" rel="icon">
@@ -24,7 +24,23 @@
     <link href="assets/mailler/css/style.css" rel="stylesheet">
 
     <style>
-      body{ font-family:'Outfit',sans-serif; overflow-x:hidden; }
+      html{ overflow-x:hidden; max-width:100%; }
+      body{ font-family:'Outfit',sans-serif; overflow-x:hidden; max-width:100vw; }
+      /* Mobilde container-fluid + row/col gutter'ları px-5/py-5 gibi büyük utility
+         padding'lerle üst üste binip yatay taşmaya yol açıyordu — dar ekranlarda
+         gutter'ı sıfırlayıp padding'i güvenli bir değere sabitliyoruz (site geneli). */
+      @media (max-width:576px){
+        .px-5{ padding-left:20px !important; padding-right:20px !important; }
+        .px-4{ padding-left:16px !important; padding-right:16px !important; }
+        .row{ --bs-gutter-x:0.75rem; margin-left:calc(-.5*var(--bs-gutter-x)) !important; margin-right:calc(-.5*var(--bs-gutter-x)) !important; }
+        .row > [class*="col-"]{ padding-left:calc(.5*var(--bs-gutter-x)); padding-right:calc(.5*var(--bs-gutter-x)); max-width:100%; }
+      }
+      img{ max-width:100%; height:auto; }
+      @media (max-width:991px){ .wow{ opacity:1 !important; transform:none !important; visibility:visible !important; animation:none !important; } }
+      .mobile-sticky-cta{ position:fixed; left:16px; right:16px; bottom:16px; z-index:1000; background:#465fff; color:#fff; text-align:center; padding:15px; border-radius:14px; font-weight:700; font-size:15px; text-decoration:none; box-shadow:0 12px 30px -6px rgba(70,95,255,.5); }
+      .mobile-sticky-cta:hover{ color:#fff; background:#3641f5; }
+      body{ padding-bottom:0; }
+      @media (max-width:991px){ body{ padding-bottom:74px; } }
       .navbar-brand h1{ font-family:'Outfit',sans-serif; font-weight:800; }
       .mono{ font-family:'IBM Plex Mono',ui-monospace,monospace; }
       .staff-link{ font-size:16px; opacity:.45; text-decoration:none; }
@@ -62,7 +78,7 @@
         <nav class="navbar navbar-expand-lg fixed-top navbar-light px-4 px-lg-5 py-3 py-lg-0" style="background:#fff; box-shadow:0 1px 0 rgba(9,9,11,.06);">
             <a href="/" class="navbar-brand p-0 d-flex align-items-center">
                 <svg width="34" height="34" viewBox="0 0 40 40" class="me-2" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#465fff"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg>
-                <h1 class="display-6 text-dark m-0" style="font-size:22px; font-weight:800;">Çin Tedarik Ağı</h1>
+                <h1 class="display-6 text-dark m-0" style="font-size:22px; font-weight:800;">Tedarik Ağı</h1>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="fa fa-bars"></span>
@@ -88,10 +104,10 @@
                 <div class="hero-scrim"></div>
             </div>
             <div class="row gy-5 align-items-center position-relative">
-                <div class="col-lg-7 wow fadeInLeft" data-wow-delay="0.1s">
+                <div class="col-12 col-lg-7 wow fadeInLeft" data-wow-delay="0.1s">
                     <p class="mono text-uppercase mb-3" style="font-size:13px; letter-spacing:.1em; color:#c7d2ff;">İthalat • İhracat • Gümrük Danışmanlığı</p>
                     <h1 class="display-4 text-white mb-4 wow fadeInUp" data-wow-delay="0.3s">Tek ülkeye değil, <span style="color:#8fa0ff;">dünyaya</span> bağlı tedarik danışmanlığı.</h1>
-                    <p class="fs-4 mb-4 wow fadeInUp" data-wow-delay="0.5s" style="font-size:1.15rem !important; color:rgba(255,255,255,.85);">Çin'de derinleşen, ama onunla sınırlı kalmayan geniş bir ülke ağıyla ithalat-ihracat danışmanlığı veriyoruz. Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip portalınızdan izlersiniz — kara kutu değil, sistemli bir süreç.</p>
+                    <p class="fs-4 mb-4 wow fadeInUp" data-wow-delay="0.5s" style="font-size:1.15rem !important; color:rgba(255,255,255,.85);">Altı kıtaya yayılan tedarikçi/gümrük ağıyla ithalat-ihracat danışmanlığı veriyoruz. Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip portalınızdan izlersiniz — kara kutu değil, sistemli bir süreç.</p>
                     <a href="/takip.html#rfq" class="btn btn-primary rounded-pill py-3 px-5 me-3 wow fadeInUp" data-wow-delay="0.7s">Ücretsiz Danışmanlık Talebi</a>
                     <a href="#ulke-agi" class="btn btn-outline-light rounded-pill py-3 px-5 wow fadeInUp" data-wow-delay="0.7s">Ülke Ağımızı Keşfedin</a>
                 </div>
@@ -105,22 +121,22 @@
     <div class="container-fluid overflow-hidden py-5" style="margin-top: 1.5rem;" id="neden-biz">
         <div class="container py-5">
             <div class="row g-5">
-                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="col-12 col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="RotateMoveLeft" style="border-radius:24px; overflow:hidden;">
                         <img src="assets/photos/terminal.jpg" class="img-fluid w-100" style="border-radius:24px;" alt="Büyük ölçekli konteyner terminali, kuş bakışı">
                     </div>
                 </div>
-                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="col-12 col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
                     <h4 class="mb-1 text-primary">Neden Biz</h4>
-                    <h1 class="display-5 mb-4">İşimiz Çin'le sınırlı değil</h1>
-                    <p class="mb-4">"Çin'den ürün buluruz" tek başına yeterli değil. Biz bir ithalat-ihracat danışmanlığıyız — Çin ağımız en derin ve en olgun olanı, ama Asya, Avrupa, Amerika ve Afrika'ya uzanan geniş bir tedarikçi/gümrük ağıyla çalışıyoruz. Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip portalında görünür kılıyor, riski müşteriden alıp sisteme yüklüyoruz.</p>
+                    <h1 class="display-5 mb-4">Tek bir ülkeyle sınırlı değiliz</h1>
+                    <p class="mb-4">"Bir yerden ürün buluruz" tek başına yeterli değil. Biz bir ithalat-ihracat danışmanlığıyız — Asya, Avrupa, Amerika ve Afrika'ya uzanan geniş bir tedarikçi/gümrük ağıyla çalışıyoruz. Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip portalında görünür kılıyor, riski müşteriden alıp sisteme yüklüyoruz.</p>
                     <div class="row g-4 mb-4">
-                        <div class="col-sm-6">
+                        <div class="col-12 col-sm-6">
                             <i class="fas fa-globe-asia fa-2x text-primary mb-2"></i>
                             <h6 class="fw-bold">Çok Ülkeli Ağ</h6>
                             <p class="small mb-0">Tek pazara değil, geniş bir ülke ağına bağlıyız.</p>
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-12 col-sm-6">
                             <i class="fas fa-eye fa-2x text-primary mb-2"></i>
                             <h6 class="fw-bold">Uçtan Uca Şeffaflık</h6>
                             <p class="small mb-0">Her aşama panelinizde canlı görünür.</p>
@@ -143,7 +159,7 @@
                 <p class="mb-0">Panelinizde 19 aşamalı tam süreç canlı olarak işlenir; aşağıda öne çıkan altı kilometre taşı.</p>
             </div>
             <div class="row g-4 justify-content-center">
-                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="service-item text-center rounded p-4">
                         <div class="service-icon d-inline-block rounded p-4 mb-4" style="background:#eff6ff;"><i class="fas fa-file-signature fa-3x" style="color:#2563eb;"></i></div>
                         <div class="service-content">
@@ -153,7 +169,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.2s">
+                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.2s">
                     <div class="service-item text-center rounded p-4">
                         <div class="service-icon d-inline-block rounded p-4 mb-4" style="background:#fdf2f8;"><i class="fas fa-handshake fa-3x" style="color:#db2777;"></i></div>
                         <div class="service-content">
@@ -163,7 +179,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
                     <div class="service-item text-center rounded p-4">
                         <div class="service-icon d-inline-block rounded p-4 mb-4" style="background:#faf5ff;"><i class="fas fa-flask fa-3x" style="color:#9333ea;"></i></div>
                         <div class="service-content">
@@ -173,7 +189,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.4s">
+                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.4s">
                     <div class="service-item text-center rounded p-4">
                         <div class="service-icon d-inline-block rounded p-4 mb-4" style="background:#fff7ed;"><i class="fas fa-cogs fa-3x" style="color:#ea580c;"></i></div>
                         <div class="service-content">
@@ -183,7 +199,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
+                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
                     <div class="service-item text-center rounded p-4">
                         <div class="service-icon d-inline-block rounded p-4 mb-4" style="background:#ecfeff;"><i class="fas fa-ship fa-3x" style="color:#0e7490;"></i></div>
                         <div class="service-content">
@@ -193,7 +209,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.6s">
+                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.6s">
                     <div class="service-item text-center rounded p-4">
                         <div class="service-icon d-inline-block rounded p-4 mb-4" style="background:#ecfdf3;"><i class="fas fa-box-open fa-3x" style="color:#12b76a;"></i></div>
                         <div class="service-content">
@@ -218,7 +234,7 @@
                 <h1 class="display-5 mb-4">Riski Müşteriden Alıp Sisteme Yüklüyoruz</h1>
             </div>
             <div class="row g-4 justify-content-center text-center mb-5">
-                <div class="col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="col-12 col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="text-center p-4">
                         <div class="d-inline-block rounded p-4 mb-4" style="background:#eef2ff;"><i class="fas fa-layer-group fa-4x" style="color:#4f46e5;"></i></div>
                         <div class="feature-content">
@@ -227,7 +243,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.2s">
+                <div class="col-12 col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.2s">
                     <div class="text-center p-4">
                         <div class="d-inline-block rounded p-4 mb-4" style="background:#fefce8;"><i class="fas fa-file-contract fa-4x" style="color:#a16207;"></i></div>
                         <div class="feature-content">
@@ -236,7 +252,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="col-12 col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.3s">
                     <div class="text-center p-4">
                         <div class="d-inline-block rounded p-4 mb-4" style="background:#ecfdf3;"><i class="fas fa-check-double fa-4x" style="color:#12b76a;"></i></div>
                         <div class="feature-content">
@@ -245,7 +261,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.4s">
+                <div class="col-12 col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.4s">
                     <div class="text-center p-4">
                         <div class="d-inline-block rounded p-4 mb-4" style="background:#faf5ff;"><i class="fas fa-archive fa-4x" style="color:#9333ea;"></i></div>
                         <div class="feature-content">
@@ -256,12 +272,12 @@
                 </div>
             </div>
             <div class="row g-5 pt-5" style="margin-top: 4rem;">
-                <div class="col-lg-6 wow fadeInLeft" data-wow-delay="0.1s">
+                <div class="col-12 col-lg-6 wow fadeInLeft" data-wow-delay="0.1s">
                     <div class="feature-img RotateMoveLeft h-100" style="object-fit:cover; border-radius:24px; overflow:hidden;">
                         <img src="assets/photos/aircargo.jpg" class="img-fluid w-100 h-100" style="object-fit:cover; border-radius:24px;" alt="Hava kargo yükleme">
                     </div>
                 </div>
-                <div class="col-lg-6 wow fadeInRight" data-wow-delay="0.1s">
+                <div class="col-12 col-lg-6 wow fadeInRight" data-wow-delay="0.1s">
                     <h4 class="text-primary">Rakamlarla</h4>
                     <h1 class="display-5 mb-4">Sistemli Tedarikin Somut Karşılığı</h1>
                     <p class="mb-4">Kara kutu değil, panelinizde tek tek görünen bir süreç. Her rakam, panelin arkasındaki gerçek veriye dayanıyor.</p>
@@ -299,7 +315,7 @@
     <div class="globe-wrap">
         <div class="container">
             <h4 class="text-primary">Küresel Ağ</h4>
-            <h1 class="display-5 mb-5">Tedarik Ağımız Çin'in Tek Bir Şehrinden İbaret Değil</h1>
+            <h1 class="display-5 mb-5">Tedarik Ağımız Tek Bir Ülkeden İbaret Değil</h1>
             <div class="globe-stage" id="globeStage">
                 <div class="globe-loading" id="globeLoading">Küre yükleniyor…</div>
             </div>
@@ -313,46 +329,46 @@
         <div class="container py-5">
             <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 900px;">
                 <h4 class="mb-1 text-primary">Ülke Ağımız</h4>
-                <h1 class="display-5 mb-4">Çin Güçlü Merkezimiz, Tek Adresimiz Değil</h1>
-                <p class="mb-0">İthalat-ihracat danışmanlığını Çin'de derinleştirdik; ama tedarik, sevkiyat ve gümrük süreçlerinde bağlantılı olduğumuz ağ altı kıtaya yayılıyor.</p>
+                <h1 class="display-5 mb-4">Tek Bir Pazara Bağlı Kalmıyoruz</h1>
+                <p class="mb-0">İthalat-ihracat danışmanlığında tedarik, sevkiyat ve gümrük süreçlerinde bağlantılı olduğumuz ağ altı kıtaya yayılıyor.</p>
             </div>
             <div class="row g-4">
-                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="service-item rounded p-4 h-100">
                         <i class="fas fa-industry fa-2x mb-3" style="color:#2563eb;"></i>
                         <h5 class="fw-bold mb-2">Asya-Pasifik</h5>
                         <p class="mb-0 small">Çin (Şangay, Shenzhen, Guangzhou, Pekin), Singapur, Hindistan, Endonezya, Japonya, Güney Kore</p>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.2s">
+                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.2s">
                     <div class="service-item rounded p-4 h-100">
                         <i class="fas fa-mosque fa-2x mb-3" style="color:#ea580c;"></i>
                         <h5 class="fw-bold mb-2">Orta Doğu</h5>
                         <p class="mb-0 small">Birleşik Arap Emirlikleri, Mısır — Asya-Avrupa hattının kavşak noktaları</p>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
                     <div class="service-item rounded p-4 h-100">
                         <i class="fas fa-landmark fa-2x mb-3" style="color:#9333ea;"></i>
                         <h5 class="fw-bold mb-2">Avrupa</h5>
                         <p class="mb-0 small">Almanya, Birleşik Krallık, Fransa, Rusya — Türkiye'nin geleneksel ihracat pazarları</p>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.4s">
+                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.4s">
                     <div class="service-item rounded p-4 h-100">
                         <i class="fas fa-flag-usa fa-2x mb-3" style="color:#0e7490;"></i>
                         <h5 class="fw-bold mb-2">Kuzey Amerika</h5>
                         <p class="mb-0 small">ABD, Kanada, Meksika</p>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
+                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
                     <div class="service-item rounded p-4 h-100">
                         <i class="fas fa-mountain fa-2x mb-3" style="color:#db2777;"></i>
                         <h5 class="fw-bold mb-2">Güney Amerika</h5>
                         <p class="mb-0 small">Brezilya, Şili, Arjantin, Kolombiya, Peru</p>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.6s">
+                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.6s">
                     <div class="service-item rounded p-4 h-100">
                         <i class="fas fa-globe-africa fa-2x mb-3" style="color:#12b76a;"></i>
                         <h5 class="fw-bold mb-2">Afrika &amp; Okyanusya</h5>
@@ -372,7 +388,7 @@
     <div class="container-fluid FAQ bg-light overflow-hidden py-5">
         <div class="container py-5">
             <div class="row g-5 align-items-center">
-                <div class="col-lg-6 wow fadeInLeft" data-wow-delay="0.1s">
+                <div class="col-12 col-lg-6 wow fadeInLeft" data-wow-delay="0.1s">
                     <div class="accordion faq-real" id="accordionExample">
                         <div class="accordion-item border-0 mb-4">
                             <h2 class="accordion-header" id="headingOne">
@@ -412,7 +428,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6 wow fadeInRight" data-wow-delay="0.3s">
+                <div class="col-12 col-lg-6 wow fadeInRight" data-wow-delay="0.3s">
                     <div class="FAQ-img RotateMoveRight rounded">
                         <img src="assets/mailler/img/about-1.png" class="img-fluid w-100" alt="">
                     </div>
@@ -431,7 +447,7 @@
                 <h1 class="display-5 mb-4">Karar Vermeden Önce Deneyin</h1>
             </div>
             <div class="row g-5 justify-content-center">
-                <div class="col-md-8 col-lg-6 col-xl-5 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="price-item bg-light rounded text-center h-100">
                         <div class="text-center text-primary border-bottom d-flex flex-column justify-content-center p-4" style="width: 100%; height: 120px;">
                             <p class="fs-2 fw-bold mb-0"><i class="fas fa-box-open me-2"></i>Sipariş Takip Portalı</p>
@@ -443,7 +459,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-8 col-lg-6 col-xl-5 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5 wow fadeInUp" data-wow-delay="0.3s">
                     <div class="price-item bg-light rounded text-center h-100">
                         <div class="text-center text-dark border-bottom d-flex flex-column justify-content-center p-4" style="width: 100%; height: 120px;">
                             <p class="fs-2 fw-bold mb-0"><i class="fas fa-calculator me-2"></i>GTİP Vergi Hesaplama</p>
@@ -478,13 +494,13 @@
     <div class="container-fluid footer py-5 wow fadeIn" data-wow-delay="0.2s">
         <div class="container py-5">
             <div class="row g-5">
-                <div class="col-md-6 col-lg-6 col-xl-4">
+                <div class="col-12 col-md-6 col-lg-6 col-xl-4">
                     <div class="footer-item d-flex flex-column">
-                        <h4 class="text-dark mb-4">Çin Tedarik Ağı</h4>
-                        <p>Çin'den Türkiye'ye şeffaf ve garantili tedarik — fabrika görüşmesinden gümrüğe kadar her aşama canlı takip portalında.</p>
+                        <h4 class="text-dark mb-4">Tedarik Ağı</h4>
+                        <p>Şeffaf ve garantili ithalat-ihracat danışmanlığı — fabrika görüşmesinden gümrüğe kadar her aşama canlı takip portalında.</p>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-6 col-xl-4">
+                <div class="col-12 col-md-6 col-lg-6 col-xl-4">
                     <div class="footer-item d-flex flex-column">
                         <h4 class="mb-4 text-dark">Araçlar</h4>
                         <a href="/takip.html"> Sipariş Takip</a>
@@ -492,7 +508,7 @@
                         <a href="/takip.html#rfq"> Teklif Talebi Oluştur</a>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-6 col-xl-4">
+                <div class="col-12 col-md-6 col-lg-6 col-xl-4">
                     <div class="footer-item d-flex flex-column">
                         <h4 class="mb-4 text-dark">Sayfa İçi</h4>
                         <a href="#surec"> Süreç</a>
@@ -509,10 +525,10 @@
     <div class="container-fluid copyright py-4">
         <div class="container">
             <div class="row g-4 align-items-center">
-                <div class="col-md-6 text-center text-md-start mb-md-0">
-                    <span class="text-white">© Çin Tedarik Ağı, Tüm Hakları Saklıdır.</span>
+                <div class="col-12 col-md-6 text-center text-md-start mb-md-0">
+                    <span class="text-white">© Tedarik Ağı, Tüm Hakları Saklıdır.</span>
                 </div>
-                <div class="col-md-6 text-center text-md-end text-white">
+                <div class="col-12 col-md-6 text-center text-md-end text-white">
                     <!--/*** Bu şablon HTML Codex tarafından "Mailler" adıyla ücretsiz sunulmuştur; CC BY 4.0 lisansı gereği atıf bağlantısı korunmaktadır. ***/-->
                     Tasarım: <a class="border-bottom" href="https://htmlcodex.com" target="_blank">HTML Codex</a>
                     &nbsp;/&nbsp;<a class="border-bottom" href="https://themewagon.com" target="_blank">ThemeWagon</a>
@@ -523,6 +539,11 @@
     <!-- Copyright End -->
 
     <a href="#" class="btn btn-primary btn-lg-square back-to-top"><i class="fa fa-arrow-up"></i></a>
+
+    <!-- Mobilde her zaman görünür, dönüşüm odaklı sabit CTA çubuğu -->
+    <a href="/takip.html#rfq" class="mobile-sticky-cta d-lg-none">
+        <i class="bi bi-send"></i> Ücretsiz Teklif Al
+    </a>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><rect width=%2240%22 height=%2240%22 rx=%229%22 fill=%22%230f3d63%22/><ellipse cx=%2220%22 cy=%2220%22 rx=%2214%22 ry=%227%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.16%22 stroke-width=%221%22/><ellipse cx=%2220%22 cy=%2220%22 rx=%227%22 ry=%2214%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.16%22 stroke-width=%221%22/><path d=%22M9,28 C15,24 25,16 31,12%22 fill=%22none%22 stroke=%22%23d99a2b%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-dasharray=%220.5 4.2%22/><circle cx=%229%22 cy=%2228%22 r=%222.6%22 fill=%22%23ffffff%22/><circle cx=%2231%22 cy=%2212%22 r=%222.6%22 fill=%22%23d99a2b%22/></svg>">
-<title>Sipariş Takip — Çin Tedarik Ağı</title>
+<title>Sipariş Takip — Tedarik Ağı</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -67,8 +67,8 @@
 
   /* ================= PRE-AUTH: split hero + form ================= */
   .auth-shell{ display:grid; grid-template-columns:1.1fr 1fr; min-height:100vh; }
-  .auth-brand{ background:var(--text); color:var(--bg); padding:64px 56px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden; }
-  .auth-brand::before{ content:""; position:absolute; inset:0; background-image:repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 26px); }
+  .auth-brand{ background:#09090b url('assets/photos/terminal.jpg') center/cover no-repeat; color:#fff; padding:64px 56px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden; }
+  .auth-brand::before{ content:""; position:absolute; inset:0; background:linear-gradient(175deg, rgba(9,9,11,.82) 0%, rgba(9,9,11,.65) 45%, rgba(9,9,11,.9) 100%); }
   .auth-brand .logo{ font-family:var(--font-display); font-weight:700; font-size:19px; text-decoration:none; color:var(--bg); position:relative; z-index:1; display:inline-flex; align-items:center; gap:10px; }
   .auth-brand .logo svg{ width:28px; height:28px; flex:none; }
   .auth-brand .quote{ position:relative; z-index:1; }
@@ -196,25 +196,22 @@
   .adim-takip{ display:flex; align-items:flex-start; padding:6px 4px; }
   .adim{ flex:1; display:flex; flex-direction:column; align-items:center; position:relative; text-align:center; }
   .adim-daire{ width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; background:var(--bg-alt); color:var(--text-muted); border:2px solid var(--border); z-index:1; flex:none; transition:all .2s; }
-  .adim.done .adim-daire{ background:var(--accent2); color:#fff; border-color:var(--accent2); }
+  /* Tamamlanan aşama = her zaman yeşil (bitti hissi net olsun); sıradaki/aktif
+     aşama = fazına özgü canlı renk (mavi/mor/turuncu/camgöbeği). Böylece şerit
+     baştan sona tek renk değil, ilerledikçe renk renk yeşile dönüşüyor. */
+  .adim.done .adim-daire{ background:var(--good); color:#fff; border-color:var(--good); }
   .adim.current .adim-daire{ background:#fff; color:var(--accent2); border-color:var(--accent2); box-shadow:0 0 0 4px color-mix(in srgb, var(--accent2) 16%, transparent); }
   .adim.iptal .adim-daire{ background:var(--bad-bg); color:var(--bad); border-color:var(--bad-bd); }
-  /* Fazlara göre renk — hepsi indigo yerine mavi/mor/turuncu/camgöbeği/yeşil. */
-  .adim.done.renk-blue .adim-daire, .adim.current.renk-blue .adim-daire{ background:#2563eb; border-color:#2563eb; }
-  .adim.current.renk-blue .adim-daire{ background:#fff; color:#2563eb; box-shadow:0 0 0 4px rgba(37,99,235,.16); }
-  .adim.done.renk-purple .adim-daire, .adim.current.renk-purple .adim-daire{ background:#9333ea; border-color:#9333ea; }
-  .adim.current.renk-purple .adim-daire{ background:#fff; color:#9333ea; box-shadow:0 0 0 4px rgba(147,51,234,.16); }
-  .adim.done.renk-orange .adim-daire, .adim.current.renk-orange .adim-daire{ background:#ea580c; border-color:#ea580c; }
-  .adim.current.renk-orange .adim-daire{ background:#fff; color:#ea580c; box-shadow:0 0 0 4px rgba(234,88,12,.16); }
-  .adim.done.renk-cyan .adim-daire, .adim.current.renk-cyan .adim-daire{ background:#0e7490; border-color:#0e7490; }
-  .adim.current.renk-cyan .adim-daire{ background:#fff; color:#0e7490; box-shadow:0 0 0 4px rgba(14,116,144,.16); }
-  .adim.done.renk-green .adim-daire, .adim.current.renk-green .adim-daire{ background:var(--good); border-color:var(--good); }
-  .adim.current.renk-green .adim-daire{ background:#fff; color:var(--good); box-shadow:0 0 0 4px var(--good-bg); }
+  .adim.current.renk-blue .adim-daire{ background:#fff; color:#2563eb; border-color:#2563eb; box-shadow:0 0 0 4px rgba(37,99,235,.16); }
+  .adim.current.renk-purple .adim-daire{ background:#fff; color:#9333ea; border-color:#9333ea; box-shadow:0 0 0 4px rgba(147,51,234,.16); }
+  .adim.current.renk-orange .adim-daire{ background:#fff; color:#ea580c; border-color:#ea580c; box-shadow:0 0 0 4px rgba(234,88,12,.16); }
+  .adim.current.renk-cyan .adim-daire{ background:#fff; color:#0e7490; border-color:#0e7490; box-shadow:0 0 0 4px rgba(14,116,144,.16); }
+  .adim.current.renk-green .adim-daire{ background:#fff; color:var(--good); border-color:var(--good); box-shadow:0 0 0 4px var(--good-bg); }
   .adim.done .adim-daire{ color:#fff; }
   .adim-ad{ font-size:11.5px; font-weight:600; color:var(--text-muted); margin-top:8px; max-width:80px; line-height:1.3; }
   .adim.done .adim-ad, .adim.current .adim-ad{ color:var(--text); }
   .adim-cizgi{ position:absolute; top:19px; left:50%; width:100%; height:2px; background:var(--border); z-index:0; }
-  .adim.done .adim-cizgi{ background:var(--accent2); }
+  .adim.done .adim-cizgi{ background:var(--good); }
   @media (max-width:600px){ .adim-ad{ display:none; } .adim-daire{ width:30px; height:30px; font-size:12px; } .adim-cizgi{ top:15px; } }
   .ilerleme-bar-wrap{ display:flex; align-items:center; gap:12px; }
   .ilerleme-bar{ flex:1; height:8px; border-radius:6px; background:var(--bg-alt); overflow:hidden; }
@@ -230,32 +227,45 @@
   /* ================= Faz akordeonu ================= */
   .faz-list{ display:flex; flex-direction:column; gap:10px; }
   .faz{ background:var(--surface); border:1px solid var(--border); border-radius:8px; overflow:hidden; }
-  .faz.current{ border-color:var(--accent); }
+  .faz.current{ border-color:var(--accent2); }
   .faz-head{ display:flex; align-items:center; gap:14px; padding:16px 18px; cursor:pointer; user-select:none; }
   .faz-head:hover{ background:var(--bg-alt); }
   .faz-num{ width:30px; height:30px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; font-family:var(--font-code); font-weight:700; font-size:12.5px; background:var(--border); color:var(--text-muted); }
-  .faz.done .faz-num{ background:var(--accent2); color:#fff; }
-  .faz.current .faz-num{ background:var(--accent); color:#fff; }
+  .faz.done .faz-num{ background:var(--good); color:#fff; }
+  .faz.current .faz-num{ background:var(--accent2); color:#fff; }
   .faz-title{ flex:1; min-width:0; }
   .faz-title .ad{ font-family:var(--font-display); font-weight:600; font-size:15.5px; }
   .faz-title .alt{ font-size:12.5px; color:var(--text-muted); margin-top:2px; }
   .faz-badge{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); white-space:nowrap; }
-  .faz.done .faz-badge{ color:var(--accent2-ink); }
-  .faz.current .faz-badge{ color:var(--accent-ink); font-weight:600; }
+  .faz.done .faz-badge{ color:var(--good); font-weight:600; }
+  .faz.current .faz-badge{ color:var(--accent2-ink); font-weight:600; }
   .faz-chev{ color:var(--text-muted); font-size:12px; transition:transform .15s; flex:none; }
   .faz.open .faz-chev{ transform:rotate(90deg); }
   .faz-body{ display:none; padding:2px 18px 18px 62px; border-top:1px solid var(--border); }
   .faz.open .faz-body{ display:block; padding-top:14px; }
+  /* Faza özgü canlı renk — .faz.current .faz-num artık her fazda aynı mavi yerine kendi rengi. */
+  .faz.current.renk-blue .faz-num{ background:#2563eb; } .faz.current.renk-blue .faz-badge{ color:#2563eb; } .faz.current.renk-blue{ border-color:#2563eb; }
+  .faz.current.renk-purple .faz-num{ background:#9333ea; } .faz.current.renk-purple .faz-badge{ color:#9333ea; } .faz.current.renk-purple{ border-color:#9333ea; }
+  .faz.current.renk-orange .faz-num{ background:#ea580c; } .faz.current.renk-orange .faz-badge{ color:#ea580c; } .faz.current.renk-orange{ border-color:#ea580c; }
+  .faz.current.renk-cyan .faz-num{ background:#0e7490; } .faz.current.renk-cyan .faz-badge{ color:#0e7490; } .faz.current.renk-cyan{ border-color:#0e7490; }
+  .faz.current.renk-green .faz-num{ background:var(--good); } .faz.current.renk-green .faz-badge{ color:var(--good); } .faz.current.renk-green{ border-color:var(--good); }
   .mini-step{ display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); align-items:baseline; }
   .mini-step:last-child{ border-bottom:none; }
   .mini-step .ico{ width:16px; flex:none; font-size:12px; color:var(--text-muted); }
-  .mini-step.done .ico{ color:var(--accent2-ink); }
-  .mini-step.current .ico{ color:var(--accent-ink); }
+  .mini-step.done .ico{ color:var(--good); font-weight:700; }
+  .mini-step.current .ico{ color:var(--accent2-ink); }
   .mini-step .body{ flex:1; min-width:0; }
   .mini-step .ad{ font-size:14px; font-weight:600; }
+  .mini-step.done .ad{ color:var(--good); }
   .mini-step.pending .ad{ color:var(--text-muted); font-weight:500; }
   .mini-step .not{ font-size:12.5px; color:var(--text-muted); margin-top:2px; }
   .mini-step .tarih{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); flex:none; white-space:nowrap; }
+  .faz.current .ico{ color:var(--accent2-ink); }
+  .faz.current.renk-blue .mini-step.current .ico{ color:#2563eb; }
+  .faz.current.renk-purple .mini-step.current .ico{ color:#9333ea; }
+  .faz.current.renk-orange .mini-step.current .ico{ color:#ea580c; }
+  .faz.current.renk-cyan .mini-step.current .ico{ color:#0e7490; }
+  .faz.current.renk-green .mini-step.current .ico{ color:var(--good); }
 
   .belge-item{ display:flex; justify-content:space-between; align-items:center; padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:8px; margin-bottom:10px; }
   .belge-item .ad{ font-size:14px; font-weight:600; }
@@ -294,7 +304,7 @@ function authShell(innerHtml) {
   return `
     <div class="auth-shell">
       <div class="auth-brand">
-        <a href="/" class="logo"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0f3d63"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.2"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.2"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#d99a2b" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#d99a2b"/></svg>Çin Tedarik Ağı</a>
+        <a href="/" class="logo"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0f3d63"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.2"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.2"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#d99a2b" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#d99a2b"/></svg>Tedarik Ağı</a>
         <div class="quote">
           <h1>Fabrikadan kapınıza, her adım tek ekranda.</h1>
           <p>Talebinizden teslimata kadar süreci — numune, üretim, gemi, gümrük — canlı olarak buradan izlersiniz. Kara kutu değil, sistemli bir süreç.</p>
@@ -320,7 +330,7 @@ function panelShell(innerHtml, activeView) {
     <div class="app-shell">
       <div class="sidebar">
         <div class="brand-row">
-          <a href="/" class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0f3d63"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.16"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.16"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#d99a2b" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#d99a2b"/></svg>Çin Tedarik Ağı</a>
+          <a href="/" class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0f3d63"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.16"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.16"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#d99a2b" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#d99a2b"/></svg>Tedarik Ağı</a>
         </div>
         <div class="side-group-label">Genel</div>
         <div class="side-nav">
@@ -545,12 +555,12 @@ async function siparisListesiYukle() {
 // ayrımıyla aynı). Tamamlanan/gelecek fazlar özet satıra sıkışır, mevcut faz
 // otomatik açık gelir — 19 adımı tek uzun sütun hâlinde dökmek yerine.
 const FAZLAR = [
-  { ad: 'Talep &amp; Teklif', kodlar: ['talep_alindi','fabrika_gorusuluyor','teklif_hazir'] },
-  { ad: 'Numune', kodlar: ['numune_odeme_bekleniyor','numune_uretiliyor','numune_kalite_kontrolde','numune_onayinizi_bekliyor'] },
-  { ad: 'Üretim', kodlar: ['uretim_odeme_bekleniyor','uretimde','uretim_kalite_kontrolde'] },
-  { ad: 'Sevkiyat', kodlar: ['sevkiyat_belgeleri_hazirlaniyor','konteyner','yukleme_odeme_bekleniyor','gemide'] },
-  { ad: 'Gümrük', kodlar: ['gumruk_beyanname','gumruk_vergi_odeme','gumruk_muayene'] },
-  { ad: 'Teslimat', kodlar: ['teslimat_yolda','teslim_edildi'] },
+  { ad: 'Talep &amp; Teklif', renk:'blue', kodlar: ['talep_alindi','fabrika_gorusuluyor','teklif_hazir'] },
+  { ad: 'Numune', renk:'purple', kodlar: ['numune_odeme_bekleniyor','numune_uretiliyor','numune_kalite_kontrolde','numune_onayinizi_bekliyor'] },
+  { ad: 'Üretim', renk:'orange', kodlar: ['uretim_odeme_bekleniyor','uretimde','uretim_kalite_kontrolde'] },
+  { ad: 'Sevkiyat', renk:'cyan', kodlar: ['sevkiyat_belgeleri_hazirlaniyor','konteyner','yukleme_odeme_bekleniyor','gemide'] },
+  { ad: 'Gümrük', renk:'cyan', kodlar: ['gumruk_beyanname','gumruk_vergi_odeme','gumruk_muayene'] },
+  { ad: 'Teslimat', renk:'green', kodlar: ['teslimat_yolda','teslim_edildi'] },
 ];
 let detayTab = 'surec';
 let acikFazIndex = 0;
@@ -746,7 +756,7 @@ function fazAkordeonu(d, suankiIndex) {
       </div>`;
     });
 
-    html += `<div class="faz ${durumCls} ${acik ? 'open' : ''}">
+    html += `<div class="faz ${durumCls} renk-${faz.renk} ${acik ? 'open' : ''}">
       <div class="faz-head" onclick="fazToggle(${fi})">
         <div class="faz-num">${durumCls === 'done' ? '✓' : (fi+1)}</div>
         <div class="faz-title">
