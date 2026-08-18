@@ -66,7 +66,8 @@
       /* Küre bölümü: gerçek WebGL 3D küre — beyaz zemin üzerinde, testimonial/blog
          bölümlerinin yerine, sitenin gerçek küresel ağ görselleştirmesi. */
       .globe-wrap{ background:#fff; padding:90px 0; text-align:center; }
-      .globe-stage{ position:relative; width:min(560px, 90vw); height:min(560px, 90vw); margin:0 auto; cursor:grab; }
+      .globe-stage{ position:relative; width:min(820px, 94vw); height:min(820px, 94vw); margin:0 auto; cursor:grab; }
+      @media (max-width:767px){ .globe-stage{ width:min(560px, 94vw); height:min(560px, 94vw); } }
       .globe-stage:active{ cursor:grabbing; }
       .globe-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#8a94a3; }
       .price-item .display-5{ font-size:2rem; }
@@ -618,24 +619,29 @@
     <script src="assets/mailler/lib/counterup/counterup.min.js"></script>
     <script src="assets/mailler/js/main.js"></script>
 
-    <!-- Küresel ağ görselleştirmesi — düz Canvas 2D dünya haritası + rota animasyonu.
-         Önceki sürüm three.js/three-globe'u harici bir CDN'den (esm.sh) canlı olarak
+    <!-- Küresel ağ görselleştirmesi — gerçek 3D döner küre (three.js + three-globe).
+         Önceki sürüm bu kütüphaneleri harici bir CDN'den (esm.sh) canlı olarak
          yüklüyordu; bu bazı ağlarda/CDN dalgalanmalarında "geç yükleniyor ya da hiç
-         yüklenmiyor" şikayetine yol açtı. Bu sürüm hiçbir harici kütüphaneye bağlı
-         değil — sadece yerel /data/countries.geo.json ve saf JS/Canvas kullanıyor,
-         bu yüzden her zaman anında ve güvenilir yüklenir. Rota verisi (gerçek
+         yüklenmiyor" şikayetine yol açtı. Bu sürümde three.js + OrbitControls +
+         three-globe kendi sunucumuzda (assets/vendor/globe-bundle.min.js, esbuild
+         ile tek dosyada derlendi) barındırılıyor — hiçbir harici ağ isteği yok,
+         bu yüzden her zaman hızlı ve güvenilir yükleniyor. Rota verisi (gerçek
          şehir koordinatları) aynen korundu. -->
+    <script src="assets/vendor/globe-bundle.min.js"></script>
     <script>
     (async () => {
       const stage = document.getElementById('globeStage');
       const loading = document.getElementById('globeLoading');
       if (!stage) return;
-      const canvas = document.createElement('canvas');
-      canvas.style.width = '100%';
-      canvas.style.height = '100%';
-      canvas.style.display = 'block';
-      stage.appendChild(canvas);
-      const ctx = canvas.getContext('2d');
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        loading.textContent = 'Küre görselleştirmesi hareket azaltma modunda devre dışı.';
+        return;
+      }
+      const { THREE, OrbitControls, ThreeGlobe } = window.__GLOBE_LIBS__ || {};
+      if (!THREE || !ThreeGlobe) {
+        loading.textContent = 'Küre yüklenemedi.';
+        return;
+      }
 
       const CN_TR = [
         [31.2304,121.4737, 41.0082,28.9784], [22.5431,114.0579, 41.0082,28.9784],
@@ -676,146 +682,102 @@
         [13.7563,100.5018, 21.0285,105.8542], [21.0285,105.8542, 22.5431,114.0579],
         [14.5995,120.9842, 1.3521,103.8198], [-8.4095,115.1889, -33.8688,151.2093],
       ];
-      const ROUTES = [...CN_TR, ...GLOBAL].map(([sLa,sLo,eLa,eLo]) => ({
-        sLa, sLo, eLa, eLo, phase: Math.random(), speed: 0.25 + Math.random() * 0.25,
-      }));
-
-      // Basit eşdikdörtgen (equirectangular) projeksiyon: lat/lng -> x/y —
-      // Antarktika ve rota olmayan uç güney/kuzey şeritleri kırpılıyor (hareketsiz,
-      // boş görünen alan) — gerçek rota verisindeki enlem aralığına (~-40..+65) odaklanıyor.
-      const LAT_MIN = -46, LAT_MAX = 72;
-      const project = (lat, lng, w, h) => ({
-        x: (lng + 180) / 360 * w,
-        y: (LAT_MAX - lat) / (LAT_MAX - LAT_MIN) * h,
-      });
-
-      let countries = null;
       try {
-        countries = await fetch('/data/countries.geo.json').then(r => r.ok ? r.json() : null);
-      } catch (e) { countries = null; }
-
-      function resize() {
-        const w = stage.clientWidth, h = stage.clientHeight;
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        canvas.width = w * dpr; canvas.height = h * dpr;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      }
-      resize();
-      window.addEventListener('resize', resize);
-
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const ROUTE_COLORS = ['#465fff', '#9333ea', '#0e7490', '#db2777'];
-      ROUTES.forEach((r, i) => { r.color = ROUTE_COLORS[i % ROUTE_COLORS.length]; });
-      let t = 0;
-      function draw() {
-        const w = stage.clientWidth, h = stage.clientHeight;
-        ctx.clearRect(0, 0, w, h);
-
-        // Yumuşak gradyan zemin — düz beyaz yerine hafif canlı bir arkaplan
-        const bg = ctx.createRadialGradient(w/2, h*0.42, h*0.08, w/2, h*0.42, w*0.62);
-        bg.addColorStop(0, 'rgba(70,95,255,0.07)');
-        bg.addColorStop(1, 'rgba(70,95,255,0)');
-        ctx.fillStyle = bg;
-        ctx.fillRect(0, 0, w, h);
-
-        // Ülke sınırları — gerçek GeoJSON verisinden, ince açık çizgiler
-        if (countries) {
-          ctx.strokeStyle = 'rgba(70,95,255,0.4)';
-          ctx.fillStyle = 'rgba(70,95,255,0.07)';
-          ctx.lineWidth = 1;
-          countries.features.forEach(f => {
-            const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
-            polys.forEach(poly => {
-              poly.forEach(ring => {
-                ctx.beginPath();
-                ring.forEach(([lng, lat], i) => {
-                  const p = project(lat, lng, w, h);
-                  if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
-                });
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-              });
-            });
-          });
+        const countries = await fetch('/data/countries.geo.json').then(r => r.json());
+        const ARC_COLORS = ['#465fff', '#9333ea', '#0e7490', '#db2777'];
+        const rndColor = () => ARC_COLORS[Math.floor(Math.random() * ARC_COLORS.length)];
+        const ROUTES = [...CN_TR, ...GLOBAL]
+          .map(([sLa,sLo,eLa,eLo]) => ({ startLat:sLa, startLng:sLo, endLat:eLa, endLng:eLo, color: rndColor() }))
+          .map(r => ({ ...r, order: Math.round(Math.random() * 3), arcAlt: .15 + Math.random() * .35 }));
+        const globePoints = ROUTES.flatMap(r => [
+          { lat:r.startLat, lng:r.startLng, color:r.color },
+          { lat:r.endLat, lng:r.endLng, color:r.color },
+        ]);
+        const globe = new ThreeGlobe()
+          .hexPolygonsData(countries.features)
+          .hexPolygonResolution(3)
+          .hexPolygonMargin(0.7)
+          .showAtmosphere(true)
+          .atmosphereColor('#465fff')
+          .atmosphereAltitude(0.14)
+          .hexPolygonColor(() => 'rgba(255,255,255,0.7)')
+          .arcsData(ROUTES)
+          .arcColor('color')
+          .arcAltitude('arcAlt')
+          .arcStroke(() => [0.32, 0.28, 0.3][Math.round(Math.random() * 2)])
+          .arcDashLength(0.9)
+          .arcDashGap(2)
+          .arcDashInitialGap('order')
+          .arcDashAnimateTime(900)
+          .pointsData(globePoints)
+          .pointColor('color')
+          .pointsMerge(true)
+          .pointAltitude(0)
+          .pointRadius(2)
+          .ringsData([])
+          .ringColor(() => (t) => `rgba(255,255,255,${1 - t})`)
+          .ringMaxRadius(3)
+          .ringPropagationSpeed(3)
+          .ringRepeatPeriod((1000 * 0.9) / 1);
+        globe.globeMaterial().color = new THREE.Color('#101828');
+        globe.globeMaterial().emissive = new THREE.Color('#101828');
+        globe.globeMaterial().emissiveIntensity = 0.1;
+        globe.globeMaterial().shininess = 0.9;
+        setInterval(() => {
+          const sample = globePoints
+            .map(p => ({ p, r: Math.random() }))
+            .sort((a,b) => a.r - b.r)
+            .slice(0, Math.floor(globePoints.length * 0.85))
+            .map(x => x.p);
+          globe.ringsData(sample);
+        }, 500);
+        const width = stage.clientWidth, height = stage.clientHeight;
+        const scene = new THREE.Scene();
+        scene.add(globe);
+        scene.add(new THREE.AmbientLight('#465fff', 0.8));
+        const dLight1 = new THREE.DirectionalLight(0xffffff, 0.7);
+        dLight1.position.set(-400, 100, 400);
+        scene.add(dLight1);
+        const dLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+        dLight2.position.set(-200, 500, 200);
+        scene.add(dLight2);
+        const pLight = new THREE.PointLight(0xffffff, 0.8);
+        pLight.position.set(-200, 500, 200);
+        scene.add(pLight);
+        const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 2000);
+        camera.position.z = 280;
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(width, height);
+        stage.appendChild(renderer.domElement);
+        loading.style.opacity = '0';
+        setTimeout(() => loading.remove(), 400);
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableZoom = false;
+        controls.enablePan = false;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.6;
+        controls.minPolarAngle = Math.PI / 3.2;
+        controls.maxPolarAngle = Math.PI - Math.PI / 3.2;
+        function onResize() {
+          const w = stage.clientWidth, h = stage.clientHeight;
+          camera.aspect = w / h; camera.updateProjectionMatrix();
+          renderer.setSize(w, h);
         }
-
-        // Rotalar — gerçek şehir çiftleri arasında yumuşak kavisli, hafif parlayan çizgi + akan nokta
-        ROUTES.forEach(r => {
-          const p1 = project(r.sLa, r.sLo, w, h);
-          const p2 = project(r.eLa, r.eLo, w, h);
-          const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2 - Math.abs(p2.x - p1.x) * 0.15;
-          ctx.strokeStyle = r.color + '30';
-          ctx.lineWidth = 1.2;
-          ctx.beginPath();
-          ctx.moveTo(p1.x, p1.y);
-          ctx.quadraticCurveTo(mx, my, p2.x, p2.y);
-          ctx.stroke();
-          if (!reduceMotion) {
-            const prog = (t * r.speed + r.phase) % 1;
-            const it = 1 - prog;
-            const bx = it*it*p1.x + 2*it*prog*mx + prog*prog*p2.x;
-            const by = it*it*p1.y + 2*it*prog*my + prog*prog*p2.y;
-            // hafif kuyruk efekti — akan noktanın arkasında kısa bir iz
-            for (let k = 0; k < 5; k++) {
-              const tp = Math.max(0, prog - k * 0.025);
-              const iit = 1 - tp;
-              const tx = iit*iit*p1.x + 2*iit*tp*mx + tp*tp*p2.x;
-              const ty = iit*iit*p1.y + 2*iit*tp*my + tp*tp*p2.y;
-              ctx.fillStyle = r.color + Math.round((1 - k/5) * 90).toString(16).padStart(2,'0');
-              ctx.beginPath();
-              ctx.arc(tx, ty, 2.6 - k*0.35, 0, Math.PI * 2);
-              ctx.fill();
-            }
-            ctx.shadowColor = r.color;
-            ctx.shadowBlur = 6;
-            ctx.fillStyle = r.color;
-            ctx.beginPath();
-            ctx.arc(bx, by, 2.2, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-          }
-        });
-
-        // Şehir noktaları — nabız gibi hafifçe büyüyüp küçülen halka + sabit merkez nokta
-        const seen = new Set();
-        ROUTES.forEach(r => {
-          [[r.sLa, r.sLo, r.color], [r.eLa, r.eLo, r.color]].forEach(([la, lo, color]) => {
-            const key = la + ',' + lo;
-            if (seen.has(key)) return;
-            seen.add(key);
-            const p = project(la, lo, w, h);
-            if (!reduceMotion) {
-              const pulse = (Math.sin(t * 40 + la + lo) + 1) / 2;
-              ctx.strokeStyle = color + '55';
-              ctx.lineWidth = 1;
-              ctx.beginPath();
-              ctx.arc(p.x, p.y, 3 + pulse * 4, 0, Math.PI * 2);
-              ctx.stroke();
-            }
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 2.6, 0, Math.PI * 2);
-            ctx.fill();
-          });
-        });
-      }
-
-      loading.style.opacity = '0';
-      setTimeout(() => loading.remove(), 300);
-
-      if (reduceMotion) {
-        draw();
-      } else {
+        window.addEventListener('resize', onResize);
         let raf;
         (function animate(){
           raf = requestAnimationFrame(animate);
-          t += 0.006;
-          draw();
+          controls.update();
+          renderer.render(scene, camera);
         })();
         document.addEventListener('visibilitychange', () => {
           if (document.hidden) cancelAnimationFrame(raf);
+          else animate();
         });
+      } catch (err) {
+        console.error('Küre yüklenemedi:', err);
+        if (loading) loading.textContent = 'Küre yüklenemedi.';
       }
     })();
     </script>
