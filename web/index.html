@@ -680,10 +680,13 @@
         sLa, sLo, eLa, eLo, phase: Math.random(), speed: 0.25 + Math.random() * 0.25,
       }));
 
-      // Basit eşdikdörtgen (equirectangular) projeksiyon: lat/lng -> x/y
+      // Basit eşdikdörtgen (equirectangular) projeksiyon: lat/lng -> x/y —
+      // Antarktika ve rota olmayan uç güney/kuzey şeritleri kırpılıyor (hareketsiz,
+      // boş görünen alan) — gerçek rota verisindeki enlem aralığına (~-40..+65) odaklanıyor.
+      const LAT_MIN = -46, LAT_MAX = 72;
       const project = (lat, lng, w, h) => ({
         x: (lng + 180) / 360 * w,
-        y: (90 - lat) / 180 * h,
+        y: (LAT_MAX - lat) / (LAT_MAX - LAT_MIN) * h,
       });
 
       let countries = null;
@@ -701,15 +704,24 @@
       window.addEventListener('resize', resize);
 
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const ROUTE_COLORS = ['#465fff', '#9333ea', '#0e7490', '#db2777'];
+      ROUTES.forEach((r, i) => { r.color = ROUTE_COLORS[i % ROUTE_COLORS.length]; });
       let t = 0;
       function draw() {
         const w = stage.clientWidth, h = stage.clientHeight;
         ctx.clearRect(0, 0, w, h);
 
+        // Yumuşak gradyan zemin — düz beyaz yerine hafif canlı bir arkaplan
+        const bg = ctx.createRadialGradient(w/2, h*0.42, h*0.08, w/2, h*0.42, w*0.62);
+        bg.addColorStop(0, 'rgba(70,95,255,0.07)');
+        bg.addColorStop(1, 'rgba(70,95,255,0)');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, w, h);
+
         // Ülke sınırları — gerçek GeoJSON verisinden, ince açık çizgiler
         if (countries) {
-          ctx.strokeStyle = 'rgba(70,95,255,0.35)';
-          ctx.fillStyle = 'rgba(70,95,255,0.06)';
+          ctx.strokeStyle = 'rgba(70,95,255,0.4)';
+          ctx.fillStyle = 'rgba(70,95,255,0.07)';
           ctx.lineWidth = 1;
           countries.features.forEach(f => {
             const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
@@ -728,13 +740,13 @@
           });
         }
 
-        // Rotalar — gerçek şehir çiftleri arasında yumuşak kavisli çizgi + akan nokta
+        // Rotalar — gerçek şehir çiftleri arasında yumuşak kavisli, hafif parlayan çizgi + akan nokta
         ROUTES.forEach(r => {
           const p1 = project(r.sLa, r.sLo, w, h);
           const p2 = project(r.eLa, r.eLo, w, h);
           const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2 - Math.abs(p2.x - p1.x) * 0.15;
-          ctx.strokeStyle = 'rgba(70,95,255,0.22)';
-          ctx.lineWidth = 1;
+          ctx.strokeStyle = r.color + '30';
+          ctx.lineWidth = 1.2;
           ctx.beginPath();
           ctx.moveTo(p1.x, p1.y);
           ctx.quadraticCurveTo(mx, my, p2.x, p2.y);
@@ -744,24 +756,46 @@
             const it = 1 - prog;
             const bx = it*it*p1.x + 2*it*prog*mx + prog*prog*p2.x;
             const by = it*it*p1.y + 2*it*prog*my + prog*prog*p2.y;
-            ctx.fillStyle = '#465fff';
+            // hafif kuyruk efekti — akan noktanın arkasında kısa bir iz
+            for (let k = 0; k < 5; k++) {
+              const tp = Math.max(0, prog - k * 0.025);
+              const iit = 1 - tp;
+              const tx = iit*iit*p1.x + 2*iit*tp*mx + tp*tp*p2.x;
+              const ty = iit*iit*p1.y + 2*iit*tp*my + tp*tp*p2.y;
+              ctx.fillStyle = r.color + Math.round((1 - k/5) * 90).toString(16).padStart(2,'0');
+              ctx.beginPath();
+              ctx.arc(tx, ty, 2.6 - k*0.35, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.shadowColor = r.color;
+            ctx.shadowBlur = 6;
+            ctx.fillStyle = r.color;
             ctx.beginPath();
-            ctx.arc(bx, by, 2, 0, Math.PI * 2);
+            ctx.arc(bx, by, 2.2, 0, Math.PI * 2);
             ctx.fill();
+            ctx.shadowBlur = 0;
           }
         });
 
-        // Şehir noktaları
-        ctx.fillStyle = '#3641f5';
+        // Şehir noktaları — nabız gibi hafifçe büyüyüp küçülen halka + sabit merkez nokta
         const seen = new Set();
         ROUTES.forEach(r => {
-          [[r.sLa, r.sLo], [r.eLa, r.eLo]].forEach(([la, lo]) => {
+          [[r.sLa, r.sLo, r.color], [r.eLa, r.eLo, r.color]].forEach(([la, lo, color]) => {
             const key = la + ',' + lo;
             if (seen.has(key)) return;
             seen.add(key);
             const p = project(la, lo, w, h);
+            if (!reduceMotion) {
+              const pulse = (Math.sin(t * 40 + la + lo) + 1) / 2;
+              ctx.strokeStyle = color + '55';
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.arc(p.x, p.y, 3 + pulse * 4, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+            ctx.fillStyle = color;
             ctx.beginPath();
-            ctx.arc(p.x, p.y, 2.4, 0, Math.PI * 2);
+            ctx.arc(p.x, p.y, 2.6, 0, Math.PI * 2);
             ctx.fill();
           });
         });
