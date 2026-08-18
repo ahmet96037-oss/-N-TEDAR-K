@@ -1016,11 +1016,16 @@ function konteynerOnizlemeGuncelle() {
   const key = document.getElementById('sTasiyiciKey')?.value;
   const no = document.getElementById('sKonteyner')?.value.trim();
   if (!no) { kutu.innerHTML = ''; return; }
+  // Backend'in siparis_detay endpoint'iyle BİREBİR aynı mantık: firmaya özel
+  // deeplink varsa onu, yoksa track-trace.com genel aramasını göster — hiçbir
+  // taşıyıcı için "link yok, sadece açıklama" durumu bırakmıyoruz.
   if (key && KONTEYNER_DEEPLINK[key]) {
     const url = KONTEYNER_DEEPLINK[key](no);
     kutu.innerHTML = `<i class="bi bi-link-45deg"></i> Müşteriye gösterilecek link (otomatik, ${TASIYICILAR.find(t=>t[0]===key)?.[1] || key}): <a href="${url}" target="_blank" style="color:var(--accent2);">${url}</a>`;
   } else {
-    kutu.innerHTML = `<span style="color:var(--text-muted);"><i class="bi bi-info-circle"></i> ${key ? 'Bu taşıyıcı için otomatik firma linki henüz doğrulanmadı' : 'Taşıyıcı seçilmedi'} — genel track-trace.com araması gösterilecek.</span>`;
+    const url = `https://www.track-trace.com/container?number=${encodeURIComponent(no)}`;
+    const kaynakEtiketi = key ? (TASIYICILAR.find(t=>t[0]===key)?.[1] || key) + ' için henüz doğrulanmış firma linki yok' : 'Taşıyıcı seçilmedi';
+    kutu.innerHTML = `<i class="bi bi-link-45deg"></i> Müşteriye gösterilecek link (genel, ${kaynakEtiketi}): <a href="${url}" target="_blank" style="color:var(--accent2);">${url}</a>`;
   }
 }
 
