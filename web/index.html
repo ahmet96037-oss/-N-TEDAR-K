@@ -72,25 +72,13 @@
       .price-item .display-5{ font-size:2rem; }
       .faq-real .accordion-button{ font-weight:600; }
       @media (min-width: 992px){ nav.navbar-light{ background:#fff !important; } }
-      .topbar-mini{ background:#09090b; padding:7px 0; }
-      .topbar-mini a{ color:rgba(255,255,255,.55); font-size:13px; margin-left:16px; text-decoration:none; transition:color .15s; }
-      .topbar-mini a:hover{ color:#fff; }
-      @media (max-width:991px){ nav.navbar-light{ top:0 !important; } }
       nav.navbar-light .navbar-brand h1{ color:#09090b !important; }
-      .hero-photo{ position:relative; padding-top:224px; padding-bottom:150px; }
+      .hero-photo{ position:relative; padding-top:190px; padding-bottom:150px; }
       .hero-bg{ position:absolute; inset:0; z-index:0; }
       .hero-slide{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1.8s ease; }
       .hero-slide.active{ opacity:1; }
       .hero-scrim{ position:absolute; inset:0; background:linear-gradient(100deg, rgba(9,11,28,.88) 0%, rgba(9,11,28,.72) 38%, rgba(9,11,28,.42) 65%, rgba(9,11,28,.2) 100%); }
       @media (max-width: 991px){ .hero-scrim{ background:linear-gradient(180deg, rgba(9,11,28,.55) 0%, rgba(9,11,28,.85) 55%, rgba(9,11,28,.92) 100%); } .hero-photo{ padding-top:150px; } }
-      /* Purdue temasındaki "yüzen istatistik rozeti" fikrinden uyarlandı — gerçek
-         panel rakamlarıyla, fotoğrafın üzerinde hafif yükselen beyaz kartlar. */
-      .hero-float-badge{ position:absolute; z-index:2; align-items:center; gap:12px; background:#fff; border-radius:16px; padding:12px 18px; box-shadow:0 16px 40px -10px rgba(0,0,0,.35); animation:heroFloat 4s ease-in-out infinite; }
-      .hero-float-badge .ico{ width:40px; height:40px; border-radius:12px; background:#eef2ff; color:#465fff; display:flex; align-items:center; justify-content:center; font-size:18px; flex:none; }
-      .hero-float-badge .ico.ico-alt{ background:#ecfdf3; color:#12b76a; }
-      .hero-float-badge b{ display:block; font-family:var(--font-display, inherit); font-weight:800; font-size:19px; color:#09090b; line-height:1.1; }
-      .hero-float-badge span{ display:block; font-size:11.5px; color:#71717a; white-space:nowrap; margin-top:2px; }
-      @keyframes heroFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-10px); } }
       .stat-strip-wrap{ margin-top:-46px; position:relative; z-index:3; }
       .stat-chip{ display:flex; align-items:center; gap:12px; border-radius:16px; padding:16px 18px; height:100%; box-shadow:0 10px 30px -12px rgba(9,9,11,.12); }
       .stat-chip i{ font-size:22px; flex:none; }
@@ -119,18 +107,9 @@
         </div>
     </div>
 
-    <!-- Top bar: ince, sadece sosyal medya (deneme linkleri) -->
-    <div class="topbar-mini d-none d-lg-flex">
-        <div class="container d-flex justify-content-end align-items-center">
-            <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="#" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-            <a href="#" title="X (Twitter)"><i class="fab fa-twitter"></i></a>
-        </div>
-    </div>
-
     <!-- Navbar & Hero Start -->
     <div class="container-fluid header position-relative overflow-hidden p-0">
-        <nav class="navbar navbar-expand-lg fixed-top navbar-light px-4 px-lg-5 py-3 py-lg-0" style="background:#fff; box-shadow:0 1px 0 rgba(9,9,11,.06); top:34px;">
+        <nav class="navbar navbar-expand-lg fixed-top navbar-light px-4 px-lg-5 py-3 py-lg-0" style="background:#fff; box-shadow:0 1px 0 rgba(9,9,11,.06);">
             <a href="/" class="navbar-brand p-0 d-flex align-items-center">
                 <svg width="34" height="34" viewBox="0 0 40 40" class="me-2" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#465fff"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg>
                 <h1 class="display-6 text-dark m-0" style="font-size:22px; font-weight:800;">Tedarik Ağı</h1>
@@ -166,16 +145,6 @@
                     <a href="/takip.html#rfq" class="btn btn-primary rounded-pill py-3 px-5 me-3 wow fadeInUp" data-wow-delay="0.7s">Ücretsiz Danışmanlık Talebi</a>
                     <a href="#ulke-agi" class="btn btn-outline-light rounded-pill py-3 px-5 wow fadeInUp" data-wow-delay="0.7s">Ülke Ağımızı Keşfedin</a>
                 </div>
-            </div>
-            <!-- Yüzen rozet kartlar — gerçek verilerle (uydurma değil, hesaplama/panel sayfalarındaki
-                 aynı rakamlar): panelde 19 durum canlı işleniyor, GTİP tarafında 15.000+ gerçek kayıt var. -->
-            <div class="hero-float-badge d-none d-md-flex" style="top:150px; right:6%;">
-                <div class="ico"><i class="bi bi-graph-up-arrow"></i></div>
-                <div><b>19</b><span>Canlı Takip Durumu</span></div>
-            </div>
-            <div class="hero-float-badge d-none d-md-flex" style="bottom:56px; right:10%;">
-                <div class="ico ico-alt"><i class="bi bi-database-check"></i></div>
-                <div><b>15.000+</b><span>Gerçek GTİP Kaydı</span></div>
             </div>
         </div>
     </div>
