@@ -38,6 +38,8 @@
       .globe-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#8a94a3; }
       .price-item .display-5{ font-size:2rem; }
       .faq-real .accordion-button{ font-weight:600; }
+      @media (min-width: 992px){ nav.navbar-light{ background:#fff !important; } }
+      nav.navbar-light .navbar-brand h1{ color:#09090b !important; }
       .hero-photo{ position:relative; padding-top:170px; padding-bottom:110px; }
       .hero-bg{ position:absolute; inset:0; z-index:0; }
       .hero-slide{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1.8s ease; }
@@ -124,7 +126,7 @@
                             <p class="small mb-0">Her aşama panelinizde canlı görünür.</p>
                         </div>
                     </div>
-                    <a href="#ulke-agi" class="btn btn-primary rounded-pill py-3 px-5">Ülke Ağımızı Gör</a>
+                    <a href="#ulke-agi" class="btn btn-dark rounded-pill py-3 px-5">Ülke Ağımızı Gör</a>
                 </div>
             </div>
         </div>
@@ -143,61 +145,61 @@
             <div class="row g-4 justify-content-center">
                 <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="service-item text-center rounded p-4">
-                        <div class="service-icon d-inline-block bg-light rounded p-4 mb-4"><i class="fas fa-file-signature fa-3x text-primary"></i></div>
+                        <div class="service-icon d-inline-block rounded p-4 mb-4" style="background:#eff6ff;"><i class="fas fa-file-signature fa-3x" style="color:#2563eb;"></i></div>
                         <div class="service-content">
                             <h4 class="mb-3">RFQ Alınır</h4>
                             <p class="mb-3">Ürün, miktar ve hedef fiyatınızı panelinizden iletirsiniz; talebiniz aynı gün fabrika görüşmelerine girer.</p>
-                            <span class="portal-pill">Talep Alındı</span>
+                            <span class="portal-pill" style="background:rgba(37,99,235,.1); color:#2563eb; border-color:rgba(37,99,235,.25);">Talep Alındı</span>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.2s">
                     <div class="service-item text-center rounded p-4">
-                        <div class="service-icon d-inline-block bg-light rounded p-4 mb-4"><i class="fas fa-handshake fa-3x text-primary"></i></div>
+                        <div class="service-icon d-inline-block rounded p-4 mb-4" style="background:#fdf2f8;"><i class="fas fa-handshake fa-3x" style="color:#db2777;"></i></div>
                         <div class="service-content">
                             <h4 class="mb-3">Fabrika Eşleştirme</h4>
                             <p class="mb-3">Uygun fabrikalar belirlenir, karşılaştırmalı fiyat ve termin teklifi hazırlanır.</p>
-                            <span class="portal-pill">Teklif Hazır</span>
+                            <span class="portal-pill" style="background:rgba(219,39,119,.1); color:#db2777; border-color:rgba(219,39,119,.25);">Teklif Hazır</span>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
                     <div class="service-item text-center rounded p-4">
-                        <div class="service-icon d-inline-block bg-light rounded p-4 mb-4"><i class="fas fa-flask fa-3x text-primary"></i></div>
+                        <div class="service-icon d-inline-block rounded p-4 mb-4" style="background:#faf5ff;"><i class="fas fa-flask fa-3x" style="color:#9333ea;"></i></div>
                         <div class="service-content">
                             <h4 class="mb-3">Numune Süreci</h4>
                             <p class="mb-3">Onaylanan tedarikçiden numune üretilir; yerinde QC ekibimiz fiziksel olarak kontrol eder.</p>
-                            <span class="portal-pill">Numune Onayı Bekliyor</span>
+                            <span class="portal-pill" style="background:rgba(147,51,234,.1); color:#9333ea; border-color:rgba(147,51,234,.25);">Numune Onayı Bekliyor</span>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.4s">
                     <div class="service-item text-center rounded p-4">
-                        <div class="service-icon d-inline-block bg-light rounded p-4 mb-4"><i class="fas fa-cogs fa-3x text-primary"></i></div>
+                        <div class="service-icon d-inline-block rounded p-4 mb-4" style="background:#fff7ed;"><i class="fas fa-cogs fa-3x" style="color:#ea580c;"></i></div>
                         <div class="service-content">
                             <h4 class="mb-3">Seri Üretim</h4>
                             <p class="mb-3">Numune onaylanmadan seri üretime geçilmez. Onay sonrası ilerleme periyodik paylaşılır.</p>
-                            <span class="portal-pill">Üretimde</span>
+                            <span class="portal-pill" style="background:rgba(234,88,12,.1); color:#ea580c; border-color:rgba(234,88,12,.25);">Üretimde</span>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
                     <div class="service-item text-center rounded p-4">
-                        <div class="service-icon d-inline-block bg-light rounded p-4 mb-4"><i class="fas fa-ship fa-3x text-primary"></i></div>
+                        <div class="service-icon d-inline-block rounded p-4 mb-4" style="background:#ecfeff;"><i class="fas fa-ship fa-3x" style="color:#0e7490;"></i></div>
                         <div class="service-content">
                             <h4 class="mb-3">Konteyner & Gemi</h4>
                             <p class="mb-3">Ürünler konteynere yüklenir, limanda gemiye biner; canlı konum takibi panelinizde açılır.</p>
-                            <span class="portal-pill">Gemide</span>
+                            <span class="portal-pill" style="background:rgba(14,116,144,.1); color:#0e7490; border-color:rgba(14,116,144,.25);">Gemide</span>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.6s">
                     <div class="service-item text-center rounded p-4">
-                        <div class="service-icon d-inline-block bg-light rounded p-4 mb-4"><i class="fas fa-box-open fa-3x text-primary"></i></div>
+                        <div class="service-icon d-inline-block rounded p-4 mb-4" style="background:#ecfdf3;"><i class="fas fa-box-open fa-3x" style="color:#12b76a;"></i></div>
                         <div class="service-content">
                             <h4 class="mb-3">Gümrük & Teslimat</h4>
                             <p class="mb-3">Beyanname, vergi ve muayene süreci işlenir; mal gümrükten çekilip adresinize ulaştırılır.</p>
-                            <span class="portal-pill">Teslim Edildi</span>
+                            <span class="portal-pill" style="background:rgba(18,183,106,.1); color:#12b76a; border-color:rgba(18,183,106,.25);">Teslim Edildi</span>
                         </div>
                     </div>
                 </div>
@@ -218,7 +220,7 @@
             <div class="row g-4 justify-content-center text-center mb-5">
                 <div class="col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="text-center p-4">
-                        <div class="d-inline-block rounded bg-light p-4 mb-4"><i class="fas fa-layer-group fa-4x text-primary"></i></div>
+                        <div class="d-inline-block rounded p-4 mb-4" style="background:#eef2ff;"><i class="fas fa-layer-group fa-4x" style="color:#4f46e5;"></i></div>
                         <div class="feature-content">
                             <span class="h5">Ödeme Güvenliği</span>
                             <p class="mt-3 mb-0">Bedel; RFQ onayı, numune onayı, yükleme öncesi ve teslimat sonrası olmak üzere aşamalara bölünerek ödenir.</p>
@@ -227,7 +229,7 @@
                 </div>
                 <div class="col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.2s">
                     <div class="text-center p-4">
-                        <div class="d-inline-block rounded bg-light p-4 mb-4"><i class="fas fa-file-contract fa-4x text-primary"></i></div>
+                        <div class="d-inline-block rounded p-4 mb-4" style="background:#fefce8;"><i class="fas fa-file-contract fa-4x" style="color:#a16207;"></i></div>
                         <div class="feature-content">
                             <span class="h5">Yazılı Taahhüt</span>
                             <p class="mt-3 mb-0">Fiyat, termin, kalite şartnamesi ve uyuşmazlık prosedürü yazılı olarak imzalanır.</p>
@@ -236,7 +238,7 @@
                 </div>
                 <div class="col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.3s">
                     <div class="text-center p-4">
-                        <div class="d-inline-block rounded bg-light p-4 mb-4"><i class="fas fa-check-double fa-4x text-primary"></i></div>
+                        <div class="d-inline-block rounded p-4 mb-4" style="background:#ecfdf3;"><i class="fas fa-check-double fa-4x" style="color:#12b76a;"></i></div>
                         <div class="feature-content">
                             <span class="h5">Kalite Güvencesi</span>
                             <p class="mt-3 mb-0">Numune onaylanmadan seri üretime geçilmez; üretimde rastgele denetim yapılır.</p>
@@ -245,7 +247,7 @@
                 </div>
                 <div class="col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.4s">
                     <div class="text-center p-4">
-                        <div class="d-inline-block rounded bg-light p-4 mb-4"><i class="fas fa-archive fa-4x text-primary"></i></div>
+                        <div class="d-inline-block rounded p-4 mb-4" style="background:#faf5ff;"><i class="fas fa-archive fa-4x" style="color:#9333ea;"></i></div>
                         <div class="feature-content">
                             <span class="h5">Belge Arşivi</span>
                             <p class="mt-3 mb-0">Konşimento, fatura, çeki listesi ve gümrük belgeleri portalınızda arşivlenir.</p>
@@ -266,7 +268,7 @@
                     <div class="row g-4">
                         <div class="col-6">
                             <div class="d-flex">
-                                <i class="fas fa-list-ol fa-4x text-primary"></i>
+                                <i class="fas fa-list-ol fa-4x" style="color:#ea580c;"></i>
                                 <div class="d-flex flex-column ms-3">
                                     <h2 class="mb-0 fw-bold">19</h2>
                                     <small class="text-dark">Canlı Takip Durumu</small>
@@ -275,7 +277,7 @@
                         </div>
                         <div class="col-6">
                             <div class="d-flex">
-                                <i class="fas fa-file-invoice-dollar fa-4x text-primary"></i>
+                                <i class="fas fa-file-invoice-dollar fa-4x" style="color:#0e7490;"></i>
                                 <div class="d-flex flex-column ms-3">
                                     <h2 class="mb-0 fw-bold">15.000+</h2>
                                     <small class="text-dark">Gerçek GTİP Kaydı</small>
@@ -284,7 +286,7 @@
                         </div>
                     </div>
                     <div class="my-4">
-                        <a href="/takip.html#rfq" class="btn btn-primary rounded-pill py-3 px-5">Ücretsiz Danışmanlık Görüşmesi Planlayın</a>
+                        <a href="/takip.html#rfq" class="btn btn-dark rounded-pill py-3 px-5">Ücretsiz Danışmanlık Görüşmesi Planlayın</a>
                     </div>
                 </div>
             </div>
@@ -317,49 +319,49 @@
             <div class="row g-4">
                 <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="service-item rounded p-4 h-100">
-                        <i class="fas fa-industry fa-2x text-primary mb-3"></i>
+                        <i class="fas fa-industry fa-2x mb-3" style="color:#2563eb;"></i>
                         <h5 class="fw-bold mb-2">Asya-Pasifik</h5>
                         <p class="mb-0 small">Çin (Şangay, Shenzhen, Guangzhou, Pekin), Singapur, Hindistan, Endonezya, Japonya, Güney Kore</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.2s">
                     <div class="service-item rounded p-4 h-100">
-                        <i class="fas fa-mosque fa-2x text-primary mb-3"></i>
+                        <i class="fas fa-mosque fa-2x mb-3" style="color:#ea580c;"></i>
                         <h5 class="fw-bold mb-2">Orta Doğu</h5>
                         <p class="mb-0 small">Birleşik Arap Emirlikleri, Mısır — Asya-Avrupa hattının kavşak noktaları</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
                     <div class="service-item rounded p-4 h-100">
-                        <i class="fas fa-landmark fa-2x text-primary mb-3"></i>
+                        <i class="fas fa-landmark fa-2x mb-3" style="color:#9333ea;"></i>
                         <h5 class="fw-bold mb-2">Avrupa</h5>
                         <p class="mb-0 small">Almanya, Birleşik Krallık, Fransa, Rusya — Türkiye'nin geleneksel ihracat pazarları</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.4s">
                     <div class="service-item rounded p-4 h-100">
-                        <i class="fas fa-flag-usa fa-2x text-primary mb-3"></i>
+                        <i class="fas fa-flag-usa fa-2x mb-3" style="color:#0e7490;"></i>
                         <h5 class="fw-bold mb-2">Kuzey Amerika</h5>
                         <p class="mb-0 small">ABD, Kanada, Meksika</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
                     <div class="service-item rounded p-4 h-100">
-                        <i class="fas fa-mountain fa-2x text-primary mb-3"></i>
+                        <i class="fas fa-mountain fa-2x mb-3" style="color:#db2777;"></i>
                         <h5 class="fw-bold mb-2">Güney Amerika</h5>
                         <p class="mb-0 small">Brezilya, Şili, Arjantin, Kolombiya, Peru</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.6s">
                     <div class="service-item rounded p-4 h-100">
-                        <i class="fas fa-globe-africa fa-2x text-primary mb-3"></i>
+                        <i class="fas fa-globe-africa fa-2x mb-3" style="color:#12b76a;"></i>
                         <h5 class="fw-bold mb-2">Afrika &amp; Okyanusya</h5>
                         <p class="mb-0 small">Kenya, Güney Afrika, Nijerya, Avustralya, Yeni Zelanda</p>
                     </div>
                 </div>
             </div>
             <div class="text-center mt-5">
-                <a href="/takip.html#rfq" class="btn btn-primary rounded-pill py-3 px-5">Ülkenize Özel Teklif İsteyin</a>
+                <a href="/takip.html#rfq" class="btn btn-dark rounded-pill py-3 px-5">Ülkenize Özel Teklif İsteyin</a>
             </div>
         </div>
     </div>
@@ -437,7 +439,7 @@
                         <div class="text-start p-5">
                             <p>Zaten müşterimiz misiniz? Talebinizin durumunu, belgelerinizi ve süreç geçmişini tek panelden görüntüleyin.</p>
                             <p class="mb-4">Ya da yeni bir teklif talebi oluşturun, aynı anda hesabınız açılsın.</p>
-                            <a href="/takip.html" class="btn btn-primary rounded-pill py-2 px-5" type="button">Siparişimi Görüntüle</a>
+                            <a href="/takip.html" class="btn btn-dark rounded-pill py-2 px-5" type="button">Siparişimi Görüntüle</a>
                         </div>
                     </div>
                 </div>
