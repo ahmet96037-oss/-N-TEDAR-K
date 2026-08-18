@@ -644,6 +644,36 @@ function detaySayfasi(d, suankiIndex) {
 
   const suankiAd = suankiIndex >= 0 ? d.durum_sirasi[suankiIndex].ad : 'Talep Alındı';
 
+  // Ödeme Durumu — sadece admin tutar girdiyse gösterilir (o.toplam_tutar
+  // null ise "0 bekliyor" gibi uydurma bir şey göstermek yerine hiç basmıyoruz).
+  let odemeCard = '';
+  const o = d.odeme;
+  if (o && o.toplam_tutar != null) {
+    const odemeGecmisiHtml = (o.gecmis && o.gecmis.length) ? o.gecmis.map(g => `
+      <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px;">
+        <div><b>${Number(g.tutar).toLocaleString('tr-TR')} ${g.para_birimi}</b>${g.aciklama ? ` <span style="color:var(--text-muted);">— ${g.aciklama}</span>` : ''}</div>
+        <div style="color:var(--text-muted); font-size:11.5px;">${new Date(g.tarih).toLocaleDateString('tr-TR')}</div>
+      </div>`).join('') : '';
+    odemeCard = `<div class="panel" style="margin-bottom:20px;">
+      <h2 style="font-size:16px; margin-bottom:14px;">💳 Ödeme Durumu</h2>
+      <div class="row2" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:14px;">
+        <div style="background:var(--bg-alt); border:1px solid var(--border); border-radius:12px; padding:12px 14px;">
+          <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); margin-bottom:4px;">Toplam Bedel</div>
+          <div style="font-weight:800; font-size:17px;">${Number(o.toplam_tutar).toLocaleString('tr-TR')} ${o.para_birimi}</div>
+        </div>
+        <div style="background:var(--bg-alt); border:1px solid var(--border); border-radius:12px; padding:12px 14px;">
+          <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); margin-bottom:4px;">Ödenen</div>
+          <div style="font-weight:800; font-size:17px; color:var(--good);">${Number(o.odenen_toplam).toLocaleString('tr-TR')} ${o.para_birimi}</div>
+        </div>
+        <div style="background:var(--bg-alt); border:1px solid var(--border); border-radius:12px; padding:12px 14px;">
+          <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); margin-bottom:4px;">Bekleyen</div>
+          <div style="font-weight:800; font-size:17px; color:${o.bekleyen > 0 ? 'var(--bad)' : 'var(--good)'};">${Number(o.bekleyen).toLocaleString('tr-TR')} ${o.para_birimi}</div>
+        </div>
+      </div>
+      ${odemeGecmisiHtml}
+    </div>`;
+  }
+
   let sevkiyatCard = '';
   if (d.sevkiyat) {
     const s = d.sevkiyat;
@@ -689,6 +719,7 @@ function detaySayfasi(d, suankiIndex) {
     </div>
     <div class="panel">${adimTakipcisi(d)}</div>
     ${ozelBanner}
+    ${odemeCard}
     ${sevkiyatCard}
     <div class="tabs">
       <button class="tab-btn ${detayTab==='surec'?'active':''}" onclick="detayTab='surec'; rerenderDetay();">Süreç Takibi</button>

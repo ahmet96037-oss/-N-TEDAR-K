@@ -292,6 +292,12 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
         "SELECT belge_tipi, dosya_adi, dosya_url, aciklama, yuklenme_tarihi, yukleyen_email FROM tk_belgeler WHERE siparis_id = ? ORDER BY yuklenme_tarihi DESC",
         (siparis["id"],),
     ).fetchall()
+    odemeler = conn.execute(
+        "SELECT tutar, para_birimi, aciklama, tarih, kaydeden FROM tk_odemeler WHERE siparis_id = ? ORDER BY tarih ASC",
+        (siparis["id"],),
+    ).fetchall()
+    odenen_toplam = sum(float(o["tutar"]) for o in odemeler)
+    toplam_tutar = float(siparis["toplam_tutar"]) if siparis["toplam_tutar"] is not None else None
 
     # Gemi konum takibi — hem VesselFinder hem Marine Traffic gösteriliyor.
     # (Marine Traffic daha önce bir kullanıcıda açılmama şikayeti almıştı,
@@ -385,6 +391,24 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
             }
             for b in belgeler
         ],
+        # Ödeme/tahsilat katmanı — tutar admin tarafından girilmediyse null döner,
+        # panelde "tutar henüz girilmedi" olarak gösterilir (0 gibi uydurma değil).
+        "odeme": {
+            "toplam_tutar": toplam_tutar,
+            "para_birimi": siparis["para_birimi"] or "USD",
+            "odenen_toplam": odenen_toplam,
+            "bekleyen": (toplam_tutar - odenen_toplam) if toplam_tutar is not None else None,
+            "gecmis": [
+                {
+                    "tutar": float(o["tutar"]),
+                    "para_birimi": o["para_birimi"],
+                    "aciklama": o["aciklama"],
+                    "tarih": o["tarih"].isoformat() if o["tarih"] else None,
+                    "kaydeden": o["kaydeden"],
+                }
+                for o in odemeler
+            ],
+        },
     }
 
 
@@ -416,6 +440,8 @@ def admin_tum_siparisler(authorization: str = Header(None)):
     conn, _, _ = _admin_dogrula(authorization)
     rows = conn.execute(
         """SELECT s.siparis_no, s.urun_aciklamasi, s.durum, s.olusturulma, s.guncellenme,
+                  s.toplam_tutar, s.para_birimi,
+                  COALESCE((SELECT SUM(o.tutar) FROM tk_odemeler o WHERE o.siparis_id = s.id), 0) AS odenen_toplam,
                   m.ad_soyad, m.firma, m.email, m.telefon
            FROM tk_siparisler s JOIN tk_musteriler m ON m.id = s.musteri_id
            ORDER BY s.olusturulma DESC"""
@@ -432,6 +458,9 @@ def admin_tum_siparisler(authorization: str = Header(None)):
             "telefon": r["telefon"],
             "olusturulma": r["olusturulma"].isoformat() if r["olusturulma"] else None,
             "guncellenme": r["guncellenme"].isoformat() if r["guncellenme"] else None,
+            "toplam_tutar": float(r["toplam_tutar"]) if r["toplam_tutar"] is not None else None,
+            "para_birimi": r["para_birimi"] or "USD",
+            "odenen_toplam": float(r["odenen_toplam"]),
         }
         for r in rows
     ]
@@ -541,6 +570,53 @@ def admin_ic_not_guncelle(siparis_no: str, istek: IcNotIstek, authorization: str
     if not siparis:
         raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
     conn.execute("UPDATE tk_siparisler SET ic_not = ? WHERE id = ?", (istek.ic_not, siparis["id"]))
+    conn._conn.commit()
+    return {"ok": True}
+
+
+class TutarBelirleIstek(BaseModel):
+    toplam_tutar: float
+    para_birimi: str = "USD"
+
+
+@router.post("/admin/siparis/{siparis_no}/tutar")
+def admin_tutar_belirle(siparis_no: str, istek: TutarBelirleIstek, authorization: str = Header(None)):
+    """Siparişin toplam bedelini belirler/günceller — ödeme takibinin temeli.
+    Var olan ödemeleri etkilemez, sadece 'ne kadar tahsil edilecek' referansını günceller."""
+    conn, _, _ = _admin_dogrula(authorization)
+    if istek.toplam_tutar < 0:
+        raise HTTPException(status_code=400, detail="Tutar negatif olamaz")
+    siparis = conn.execute("SELECT id FROM tk_siparisler WHERE siparis_no = ?", (siparis_no,)).fetchone()
+    if not siparis:
+        raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
+    conn.execute(
+        "UPDATE tk_siparisler SET toplam_tutar = ?, para_birimi = ? WHERE id = ?",
+        (istek.toplam_tutar, istek.para_birimi, siparis["id"]),
+    )
+    conn._conn.commit()
+    return {"ok": True}
+
+
+class OdemeEkleIstek(BaseModel):
+    tutar: float
+    para_birimi: str = "USD"
+    aciklama: str | None = None
+
+
+@router.post("/admin/siparis/{siparis_no}/odeme")
+def admin_odeme_ekle(siparis_no: str, istek: OdemeEkleIstek, authorization: str = Header(None)):
+    """Gerçek bir tahsilat kaydı ekler (kısmi ödemeler dahil) — sipariş bazlı
+    ödeme geçmişi burada birikir, toplam tahsilat bundan hesaplanır."""
+    conn, _, admin_email = _admin_dogrula(authorization)
+    if istek.tutar <= 0:
+        raise HTTPException(status_code=400, detail="Tutar sıfır veya negatif olamaz")
+    siparis = conn.execute("SELECT id FROM tk_siparisler WHERE siparis_no = ?", (siparis_no,)).fetchone()
+    if not siparis:
+        raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
+    conn.execute(
+        "INSERT INTO tk_odemeler (siparis_id, tutar, para_birimi, aciklama, kaydeden) VALUES (?, ?, ?, ?, ?)",
+        (siparis["id"], istek.tutar, istek.para_birimi, istek.aciklama, admin_email),
+    )
     conn._conn.commit()
     return {"ok": True}
 

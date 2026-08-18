@@ -152,12 +152,16 @@
   .panel-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:22px; flex-wrap:wrap; }
   /* shadcn admin dashboard referansındaki stat kartlarıyla birebir: ikon+etiket
      başlık satırı, büyük rakam, alt açıklama, alt satırda "Detaylar" linki. */
-  .stat-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:18px; margin-bottom:28px; }
-  @media (max-width:960px){ .stat-grid{ grid-template-columns:repeat(3,1fr); } }
-  @media (max-width:600px){ .stat-grid{ grid-template-columns:repeat(2,1fr); } }
+  .stat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:28px; }
+  @media (max-width:960px){ .stat-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:600px){ .stat-grid{ grid-template-columns:repeat(1,1fr); } }
   /* Ana sayfadaki yumuşak, ikon rozetli kart diliyle birebir — sert köşeli,
      ince çerçeveli "kurumsal dashboard" hissi yerine daire ikon + bol boşluk. */
   .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:22px 20px; box-shadow:0 4px 16px -4px rgba(70,95,255,.08); transition:transform .15s, box-shadow .15s; }
+  /* Ödeme paneli içindeki küçük özet kutucukları (Toplam/Ödenen/Bekleyen) */
+  .stat-mini-tile{ background:var(--bg-alt); border:1px solid var(--border); border-radius:12px; padding:12px 14px; }
+  .stat-mini-tile .l{ font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); margin-bottom:4px; }
+  .stat-mini-tile .v{ font-family:var(--font-display); font-weight:800; font-size:18px; font-variant-numeric:tabular-nums; }
   .stat-card:hover{ transform:translateY(-2px); box-shadow:0 10px 24px -6px rgba(70,95,255,.16); }
   .stat-ico-badge{ width:44px; height:44px; border-radius:50%; background:color-mix(in srgb, var(--accent2) 12%, transparent); color:var(--accent2); display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:14px; }
   /* Referanstaki gibi kart başına farklı renk — hepsi aynı indigo yerine
@@ -507,7 +511,7 @@ let musteriRowsCache = [];
 // Stat kartı — paylaşılan referans tasarımdaki gibi ikon+etiket başlığı, büyük
 // rakam, alt açıklama ve (varsa GERÇEK, hesaplanmış) yeşil/kırmızı trend rozeti.
 // trendPct null ise rozet hiç basılmıyor — uydurma yüzde göstermiyoruz.
-function statCard(icon, label, value, caption, colorMode, trendPct, badgeTone) {
+function statCard(icon, label, value, caption, colorMode, trendPct, badgeTone, prefix) {
   const valColor = colorMode === 'bad' ? 'var(--bad)' : (colorMode === 'good' ? 'var(--good)' : 'var(--text)');
   let badge = '';
   if (trendPct !== undefined && trendPct !== null) {
@@ -517,7 +521,7 @@ function statCard(icon, label, value, caption, colorMode, trendPct, badgeTone) {
   return `<div class="stat-card">
     <div class="stat-ico-badge tone-${badgeTone || 'indigo'}">${icon}</div>
     <div class="stat-head">${label} <span class="info-ico" title="${caption}">ⓘ</span></div>
-    <div class="v" style="color:${valColor};">${Number(value).toLocaleString('tr-TR')}</div>
+    <div class="v" style="color:${valColor};">${prefix || ''}${Number(value).toLocaleString('tr-TR', {maximumFractionDigits:0})}</div>
     <div class="l">${caption}</div>
     <div class="stat-foot">
       <a class="det" onclick="document.getElementById('siparisListe').scrollIntoView({behavior:'smooth'})">Detaylar →</a>
@@ -676,6 +680,24 @@ async function listeYukle() {
     haftaTrend,
     geciken: siparisRowsCache.filter(r => !bitmisSet.has(r.durum) && r.guncellenme && new Date(r.guncellenme).getTime() < besGunOnce).length,
   };
+  // Tahsilat özeti — sadece tutar GİRİLMİŞ siparişlerden gerçek toplam; para
+  // birimi karışıksa ana kartta ilk (en çok kullanılan) birimi gösterip
+  // diğerlerini alt yazıda belirtiyoruz, uydurma tek bir toplam basmıyoruz.
+  const tutarli = siparisRowsCache.filter(r => r.toplam_tutar != null);
+  const paraBirimGrup = {};
+  tutarli.forEach(r => {
+    const cur = r.para_birimi || 'USD';
+    if (!paraBirimGrup[cur]) paraBirimGrup[cur] = { toplam: 0, odenen: 0 };
+    paraBirimGrup[cur].toplam += Number(r.toplam_tutar);
+    paraBirimGrup[cur].odenen += Number(r.odenen_toplam || 0);
+  });
+  const paraBirimleri = Object.keys(paraBirimGrup).sort((a,b) => paraBirimGrup[b].toplam - paraBirimGrup[a].toplam);
+  const anaPara = paraBirimleri[0];
+  const bekleyenTutar = anaPara ? (paraBirimGrup[anaPara].toplam - paraBirimGrup[anaPara].odenen) : 0;
+  const paraSembol = { USD:'$', EUR:'€', TRY:'₺', GBP:'£' };
+  const bekleyenCaption = tutarli.length === 0
+    ? 'henüz tutar girilmedi'
+    : (paraBirimleri.length > 1 ? `${tutarli.length} siparişte tutar girili · +${paraBirimleri.length-1} para birimi daha` : `${tutarli.length} siparişte tutar girili`);
 
   let html = `<div class="breadcrumb">Genel <i class="bi bi-chevron-right"></i> Siparişler</div>
   <div class="page-head">
@@ -691,6 +713,7 @@ async function listeYukle() {
     ${statCard('<i class="bi bi-exclamation-triangle"></i>', 'Dikkat Gerektiren', stats.ozel, 'beklemede / revizyon / iptal', stats.ozel > 0 ? 'bad' : null, null, 'orange')}
     ${statCard('<i class="bi bi-calendar-week"></i>', 'Bu Hafta', stats.buHafta, 'geçen hafta: ' + stats.gecenHafta, null, stats.haftaTrend, 'indigo')}
     ${statCard('<i class="bi bi-hourglass-split"></i>', 'Gecikme Riski', stats.geciken, '5+ gündür aynı aşamada', stats.geciken > 0 ? 'bad' : 'good', null, 'red')}
+    ${statCard('<i class="bi bi-cash-coin"></i>', 'Bekleyen Tahsilat', bekleyenTutar, bekleyenCaption, null, null, 'green', paraSembol[anaPara] || (anaPara ? anaPara+' ' : ''))}
   </div>
   <div class="chart-row">${alanGrafigi(siparisRowsCache)}${barGrafigi(siparisRowsCache)}${tamamlanmaHalkasi(siparisRowsCache)}</div>
   <div id="siparisListe"></div>
@@ -889,6 +912,50 @@ async function detayYukle(siparisNo) {
   const onceki = (suankiIdx > 0) ? DURUMLAR[suankiIdx - 1] : null;
   const ilerlemeYuzde = suankiIdx >= 0 ? Math.round(((suankiIdx + 1) / DURUMLAR.length) * 100) : null;
 
+  // Ödeme/Tahsilat paneli — Faz 1: gerçek tutar admin tarafından girilir, ödeme
+  // kayıtları birikir, bekleyen otomatik hesaplanır. Tutar hiç girilmemişse
+  // "0 bekliyor" gibi uydurma bir şey göstermek yerine sadece tutar belirleme
+  // formu gösterilir.
+  const o = d.odeme || {};
+  const paraSecenekleri = ['USD','EUR','TRY','GBP'];
+  const paraOpt = (secili) => paraSecenekleri.map(p => `<option value="${p}" ${p===(secili||'USD')?'selected':''}>${p}</option>`).join('');
+  const odemeGecmisiHtml = (o.gecmis && o.gecmis.length) ? o.gecmis.map(g => `
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--border); font-size:13px;">
+      <div>
+        <b>${Number(g.tutar).toLocaleString('tr-TR')} ${g.para_birimi}</b>
+        ${g.aciklama ? `<span style="color:var(--text-muted);"> — ${g.aciklama}</span>` : ''}
+      </div>
+      <div style="color:var(--text-muted); font-size:11.5px; text-align:right;">${new Date(g.tarih).toLocaleDateString('tr-TR')}<br>${g.kaydeden || ''}</div>
+    </div>`).join('') : '<p style="color:var(--text-muted); font-size:13px; margin:0;">Henüz ödeme kaydı yok.</p>';
+  const odemePaneliHtml = `<div class="panel">
+    <div class="stat-ico-badge tone-blue" style="margin-bottom:10px;"><i class="bi bi-cash-coin"></i></div>
+    <h2 style="font-size:16px;">Ödeme &amp; Tahsilat</h2>
+    <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Sipariş bedeli ve tahsilat kayıtları — müşteri panelinde de görünür.</p>
+    ${o.toplam_tutar != null ? `
+      <div class="row2" style="margin-bottom:8px;">
+        <div class="stat-mini-tile"><div class="l">Toplam Bedel</div><div class="v">${Number(o.toplam_tutar).toLocaleString('tr-TR')} ${o.para_birimi}</div></div>
+        <div class="stat-mini-tile"><div class="l">Tahsil Edilen</div><div class="v" style="color:var(--good);">${Number(o.odenen_toplam).toLocaleString('tr-TR')} ${o.para_birimi}</div></div>
+      </div>
+      <div class="stat-mini-tile" style="margin-bottom:16px;"><div class="l">Bekleyen</div><div class="v" style="color:${o.bekleyen > 0 ? 'var(--bad)' : 'var(--good)'};">${Number(o.bekleyen).toLocaleString('tr-TR')} ${o.para_birimi}</div></div>
+      <div style="margin-bottom:16px;">${odemeGecmisiHtml}</div>
+      <label>Yeni Ödeme Kaydı</label>
+      <div class="row2">
+        <div><input id="odemeTutar" type="number" step="0.01" placeholder="ör. 1000"></div>
+        <div><select id="odemeParaBirimi">${paraOpt(o.para_birimi)}</select></div>
+      </div>
+      <label>Açıklama (opsiyonel)</label>
+      <input id="odemeAciklama" placeholder="ör. Numune ödemesi">
+      <button class="primary" onclick="odemeEkle('${d.siparis_no}')">Ödeme Ekle</button>
+    ` : `
+      <p style="font-size:13px; margin-bottom:12px;">Bu sipariş için henüz tutar girilmedi.</p>
+      <div class="row2">
+        <div><label>Toplam Bedel</label><input id="tutarGiris" type="number" step="0.01" placeholder="ör. 4200"></div>
+        <div><label>Para Birimi</label><select id="tutarParaBirimi">${paraOpt('USD')}</select></div>
+      </div>
+      <button class="primary" onclick="tutarBelirle('${d.siparis_no}')">Tutarı Kaydet</button>
+    `}
+  </div>`;
+
   // Sevkiyat & Gemi Takibi formu her aşamada gereksiz yere görünmesin diye
   // sadece "sevkiyat belgeleri hazırlanıyor" ile "gümrükte muayene" arasında
   // (konteynere yükleme, gemi, gümrük süreci) gösteriliyor — daha önceki
@@ -966,6 +1033,7 @@ async function detayYukle(siparisNo) {
         ` : `<div class="faz-nav-card" style="display:flex; align-items:center; justify-content:center; gap:8px; color:var(--good); font-weight:700; font-size:13.5px;"><i class="bi bi-check-circle"></i> Son aşamada</div>`}
       </div>
     </div>
+    ${odemePaneliHtml}
     <div class="panel">
       <div class="stat-ico-badge tone-orange" style="margin-bottom:10px;"><i class="bi bi-lock"></i></div>
       <h2 style="font-size:16px;">İç Not <span style="font-weight:400; font-size:12px; color:var(--text-muted); text-transform:none; letter-spacing:0;">— sadece ekip görür</span></h2>
@@ -1086,6 +1154,29 @@ async function sevkiyatGuncelle(siparisNo) {
   await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/sevkiyat', {
     method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
     body: JSON.stringify(body)
+  });
+  detayYukle(siparisNo);
+}
+
+async function tutarBelirle(siparisNo) {
+  const toplam_tutar = parseFloat(document.getElementById('tutarGiris').value);
+  if (!toplam_tutar || toplam_tutar <= 0) { alert('Geçerli bir tutar girin.'); return; }
+  const para_birimi = document.getElementById('tutarParaBirimi').value;
+  await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/tutar', {
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body: JSON.stringify({toplam_tutar, para_birimi})
+  });
+  detayYukle(siparisNo);
+}
+
+async function odemeEkle(siparisNo) {
+  const tutar = parseFloat(document.getElementById('odemeTutar').value);
+  if (!tutar || tutar <= 0) { alert('Geçerli bir tutar girin.'); return; }
+  const para_birimi = document.getElementById('odemeParaBirimi').value;
+  const aciklama = document.getElementById('odemeAciklama').value.trim() || null;
+  await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/odeme', {
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body: JSON.stringify({tutar, para_birimi, aciklama})
   });
   detayYukle(siparisNo);
 }
