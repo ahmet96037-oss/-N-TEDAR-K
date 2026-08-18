@@ -45,7 +45,14 @@
   .theme-toggle button.active{ background:var(--accent2); color:#fff; }
 
   label{ display:block; font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); margin-bottom:8px; font-weight:600; line-height:1.4; }
-  input, select, textarea{ width:100%; font-size:14.5px; padding:10px 11px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; margin-bottom:18px; }
+  input, select, textarea{ width:100%; font-size:14.5px; padding:10px 11px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; margin-bottom:18px; box-sizing:border-box; height:42px; }
+  textarea{ height:auto; }
+  /* Native dosya seçme kutusu diğer input'larla aynı yükseklikte, düğmesi
+     tema rengiyle uyumlu görünsün diye ayrıca stillendi — aksi halde tarayıcı
+     varsayılanı diğer alanlarla hizasız/kayık görünüyordu. */
+  input[type="file"]{ padding:6px 11px; display:flex; align-items:center; font-size:13.5px; color:var(--text-muted); cursor:pointer; }
+  input[type="file"]::file-selector-button{ font-family:inherit; font-size:13px; font-weight:600; padding:7px 14px; margin-right:12px; border-radius:6px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; }
+  input[type="file"]::file-selector-button:hover{ background:var(--bg-alt); }
   input:focus, select:focus, textarea:focus{ outline:2px solid var(--accent); outline-offset:1px; }
   button.primary{ background:var(--accent2); color:#fff; border:none; padding:10px 18px; border-radius:30px; font-weight:700; font-size:14px; cursor:pointer; }
   button.primary:hover{ background:var(--accent2-ink); }
@@ -1048,10 +1055,15 @@ function konteynerOnizlemeGuncelle() {
   } else if (KONTEYNER_HOMEPAGE[key]) {
     const url = KONTEYNER_HOMEPAGE[key];
     kutu.innerHTML = `<i class="bi bi-link-45deg"></i> Müşteriye gösterilecek link (${firmaAdi} resmi takip sayfası — bu firma için otomatik doldurma doğrulanamadı, konteyner no'yu müşteri sayfada kendisi girer): <a href="${url}" target="_blank" style="color:var(--accent2);">${url}</a>`;
-  } else if (no) {
-    const url = `https://www.track-trace.com/container?number=${encodeURIComponent(no)}`;
-    const kaynakEtiketi = firmaAdi + ' kayıtlı bir taşıyıcı değil';
-    kutu.innerHTML = `<i class="bi bi-link-45deg"></i> Müşteriye gösterilecek link (genel, ${kaynakEtiketi}): <a href="${url}" target="_blank" style="color:var(--accent2);">${url}</a>`;
+  } else {
+    // "Diğer" (sistemde kayıtlı olmayan bir taşıyıcı elle girildiğinde) ya da
+    // eşleşmeyen bir key — konteyner no yoksa bile genel arama sayfasına gider,
+    // no varsa doğrudan o numarayla aratır.
+    const url = no
+      ? `https://www.track-trace.com/container?number=${encodeURIComponent(no)}`
+      : `https://www.track-trace.com/container`;
+    const kaynakEtiketi = key === 'diger' ? 'Diğer / sistemde kayıtlı olmayan taşıyıcı' : (firmaAdi + ' kayıtlı bir taşıyıcı değil');
+    kutu.innerHTML = `<i class="bi bi-link-45deg"></i> Müşteriye gösterilecek link (genel konteyner arama, ${kaynakEtiketi}): <a href="${url}" target="_blank" style="color:var(--accent2);">${url}</a>`;
   }
 }
 

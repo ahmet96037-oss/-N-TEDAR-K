@@ -36,11 +36,28 @@
         .row > [class*="col-"]{ padding-left:calc(.5*var(--bs-gutter-x)); padding-right:calc(.5*var(--bs-gutter-x)); max-width:100%; }
       }
       img{ max-width:100%; height:auto; }
+      /* Bölümler ardışık olarak hem container-fluid hem iç container'da py-5
+         taşıyor (48px+48px) — iki bölüm sınırında bu üst üste binip mobilde
+         ~190px'lik gereksiz boş alan biriktiriyordu. Dar ekranda azaltıyoruz. */
+      .rakamlarla-row{ margin-top:4rem; }
+      @media (max-width:767px){
+        .py-5{ padding-top:32px !important; padding-bottom:32px !important; }
+        .rakamlarla-row{ margin-top:1.25rem !important; padding-top:0 !important; --bs-gutter-y:0 !important; }
+        .rakamlarla-row > *{ margin-top:0 !important; }
+        /* Bootstrap'ın row varsayılanı align-items:stretch — masaüstünde kart
+           grid'lerini eşit yükseklikte hizalıyor ama mobilde tek sütuna
+           dizilince her kartın İÇİNDE gereksiz boşluk bırakıyordu (en uzun
+           metinli kartın yüksekliğine göre esniyordu). Dar ekranda kapatıyoruz. */
+        .row.g-4, .row.g-5{ align-items:flex-start !important; }
+        /* Bootstrap gutter-y mekaniği (satırın negatif üst margin'i ile ilk
+           sütunun pozitif üst margin'i birbirini götürmesi gerekirken) bazı
+           satırlarda iptal olmuyor, fazladan boşluk ekliyordu — dar ekranda
+           dikey gutter'ı tamamen kapatıp yerine kendi g-4/g-5 class'ından
+           gelen normal aralığı (row-gap) koruyoruz. */
+        .row.g-4 > *, .row.g-5 > *{ margin-top:0 !important; }
+        .row.g-4, .row.g-5{ row-gap:24px; }
+      }
       @media (max-width:991px){ .wow{ opacity:1 !important; transform:none !important; visibility:visible !important; animation:none !important; } }
-      .mobile-sticky-cta{ position:fixed; left:16px; right:16px; bottom:16px; z-index:1000; background:#465fff; color:#fff; text-align:center; padding:15px; border-radius:14px; font-weight:700; font-size:15px; text-decoration:none; box-shadow:0 12px 30px -6px rgba(70,95,255,.5); }
-      .mobile-sticky-cta:hover{ color:#fff; background:#3641f5; }
-      body{ padding-bottom:0; }
-      @media (max-width:991px){ body{ padding-bottom:74px; } }
       .navbar-brand h1{ font-family:'Outfit',sans-serif; font-weight:800; }
       .mono{ font-family:'IBM Plex Mono',ui-monospace,monospace; }
       .staff-link{ font-size:16px; opacity:.45; text-decoration:none; }
@@ -271,7 +288,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row g-5 pt-5" style="margin-top: 4rem;">
+            <div class="row g-5 pt-5 rakamlarla-row">
                 <div class="col-12 col-lg-6 wow fadeInLeft" data-wow-delay="0.1s">
                     <div class="feature-img RotateMoveLeft h-100" style="object-fit:cover; border-radius:24px; overflow:hidden;">
                         <img src="assets/photos/aircargo.jpg" class="img-fluid w-100 h-100" style="object-fit:cover; border-radius:24px;" alt="Hava kargo yükleme">
@@ -539,11 +556,6 @@
     <!-- Copyright End -->
 
     <a href="#" class="btn btn-primary btn-lg-square back-to-top"><i class="fa fa-arrow-up"></i></a>
-
-    <!-- Mobilde her zaman görünür, dönüşüm odaklı sabit CTA çubuğu -->
-    <a href="/takip.html#rfq" class="mobile-sticky-cta d-lg-none">
-        <i class="bi bi-send"></i> Ücretsiz Teklif Al
-    </a>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
