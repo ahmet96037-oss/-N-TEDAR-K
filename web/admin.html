@@ -72,22 +72,29 @@
   .gecmis-satir .not{ font-size:13.5px; color:var(--text-muted); margin-top:4px; line-height:1.5; }
   .gecmis-satir .meta{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); margin-top:6px; margin-bottom:0; }
 
-  /* ---- Auth screen ---- */
-  .auth-wrap{ min-height:100vh; display:grid; grid-template-columns:1.1fr 1fr; position:relative; }
+  /* ---- Auth screen: tam ekran fotoğraf + ortalanmış cam kart ---- */
+  .auth-wrap{ min-height:100vh; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; overflow:hidden; }
   .auth-wrap .theme-toggle{ position:absolute; top:20px; right:20px; z-index:2; }
-  .auth-side{ background:#09090b url('assets/photos/ship_aerial.jpg') center/cover no-repeat; position:relative; overflow:hidden; padding:64px 56px; display:flex; flex-direction:column; justify-content:space-between; }
-  .auth-side::before{ content:""; position:absolute; inset:0; background:linear-gradient(175deg, rgba(9,9,11,.82) 0%, rgba(9,9,11,.6) 45%, rgba(9,9,11,.9) 100%); }
-  .auth-side .logo{ position:relative; z-index:1; font-family:var(--font-display); font-weight:700; font-size:19px; color:#fff; display:inline-flex; align-items:center; gap:10px; }
-  .auth-side .logo svg{ width:28px; height:28px; flex:none; }
-  .auth-side .quote{ position:relative; z-index:1; }
-  .auth-side .quote h1{ font-family:var(--font-display); font-weight:600; font-size:clamp(24px,2.6vw,32px); line-height:1.25; color:#fff; margin:0 0 14px; max-width:16ch; }
-  .auth-side .quote p{ color:rgba(255,255,255,.72); font-size:14.5px; max-width:40ch; margin:0; }
-  .auth-form-col{ display:flex; align-items:center; justify-content:center; padding:24px; }
-  @media (max-width:860px){ .auth-wrap{ grid-template-columns:1fr; } .auth-side{ display:none; } .auth-form-col{ min-height:100vh; } }
-  .auth-card{ width:100%; max-width:380px; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:36px; }
-  .auth-card .badge{ display:inline-block; font-family:var(--font-code); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent2-ink); background:color-mix(in srgb, var(--accent2) 12%, transparent); border:1px solid color-mix(in srgb, var(--accent2) 30%, transparent); padding:3px 10px; border-radius:20px; margin-bottom:16px; }
-  .auth-card h2{ font-size:24px; margin-bottom:6px; }
-  .auth-card .lede{ color:var(--text-muted); font-size:14px; margin:0 0 24px; }
+  .auth-bg{ position:absolute; inset:0; z-index:0; }
+  .auth-bg img{ width:100%; height:100%; object-fit:cover; }
+  .auth-scrim{ position:absolute; inset:0; background:linear-gradient(175deg, rgba(9,9,11,.86) 0%, rgba(9,9,11,.78) 50%, rgba(9,9,11,.92) 100%); }
+  .auth-glass-wrap{ position:relative; z-index:1; width:100%; max-width:380px; display:flex; flex-direction:column; align-items:center; }
+  .auth-badge{ width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; margin-bottom:22px; box-shadow:0 8px 24px -8px rgba(0,0,0,.5); }
+  .auth-badge svg{ width:30px; height:30px; }
+  .auth-card{ width:100%; background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.12); border-radius:26px; box-shadow:0 24px 60px -12px rgba(0,0,0,.6); padding:36px 32px; }
+  .auth-card .badge{ display:inline-block; font-family:var(--font-code); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#c7d2ff; background:rgba(70,95,255,.18); border:1px solid rgba(70,95,255,.35); padding:3px 10px; border-radius:20px; margin-bottom:16px; }
+  .auth-card h2{ font-size:24px; margin-bottom:6px; color:#fff; }
+  .auth-card .lede{ color:rgba(255,255,255,.6); font-size:14px; margin:0 0 24px; }
+  .auth-card label{ color:rgba(255,255,255,.7); }
+  .auth-card input{ background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:#fff; }
+  .auth-card input::placeholder{ color:rgba(255,255,255,.35); }
+  .auth-card input:focus{ border-color:rgba(255,255,255,.35); background:rgba(255,255,255,.1); }
+  .auth-card .demo-box{ background:rgba(70,95,255,.16); border-color:rgba(70,95,255,.35); color:#c7d2ff; }
+  .auth-card .demo-box b{ color:#fff; }
+  .auth-card .err{ color:#ff8a8a; }
+  .auth-meta{ position:relative; z-index:1; display:flex; gap:26px; font-family:var(--font-code); font-size:11.5px; color:rgba(255,255,255,.5); margin-top:26px; flex-wrap:wrap; justify-content:center; }
+  .auth-meta b{ display:block; color:#fff; font-family:var(--font-body); font-size:14px; margin-top:3px; font-weight:700; }
+  @media (max-width:480px){ .auth-card{ padding:28px 22px; } }
 
   /* ---- App shell ---- */
   .app-shell{ display:flex; min-height:100vh; align-items:stretch; }
@@ -367,16 +374,18 @@ function render() {
 function authShell(innerHtml) {
   return `
     <div class="auth-wrap">
-      <div class="auth-side">
-        <a href="/" class="logo"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#465fff"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg>Tedarik Ağı</a>
-        <div class="quote">
-          <h1>Ekip tarafı: süreci uçtan uca siz yönetin.</h1>
-          <p>Sipariş durumlarını güncelleyin, belge yükleyin, konteyner ve gemi takibini müşteriye canlı yansıtın.</p>
-        </div>
+      ${themeToggleHtml()}
+      <div class="auth-bg">
+        <img src="assets/photos/ship_aerial.jpg" alt="Açık denizde konteyner gemisi">
+        <div class="auth-scrim"></div>
       </div>
-      <div class="auth-form-col">
-        ${themeToggleHtml()}
+      <div class="auth-glass-wrap">
+        <a href="/" class="auth-badge"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#465fff"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg></a>
         <div class="auth-card panel-fade">${innerHtml}</div>
+        <div class="auth-meta">
+          <div>Ekip erişimi<b>Sadece Yetkili</b></div>
+          <div>Süreç kontrolü<b>Uçtan Uca</b></div>
+        </div>
       </div>
     </div>`;
 }

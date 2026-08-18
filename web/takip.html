@@ -65,28 +65,30 @@
   h2{ font-family:var(--font-display); font-weight:700; font-size:24px; letter-spacing:-.01em; margin:0 0 6px; }
   .tarih{ font-variant-numeric:tabular-nums; }
 
-  /* ================= PRE-AUTH: split hero + form ================= */
-  .auth-shell{ display:grid; grid-template-columns:1.1fr 1fr; min-height:100vh; }
-  .auth-brand{ background:#09090b url('assets/photos/terminal.jpg') center/cover no-repeat; color:#fff; padding:64px 56px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden; }
-  .auth-brand::before{ content:""; position:absolute; inset:0; background:linear-gradient(175deg, rgba(9,9,11,.82) 0%, rgba(9,9,11,.65) 45%, rgba(9,9,11,.9) 100%); }
-  .auth-brand .logo{ font-family:var(--font-display); font-weight:700; font-size:19px; text-decoration:none; color:var(--bg); position:relative; z-index:1; display:inline-flex; align-items:center; gap:10px; }
-  .auth-brand .logo svg{ width:28px; height:28px; flex:none; }
-  .auth-brand .quote{ position:relative; z-index:1; }
-  .auth-brand .quote h1{ font-family:var(--font-display); font-weight:600; font-size:clamp(26px,3vw,36px); line-height:1.2; letter-spacing:-.01em; margin:0 0 18px; max-width:14ch; }
-  .auth-brand .quote p{ color:color-mix(in srgb, var(--bg) 72%, transparent); font-size:15px; max-width:42ch; margin:0; }
-  .auth-brand .meta{ position:relative; z-index:1; display:flex; gap:32px; font-family:var(--font-code); font-size:12px; color:color-mix(in srgb, var(--bg) 65%, transparent); border-top:1px solid rgba(255,255,255,.14); padding-top:18px; }
-  .auth-brand .meta b{ display:block; color:var(--bg); font-family:var(--font-body); font-size:15px; margin-top:3px; font-weight:700; }
-  .auth-form-wrap{ display:flex; align-items:flex-start; justify-content:center; padding:104px 24px 40px; }
-  @media (max-width:860px){ .auth-form-wrap{ align-items:center; padding:40px 24px; min-height:100vh; } }
-  .auth-form{ width:100%; max-width:400px; }
-  .auth-form .back-home{ display:inline-block; margin-bottom:28px; font-size:13.5px; font-weight:600; color:var(--text-muted); text-decoration:none; }
-  .auth-form h2{ font-size:26px; margin-bottom:8px; }
-  .auth-form .lede{ color:var(--text-muted); font-size:14.5px; margin:0 0 28px; }
-  /* Bu media query bilerek EN SONDA: yukarıdaki .auth-brand kuralını ezmesi gerekiyor
-     (aynı özgüllükte CSS'te kazanan kaynak sırasında sonraki kuraldır — önce yazılırsa
-     hiç uygulanmaz, bu tam olarak önceki sürümdeki "mobilde kayan/üst üste binen kutular"
-     hatasının sebebiydi). */
-  @media (max-width:860px){ .auth-shell{ grid-template-columns:1fr; } .auth-brand{ display:none; } }
+  /* ================= PRE-AUTH: tam ekran fotoğraf + ortalanmış cam kart ================= */
+  .auth-shell{ min-height:100vh; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; overflow:hidden; }
+  .auth-bg{ position:absolute; inset:0; z-index:0; }
+  .auth-bg img{ width:100%; height:100%; object-fit:cover; }
+  .auth-scrim{ position:absolute; inset:0; background:linear-gradient(175deg, rgba(9,9,11,.86) 0%, rgba(9,9,11,.78) 50%, rgba(9,9,11,.92) 100%); }
+  .auth-glass-wrap{ position:relative; z-index:1; width:100%; max-width:400px; display:flex; flex-direction:column; align-items:center; }
+  .auth-badge{ width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; margin-bottom:22px; box-shadow:0 8px 24px -8px rgba(0,0,0,.5); }
+  .auth-badge svg{ width:30px; height:30px; }
+  .auth-glass{ width:100%; background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.12); border-radius:26px; box-shadow:0 24px 60px -12px rgba(0,0,0,.6); padding:36px 32px; }
+  .auth-glass .back-home{ display:inline-block; margin-bottom:20px; font-size:13px; font-weight:600; color:rgba(255,255,255,.55); text-decoration:none; }
+  .auth-glass h2{ font-size:24px; color:#fff; margin-bottom:8px; }
+  .auth-glass .lede{ color:rgba(255,255,255,.6); font-size:14px; margin:0 0 24px; }
+  .auth-glass label{ color:rgba(255,255,255,.7); }
+  .auth-glass input, .auth-glass textarea{ background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:#fff; }
+  .auth-glass input::placeholder{ color:rgba(255,255,255,.35); }
+  .auth-glass input:focus, .auth-glass textarea:focus{ border-color:rgba(255,255,255,.35); background:rgba(255,255,255,.1); }
+  .auth-glass .demo-box{ background:rgba(70,95,255,.16); border-color:rgba(70,95,255,.35); color:#c7d2ff; }
+  .auth-glass .demo-box b{ color:#fff; }
+  .auth-glass .toggle-row{ color:rgba(255,255,255,.55); }
+  .auth-glass .linklike{ color:#8fa0ff; }
+  .auth-glass .err{ color:#ff8a8a; }
+  .auth-meta{ position:relative; z-index:1; display:flex; gap:26px; font-family:var(--font-code); font-size:11.5px; color:rgba(255,255,255,.5); margin-top:26px; flex-wrap:wrap; justify-content:center; }
+  .auth-meta b{ display:block; color:#fff; font-family:var(--font-body); font-size:14px; margin-top:3px; font-weight:700; }
+  @media (max-width:480px){ .auth-glass{ padding:28px 22px; } }
 
   /* ================= APP SHELL (post-auth panel) ================= */
   .app-shell{ display:flex; min-height:100vh; align-items:stretch; }
@@ -303,22 +305,20 @@ function render() {
 function authShell(innerHtml) {
   return `
     <div class="auth-shell">
-      <div class="auth-brand">
-        <a href="/" class="logo"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0f3d63"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.2"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.2"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#d99a2b" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#d99a2b"/></svg>Tedarik Ağı</a>
-        <div class="quote">
-          <h1>Fabrikadan kapınıza, her adım tek ekranda.</h1>
-          <p>Talebinizden teslimata kadar süreci — numune, üretim, gemi, gümrük — canlı olarak buradan izlersiniz. Kara kutu değil, sistemli bir süreç.</p>
+      <div class="auth-bg">
+        <img src="assets/photos/terminal.jpg" alt="Konteyner terminali">
+        <div class="auth-scrim"></div>
+      </div>
+      <div class="auth-glass-wrap">
+        <a href="/" class="auth-badge"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#465fff"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg></a>
+        <div class="auth-glass panel-fade">
+          <a href="/" class="back-home">← Ana sayfaya dön</a>
+          ${innerHtml}
         </div>
-        <div class="meta">
+        <div class="auth-meta">
           <div>Süreç şeffaflığı<b>Canlı Takip</b></div>
           <div>Kalite güvencesi<b>Yerinde QC</b></div>
           <div>Risk yönetimi<b>Yazılı Taahhüt</b></div>
-        </div>
-      </div>
-      <div class="auth-form-wrap">
-        <div class="auth-form panel-fade">
-          <a href="/" class="back-home">← Ana sayfaya dön</a>
-          ${innerHtml}
         </div>
       </div>
     </div>`;
