@@ -17,7 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <link href="assets/mailler/lib/animate/animate.min.css" rel="stylesheet">
     <link href="assets/mailler/css/bootstrap.min.css" rel="stylesheet">
@@ -72,13 +72,42 @@
       .price-item .display-5{ font-size:2rem; }
       .faq-real .accordion-button{ font-weight:600; }
       @media (min-width: 992px){ nav.navbar-light{ background:#fff !important; } }
+      .topbar-mini{ background:#09090b; padding:7px 0; }
+      .topbar-mini a{ color:rgba(255,255,255,.55); font-size:13px; margin-left:16px; text-decoration:none; transition:color .15s; }
+      .topbar-mini a:hover{ color:#fff; }
+      @media (max-width:991px){ nav.navbar-light{ top:0 !important; } }
       nav.navbar-light .navbar-brand h1{ color:#09090b !important; }
-      .hero-photo{ position:relative; padding-top:190px; padding-bottom:150px; }
+      .hero-photo{ position:relative; padding-top:224px; padding-bottom:150px; }
       .hero-bg{ position:absolute; inset:0; z-index:0; }
       .hero-slide{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1.8s ease; }
       .hero-slide.active{ opacity:1; }
       .hero-scrim{ position:absolute; inset:0; background:linear-gradient(100deg, rgba(9,11,28,.88) 0%, rgba(9,11,28,.72) 38%, rgba(9,11,28,.42) 65%, rgba(9,11,28,.2) 100%); }
       @media (max-width: 991px){ .hero-scrim{ background:linear-gradient(180deg, rgba(9,11,28,.55) 0%, rgba(9,11,28,.85) 55%, rgba(9,11,28,.92) 100%); } .hero-photo{ padding-top:150px; } }
+      /* Purdue temasındaki "yüzen istatistik rozeti" fikrinden uyarlandı — gerçek
+         panel rakamlarıyla, fotoğrafın üzerinde hafif yükselen beyaz kartlar. */
+      .hero-float-badge{ position:absolute; z-index:2; align-items:center; gap:12px; background:#fff; border-radius:16px; padding:12px 18px; box-shadow:0 16px 40px -10px rgba(0,0,0,.35); animation:heroFloat 4s ease-in-out infinite; }
+      .hero-float-badge .ico{ width:40px; height:40px; border-radius:12px; background:#eef2ff; color:#465fff; display:flex; align-items:center; justify-content:center; font-size:18px; flex:none; }
+      .hero-float-badge .ico.ico-alt{ background:#ecfdf3; color:#12b76a; }
+      .hero-float-badge b{ display:block; font-family:var(--font-display, inherit); font-weight:800; font-size:19px; color:#09090b; line-height:1.1; }
+      .hero-float-badge span{ display:block; font-size:11.5px; color:#71717a; white-space:nowrap; margin-top:2px; }
+      @keyframes heroFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-10px); } }
+      .stat-strip-wrap{ margin-top:-46px; position:relative; z-index:3; }
+      .stat-chip{ display:flex; align-items:center; gap:12px; border-radius:16px; padding:16px 18px; height:100%; box-shadow:0 10px 30px -12px rgba(9,9,11,.12); }
+      .stat-chip i{ font-size:22px; flex:none; }
+      .stat-chip b{ display:block; font-weight:800; font-size:19px; color:#09090b; line-height:1.15; }
+      .stat-chip span{ display:block; font-size:12px; color:#52525b; margin-top:1px; }
+      @media (max-width:767px){ .stat-strip-wrap{ margin-top:20px; } }
+      /* Ülke ağı kartları — Purdue temasının "Popular Categories" dolu-renk
+         kutu fikrinden uyarlandı; her bölge kendi rengiyle, sayısı gerçek
+         (aşağıda listelenen ülke sayısına birebir eşit, uydurma değil). */
+      .region-tile{ position:relative; border-radius:20px; padding:26px 22px 22px; height:100%; color:#fff; overflow:hidden; transition:transform .2s; }
+      .region-tile:hover{ transform:translateY(-4px); }
+      .region-tile::after{ content:""; position:absolute; inset:0; background:linear-gradient(160deg, rgba(255,255,255,.16), transparent 55%); pointer-events:none; }
+      .region-tile .region-count{ position:absolute; top:16px; right:16px; font-size:11px; font-weight:700; background:rgba(255,255,255,.22); padding:4px 10px; border-radius:20px; }
+      .region-tile i{ font-size:26px; opacity:.9; margin-bottom:14px; display:block; }
+      .region-tile h5{ font-weight:800; margin-bottom:8px; font-size:17px; }
+      .region-tile p{ font-size:12.5px; color:rgba(255,255,255,.82); margin:0; line-height:1.5; }
+      @media (max-width:575px){ .region-tile{ padding:20px 16px 16px; } .region-tile h5{ font-size:15px; } .region-tile p{ font-size:11.5px; } }
     </style>
 </head>
 
@@ -90,9 +119,18 @@
         </div>
     </div>
 
+    <!-- Top bar: ince, sadece sosyal medya (deneme linkleri) -->
+    <div class="topbar-mini d-none d-lg-flex">
+        <div class="container d-flex justify-content-end align-items-center">
+            <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#" title="X (Twitter)"><i class="fab fa-twitter"></i></a>
+        </div>
+    </div>
+
     <!-- Navbar & Hero Start -->
     <div class="container-fluid header position-relative overflow-hidden p-0">
-        <nav class="navbar navbar-expand-lg fixed-top navbar-light px-4 px-lg-5 py-3 py-lg-0" style="background:#fff; box-shadow:0 1px 0 rgba(9,9,11,.06);">
+        <nav class="navbar navbar-expand-lg fixed-top navbar-light px-4 px-lg-5 py-3 py-lg-0" style="background:#fff; box-shadow:0 1px 0 rgba(9,9,11,.06); top:34px;">
             <a href="/" class="navbar-brand p-0 d-flex align-items-center">
                 <svg width="34" height="34" viewBox="0 0 40 40" class="me-2" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#465fff"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg>
                 <h1 class="display-6 text-dark m-0" style="font-size:22px; font-weight:800;">Tedarik Ağı</h1>
@@ -129,10 +167,51 @@
                     <a href="#ulke-agi" class="btn btn-outline-light rounded-pill py-3 px-5 wow fadeInUp" data-wow-delay="0.7s">Ülke Ağımızı Keşfedin</a>
                 </div>
             </div>
+            <!-- Yüzen rozet kartlar — gerçek verilerle (uydurma değil, hesaplama/panel sayfalarındaki
+                 aynı rakamlar): panelde 19 durum canlı işleniyor, GTİP tarafında 15.000+ gerçek kayıt var. -->
+            <div class="hero-float-badge d-none d-md-flex" style="top:150px; right:6%;">
+                <div class="ico"><i class="bi bi-graph-up-arrow"></i></div>
+                <div><b>19</b><span>Canlı Takip Durumu</span></div>
+            </div>
+            <div class="hero-float-badge d-none d-md-flex" style="bottom:56px; right:10%;">
+                <div class="ico ico-alt"><i class="bi bi-database-check"></i></div>
+                <div><b>15.000+</b><span>Gerçek GTİP Kaydı</span></div>
+            </div>
         </div>
     </div>
     <!-- Navbar & Hero End -->
 
+    <!-- Renkli istatistik şeridi — Purdue temasındaki pastel kutu fikrinden
+         uyarlandı; hepsi sitenin başka yerinde de geçen GERÇEK rakamlar
+         (uydurma "trusted by" sayısı değil). -->
+    <div class="container stat-strip-wrap">
+        <div class="row g-3 stat-strip">
+            <div class="col-6 col-lg-3">
+                <div class="stat-chip" style="background:#eefdf3;">
+                    <i class="bi bi-diagram-3-fill" style="color:#12b76a;"></i>
+                    <div><b>19</b><span>Süreç Durumu</span></div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-chip" style="background:#eef2ff;">
+                    <i class="bi bi-database-fill-check" style="color:#465fff;"></i>
+                    <div><b>15.000+</b><span>Gerçek GTİP Kaydı</span></div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-chip" style="background:#faf5ff;">
+                    <i class="bi bi-globe-americas" style="color:#9333ea;"></i>
+                    <div><b>6</b><span>Kıtaya Yayılan Ağ</span></div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-chip" style="background:#fff7ed;">
+                    <i class="bi bi-file-earmark-check-fill" style="color:#ea580c;"></i>
+                    <div><b>Yazılı</b><span>Taahhüt Güvencesi</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- About Start -->
     <div class="container-fluid overflow-hidden py-5" style="margin-top: 1.5rem;" id="neden-biz">
@@ -350,46 +429,52 @@
                 <p class="mb-0">İthalat-ihracat danışmanlığında tedarik, sevkiyat ve gümrük süreçlerinde bağlantılı olduğumuz ağ altı kıtaya yayılıyor.</p>
             </div>
             <div class="row g-4">
-                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
-                    <div class="service-item rounded p-4 h-100">
-                        <i class="fas fa-industry fa-2x mb-3" style="color:#2563eb;"></i>
-                        <h5 class="fw-bold mb-2">Asya-Pasifik</h5>
-                        <p class="mb-0 small">Çin (Şangay, Shenzhen, Guangzhou, Pekin), Singapur, Hindistan, Endonezya, Japonya, Güney Kore</p>
+                <div class="col-6 col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="region-tile" style="background:#2563eb;">
+                        <span class="region-count">6 ülke</span>
+                        <i class="fas fa-industry"></i>
+                        <h5>Asya-Pasifik</h5>
+                        <p>Çin, Singapur, Hindistan, Endonezya, Japonya, Güney Kore</p>
                     </div>
                 </div>
-                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.2s">
-                    <div class="service-item rounded p-4 h-100">
-                        <i class="fas fa-mosque fa-2x mb-3" style="color:#ea580c;"></i>
-                        <h5 class="fw-bold mb-2">Orta Doğu</h5>
-                        <p class="mb-0 small">Birleşik Arap Emirlikleri, Mısır — Asya-Avrupa hattının kavşak noktaları</p>
+                <div class="col-6 col-lg-4 wow fadeInUp" data-wow-delay="0.2s">
+                    <div class="region-tile" style="background:#ea580c;">
+                        <span class="region-count">2 ülke</span>
+                        <i class="fas fa-mosque"></i>
+                        <h5>Orta Doğu</h5>
+                        <p>Birleşik Arap Emirlikleri, Mısır</p>
                     </div>
                 </div>
-                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
-                    <div class="service-item rounded p-4 h-100">
-                        <i class="fas fa-landmark fa-2x mb-3" style="color:#9333ea;"></i>
-                        <h5 class="fw-bold mb-2">Avrupa</h5>
-                        <p class="mb-0 small">Almanya, Birleşik Krallık, Fransa, Rusya — Türkiye'nin geleneksel ihracat pazarları</p>
+                <div class="col-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="region-tile" style="background:#9333ea;">
+                        <span class="region-count">4 ülke</span>
+                        <i class="fas fa-landmark"></i>
+                        <h5>Avrupa</h5>
+                        <p>Almanya, Birleşik Krallık, Fransa, Rusya</p>
                     </div>
                 </div>
-                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.4s">
-                    <div class="service-item rounded p-4 h-100">
-                        <i class="fas fa-flag-usa fa-2x mb-3" style="color:#0e7490;"></i>
-                        <h5 class="fw-bold mb-2">Kuzey Amerika</h5>
-                        <p class="mb-0 small">ABD, Kanada, Meksika</p>
+                <div class="col-6 col-lg-4 wow fadeInUp" data-wow-delay="0.4s">
+                    <div class="region-tile" style="background:#0e7490;">
+                        <span class="region-count">3 ülke</span>
+                        <i class="fas fa-flag-usa"></i>
+                        <h5>Kuzey Amerika</h5>
+                        <p>ABD, Kanada, Meksika</p>
                     </div>
                 </div>
-                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
-                    <div class="service-item rounded p-4 h-100">
-                        <i class="fas fa-mountain fa-2x mb-3" style="color:#db2777;"></i>
-                        <h5 class="fw-bold mb-2">Güney Amerika</h5>
-                        <p class="mb-0 small">Brezilya, Şili, Arjantin, Kolombiya, Peru</p>
+                <div class="col-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="region-tile" style="background:#db2777;">
+                        <span class="region-count">5 ülke</span>
+                        <i class="fas fa-mountain"></i>
+                        <h5>Güney Amerika</h5>
+                        <p>Brezilya, Şili, Arjantin, Kolombiya, Peru</p>
                     </div>
                 </div>
-                <div class="col-12 col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.6s">
-                    <div class="service-item rounded p-4 h-100">
-                        <i class="fas fa-globe-africa fa-2x mb-3" style="color:#12b76a;"></i>
-                        <h5 class="fw-bold mb-2">Afrika &amp; Okyanusya</h5>
-                        <p class="mb-0 small">Kenya, Güney Afrika, Nijerya, Avustralya, Yeni Zelanda</p>
+                <div class="col-6 col-lg-4 wow fadeInUp" data-wow-delay="0.6s">
+                    <div class="region-tile" style="background:#12b76a;">
+                        <span class="region-count">5 ülke</span>
+                        <i class="fas fa-globe-africa"></i>
+                        <h5>Afrika &amp; Okyanusya</h5>
+                        <p>Kenya, Güney Afrika, Nijerya, Avustralya, Yeni Zelanda</p>
                     </div>
                 </div>
             </div>
