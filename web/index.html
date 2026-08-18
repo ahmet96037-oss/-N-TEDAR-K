@@ -38,6 +38,11 @@
       .globe-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#8a94a3; }
       .price-item .display-5{ font-size:2rem; }
       .faq-real .accordion-button{ font-weight:600; }
+      .hero-slide{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1.4s ease; }
+      .hero-slide.active{ opacity:1; }
+      .hero-slider-dots{ position:absolute; left:0; right:0; bottom:16px; display:flex; justify-content:center; gap:8px; z-index:2; }
+      .hero-dot{ width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.5); transition:background .3s, transform .3s; }
+      .hero-dot.active{ background:#fff; transform:scale(1.3); }
     </style>
 </head>
 
@@ -86,7 +91,16 @@
                     <a href="#ulke-agi" class="btn btn-light border rounded-pill py-3 px-5 wow fadeInUp" data-wow-delay="0.7s">Ülke Ağımızı Keşfedin</a>
                 </div>
                 <div class="col-lg-6 wow fadeInRight" data-wow-delay="0.2s">
-                    <img src="assets/photos/port.jpg" class="img-fluid w-100 h-100" style="border-radius:24px; object-fit:cover;" alt="Konteyner limanı">
+                    <div class="hero-slider" style="position:relative; border-radius:24px; overflow:hidden; aspect-ratio:1/1;">
+                        <img src="assets/photos/globe_asia.jpg" class="hero-slide active" alt="Asya üzerinden gece ışıkları — küresel tedarik ağı">
+                        <img src="assets/photos/globe_europe.jpg" class="hero-slide" alt="Avrupa, Orta Doğu ve Afrika üzerinden gece ışıkları">
+                        <img src="assets/photos/port.jpg" class="hero-slide" alt="Konteyner limanı">
+                        <div class="hero-slider-dots">
+                            <span class="hero-dot active"></span>
+                            <span class="hero-dot"></span>
+                            <span class="hero-dot"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -100,7 +114,7 @@
             <div class="row g-5">
                 <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="RotateMoveLeft" style="border-radius:24px; overflow:hidden;">
-                        <img src="assets/photos/yard.jpg" class="img-fluid w-100" style="border-radius:24px;" alt="Konteyner depolama sahası">
+                        <img src="assets/photos/terminal.jpg" class="img-fluid w-100" style="border-radius:24px;" alt="Büyük ölçekli konteyner terminali, kuş bakışı">
                     </div>
                 </div>
                 <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
@@ -693,6 +707,22 @@
         console.error('Küre yüklenemedi:', err);
         if (loading) loading.textContent = 'Küre yüklenemedi (bağlantı sorunu).';
       }
+    })();
+    </script>
+    <script>
+    // Hero görsel şeridi: 3 gerçek görsel arasında otomatik geçiş (soft fade)
+    (function(){
+      const slides = document.querySelectorAll('.hero-slide');
+      const dots = document.querySelectorAll('.hero-dot');
+      if (!slides.length) return;
+      let i = 0;
+      setInterval(() => {
+        slides[i].classList.remove('active');
+        dots[i] && dots[i].classList.remove('active');
+        i = (i + 1) % slides.length;
+        slides[i].classList.add('active');
+        dots[i] && dots[i].classList.add('active');
+      }, 4200);
     })();
     </script>
 </body>
