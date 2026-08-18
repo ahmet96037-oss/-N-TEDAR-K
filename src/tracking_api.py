@@ -118,13 +118,21 @@ CARRIER_REGISTRY = {
         "deeplink": lambda no: f"https://elines.coscoshipping.com/ebusiness/cargoTracking?trackingType=BILLOFLADING&number={_url_quote(no)}",
         "container_deeplink": lambda no: f"https://elines.coscoshipping.com/ebusiness/cargoTracking?trackingType=CONTAINER&number={_url_quote(no)}",
     },
-    # Aşağıdaki taşıyıcılar için konteyner no bazlı bir deeplink parametresi
-    # doğrulanamadı (resmi API/URL dokümantasyonu bulunamadı) — tahmini bir
-    # URL uydurmak yerine sadece ana sayfaya yönlendiriyoruz.
-    "msc": {"ad": "MSC", "homepage": "https://www.msc.com/en/track-a-shipment"},
+    "one": {
+        "ad": "ONE (Ocean Network Express)",
+        # Gerçek/doğrulanmış format (web aramasıyla teyit edildi, örnek konteyner
+        # no'lu canlı bir ONE linkinde görüldü): ?ctrack-field=X&trakNoParam=X
+        "container_deeplink": lambda no: f"https://ecomm.one-line.com/one-ecom/manage-shipment/cargo-tracking?ctrack-field={_url_quote(no)}&trakNoParam={_url_quote(no)}",
+        "homepage": "https://ecomm.one-line.com/one-ecom/manage-shipment/cargo-tracking",
+    },
+    # Aşağıdaki taşıyıcılar için konteyner no bazlı OTOMATİK DOLAN bir deeplink
+    # parametresi doğrulanamadı (resmi siteler bot erişimini engelliyor, API/URL
+    # dokümantasyonu bulunamadı) — tahmini bir parametre uydurmak yerine
+    # taşıyıcının KENDİ resmi takip sayfasına yönlendiriyoruz (3. parti bir
+    # siteye değil); konteyner no'yu müşteri o sayfada kendisi girer.
+    "msc": {"ad": "MSC", "homepage": "https://www.msc.com/tr/track-a-shipment"},
     "cma_cgm": {"ad": "CMA CGM", "homepage": "https://www.cma-cgm.com/ebusiness/tracking"},
     "hapag_lloyd": {"ad": "Hapag-Lloyd", "homepage": "https://www.hapag-lloyd.com/en/online-business/track/track-by-booking-solution.html"},
-    "one": {"ad": "ONE (Ocean Network Express)", "homepage": "https://ecomm.one-line.com/one-ecom/manage-shipment/cargo-tracking"},
 }
 
 
@@ -297,15 +305,21 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
 
     carrier = CARRIER_REGISTRY.get(siparis["tasiyici_key"]) if siparis["tasiyici_key"] else None
 
-    # Konteyner bazlı takip: ÖNCE seçili taşıyıcının kendi, doğrulanmış konteyner
-    # arama adresi denenir (otomatik) — yoksa taşıyıcıdan bağımsız, konteyner no
-    # formatından (SCAC kodu) taşıyıcıyı kendi tespit eden track-trace.com'a düşer.
+    # Konteyner bazlı takip — üç kademeli, HER ZAMAN taşıyıcının kendi (3. parti
+    # değil) sitesini tercih ediyoruz:
+    # 1) seçili taşıyıcının konteyner no'yu otomatik dolduran doğrulanmış deep-link'i
+    # 2) taşıyıcı kayıtlı ama deep-link parametresi doğrulanamadıysa (MSC, CMA CGM,
+    #    Hapag-Lloyd) — kendi resmi takip SAYFASI (konteyner no'yu müşteri orada girer)
+    # 3) taşıyıcı hiç kayıtlı değilse (elle "diğer" girilmiş firma) — genel track-trace.com
     konteyner_takip_url = None
     konteyner_takip_kaynagi = None
     if siparis["konteyner_no"]:
         if carrier and "container_deeplink" in carrier:
             konteyner_takip_url = carrier["container_deeplink"](siparis["konteyner_no"])
             konteyner_takip_kaynagi = carrier["ad"]
+        elif carrier and "homepage" in carrier:
+            konteyner_takip_url = carrier["homepage"]
+            konteyner_takip_kaynagi = carrier["ad"] + " (resmi takip sayfası — konteyner no'yu sayfada siz girin)"
         else:
             konteyner_takip_url = f"https://www.track-trace.com/container?number={_url_quote(siparis['konteyner_no'])}"
             konteyner_takip_kaynagi = "track-trace.com (genel)"

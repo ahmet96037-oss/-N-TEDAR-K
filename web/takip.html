@@ -662,7 +662,7 @@ function detaySayfasi(d, suankiIndex) {
         ${s.marinetraffic_url ? `<a href="${s.marinetraffic_url}" target="_blank" rel="noopener" class="btn">🌊 Marine Traffic'te Ara →</a>` : ''}
         ${s.vesselfinder_url ? `<a href="${s.vesselfinder_url}" target="_blank" rel="noopener" class="btn">VesselFinder'da Ara →</a>` : ''}
       </div>
-      ${s.konteyner_takip_kaynagi ? `<p style="font-size:11.5px; color:var(--text-muted); margin:10px 0 0;">Konteyner takibi kaynağı: ${s.konteyner_takip_kaynagi}${s.konteyner_takip_kaynagi.includes('genel') ? ' — bu taşıyıcı için otomatik firma linki henüz doğrulanmadı' : ' (taşıyıcıya göre otomatik seçildi)'}</p>` : ''}
+      ${s.konteyner_takip_kaynagi ? `<p style="font-size:11.5px; color:var(--text-muted); margin:10px 0 0;">Konteyner takibi kaynağı: ${s.konteyner_takip_kaynagi}${s.konteyner_takip_kaynagi.includes('genel') ? ' — bu taşıyıcı sistemde kayıtlı değil' : (s.konteyner_takip_kaynagi.includes('resmi takip sayfası') ? '' : ' (konteyner no otomatik dolu)')}</p>` : ''}
     </div>`;
   }
 

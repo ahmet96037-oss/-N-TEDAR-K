@@ -1009,12 +1009,20 @@ async function detayYukle(siparisNo) {
   konteynerOnizlemeGuncelle();
 }
 
-// Backend'deki CARRIER_REGISTRY'nin container_deeplink kısmıyla birebir aynı —
-// admin taşıyıcı seçince/konteyner no girince, müşteri panelinde çıkacak GERÇEK
-// linki burada canlı önizleme olarak görsün.
+// Backend'deki CARRIER_REGISTRY ile birebir aynı — admin taşıyıcı seçince/
+// konteyner no girince, müşteri panelinde çıkacak GERÇEK linki burada canlı
+// önizleme olarak görsün. Üç kademe: 1) konteyner no'yu otomatik dolduran
+// doğrulanmış deep-link  2) doğrulanmamışsa taşıyıcının KENDİ resmi takip
+// sayfası (3. parti site değil)  3) taşıyıcı hiç kayıtlı değilse track-trace.com.
 const KONTEYNER_DEEPLINK = {
   maersk: no => `https://www.maersk.com/tracking/${encodeURIComponent(no)}`,
   cosco: no => `https://elines.coscoshipping.com/ebusiness/cargoTracking?trackingType=CONTAINER&number=${encodeURIComponent(no)}`,
+  one: no => `https://ecomm.one-line.com/one-ecom/manage-shipment/cargo-tracking?ctrack-field=${encodeURIComponent(no)}&trakNoParam=${encodeURIComponent(no)}`,
+};
+const KONTEYNER_HOMEPAGE = {
+  msc: 'https://www.msc.com/tr/track-a-shipment',
+  cma_cgm: 'https://www.cma-cgm.com/ebusiness/tracking',
+  hapag_lloyd: 'https://www.hapag-lloyd.com/en/online-business/track/track-by-booking-solution.html',
 };
 function konteynerOnizlemeGuncelle() {
   const kutu = document.getElementById('sKonteynerOnizleme');
@@ -1022,15 +1030,16 @@ function konteynerOnizlemeGuncelle() {
   const key = document.getElementById('sTasiyiciKey')?.value;
   const no = document.getElementById('sKonteyner')?.value.trim();
   if (!no) { kutu.innerHTML = ''; return; }
-  // Backend'in siparis_detay endpoint'iyle BİREBİR aynı mantık: firmaya özel
-  // deeplink varsa onu, yoksa track-trace.com genel aramasını göster — hiçbir
-  // taşıyıcı için "link yok, sadece açıklama" durumu bırakmıyoruz.
+  const firmaAdi = TASIYICILAR.find(t=>t[0]===key)?.[1] || key;
   if (key && KONTEYNER_DEEPLINK[key]) {
     const url = KONTEYNER_DEEPLINK[key](no);
-    kutu.innerHTML = `<i class="bi bi-link-45deg"></i> Müşteriye gösterilecek link (otomatik, ${TASIYICILAR.find(t=>t[0]===key)?.[1] || key}): <a href="${url}" target="_blank" style="color:var(--accent2);">${url}</a>`;
+    kutu.innerHTML = `<i class="bi bi-link-45deg"></i> Müşteriye gösterilecek link (konteyner no otomatik dolu, ${firmaAdi}): <a href="${url}" target="_blank" style="color:var(--accent2);">${url}</a>`;
+  } else if (key && KONTEYNER_HOMEPAGE[key]) {
+    const url = KONTEYNER_HOMEPAGE[key];
+    kutu.innerHTML = `<i class="bi bi-link-45deg"></i> Müşteriye gösterilecek link (${firmaAdi} resmi takip sayfası — bu firma için otomatik doldurma doğrulanamadı, konteyner no'yu müşteri sayfada kendisi girer): <a href="${url}" target="_blank" style="color:var(--accent2);">${url}</a>`;
   } else {
     const url = `https://www.track-trace.com/container?number=${encodeURIComponent(no)}`;
-    const kaynakEtiketi = key ? (TASIYICILAR.find(t=>t[0]===key)?.[1] || key) + ' için henüz doğrulanmış firma linki yok' : 'Taşıyıcı seçilmedi';
+    const kaynakEtiketi = key ? firmaAdi + ' kayıtlı bir taşıyıcı değil' : 'Taşıyıcı seçilmedi';
     kutu.innerHTML = `<i class="bi bi-link-45deg"></i> Müşteriye gösterilecek link (genel, ${kaynakEtiketi}): <a href="${url}" target="_blank" style="color:var(--accent2);">${url}</a>`;
   }
 }
