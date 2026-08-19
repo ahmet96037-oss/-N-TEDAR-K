@@ -756,7 +756,7 @@ function siparisListesiCiz() {
     const baslar = (r.musteri || '?').trim().charAt(0).toUpperCase();
     const [avBg, avFg] = avatarRengi(r.musteri || r.email || '?');
     html += `<tr onclick="aktifSiparisNo='${r.siparis_no}'; view='detay'; render();">
-      <td class="siparis-no">${r.siparis_no} <span onclick="kopyala('${r.siparis_no}', event)" title="Kopyala" style="cursor:pointer; opacity:.4; font-size:11px;"><i class="bi bi-copy"></i></span></td>
+      <td class="siparis-no">${r.siparis_no} <span onclick="kopyala('${r.siparis_no}', event)" title="Kopyala" style="cursor:pointer; opacity:.4; font-size:11px;"><i class="bi bi-copy"></i></span>${r.okunmamis_mesaj > 0 ? `<span title="${r.okunmamis_mesaj} okunmamış mesaj" style="display:inline-flex; align-items:center; gap:3px; margin-left:6px; font-size:10.5px; font-weight:700; color:#fff; background:var(--bad); padding:1px 7px; border-radius:20px;"><i class="bi bi-chat-dots-fill"></i> ${r.okunmamis_mesaj}</span>` : ''}</td>
       <td><div class="row-cust"><div class="av" style="background:${avBg}; color:${avFg};">${baslar}</div><div>${r.musteri}${r.firma ? ' <span style=\"color:var(--text-muted); font-weight:400;\">('+r.firma+')</span>' : ''}<br><a href="mailto:${r.email}" onclick="event.stopPropagation()" style="color:var(--text-muted); font-size:12px; text-decoration:none;">${r.email}</a></div></div></td>
       <td>${r.urun_aciklamasi}</td>
       <td><span class="pill ${durumRenkSinifi(r.durum)}">${r.durum_adi}</span></td>
@@ -901,6 +901,7 @@ async function detayYukle(siparisNo) {
   const main = document.querySelector('.main');
   const res = await fetch(API + '/api/tk/siparis/' + encodeURIComponent(siparisNo), {headers:{'Authorization':'Bearer '+token}});
   const d = await res.json();
+  const mesajlar = await fetch(API + '/api/tk/siparis/' + encodeURIComponent(siparisNo) + '/mesajlar', {headers:{'Authorization':'Bearer '+token}}).then(r => r.json()).catch(() => []);
   let durumOpts = '<optgroup label="Ana Akış">' + DURUMLAR.map(([k,a]) => `<option value="${k}" ${k===d.durum?'selected':''}>${a}</option>`).join('') + '</optgroup>'
     + '<optgroup label="Özel Durumlar">' + OZEL_DURUMLAR.map(([k,a]) => `<option value="${k}" ${k===d.durum?'selected':''}>${a}</option>`).join('') + '</optgroup>';
 
@@ -954,6 +955,27 @@ async function detayYukle(siparisNo) {
       </div>
       <button class="primary" onclick="tutarBelirle('${d.siparis_no}')">Tutarı Kaydet</button>
     `}
+  </div>`;
+
+  // Mesajlaşma (Faz 2) — müşteri ile ekip arasında sipariş bazlı soru-cevap.
+  const mesajBalonlari = mesajlar.length ? mesajlar.map(m => `
+    <div style="display:flex; ${m.gonderen_tip === 'admin' ? 'justify-content:flex-end;' : ''} margin-bottom:10px;">
+      <div style="max-width:75%; padding:10px 14px; border-radius:14px; font-size:13.5px; line-height:1.5;
+        background:${m.gonderen_tip === 'admin' ? 'var(--accent2)' : 'var(--bg-alt)'};
+        color:${m.gonderen_tip === 'admin' ? '#fff' : 'var(--text)'};">
+        <div>${m.mesaj.replace(/</g,'&lt;')}</div>
+        <div style="font-size:10.5px; opacity:.7; margin-top:4px;">${m.gonderen_tip === 'admin' ? 'Siz' : 'Müşteri'} · ${new Date(m.tarih).toLocaleString('tr-TR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+    </div>`).join('') : '<p style="color:var(--text-muted); font-size:13px; margin:0;">Henüz mesaj yok.</p>';
+  const mesajlarPaneliHtml = `<div class="panel">
+    <div class="stat-ico-badge tone-purple" style="margin-bottom:10px;"><i class="bi bi-chat-dots"></i></div>
+    <h2 style="font-size:16px;">Müşteri ile Mesajlaşma</h2>
+    <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Müşterinin sorularını burada görüp cevaplayın — WhatsApp/e-posta yerine sistem içinde kalsın.</p>
+    <div style="max-height:320px; overflow-y:auto; margin-bottom:14px;">${mesajBalonlari}</div>
+    <div style="display:flex; gap:8px;">
+      <input id="mesajInput" placeholder="Cevap yazın..." style="flex:1; margin-bottom:0;" onkeydown="if(event.key==='Enter'){mesajGonder('${d.siparis_no}')}">
+      <button class="primary" style="margin:0;" onclick="mesajGonder('${d.siparis_no}')">Gönder</button>
+    </div>
   </div>`;
 
   // Sevkiyat & Gemi Takibi formu her aşamada gereksiz yere görünmesin diye
@@ -1033,6 +1055,7 @@ async function detayYukle(siparisNo) {
         ` : `<div class="faz-nav-card" style="display:flex; align-items:center; justify-content:center; gap:8px; color:var(--good); font-weight:700; font-size:13.5px;"><i class="bi bi-check-circle"></i> Son aşamada</div>`}
       </div>
     </div>
+    ${mesajlarPaneliHtml}
     ${odemePaneliHtml}
     <div class="panel">
       <div class="stat-ico-badge tone-orange" style="margin-bottom:10px;"><i class="bi bi-lock"></i></div>
@@ -1154,6 +1177,18 @@ async function sevkiyatGuncelle(siparisNo) {
   await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/sevkiyat', {
     method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
     body: JSON.stringify(body)
+  });
+  detayYukle(siparisNo);
+}
+
+async function mesajGonder(siparisNo) {
+  const input = document.getElementById('mesajInput');
+  const mesaj = input.value.trim();
+  if (!mesaj) return;
+  input.disabled = true;
+  await fetch(API + '/api/tk/siparis/' + encodeURIComponent(siparisNo) + '/mesaj', {
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body: JSON.stringify({mesaj})
   });
   detayYukle(siparisNo);
 }

@@ -258,7 +258,9 @@ def siparislerim(authorization: str = Header(None)):
     if not oturum["musteri_id"]:
         raise HTTPException(status_code=403, detail="Müşteri oturumu değil")
     rows = conn.execute(
-        "SELECT siparis_no, urun_aciklamasi, miktar, durum, olusturulma FROM tk_siparisler WHERE musteri_id = ? ORDER BY olusturulma DESC",
+        """SELECT s.siparis_no, s.urun_aciklamasi, s.miktar, s.durum, s.olusturulma,
+                  COALESCE((SELECT COUNT(*) FROM tk_mesajlar mg WHERE mg.siparis_id = s.id AND mg.gonderen_tip = 'admin' AND mg.okundu = false), 0) AS okunmamis_mesaj
+           FROM tk_siparisler s WHERE s.musteri_id = ? ORDER BY s.olusturulma DESC""",
         (oturum["musteri_id"],),
     ).fetchall()
     return [
@@ -269,6 +271,7 @@ def siparislerim(authorization: str = Header(None)):
             "durum": r["durum"],
             "durum_adi": TUM_DURUM_ISIMLERI.get(r["durum"], r["durum"]),
             "olusturulma": r["olusturulma"].isoformat() if r["olusturulma"] else None,
+            "okunmamis_mesaj": r["okunmamis_mesaj"],
         }
         for r in rows
     ]
@@ -412,6 +415,75 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
     }
 
 
+# ==================== MESAJLAŞMA (FAZ 2) ====================
+# Sipariş bazlı, müşteri ile ekip arasında sistem içi soru-cevap kanalı —
+# "neden gecikti?" gibi soruları WhatsApp/e-postaya değil buraya yazabilsinler
+# diye. Hem müşteri hem admin aynı /siparis/{no}/mesajlar altını kullanır,
+# yetki kontrolü _oturum_dogrula ile (müşteri sadece kendi siparişini görür).
+
+class MesajGonderIstek(BaseModel):
+    mesaj: str
+
+
+def _siparis_yetki_kontrolu(conn, oturum, siparis_no: str):
+    siparis = conn.execute("SELECT * FROM tk_siparisler WHERE siparis_no = ?", (siparis_no,)).fetchone()
+    if not siparis:
+        raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
+    if oturum["musteri_id"] and siparis["musteri_id"] != oturum["musteri_id"]:
+        raise HTTPException(status_code=403, detail="Bu sipariş size ait değil")
+    return siparis
+
+
+@router.get("/siparis/{siparis_no}/mesajlar")
+def mesajlari_getir(siparis_no: str, authorization: str = Header(None)):
+    conn, oturum = _oturum_dogrula(authorization)
+    siparis = _siparis_yetki_kontrolu(conn, oturum, siparis_no)
+    mesajlar = conn.execute(
+        "SELECT gonderen_tip, gonderen_email, mesaj, tarih, okundu FROM tk_mesajlar WHERE siparis_id = ? ORDER BY tarih ASC",
+        (siparis["id"],),
+    ).fetchall()
+    # Karşı tarafın gönderdiği mesajları "okundu" işaretle — kim okuyorsa
+    # (müşteri mi admin mi) karşı taraftan gelenler okundu sayılır.
+    karsi_tip = "admin" if oturum["musteri_id"] else "musteri"
+    conn.execute(
+        "UPDATE tk_mesajlar SET okundu = true WHERE siparis_id = ? AND gonderen_tip = ? AND okundu = false",
+        (siparis["id"], karsi_tip),
+    )
+    conn._conn.commit()
+    return [
+        {
+            "gonderen_tip": m["gonderen_tip"],
+            "gonderen_email": m["gonderen_email"],
+            "mesaj": m["mesaj"],
+            "tarih": m["tarih"].isoformat() if m["tarih"] else None,
+            "okundu": m["okundu"],
+        }
+        for m in mesajlar
+    ]
+
+
+@router.post("/siparis/{siparis_no}/mesaj")
+def mesaj_gonder(siparis_no: str, istek: MesajGonderIstek, authorization: str = Header(None)):
+    conn, oturum = _oturum_dogrula(authorization)
+    siparis = _siparis_yetki_kontrolu(conn, oturum, siparis_no)
+    if not istek.mesaj.strip():
+        raise HTTPException(status_code=400, detail="Boş mesaj gönderilemez")
+    gonderen_tip = "admin" if oturum["admin_id"] else "musteri"
+    gonderen_email = None
+    if oturum["admin_id"]:
+        row = conn.execute("SELECT email FROM tk_admin WHERE id = ?", (oturum["admin_id"],)).fetchone()
+        gonderen_email = row["email"] if row else None
+    elif oturum["musteri_id"]:
+        row = conn.execute("SELECT email FROM tk_musteriler WHERE id = ?", (oturum["musteri_id"],)).fetchone()
+        gonderen_email = row["email"] if row else None
+    conn.execute(
+        "INSERT INTO tk_mesajlar (siparis_id, gonderen_tip, gonderen_email, mesaj) VALUES (?, ?, ?, ?)",
+        (siparis["id"], gonderen_tip, gonderen_email, istek.mesaj.strip()),
+    )
+    conn._conn.commit()
+    return {"ok": True}
+
+
 # ==================== ADMIN TARAFI ====================
 
 @router.post("/admin/giris")
@@ -442,6 +514,7 @@ def admin_tum_siparisler(authorization: str = Header(None)):
         """SELECT s.siparis_no, s.urun_aciklamasi, s.durum, s.olusturulma, s.guncellenme,
                   s.toplam_tutar, s.para_birimi,
                   COALESCE((SELECT SUM(o.tutar) FROM tk_odemeler o WHERE o.siparis_id = s.id), 0) AS odenen_toplam,
+                  COALESCE((SELECT COUNT(*) FROM tk_mesajlar mg WHERE mg.siparis_id = s.id AND mg.gonderen_tip = 'musteri' AND mg.okundu = false), 0) AS okunmamis_mesaj,
                   m.ad_soyad, m.firma, m.email, m.telefon
            FROM tk_siparisler s JOIN tk_musteriler m ON m.id = s.musteri_id
            ORDER BY s.olusturulma DESC"""
@@ -461,6 +534,7 @@ def admin_tum_siparisler(authorization: str = Header(None)):
             "toplam_tutar": float(r["toplam_tutar"]) if r["toplam_tutar"] is not None else None,
             "para_birimi": r["para_birimi"] or "USD",
             "odenen_toplam": float(r["odenen_toplam"]),
+            "okunmamis_mesaj": r["okunmamis_mesaj"],
         }
         for r in rows
     ]

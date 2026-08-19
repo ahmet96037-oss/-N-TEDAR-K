@@ -409,6 +409,18 @@ function rfqEkrani() {
     <div class="toggle-row">Zaten hesabınız var mı? <button class="linklike" onclick="view='giris'; render();">Giriş yapın</button></div>`;
 }
 
+async function musteriMesajGonder(siparisNo) {
+  const input = document.getElementById('mesajInput');
+  const mesaj = input.value.trim();
+  if (!mesaj) return;
+  input.disabled = true;
+  await fetch(API + '/api/tk/siparis/' + encodeURIComponent(siparisNo) + '/mesaj', {
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body: JSON.stringify({mesaj})
+  });
+  siparisDetayYukle(siparisNo);
+}
+
 async function girisYap() {
   const email = document.getElementById('gEmail').value.trim();
   const sifre = document.getElementById('gSifre').value;
@@ -542,6 +554,7 @@ async function siparisListesiYukle() {
             <div class="ad">${r.urun_aciklamasi}</div>
           </div>
           <div class="sag">
+            ${r.okunmamis_mesaj > 0 ? `<span title="${r.okunmamis_mesaj} yeni mesaj" style="display:inline-flex; align-items:center; gap:3px; font-size:10.5px; font-weight:700; color:#fff; background:var(--accent2); padding:1px 7px; border-radius:20px;"><i class="bi bi-chat-dots-fill"></i> ${r.okunmamis_mesaj}</span>` : ''}
             <span class="pill ${durumRenkSinifi(r.durum)}">${r.durum_adi}</span>
             <span class="chev">›</span>
           </div>
@@ -568,6 +581,7 @@ const FAZLAR = [
 let detayTab = 'surec';
 let acikFazIndex = 0;
 let detayVeriCache = null;
+let mesajCache = [];
 
 async function siparisDetayYukle(siparisNo) {
   const main = document.querySelector('.main');
@@ -577,6 +591,8 @@ async function siparisDetayYukle(siparisNo) {
     if (!res.ok) { main.innerHTML = '<div class="panel err">Sipariş bulunamadı.</div>'; return; }
     const d = await res.json();
     detayVeriCache = d;
+    const mesajlar = await fetch(API + '/api/tk/siparis/' + encodeURIComponent(siparisNo) + '/mesajlar', { headers: {'Authorization':'Bearer ' + token} }).then(r => r.json()).catch(() => []);
+    mesajCache = mesajlar;
 
     // Özel durum (revizyon/beklemede/iptal) ana akışta bir "adım" değil, üstüne
     // binen bir durum — ilerlemeyi en son ulaşılan LİNEER adıma göre hesaplıyoruz,
@@ -674,6 +690,27 @@ function detaySayfasi(d, suankiIndex) {
     </div>`;
   }
 
+  // Mesajlaşma (Faz 2) — "kara kutu değiliz" mesajını somutlaştıran, sipariş
+  // bazlı soru-cevap kanalı. WhatsApp/e-posta yerine sistem içinde kalır.
+  const mesajBalonlari = mesajCache.length ? mesajCache.map(m => `
+    <div style="display:flex; ${m.gonderen_tip === 'musteri' ? 'justify-content:flex-end;' : ''} margin-bottom:10px;">
+      <div style="max-width:78%; padding:10px 14px; border-radius:14px; font-size:13.5px; line-height:1.5;
+        background:${m.gonderen_tip === 'musteri' ? 'var(--accent2)' : 'var(--bg-alt)'};
+        color:${m.gonderen_tip === 'musteri' ? '#fff' : 'var(--text)'};">
+        <div>${m.mesaj.replace(/</g,'&lt;')}</div>
+        <div style="font-size:10.5px; opacity:.7; margin-top:4px;">${m.gonderen_tip === 'musteri' ? 'Siz' : 'Tedarik Ağı Ekibi'} · ${new Date(m.tarih).toLocaleString('tr-TR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+    </div>`).join('') : '<p style="color:var(--text-muted); font-size:13px; margin:0;">Bir sorunuz mu var? Buradan yazabilirsiniz.</p>';
+  const mesajCard = `<div class="panel" style="margin-bottom:20px;">
+    <h2 style="font-size:16px; margin-bottom:4px;">💬 Ekiple Mesajlaş</h2>
+    <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Sürecinizle ilgili bir sorunuz varsa doğrudan buradan sorabilirsiniz.</p>
+    <div style="max-height:300px; overflow-y:auto; margin-bottom:14px;">${mesajBalonlari}</div>
+    <div style="display:flex; gap:8px;">
+      <input id="mesajInput" placeholder="Mesajınızı yazın..." style="flex:1; margin-bottom:0;" onkeydown="if(event.key==='Enter'){musteriMesajGonder('${d.siparis_no}')}">
+      <button class="btn btn-primary" style="margin:0;" onclick="musteriMesajGonder('${d.siparis_no}')">Gönder</button>
+    </div>
+  </div>`;
+
   let sevkiyatCard = '';
   if (d.sevkiyat) {
     const s = d.sevkiyat;
@@ -721,6 +758,7 @@ function detaySayfasi(d, suankiIndex) {
     ${ozelBanner}
     ${odemeCard}
     ${sevkiyatCard}
+    ${mesajCard}
     <div class="tabs">
       <button class="tab-btn ${detayTab==='surec'?'active':''}" onclick="detayTab='surec'; rerenderDetay();">Süreç Takibi</button>
       <button class="tab-btn ${detayTab==='belgeler'?'active':''}" onclick="detayTab='belgeler'; rerenderDetay();">Belgeler <span class="cnt">${d.belgeler.length}</span></button>
