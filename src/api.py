@@ -67,6 +67,13 @@ def gtip_detay(kod: str):
         (code,),
     ).fetchall()
 
+    # Korunma önlemleri (safeguard) — damping'den ayrı bir hukuki mekanizma: yerli üretici
+    # başvurusu üzerine belirli bir eşya için (menşe ayrımı yapmadan) alınan tarife/kota tedbiri.
+    korunma = conn.execute(
+        "SELECT * FROM trade_measures WHERE measure_type='KORUNMA' AND gtip12 = ? AND valid_to IS NULL",
+        (code,),
+    ).fetchall()
+
     kkdf = conn.execute(
         "SELECT * FROM kkdf_rules WHERE valid_to IS NULL LIMIT 1"
     ).fetchone()
@@ -133,6 +140,16 @@ def gtip_detay(kod: str):
                 "kaynak_url": d["source_url"],
             }
             for d in damping
+        ],
+        "korunma_onlemleri": [
+            {
+                "aciklama": k["country_desc"],
+                "sabit_tutar": k["fixed_amount"],
+                "birim": k["unit"],
+                "tebligno": k["document_label"],
+                "kaynak_url": k["source_url"],
+            }
+            for k in korunma
         ],
         "kkdf": {
             "oran_pct": kkdf["rate_pct"],

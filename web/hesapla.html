@@ -406,6 +406,15 @@ async function renderTaxRows() {
     explain: d.damping.map(x => `<b>${x.mense_ulke}</b>${x.oran_pct != null ? ': ' + fmtPct(x.oran_pct) + ' (CIF üzerinden)' : ''} — ${kaynakLink(x.kaynak_url, x.tebligno)}${x.oran_pct == null ? ' <span class="warn">(oran henüz veritabanında yok, orijinal tebliğ teyit edilmeli)</span>' : ''}`).join('<br>') + (dampingHasRate ? '<br><span class="warn">Toplamda, kayıtlı en yüksek oran kullanıldı — gerçek oran üretici/ihracatçıya göre değişir.</span>' : ''),
   }));
 
+  const korunmaActive = d.korunma_onlemleri && d.korunma_onlemleri.length > 0;
+  if (korunmaActive) rows.push(taxRow({
+    id: 'kr', dotClass: 'dot-damping', name: 'Korunma Önlemi (Safeguard)',
+    badge: pill('kosullu', 'miktara bağlı'),
+    rate: d.korunma_onlemleri.map(x => (x.sabit_tutar ?? '') + ' ' + (x.birim || '')).join(' / '),
+    amount: '',
+    explain: d.korunma_onlemleri.map(x => `${x.aciklama || ''} — ${x.sabit_tutar} ${x.birim || ''} — ${kaynakLink(x.kaynak_url, x.tebligno)}`).join('<br>') + '<br><span class="warn">Bu tutar miktar (ton/adet vb.) bazlı sabit bir yük — toplama otomatik dahil edilmedi, miktarınızla çarpıp ekleyin. Damping\'den ayrı, ek bir tedbirdir.</span>',
+  }));
+
   const kdvBadge = {
     liste_i_gercek: pill('gercek', 'Liste I — gerçek'),
     liste_ii_gercek: pill('gercek', 'Liste II — gerçek'),
