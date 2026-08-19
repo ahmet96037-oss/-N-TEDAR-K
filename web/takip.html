@@ -488,6 +488,23 @@ function rfqEkrani() {
     <div class="toggle-row">Zaten hesabınız var mı? <button class="linklike" onclick="view='giris'; render();">Giriş yapın</button></div>`;
 }
 
+async function tekrarSiparisVer(eskiSiparis) {
+  if (!confirm(`"${eskiSiparis.urun_aciklamasi}" için aynı bilgilerle yeni bir talep oluşturulsun mu?`)) return;
+  try {
+    const res = await fetch(API + '/api/tk/siparis-olustur', {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body: JSON.stringify({
+        urun_aciklamasi: eskiSiparis.urun_aciklamasi,
+        miktar: eskiSiparis.miktar || null,
+        hedef_fiyat: eskiSiparis.hedef_fiyat || null,
+      })
+    });
+    if (!res.ok) { alert('Yeni talep oluşturulamadı.'); return; }
+    const d = await res.json();
+    aktifSiparisNo = d.siparis_no; view = 'detay'; render();
+  } catch (e) { alert('Bağlantı hatası.'); }
+}
+
 async function musteriMesajGonder(siparisNo) {
   const input = document.getElementById('mesajInput');
   const mesaj = input.value.trim();
@@ -827,6 +844,7 @@ function detaySayfasi(d, suankiIndex) {
         <div>Hedef fiyat<b>${d.hedef_fiyat || '—'}</b></div>
         <div>Toplam aşama<b>${toplam}</b></div>
       </div>
+      <button class="btn" style="margin-top:14px;" onclick='tekrarSiparisVer(${JSON.stringify({urun_aciklamasi:d.urun_aciklamasi, miktar:d.miktar, hedef_fiyat:d.hedef_fiyat}).replace(/'/g,"&apos;")})'><i class="bi bi-arrow-repeat"></i> Bu Ürünü Tekrar Sipariş Ver</button>
       <div class="ilerleme-bar-wrap">
         <div class="ilerleme-bar"><div class="fill" style="width:${yuzde}%;"></div></div>
         <div class="ilerleme-txt">${yuzde}%</div>

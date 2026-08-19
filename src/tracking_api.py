@@ -236,6 +236,37 @@ def rfq_gonder(istek: RfqIstek, request: Request):
     return {"siparis_no": siparis_no, "token": token}
 
 
+class MusteriSiparisOlusturIstek(BaseModel):
+    urun_aciklamasi: str
+    miktar: str | None = None
+    hedef_fiyat: str | None = None
+
+
+@router.post("/siparis-olustur")
+def musteri_siparis_olustur(istek: MusteriSiparisOlusturIstek, authorization: str = Header(None)):
+    """Zaten oturum açmış müşteri için yeni sipariş — 'Tekrar Sipariş Ver' ve
+    panel içindeki 'Yeni Talep' için kullanılır; /rfq'nun aksine yeniden
+    ad/e-posta/şifre istemez, doğrudan mevcut hesaba ekler."""
+    conn, oturum = _oturum_dogrula(authorization)
+    if not oturum["musteri_id"]:
+        raise HTTPException(status_code=403, detail="Müşteri oturumu değil")
+    if not istek.urun_aciklamasi.strip():
+        raise HTTPException(status_code=400, detail="Ürün açıklaması zorunlu")
+    siparis_no = _siparis_no_uret(conn)
+    conn.execute(
+        "INSERT INTO tk_siparisler (siparis_no, musteri_id, urun_aciklamasi, miktar, hedef_fiyat) VALUES (?, ?, ?, ?, ?)",
+        (siparis_no, oturum["musteri_id"], istek.urun_aciklamasi.strip(), istek.miktar, istek.hedef_fiyat),
+    )
+    conn._conn.commit()
+    siparis_id = conn.execute("SELECT id FROM tk_siparisler WHERE siparis_no = ?", (siparis_no,)).fetchone()["id"]
+    conn.execute(
+        "INSERT INTO tk_durum_gecmisi (siparis_id, durum, not_metni) VALUES (?, 'talep_alindi', 'Talep alındı, fabrika görüşmeleri başlıyor.')",
+        (siparis_id,),
+    )
+    conn._conn.commit()
+    return {"siparis_no": siparis_no}
+
+
 class GirisIstek(BaseModel):
     email: str
     sifre: str
@@ -874,6 +905,22 @@ class SevkiyatBilgisiIstek(BaseModel):
     konsimento_no: str | None = None
     konteyner_no: str | None = None  # ör. MSCU1234567 — konteyner bazlı takip linki için
     tasiyici_takip_url: str | None = None  # her zaman öncelikli — o sevkiyata özel gerçek link
+
+
+@router.get("/istatistik-genel")
+def istatistik_genel():
+    """Ana sayfadaki 'canlı takip' sayacı için — herkese açık, kimlik/PII
+    içermeyen toplam rakamlar (kaç aktif sipariş, kaç tamamlanan). Kimlik
+    doğrulama gerekmiyor çünkü tek tek sipariş değil sadece toplam sayı dönüyor.
+    Gerçek DB verisi — uydurma bir sayaç değil."""
+    conn = db()
+    aktif = conn.execute(
+        "SELECT COUNT(*) c FROM tk_siparisler WHERE durum NOT IN ('teslim_edildi','iptal_edildi')"
+    ).fetchone()["c"]
+    tamamlanan = conn.execute(
+        "SELECT COUNT(*) c FROM tk_siparisler WHERE durum = 'teslim_edildi'"
+    ).fetchone()["c"]
+    return {"aktif_siparis": aktif, "tamamlanan_siparis": tamamlanan}
 
 
 @router.get("/tasiyicilar")

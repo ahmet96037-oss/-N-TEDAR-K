@@ -97,6 +97,12 @@
       .region-tile h5{ font-weight:800; margin-bottom:8px; font-size:17px; }
       .region-tile p{ font-size:12.5px; color:rgba(255,255,255,.82); margin:0; line-height:1.5; }
       @media (max-width:575px){ .region-tile{ padding:20px 16px 16px; } .region-tile h5{ font-size:15px; } .region-tile p{ font-size:11.5px; } }
+      /* Gerçek zamanlı canlı sayaç — /api/tk/istatistik-genel'den gerçek DB verisi,
+         uydurma bir "trusted by" sayısı değil. */
+      .live-counter{ display:inline-flex; align-items:center; gap:8px; margin-top:22px; font-size:13.5px; color:rgba(255,255,255,.75); }
+      .live-counter b{ color:#fff; font-weight:800; }
+      .live-counter .dot{ width:8px; height:8px; border-radius:50%; background:#12b76a; box-shadow:0 0 0 0 rgba(18,183,106,.6); animation:liveDotPulse 1.8s infinite; }
+      @keyframes liveDotPulse{ 0%{ box-shadow:0 0 0 0 rgba(18,183,106,.6); } 70%{ box-shadow:0 0 0 8px rgba(18,183,106,0); } 100%{ box-shadow:0 0 0 0 rgba(18,183,106,0); } }
       /* Paketler — Launch UI pricing-column referansından uyarlanan ikon + fiyat +
          "glow" vurgulu kart stili (React değil, saf CSS/Bootstrap). */
       .pricing-card{ position:relative; background:#fff; border:1px solid #eef0f4; border-radius:24px; padding:32px 28px; text-align:left; display:flex; flex-direction:column; transition:transform .2s, box-shadow .2s; }
@@ -161,6 +167,9 @@
                     <p class="fs-4 mb-4 wow fadeInUp" data-wow-delay="0.5s" style="font-size:1.15rem !important; color:rgba(255,255,255,.85);">Altı kıtaya yayılan tedarikçi/gümrük ağıyla ithalat-ihracat danışmanlığı veriyoruz. Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip portalınızdan izlersiniz — kara kutu değil, sistemli bir süreç.</p>
                     <a href="/takip.html#rfq" class="btn btn-primary rounded-pill py-3 px-5 me-3 wow fadeInUp" data-wow-delay="0.7s">Ücretsiz Danışmanlık Talebi</a>
                     <a href="#ulke-agi" class="btn btn-outline-light rounded-pill py-3 px-5 wow fadeInUp" data-wow-delay="0.7s">Ülke Ağımızı Keşfedin</a>
+                    <div id="canliSayac" class="live-counter wow fadeInUp" data-wow-delay="0.9s" style="display:none;">
+                        <span class="dot"></span> <b id="canliSayacDeger">—</b> sipariş şu anda canlı takip ediliyor
+                    </div>
                 </div>
             </div>
         </div>
@@ -871,6 +880,16 @@
         console.error('Küre yüklenemedi:', err);
         if (loading) loading.textContent = 'Küre yüklenemedi.';
       }
+    })();
+    </script>
+    <script>
+    // Gerçek zamanlı canlı sayaç — panel verisinden, sayfa yüklenince bir kez çekilir.
+    (function(){
+      fetch('/api/tk/istatistik-genel').then(r => r.ok ? r.json() : null).then(d => {
+        if (!d || !d.aktif_siparis) return;
+        document.getElementById('canliSayacDeger').textContent = d.aktif_siparis;
+        document.getElementById('canliSayac').style.display = 'inline-flex';
+      }).catch(() => {});
     })();
     </script>
     <script>
