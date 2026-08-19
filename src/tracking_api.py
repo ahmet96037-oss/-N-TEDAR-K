@@ -422,6 +422,10 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
         "ozel_durum_mu": siparis["durum"] in OZEL_ISIMLERI,
         # İç not SADECE admin oturumunda dönüyor — müşteri panelinde asla görünmez.
         "ic_not": siparis["ic_not"] if oturum["admin_id"] else None,
+        # Tedarikçi/fabrika ataması — iç operasyon verisi, sadece admin görür.
+        "tedarikci": (lambda: (
+            conn.execute("SELECT id, ad FROM tk_tedarikciler WHERE id = ?", (siparis["tedarikci_id"],)).fetchone()
+        ))() if (oturum["admin_id"] and siparis["tedarikci_id"]) else None,
         "sevkiyat": {
             "tasiyici_key": siparis["tasiyici_key"],
             "tasiyici_firma": tasiyici_ad,
@@ -629,6 +633,93 @@ def admin_musteri_listesi(authorization: str = Header(None)):
         }
         for r in rows
     ]
+
+
+@router.get("/admin/tedarikciler")
+def admin_tedarikci_listesi(authorization: str = Header(None)):
+    """Fabrika/tedarikçi veritabanı (Faz 4) — şu ana kadar sadece müşteri (talep
+    eden) tarafı modellenmişti, tedarik (üreten) tarafının hiç verisi yoktu.
+    İstatistikler (sipariş sayısı, tamamlanan, ortalama teslim süresi) gerçek
+    sipariş verisinden hesaplanıyor — uydurma bir güvenilirlik skoru yok."""
+    conn, _, _ = _admin_dogrula(authorization)
+    rows = conn.execute(
+        """SELECT t.id, t.ad, t.ulke, t.sehir, t.iletisim_kisi, t.telefon, t.email, t.notlar, t.olusturulma,
+                  COUNT(s.id) AS siparis_sayisi,
+                  COUNT(s.id) FILTER (WHERE s.durum = 'teslim_edildi') AS tamamlanan_sayisi,
+                  AVG(EXTRACT(EPOCH FROM (s.guncellenme - s.olusturulma)) / 86400.0) FILTER (WHERE s.durum = 'teslim_edildi') AS ort_gun
+           FROM tk_tedarikciler t
+           LEFT JOIN tk_siparisler s ON s.tedarikci_id = t.id
+           GROUP BY t.id
+           ORDER BY t.olusturulma DESC"""
+    ).fetchall()
+    return [
+        {
+            "id": r["id"],
+            "ad": r["ad"],
+            "ulke": r["ulke"],
+            "sehir": r["sehir"],
+            "iletisim_kisi": r["iletisim_kisi"],
+            "telefon": r["telefon"],
+            "email": r["email"],
+            "notlar": r["notlar"],
+            "olusturulma": r["olusturulma"].isoformat() if r["olusturulma"] else None,
+            "siparis_sayisi": r["siparis_sayisi"],
+            "tamamlanan_sayisi": r["tamamlanan_sayisi"],
+            "ortalama_teslim_gun": round(float(r["ort_gun"]), 1) if r["ort_gun"] is not None else None,
+        }
+        for r in rows
+    ]
+
+
+class TedarikciIstek(BaseModel):
+    ad: str
+    ulke: str | None = None
+    sehir: str | None = None
+    iletisim_kisi: str | None = None
+    telefon: str | None = None
+    email: str | None = None
+    notlar: str | None = None
+
+
+@router.post("/admin/tedarikciler")
+def admin_tedarikci_ekle(istek: TedarikciIstek, authorization: str = Header(None)):
+    conn, _, _ = _admin_dogrula(authorization)
+    if not istek.ad.strip():
+        raise HTTPException(status_code=400, detail="Tedarikçi adı zorunlu")
+    conn.execute(
+        "INSERT INTO tk_tedarikciler (ad, ulke, sehir, iletisim_kisi, telefon, email, notlar) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (istek.ad.strip(), istek.ulke, istek.sehir, istek.iletisim_kisi, istek.telefon, istek.email, istek.notlar),
+    )
+    conn._conn.commit()
+    return {"ok": True}
+
+
+@router.post("/admin/tedarikciler/{tedarikci_id}")
+def admin_tedarikci_guncelle(tedarikci_id: int, istek: TedarikciIstek, authorization: str = Header(None)):
+    conn, _, _ = _admin_dogrula(authorization)
+    if not istek.ad.strip():
+        raise HTTPException(status_code=400, detail="Tedarikçi adı zorunlu")
+    conn.execute(
+        "UPDATE tk_tedarikciler SET ad=?, ulke=?, sehir=?, iletisim_kisi=?, telefon=?, email=?, notlar=? WHERE id=?",
+        (istek.ad.strip(), istek.ulke, istek.sehir, istek.iletisim_kisi, istek.telefon, istek.email, istek.notlar, tedarikci_id),
+    )
+    conn._conn.commit()
+    return {"ok": True}
+
+
+class SiparisTedarikciIstek(BaseModel):
+    tedarikci_id: int | None = None
+
+
+@router.post("/admin/siparis/{siparis_no}/tedarikci")
+def admin_siparis_tedarikci_ata(siparis_no: str, istek: SiparisTedarikciIstek, authorization: str = Header(None)):
+    conn, _, _ = _admin_dogrula(authorization)
+    siparis = conn.execute("SELECT id FROM tk_siparisler WHERE siparis_no = ?", (siparis_no,)).fetchone()
+    if not siparis:
+        raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
+    conn.execute("UPDATE tk_siparisler SET tedarikci_id = ? WHERE id = ?", (istek.tedarikci_id, siparis["id"]))
+    conn._conn.commit()
+    return {"ok": True}
 
 
 class AdminSiparisOlusturIstek(BaseModel):

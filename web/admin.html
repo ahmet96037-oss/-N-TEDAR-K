@@ -390,8 +390,91 @@ function render() {
   if (view === 'liste') listeYukle();
   else if (view === 'detay') detayYukle(aktifSiparisNo);
   else if (view === 'musteriler') musterilerYukle();
+  else if (view === 'tedarikciler') tedarikcilerYukle();
   else if (view === 'yeni-siparis') { document.querySelector('.main').innerHTML = yeniSiparisEkrani(); ysMusteriDropdownDoldur(); }
   else if (view === 'ayarlar') ayarlarYukle();
+}
+
+async function tedarikcilerYukle() {
+  const main = document.querySelector('.main');
+  const res = await fetch(API + '/api/tk/admin/tedarikciler', {headers:{'Authorization':'Bearer '+token}});
+  if (res.status === 401) { cikisYap(); return; }
+  const rows = await res.json();
+  let html = `<div class="breadcrumb">Genel <i class="bi bi-chevron-right"></i> Tedarikçiler</div>
+  <div class="page-head">
+    <div><h1>Tedarikçiler</h1><p>${rows.length} kayıtlı fabrika/tedarikçi — performans, gerçek sipariş verisinden hesaplanıyor.</p></div>
+    <div class="page-head-actions"><button class="btn-dark" onclick="tedarikciFormAc()">＋ Yeni Tedarikçi</button></div>
+  </div>
+  <div id="tedarikciForm"></div>`;
+  if (rows.length === 0) {
+    html += '<div class="empty-state">Henüz tedarikçi kaydı yok.</div>';
+  } else {
+    html += '<div class="table-card"><div class="table-wrap"><table><thead><tr><th>Tedarikçi</th><th>Konum</th><th>İletişim</th><th>Sipariş</th><th>Tamamlanan</th><th>Ort. Teslim Süresi</th><th></th></tr></thead><tbody>';
+    rows.forEach(t => {
+      const [avBg, avFg] = avatarRengi(t.ad);
+      html += `<tr>
+        <td><div class="row-cust"><div class="av" style="background:${avBg}; color:${avFg};">${t.ad.charAt(0).toUpperCase()}</div><div><b>${t.ad}</b>${t.iletisim_kisi ? `<br><span style="color:var(--text-muted); font-size:12px;">${t.iletisim_kisi}</span>` : ''}</div></div></td>
+        <td>${[t.sehir, t.ulke].filter(Boolean).join(', ') || '—'}</td>
+        <td style="font-size:12.5px;">${t.email ? `<a href="mailto:${t.email}" style="color:var(--text-muted); text-decoration:none;">${t.email}</a><br>` : ''}${t.telefon || ''}</td>
+        <td style="font-variant-numeric:tabular-nums;">${t.siparis_sayisi}</td>
+        <td style="font-variant-numeric:tabular-nums;">${t.tamamlanan_sayisi}</td>
+        <td style="font-variant-numeric:tabular-nums;">${t.ortalama_teslim_gun != null ? t.ortalama_teslim_gun + ' gün' : '—'}</td>
+        <td><button class="secondary" style="padding:6px 12px; font-size:12px;" onclick='tedarikciFormAc(${JSON.stringify(t).replace(/'/g,"&apos;")})'>Düzenle</button></td>
+      </tr>`;
+    });
+    html += '</tbody></table></div></div>';
+  }
+  main.innerHTML = html;
+}
+
+function tedarikciFormAc(t) {
+  const kutu = document.getElementById('tedarikciForm');
+  const duzenlemeMi = !!t;
+  kutu.innerHTML = `<div class="panel" style="max-width:560px; margin-bottom:20px;">
+    <h2 style="font-size:16px; margin-bottom:14px;">${duzenlemeMi ? 'Tedarikçiyi Düzenle' : 'Yeni Tedarikçi'}</h2>
+    <div id="tedarikciErr" class="err"></div>
+    <label>Tedarikçi / Fabrika Adı</label>
+    <input id="tAd" value="${t ? t.ad.replace(/"/g,'&quot;') : ''}">
+    <div class="row2">
+      <div><label>Ülke</label><input id="tUlke" value="${t && t.ulke ? t.ulke.replace(/"/g,'&quot;') : ''}"></div>
+      <div><label>Şehir</label><input id="tSehir" value="${t && t.sehir ? t.sehir.replace(/"/g,'&quot;') : ''}"></div>
+    </div>
+    <div class="row2">
+      <div><label>İletişim Kişisi</label><input id="tIletisim" value="${t && t.iletisim_kisi ? t.iletisim_kisi.replace(/"/g,'&quot;') : ''}"></div>
+      <div><label>Telefon</label><input id="tTelefon" value="${t && t.telefon ? t.telefon.replace(/"/g,'&quot;') : ''}"></div>
+    </div>
+    <label>E-posta</label>
+    <input id="tEmail" value="${t && t.email ? t.email.replace(/"/g,'&quot;') : ''}">
+    <label>Notlar</label>
+    <textarea id="tNotlar" rows="2">${t && t.notlar ? t.notlar : ''}</textarea>
+    <div style="display:flex; gap:8px;">
+      <button class="primary" onclick="tedarikciKaydet(${t ? t.id : 'null'})">Kaydet</button>
+      <button class="secondary" onclick="document.getElementById('tedarikciForm').innerHTML=''">Vazgeç</button>
+    </div>
+  </div>`;
+  kutu.scrollIntoView({behavior:'smooth'});
+}
+
+async function tedarikciKaydet(id) {
+  const errBox = document.getElementById('tedarikciErr');
+  const ad = document.getElementById('tAd').value.trim();
+  if (!ad) { errBox.textContent = 'Tedarikçi adı zorunlu.'; return; }
+  const body = {
+    ad,
+    ulke: document.getElementById('tUlke').value.trim() || null,
+    sehir: document.getElementById('tSehir').value.trim() || null,
+    iletisim_kisi: document.getElementById('tIletisim').value.trim() || null,
+    telefon: document.getElementById('tTelefon').value.trim() || null,
+    email: document.getElementById('tEmail').value.trim() || null,
+    notlar: document.getElementById('tNotlar').value.trim() || null,
+  };
+  const url = API + '/api/tk/admin/tedarikciler' + (id ? '/' + id : '');
+  const res = await fetch(url, {
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) { const d = await res.json(); errBox.textContent = d.detail || 'Bir hata oluştu'; return; }
+  tedarikcilerYukle();
 }
 
 function ayarlarYukle() {
@@ -464,6 +547,7 @@ function panelShell(innerHtml, activeView) {
           <button class="${activeView==='liste'||activeView==='detay' ? 'active' : ''}" onclick="view='liste'; render();"><span class="ico"><i class="bi bi-grid-1x2"></i></span> Siparişler</button>
           <button class="${activeView==='yeni-siparis' ? 'active' : ''}" onclick="view='yeni-siparis'; render();"><span class="ico"><i class="bi bi-plus-circle"></i></span> Yeni Sipariş</button>
           <button class="${activeView==='musteriler' ? 'active' : ''}" onclick="view='musteriler'; render();"><span class="ico"><i class="bi bi-building"></i></span> Müşteriler</button>
+          <button class="${activeView==='tedarikciler' ? 'active' : ''}" onclick="view='tedarikciler'; render();"><span class="ico"><i class="bi bi-shop"></i></span> Tedarikçiler</button>
         </div>
         <div class="side-group-label">Hesap</div>
         <div class="side-nav">
@@ -940,6 +1024,15 @@ async function detayYukle(siparisNo) {
   const res = await fetch(API + '/api/tk/siparis/' + encodeURIComponent(siparisNo), {headers:{'Authorization':'Bearer '+token}});
   const d = await res.json();
   const mesajlar = await fetch(API + '/api/tk/siparis/' + encodeURIComponent(siparisNo) + '/mesajlar', {headers:{'Authorization':'Bearer '+token}}).then(r => r.json()).catch(() => []);
+  const tedarikciler = await fetch(API + '/api/tk/admin/tedarikciler', {headers:{'Authorization':'Bearer '+token}}).then(r => r.json()).catch(() => []);
+  const tedarikciOpts = '<option value="">— Seçilmedi —</option>' + tedarikciler.map(t => `<option value="${t.id}" ${d.tedarikci && d.tedarikci.id===t.id ? 'selected' : ''}>${t.ad}${t.sehir ? ' ('+t.sehir+')' : ''}</option>`).join('');
+  const tedarikciPaneliHtml = `<div class="panel">
+    <div class="stat-ico-badge tone-indigo" style="margin-bottom:10px;"><i class="bi bi-shop"></i></div>
+    <h2 style="font-size:16px;">Tedarikçi / Fabrika</h2>
+    <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Bu siparişi üreten fabrikayı atayın — tedarikçi geçmişi ve performansı Tedarikçiler sayfasında birikir.</p>
+    <select id="tedarikciSec" onchange="tedarikciAta('${d.siparis_no}', this.value)">${tedarikciOpts}</select>
+    ${tedarikciler.length === 0 ? '<p style="font-size:12px; color:var(--text-muted); margin:8px 0 0;">Henüz tedarikçi kaydı yok — <a onclick="view=\'tedarikciler\'; render();" style="cursor:pointer; color:var(--accent2);">buradan ekleyin</a>.</p>' : ''}
+  </div>`;
   let durumOpts = '<optgroup label="Ana Akış">' + DURUMLAR.map(([k,a]) => `<option value="${k}" ${k===d.durum?'selected':''}>${a}</option>`).join('') + '</optgroup>'
     + '<optgroup label="Özel Durumlar">' + OZEL_DURUMLAR.map(([k,a]) => `<option value="${k}" ${k===d.durum?'selected':''}>${a}</option>`).join('') + '</optgroup>';
 
@@ -1095,6 +1188,7 @@ async function detayYukle(siparisNo) {
     </div>
     ${mesajlarPaneliHtml}
     ${odemePaneliHtml}
+    ${tedarikciPaneliHtml}
     <div class="panel">
       <div class="stat-ico-badge tone-orange" style="margin-bottom:10px;"><i class="bi bi-lock"></i></div>
       <h2 style="font-size:16px;">İç Not <span style="font-weight:400; font-size:12px; color:var(--text-muted); text-transform:none; letter-spacing:0;">— sadece ekip görür</span></h2>
@@ -1217,6 +1311,13 @@ async function sevkiyatGuncelle(siparisNo) {
     body: JSON.stringify(body)
   });
   detayYukle(siparisNo);
+}
+
+async function tedarikciAta(siparisNo, tedarikciId) {
+  await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/tedarikci', {
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body: JSON.stringify({tedarikci_id: tedarikciId ? parseInt(tedarikciId, 10) : null})
+  });
 }
 
 async function mesajGonder(siparisNo) {
