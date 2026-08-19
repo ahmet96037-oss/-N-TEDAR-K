@@ -391,6 +391,44 @@ function render() {
   else if (view === 'detay') detayYukle(aktifSiparisNo);
   else if (view === 'musteriler') musterilerYukle();
   else if (view === 'yeni-siparis') { document.querySelector('.main').innerHTML = yeniSiparisEkrani(); ysMusteriDropdownDoldur(); }
+  else if (view === 'ayarlar') ayarlarYukle();
+}
+
+function ayarlarYukle() {
+  const main = document.querySelector('.main');
+  main.innerHTML = `<div class="panel-fade">
+    <div class="breadcrumb">Genel <i class="bi bi-chevron-right"></i> Ayarlar</div>
+    <div class="page-head"><div><h1>Ayarlar</h1><p>Hesabınızla ilgili ayarları buradan yönetin.</p></div></div>
+    <div class="panel" style="max-width:480px;">
+      <h2 style="font-size:16px; margin-bottom:4px;">Hesap</h2>
+      <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">${adminEmail || ''}</p>
+      <h2 style="font-size:16px; margin-bottom:14px;">Şifre Değiştir</h2>
+      <div id="sifreErr" class="err"></div>
+      <div id="sifreOk" style="display:none; color:var(--good); font-size:13px; margin-bottom:12px;">✓ Şifreniz güncellendi.</div>
+      <label>Mevcut Şifre</label>
+      <input id="pMevcutSifre" type="password">
+      <label>Yeni Şifre</label>
+      <input id="pYeniSifre" type="password">
+      <button class="primary" onclick="adminSifreDegistirKaydet()">Şifreyi Güncelle</button>
+    </div>
+  </div>`;
+}
+
+async function adminSifreDegistirKaydet() {
+  const errBox = document.getElementById('sifreErr');
+  const okBox = document.getElementById('sifreOk');
+  errBox.textContent = ''; okBox.style.display = 'none';
+  const mevcut_sifre = document.getElementById('pMevcutSifre').value;
+  const yeni_sifre = document.getElementById('pYeniSifre').value;
+  if (!mevcut_sifre || !yeni_sifre) { errBox.textContent = 'Her iki alanı da doldurun.'; return; }
+  const res = await fetch(API + '/api/tk/admin/sifre-degistir', {
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body: JSON.stringify({mevcut_sifre, yeni_sifre})
+  });
+  if (!res.ok) { const d = await res.json(); errBox.textContent = d.detail || 'Bir hata oluştu'; return; }
+  document.getElementById('pMevcutSifre').value = '';
+  document.getElementById('pYeniSifre').value = '';
+  okBox.style.display = 'block';
 }
 
 function authShell(innerHtml) {
@@ -418,7 +456,7 @@ function panelShell(innerHtml, activeView) {
     <div class="app-shell">
       <div class="sidebar">
         <div class="brand-row">
-          <div class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0f3d63"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.16"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.16"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#d99a2b" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#d99a2b"/></svg><div><div class="brand-t">Tedarik Ağı</div><div class="brand-sub">Admin Paneli</div></div></div>
+          <div class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#465fff"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg><div><div class="brand-t">Tedarik Ağı</div><div class="brand-sub">Admin Paneli</div></div></div>
           <span class="chev">⌄</span>
         </div>
         <div class="side-group-label">Genel</div>
@@ -429,7 +467,7 @@ function panelShell(innerHtml, activeView) {
         </div>
         <div class="side-group-label">Hesap</div>
         <div class="side-nav">
-          <button onclick="document.getElementById('siparisListe')?.scrollIntoView({behavior:'smooth'})"><span class="ico"><i class="bi bi-gear"></i></span> Ayarlar</button>
+          <button class="${activeView==='ayarlar' ? 'active' : ''}" onclick="view='ayarlar'; render();"><span class="ico"><i class="bi bi-gear"></i></span> Ayarlar</button>
         </div>
         <div class="sidebar-foot">
           <div class="user-chip">

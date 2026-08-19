@@ -252,6 +252,69 @@ def musteri_giris(istek: GirisIstek, request: Request):
     return {"token": token, "ad_soyad": musteri["ad_soyad"]}
 
 
+class MusteriProfilIstek(BaseModel):
+    ad_soyad: str
+    firma: str | None = None
+    telefon: str | None = None
+
+
+@router.get("/musteri/profil")
+def musteri_profil_getir(authorization: str = Header(None)):
+    conn, oturum = _oturum_dogrula(authorization)
+    if not oturum["musteri_id"]:
+        raise HTTPException(status_code=403, detail="Müşteri oturumu değil")
+    m = conn.execute("SELECT ad_soyad, firma, email, telefon FROM tk_musteriler WHERE id = ?", (oturum["musteri_id"],)).fetchone()
+    return {"ad_soyad": m["ad_soyad"], "firma": m["firma"], "email": m["email"], "telefon": m["telefon"]}
+
+
+@router.post("/musteri/profil")
+def musteri_profil_guncelle(istek: MusteriProfilIstek, authorization: str = Header(None)):
+    conn, oturum = _oturum_dogrula(authorization)
+    if not oturum["musteri_id"]:
+        raise HTTPException(status_code=403, detail="Müşteri oturumu değil")
+    if not istek.ad_soyad.strip():
+        raise HTTPException(status_code=400, detail="Ad soyad boş olamaz")
+    conn.execute(
+        "UPDATE tk_musteriler SET ad_soyad = ?, firma = ?, telefon = ? WHERE id = ?",
+        (istek.ad_soyad.strip(), istek.firma, istek.telefon, oturum["musteri_id"]),
+    )
+    conn._conn.commit()
+    return {"ok": True}
+
+
+class SifreDegistirIstek(BaseModel):
+    mevcut_sifre: str
+    yeni_sifre: str
+
+
+@router.post("/musteri/sifre-degistir")
+def musteri_sifre_degistir(istek: SifreDegistirIstek, authorization: str = Header(None)):
+    conn, oturum = _oturum_dogrula(authorization)
+    if not oturum["musteri_id"]:
+        raise HTTPException(status_code=403, detail="Müşteri oturumu değil")
+    m = conn.execute("SELECT sifre_hash FROM tk_musteriler WHERE id = ?", (oturum["musteri_id"],)).fetchone()
+    if not _sifre_dogrula(istek.mevcut_sifre, m["sifre_hash"]):
+        raise HTTPException(status_code=401, detail="Mevcut şifre hatalı")
+    if len(istek.yeni_sifre) < 6:
+        raise HTTPException(status_code=400, detail="Yeni şifre en az 6 karakter olmalı")
+    conn.execute("UPDATE tk_musteriler SET sifre_hash = ? WHERE id = ?", (_hash_sifre(istek.yeni_sifre), oturum["musteri_id"]))
+    conn._conn.commit()
+    return {"ok": True}
+
+
+@router.post("/admin/sifre-degistir")
+def admin_sifre_degistir(istek: SifreDegistirIstek, authorization: str = Header(None)):
+    conn, oturum, _ = _admin_dogrula(authorization)
+    a = conn.execute("SELECT sifre_hash FROM tk_admin WHERE id = ?", (oturum["admin_id"],)).fetchone()
+    if not _sifre_dogrula(istek.mevcut_sifre, a["sifre_hash"]):
+        raise HTTPException(status_code=401, detail="Mevcut şifre hatalı")
+    if len(istek.yeni_sifre) < 6:
+        raise HTTPException(status_code=400, detail="Yeni şifre en az 6 karakter olmalı")
+    conn.execute("UPDATE tk_admin SET sifre_hash = ? WHERE id = ?", (_hash_sifre(istek.yeni_sifre), oturum["admin_id"]))
+    conn._conn.commit()
+    return {"ok": True}
+
+
 @router.get("/siparislerim")
 def siparislerim(authorization: str = Header(None)):
     conn, oturum = _oturum_dogrula(authorization)
