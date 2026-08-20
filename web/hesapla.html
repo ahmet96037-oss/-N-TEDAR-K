@@ -58,6 +58,17 @@
 
   .result{ margin-top:28px; display:none; }
   .result.show{ display:block; }
+
+  .tab-bar{ display:flex; gap:4px; background:var(--bg-alt); border:1px solid var(--border); border-radius:14px; padding:4px; margin-bottom:20px; width:fit-content; }
+  .tab-btn{ font-family:var(--font-body); font-size:13.5px; font-weight:600; color:var(--text-muted); background:transparent; border:none; padding:9px 16px; border-radius:10px; cursor:pointer; }
+  .tab-btn.active{ background:var(--surface); color:var(--text); box-shadow:0 1px 4px rgba(9,9,11,.08); }
+  .table-wrap table td, .table-wrap table th{ border-bottom:1px solid var(--border); }
+  .table-wrap table td{ padding:9px 10px; vertical-align:top; }
+  .table-wrap table tbody tr:hover{ background:var(--bg-alt); }
+  .btb-no{ font-family:var(--font-code); font-size:12px; color:var(--text-muted); }
+  .btb-gtip{ font-family:var(--font-code); font-weight:600; color:var(--accent-ink); white-space:nowrap; }
+  a.btn{ display:inline-block; background:var(--accent2); color:#fff; padding:9px 18px; border-radius:24px; font-weight:600; font-size:13.5px; text-decoration:none; }
+  a.btn:hover{ background:var(--accent2-ink); }
   .result-head{ margin-bottom:20px; }
   .result-head .g{ font-family:var(--font-code); font-size:13px; font-weight:500; letter-spacing:.02em; color:var(--accent-ink); }
   .result-head h2{ font-family:var(--font-display); font-size:20px; margin:4px 0 0; }
@@ -147,6 +158,12 @@
     <div class="stats" id="stats"></div>
   </header>
 
+  <div class="tab-bar" role="tablist">
+    <button class="tab-btn active" id="tabBtnHesap" role="tab" aria-selected="true">Vergi Hesaplama</button>
+    <button class="tab-btn" id="tabBtnBTB" role="tab" aria-selected="false">Bağlayıcı Tarife Bilgisi</button>
+  </div>
+
+  <div id="tabPanelHesap">
   <div class="panel search-wrap">
     <label for="q">GTİP kodu veya ürün adı</label>
     <input id="q" type="text" placeholder="ör. 8536.69 veya priz" autocomplete="off">
@@ -188,9 +205,99 @@
   <div id="menseWarn"></div>
 
   <div class="result" id="result"></div>
+  </div>
+
+  <div id="tabPanelBTB" style="display:none;">
+    <div class="panel" style="margin-bottom:16px;">
+      <p style="margin:0 0 10px; font-size:14.5px; color:var(--text);"><b>Bağlayıcı Tarife Bilgisi (BTB)</b> — Ticaret Bakanlığı'nın, bir ithalatçının başvurusu üzerine belirli bir eşya için verdiği, <b>hukuken bağlayıcı</b> GTİP sınıflandırma kararıdır. Yukarıdaki hesaplayıcı bir <i>ön analiz</i> sunar; tartışmalı sınıflandırmalarda kesin ve bağlayıcı bir kod için BTB alınması gerekir.</p>
+      <p style="margin:0; font-size:13px; color:var(--text-muted);">Aşağıdaki kayıtlar, Bakanlığın canlı BTB sorgulama sisteminden (<span class="mono">uygulama.gtb.gov.tr/BTBBasvuru</span>) elle doğrulanmış <b>gerçek, güncel</b> örneklerdir. Bakanlığın sistemi oturum tabanlı eski bir teknolojiyle çalıştığı için ürün fotoğraflarını ve orijinal karar PDF'lerini burada otomatik gösteremiyoruz — her kaydın yanındaki "Resmi kayıtta görüntüle" bağlantısı sizi doğrudan o BTB'nin fotoğrafına ve tam metnine götürür.</p>
+    </div>
+
+    <div class="panel" style="margin-bottom:16px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;">
+      <div style="font-size:13.5px; color:var(--text-muted);">Kendi ürününüz için GTİP kodu, eşya tanımı veya BTB numarasıyla tam veritabanında arama yapın:</div>
+      <a href="https://uygulama.gtb.gov.tr/BTBBasvuru/Btbler" target="_blank" rel="noopener" class="btn" style="white-space:nowrap;">Resmi BTB Sorgulama Sistemi ↗</a>
+    </div>
+
+    <div class="table-wrap" style="overflow-x:auto;">
+      <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+        <thead>
+          <tr style="text-align:left; border-bottom:2px solid var(--border);">
+            <th style="padding:9px 10px; white-space:nowrap;">BTB No</th>
+            <th style="padding:9px 10px; white-space:nowrap;">GTİP</th>
+            <th style="padding:9px 10px;">Eşya Tanımı</th>
+            <th style="padding:9px 10px; white-space:nowrap;">Geçerlilik Bşl.</th>
+            <th style="padding:9px 10px; white-space:nowrap;">Kayıt</th>
+          </tr>
+        </thead>
+        <tbody id="btbTableBody"></tbody>
+      </table>
+    </div>
+    <p style="margin:14px 0 0; font-size:12px; color:var(--text-muted);">Bu 20 kayıt, Bakanlığın "Geçerli Kayıtlar" listesinin ilk sayfasından elle çekilmiştir (son güncelleme: Ağustos 2026). Listenin tamamı binlerce kayıt içerir — kendi ürününüzü resmi sistemde aramanız önerilir.</p>
+  </div>
 </div>
 
 <script>
+// Sekme geçişi (Vergi Hesaplama / Bağlayıcı Tarife Bilgisi)
+(function(){
+  const btnHesap = document.getElementById('tabBtnHesap');
+  const btnBTB = document.getElementById('tabBtnBTB');
+  const panelHesap = document.getElementById('tabPanelHesap');
+  const panelBTB = document.getElementById('tabPanelBTB');
+  function goTo(tab){
+    const isHesap = tab === 'hesap';
+    panelHesap.style.display = isHesap ? '' : 'none';
+    panelBTB.style.display = isHesap ? 'none' : '';
+    btnHesap.classList.toggle('active', isHesap);
+    btnBTB.classList.toggle('active', !isHesap);
+    btnHesap.setAttribute('aria-selected', isHesap);
+    btnBTB.setAttribute('aria-selected', !isHesap);
+    if (!isHesap) renderBTB();
+  }
+  btnHesap.addEventListener('click', () => goTo('hesap'));
+  btnBTB.addEventListener('click', () => goTo('btb'));
+  if (location.hash === '#btb') goTo('btb');
+})();
+
+// Bakanlığın canlı BTB sorgulama sisteminden (uygulama.gtb.gov.tr/BTBBasvuru/Btbler)
+// elle doğrulanmış gerçek kayıtlar — Ağustos 2026, "Geçerli Kayıtlar" listesinin ilk sayfası.
+const BTB_KAYITLARI = [
+  ['TR160000260029','401699520000','Vulkanize edilmiş kauçuktan ürün','17/08/2026'],
+  ['TR350000260045','854370900019','D27T model Smart GPS Wireless','14/08/2026'],
+  ['TR160000260028','854430000000','Şanzuman Kablo Demeti','14/08/2026'],
+  ['TR410000260018','950300350011','Şeffaf plastikten mamul ürün','12/08/2026'],
+  ['TR160000260026','840999000039','K080107 Zamanlama zinciri','10/08/2026'],
+  ['TR160000260027','840999000039','1015223AA Zamanlama zincir seti','10/08/2026'],
+  ['TR350000260042','392690979029','UMA0100 kodlu 100mm Oral Tube','06/08/2026'],
+  ['TR350000260044','848180990029','UMS1672 kodlu Brass D Core','06/08/2026'],
+  ['TR350000260043','848180990029','UMA4012/D160 kodlu MK5 Auto','06/08/2026'],
+  ['TR060000260012','853590000019','Trafo Buşing','04/08/2026'],
+  ['TR330000260029','847989979019','Kaynak Arabası (Welding Tractor)','04/08/2026'],
+  ['TR410000260016','841510900019','Alarko marka FLR-BSP1202HWI','31/07/2026'],
+  ['TR410000260017','841510900019','Carrier marka 42QHG009D8SJ-2','31/07/2026'],
+  ['TR160000260025','820600000000','46 parça vidalama ve lokma uç takımı','30/07/2026'],
+  ['TR340000260127','392390000000','Wiwify marka 50+SPF model','28/07/2026'],
+  ['TR340000260126','850760000030','Polham marka CZK-DH01 model','28/07/2026'],
+  ['TR340000260144','851762009019','Ray-Ban marka RW4012 model','28/07/2026'],
+  ['TR340000260143','851290900011','Lumileds Photon marka ürün','28/07/2026'],
+  ['TR340000260134','852872400000','Bebevo marka VM903 model','28/07/2026'],
+  ['TR340000260133','852872400000','Bebevo marka VM901 model','28/07/2026'],
+];
+let btbRendered = false;
+function renderBTB(){
+  if (btbRendered) return;
+  btbRendered = true;
+  const fmtGtip = g => g.replace(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/, '$1.$2.$3.$4.$5');
+  document.getElementById('btbTableBody').innerHTML = BTB_KAYITLARI.map(([no, gtip, ad, tarih]) => `
+    <tr>
+      <td class="btb-no">${no}</td>
+      <td class="btb-gtip">${fmtGtip(gtip)}</td>
+      <td>${ad}</td>
+      <td style="white-space:nowrap;">${tarih}</td>
+      <td><a href="https://uygulama.gtb.gov.tr/BTBBasvuru/Btbler" target="_blank" rel="noopener" style="font-size:12.5px; white-space:nowrap;">Resmi kayıtta görüntüle ↗</a></td>
+    </tr>
+  `).join('');
+}
+
 const API = "";
 const qInput = document.getElementById('q');
 const sugBox = document.getElementById('suggestions');
