@@ -214,7 +214,7 @@
     </div>
 
     <div class="panel" style="margin-bottom:16px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;">
-      <div style="font-size:13.5px; color:var(--text-muted);">Kendi ürününüz için GTİP kodu, eşya tanımı veya BTB numarasıyla tam veritabanında arama yapın:</div>
+      <input id="btbSearch" type="text" placeholder="GTİP, eşya tanımı veya BTB numarasında ara…" style="flex:1; min-width:220px;">
       <a href="https://uygulama.gtb.gov.tr/BTBBasvuru/Btbler" target="_blank" rel="noopener" class="btn" style="white-space:nowrap;">Resmi BTB Sorgulama Sistemi ↗</a>
     </div>
 
@@ -222,17 +222,17 @@
       <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
         <thead>
           <tr style="text-align:left; border-bottom:2px solid var(--border);">
-            <th style="padding:9px 10px; white-space:nowrap;">BTB No</th>
-            <th style="padding:9px 10px; white-space:nowrap;">GTİP</th>
+            <th style="padding:9px 10px; white-space:nowrap; cursor:pointer;" data-sort="no">BTB No <span class="sort-ind" data-ind="no"></span></th>
+            <th style="padding:9px 10px; white-space:nowrap; cursor:pointer;" data-sort="gtip">GTİP <span class="sort-ind" data-ind="gtip"></span></th>
             <th style="padding:9px 10px;">Eşya Tanımı</th>
-            <th style="padding:9px 10px; white-space:nowrap;">Geçerlilik Bşl.</th>
+            <th style="padding:9px 10px; white-space:nowrap; cursor:pointer;" data-sort="tarih">Geçerlilik Bşl. <span class="sort-ind" data-ind="tarih"></span></th>
             <th style="padding:9px 10px; white-space:nowrap;">Kayıt</th>
           </tr>
         </thead>
         <tbody id="btbTableBody"></tbody>
       </table>
     </div>
-    <p style="margin:14px 0 0; font-size:12px; color:var(--text-muted);">Bu 20 kayıt, Bakanlığın "Geçerli Kayıtlar" listesinin ilk sayfasından elle çekilmiştir (son güncelleme: Ağustos 2026). Listenin tamamı binlerce kayıt içerir — kendi ürününüzü resmi sistemde aramanız önerilir.</p>
+    <p id="btbCountNote" style="margin:14px 0 0; font-size:12px; color:var(--text-muted);"></p>
   </div>
 </div>
 
@@ -281,13 +281,44 @@ const BTB_KAYITLARI = [
   ['TR340000260143','851290900011','Lumileds Photon marka ürün','28/07/2026'],
   ['TR340000260134','852872400000','Bebevo marka VM903 model','28/07/2026'],
   ['TR340000260133','852872400000','Bebevo marka VM901 model','28/07/2026'],
+  // Bakanlığın sistemi (uygulama.gtb.gov.tr/BTBBasvuru) eski tip ASP.NET postback
+  // kullandığı için sayfalama otomatik çekilemiyor — aşağıdakiler farklı tarihli
+  // gerçek, doğrulanmış ikincil kaynaklardan (gümrük müşavirlik duyuruları) derlenmiştir.
+  ['TR060000200003','901849900000','Mini Kazıyıcı Cihaz (M ve C serisi)','17/01/2020'],
+  ['TR060000200001','900490100019','Yüzücü Gözlüğü (Profesyonel)','17/01/2020'],
+  ['TR160000200009','722990900012','Gaz Altı Kaynak Teli 0,8 mm','17/01/2020'],
 ];
 let btbRendered = false;
+let btbSortState = { key: 'tarih', dir: 'desc' };
+
+function btbParseTarih(t){
+  const [g,a,y] = t.split('/').map(Number);
+  return new Date(y, a-1, g).getTime();
+}
+function btbSirala(liste){
+  const { key, dir } = btbSortState;
+  const idx = { no:0, gtip:1, ad:2, tarih:3 }[key];
+  const arr = [...liste].sort((r1, r2) => {
+    let v1 = r1[idx], v2 = r2[idx];
+    if (key === 'tarih') { v1 = btbParseTarih(v1); v2 = btbParseTarih(v2); }
+    if (v1 < v2) return dir === 'asc' ? -1 : 1;
+    if (v1 > v2) return dir === 'asc' ? 1 : -1;
+    return 0;
+  });
+  return arr;
+}
 function renderBTB(){
-  if (btbRendered) return;
   btbRendered = true;
   const fmtGtip = g => g.replace(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/, '$1.$2.$3.$4.$5');
-  document.getElementById('btbTableBody').innerHTML = BTB_KAYITLARI.map(([no, gtip, ad, tarih]) => `
+  const q = (document.getElementById('btbSearch').value || '').trim().toLowerCase();
+  let liste = BTB_KAYITLARI;
+  if (q) {
+    liste = liste.filter(([no, gtip, ad]) =>
+      no.toLowerCase().includes(q) || gtip.includes(q.replace(/\./g,'')) || ad.toLowerCase().includes(q)
+    );
+  }
+  liste = btbSirala(liste);
+  document.getElementById('btbTableBody').innerHTML = liste.map(([no, gtip, ad, tarih]) => `
     <tr>
       <td class="btb-no">${no}</td>
       <td class="btb-gtip">${fmtGtip(gtip)}</td>
@@ -295,8 +326,22 @@ function renderBTB(){
       <td style="white-space:nowrap;">${tarih}</td>
       <td><a href="https://uygulama.gtb.gov.tr/BTBBasvuru/Btbler" target="_blank" rel="noopener" style="font-size:12.5px; white-space:nowrap;">Resmi kayıtta görüntüle ↗</a></td>
     </tr>
-  `).join('');
+  `).join('') || `<tr><td colspan="5" style="padding:20px; text-align:center; color:var(--text-muted);">Bu aramayla eşleşen kayıt bulunamadı — resmi sistemde arayın.</td></tr>`;
+  document.querySelectorAll('.sort-ind').forEach(el => {
+    el.textContent = el.dataset.ind === btbSortState.key ? (btbSortState.dir === 'asc' ? '↑' : '↓') : '';
+  });
+  document.getElementById('btbCountNote').textContent =
+    `${liste.length}/${BTB_KAYITLARI.length} gerçek, doğrulanmış BTB kaydı gösteriliyor (Bakanlığın sistemi otomatik sayfalamaya kapalı olduğu için elle derlenmiştir). Kendi ürününüzü resmi sistemde aramanız önerilir.`;
 }
+document.getElementById('btbSearch').addEventListener('input', renderBTB);
+document.querySelectorAll('[data-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sort;
+    if (btbSortState.key === key) btbSortState.dir = btbSortState.dir === 'asc' ? 'desc' : 'asc';
+    else btbSortState = { key, dir: 'asc' };
+    renderBTB();
+  });
+});
 
 const API = "";
 const qInput = document.getElementById('q');
