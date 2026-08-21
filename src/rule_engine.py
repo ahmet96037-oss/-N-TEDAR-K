@@ -133,6 +133,7 @@ def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool, miktar: float = N
     damping_oran = None
     damping_list = gtip_detay.get("damping") or []
     oranli = [d for d in damping_list if d.get("oran_pct") is not None]
+    sabitli = [d for d in damping_list if d.get("oran_pct") is None and d.get("sabit_tutar") is not None]
     if oranli:
         damping_oran = max(d["oran_pct"] for d in oranli)
         if len(oranli) > 1:
@@ -140,12 +141,49 @@ def hesapla(gtip_detay: dict, mal_bedeli: float, vadeli: bool, miktar: float = N
                 "Birden fazla damping kaydı var, toplamda en yüksek oran kullanıldı — "
                 "gerçek oran üretici/ihracatçıya göre değişebilir."
             )
-    elif damping_list:
+    damping_oran_kismi = (matrah * damping_oran / 100) if damping_oran is not None else 0
+
+    # Sabit tutarlı ($/kg, $/ton, $/adet vb.) damping — kaydın birim metni farklı
+    # kaynaklardan (resmi Excel'in kendi biçimlendirmesi) geldiği için düzensiz olabilir
+    # (ör. "$/Kg", "- 1,55 $/kg", "KG"); büyük/küçük harf ve gürültüden bağımsız olarak
+    # "kg" veya "ton" geçip geçmediğine bakılır — miktar da aynı ağırlık birimindeyse
+    # gerçek dolar tutarına çevrilir.
+    damping_sabit_kismi = 0.0
+    if sabitli:
+        en_yuksek = max(sabitli, key=lambda d: d["sabit_tutar"])
+        birim_metni = (en_yuksek.get("birim") or "").strip().lower()
+        kg_miktar = _kg_esdegeri(miktar, miktar_birim) if miktar else None
+        if kg_miktar is None:
+            notlar.append(
+                f"⚠ Bu GTİP'te sabit tutarlı damping kaydı var ({en_yuksek['sabit_tutar']} "
+                f"{en_yuksek.get('birim') or ''}) ama miktar Kg/Ton olarak girilmediği için "
+                f"tutar toplama dahil edilemedi — miktarı Kg veya Ton cinsinden girin."
+            )
+        elif "kg" in birim_metni and "ton" not in birim_metni:
+            damping_sabit_kismi = en_yuksek["sabit_tutar"] * kg_miktar
+        elif "ton" in birim_metni:
+            damping_sabit_kismi = en_yuksek["sabit_tutar"] * (kg_miktar / 1000)
+        else:
+            notlar.append(
+                f"⚠ Sabit tutarlı damping birimi ({en_yuksek.get('birim') or 'belirsiz'}) "
+                f"Kg/Ton olarak tanınamadı — tutar toplama dahil edilmedi, orijinal tebliğ teyit edilmeli."
+            )
+        if damping_sabit_kismi:
+            notlar.append(
+                f"Sabit tutarlı damping: {en_yuksek['sabit_tutar']} {en_yuksek.get('birim') or ''} "
+                f"× {kg_miktar:,.2f} kg = ${damping_sabit_kismi:,.2f}"
+            )
+        if len(sabitli) > 1:
+            notlar.append(
+                "Birden fazla sabit tutarlı damping kaydı var, toplamda en yüksek tutar kullanıldı."
+            )
+    elif damping_list and not oranli:
         notlar.append(
-            "Bu GTİP için damping kaydı var ama oran veritabanında henüz yok — "
+            "Bu GTİP için damping kaydı var ama oran/tutar veritabanında henüz yok — "
             "toplama dahil edilmedi, orijinal tebliğ teyit edilmeli."
         )
-    damping = (matrah * damping_oran / 100) if damping_oran is not None else 0
+
+    damping = damping_oran_kismi + damping_sabit_kismi
 
     # ÖTV: matrahı gümrük kıymeti + gümrük vergisidir (4760 sayılı Kanun madde 11/2),
     # KDV'den ÖNCE hesaplanır ve KDV matrahına dahil olur.
