@@ -505,16 +505,18 @@ async function renderTaxRows() {
 
   const dampingActive = d.damping && d.damping.length > 0;
   const dampingHasRate = dampingActive && d.damping.some(x => x.oran_pct != null || x.sabit_tutar != null);
+  const dampingSadeceSabit = dampingHasRate && !d.damping.some(x => x.oran_pct != null) && d.damping.some(x => x.sabit_tutar != null);
+  const dampingMiktarGerekliAmaYok = dampingSadeceSabit && !(miktar && (miktarBirim === 'Kg' || miktarBirim === 'Ton'));
   if (dampingActive) rows.push(taxRow({
     id: 'dp', dotClass: 'dot-damping', name: 'Dampinge Karşı Vergi',
     badge: dampingHasRate ? pill('gercek', 'gerçek') : pill('kosullu', 'oran yok'),
     rate: dampingHasRate ? d.damping.map(x => x.oran_pct != null ? fmtPct(x.oran_pct) : (x.sabit_tutar + ' ' + (x.birim || ''))).join(' / ') : d.damping.length + ' kayıt',
-    amount: dampingHasRate ? amt(hesap?.damping) : '',
+    amount: dampingMiktarGerekliAmaYok ? 'miktar girin' : (dampingHasRate ? amt(hesap?.damping) : ''),
     explain: d.damping.map(x => {
       if (x.oran_pct != null) return `<b>${x.mense_ulke}</b>: ${fmtPct(x.oran_pct)} (CIF üzerinden) — ${kaynakLink(x.kaynak_url, x.tebligno)}`;
       if (x.sabit_tutar != null) return `<b>${x.mense_ulke}</b>: ${x.sabit_tutar} ${x.birim || ''} — ${kaynakLink(x.kaynak_url, x.tebligno)}`;
       return `<b>${x.mense_ulke}</b> — ${kaynakLink(x.kaynak_url, x.tebligno)} <span class="warn">(oran/tutar henüz veritabanında yok, orijinal tebliğ teyit edilmeli)</span>`;
-    }).join('<br>') + (dampingHasRate ? '<br><span class="warn">Toplamda, kayıtlı en yüksek oran/tutar kullanıldı — gerçek oran üretici/ihracatçıya, sabit tutarda da miktarın doğru (Kg/Ton) girilmiş olmasına bağlıdır.</span>' : ''),
+    }).join('<br>') + (dampingMiktarGerekliAmaYok ? '<br><span class="warn">Bu GTİP\'te sabit tutarlı (USD/Kg veya USD/Ton) damping vergisi var — tutarı görmek için yukarıdan Miktar\'ı Kg veya Ton cinsinden girin.</span>' : (dampingHasRate ? '<br><span class="warn">Toplamda, kayıtlı en yüksek oran/tutar kullanıldı — gerçek oran üretici/ihracatçıya, sabit tutarda da miktarın doğru (Kg/Ton) girilmiş olmasına bağlıdır.</span>' : '')),
   }));
 
   const korunmaActive = d.korunma_onlemleri && d.korunma_onlemleri.length > 0;
