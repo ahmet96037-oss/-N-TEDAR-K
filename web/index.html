@@ -203,6 +203,25 @@
   .solutions-item h3{ font-size:var(--fs-24); font-weight:500; margin-bottom:14px; }
   .solutions-item p{ opacity:.55; font-size:var(--fs-16); line-height:1.5; max-width:38ch; margin-bottom:20px; }
   .solutions-item a{ font-size:14px; font-weight:600; text-decoration:none; border-bottom:1px solid #0a0e1f; padding-bottom:2px; color:#0a0e1f; }
+
+  /* Final CTA — referans: ortalanmış başlık + açıklama + iki buton, section_footer:padding-section-140 */
+  .cta{ padding:var(--sp-140) 0; text-align:center; }
+  .cta h2{ font-size:clamp(1.8rem,4vw,var(--fs-44)); font-weight:500; max-width:43.125rem; margin:0 auto 16px; }
+  .cta p{ color:var(--text-dim); font-size:var(--fs-16); max-width:33.375rem; margin:0 auto var(--sp-40); }
+  .cta .hero-btns{ justify-content:center; margin-bottom:0; }
+
+  /* Footer — referans .footer_body: 1fr / 50.625rem sütun, .footer_item 3 kolon */
+  .footer{ border-top:1px solid var(--line); padding:20px 0 60px; }
+  .footer-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:40px; flex-wrap:wrap; margin-bottom:56px; }
+  .footer-brand-block{ display:flex; flex-direction:column; gap:10px; }
+  .footer-brand-block p{ font-size:13px; color:var(--text-faint); line-height:1.6; }
+  .footer-brand-block a{ font-size:13px; color:var(--text-faint); text-decoration:underline; }
+  .footer-cols{ display:grid; grid-template-columns:repeat(3,minmax(140px,1fr)); gap:48px; }
+  @media (max-width:600px){ .footer-cols{ grid-template-columns:1fr 1fr; } }
+  .footer-col-label{ font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:var(--text-faint); margin-bottom:28px; }
+  .footer-col a{ display:block; font-size:14px; color:#fff; text-decoration:none; margin-bottom:10px; opacity:.85; }
+  .footer-col a:hover{ opacity:1; color:var(--green); }
+  .footer-bottom{ font-size:13px; color:var(--text-faint); border-top:1px solid var(--line); padding-top:24px; }
 </style>
 </head>
 <body>
@@ -391,7 +410,52 @@
   </div>
 </section>
 
-<!-- Sıradaki bölümler (Paketler, SSS, Footer) burada sırayla eklenecek. -->
+<section class="cta">
+  <div class="wrap">
+    <h2>İşinizi Bir Sonraki Aşamaya Taşıyalım</h2>
+    <p>İster tek seferlik bir sipariş, ister düzenli tedarik ihtiyacınız olsun — ekibimiz uçtan uca yönetmeye hazır.</p>
+    <div class="hero-btns">
+      <a href="/takip.html#rfq" class="btn btn-primary" style="background:var(--white); color:#0a0e1f;">Ücretsiz Teklif Alın</a>
+      <a href="/takip.html" class="btn btn-ghost">Uzmanla Görüşün</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand-block">
+        <a href="/" class="nav-logo" style="margin-bottom:6px;">
+          <svg width="24" height="24" viewBox="0 0 40 40"><rect width="40" height="40" rx="9" fill="#1fae70"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.3"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.3"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/></svg>
+          Tedarik Ağı
+        </a>
+        <p>İthalat, tedarik ve gümrük danışmanlığı<br>Çin–Türkiye tedarik zinciri yönetimi</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <div class="footer-col-label">Hizmetler</div>
+          <a href="#neden-biz">Fabrika Eşleştirme</a>
+          <a href="#neden-biz">Kalite Kontrolü</a>
+          <a href="#neden-biz">Konteyner Lojistiği</a>
+          <a href="/hesapla.html">GTİP &amp; Vergi Hesaplama</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-label">Şirket</div>
+          <a href="#neden-biz">Hakkımızda</a>
+          <a href="#footprintMap">Operasyonel Yayılım</a>
+          <a href="/takip.html">Müşteri Girişi</a>
+          <a href="/admin.html">Admin</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-label">İletişim</div>
+          <a href="/takip.html#rfq">Teklif Talebi</a>
+          <a href="/takip.html">Sipariş Takibi</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 Tedarik Ağı.</div>
+  </div>
+</footer>
 
 <script src="assets/vendor/motion-bundle.min.js"></script>
 <script>
