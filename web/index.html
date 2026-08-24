@@ -188,24 +188,21 @@
   .solutions-head{ text-align:center; max-width:51.5rem; margin:0 auto var(--sp-40); }
   .solutions-head h2{ font-size:clamp(1.6rem,3.6vw,var(--fs-44)); font-weight:500; line-height:1.15; }
 
-  /* referans solutions-item: metin SOLDA (dar), görsel SAĞDA (geniş+uzun) — sıra düzeltildi */
-  .solutions-body{ display:grid; grid-template-columns:1fr 1.3fr; gap:4rem; align-items:start; }
-  @media (max-width:900px){ .solutions-body{ grid-template-columns:1fr; gap:24px; } }
-  .solutions-sticky{ position:sticky; top:110px; order:2; aspect-ratio:3/4; max-height:80vh; border-radius:4px; overflow:hidden; background:#0a0e1f; }
-  .solutions-sticky img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .5s ease; }
-  .solutions-sticky img.is-active{ opacity:1; }
-  @media (max-width:900px){ .solutions-sticky{ position:static; order:1; aspect-ratio:4/3; max-height:none; } }
+  .solutions-hero-img{ width:100%; aspect-ratio:16/7; border-radius:8px; overflow:hidden; margin-top:8px; }
+  .solutions-hero-img img{ width:100%; height:100%; object-fit:cover; }
+  @media (max-width:767px){ .solutions-hero-img{ aspect-ratio:4/3; } }
 
-  .solutions-list{ display:flex; flex-direction:column; order:1; }
-  @media (max-width:900px){ .solutions-list{ order:2; } }
-  .solutions-item{ min-height:41.5rem; display:flex; flex-direction:column; justify-content:center; padding:2.875rem 0; border-top:1px solid rgba(10,14,31,.1); }
-  .solutions-item:first-child{ min-height:60vh; border-top:none; }
-  @media (max-width:900px){ .solutions-item, .solutions-item:first-child{ min-height:auto; padding:28px 0; } }
-  .solutions-item .n{ font-family:'IBM Plex Mono',monospace; font-size:14px; opacity:.4; margin-bottom:16px; }
-  /* referans "Ocean Freight" h3 çok büyük — text-size-44 sınıfı kullanılıyor */
-  .solutions-item h3{ font-size:clamp(1.8rem,3.4vw,var(--fs-44)); font-weight:500; line-height:1.1; margin-bottom:16px; }
-  .solutions-item p{ opacity:.55; font-size:var(--fs-16); line-height:1.5; max-width:34ch; margin-bottom:22px; }
-  .solutions-item a{ font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; text-decoration:none; border-bottom:1px solid #0a0e1f; padding-bottom:2px; color:#0a0e1f; }
+  /* Aşamalar — görselin altında sürekli sağdan sola akan otomatik marquee şerit */
+  .marquee-wrap{ margin-top:var(--sp-40); overflow:hidden; -webkit-mask-image:linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    mask-image:linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+  .marquee-track{ display:flex; width:max-content; gap:20px; animation:marquee-scroll 32s linear infinite; }
+  .marquee-track:hover{ animation-play-state:paused; }
+  @keyframes marquee-scroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+  .marquee-item{ flex:none; width:290px; display:flex; gap:14px; align-items:flex-start; background:#fff; border:1px solid rgba(10,14,31,.08); border-radius:12px; padding:20px; }
+  .marquee-item .n{ font-family:'IBM Plex Mono',monospace; font-size:13px; opacity:.35; flex:none; padding-top:2px; }
+  .marquee-item h4{ font-size:15px; font-weight:700; margin-bottom:6px; }
+  .marquee-item p{ font-size:13px; opacity:.55; line-height:1.45; }
+  @media (max-width:767px){ .marquee-item{ width:230px; padding:16px; } }
 
   /* Final CTA — referans .text-size-* h1 seviyesinde büyük (~56px), .mw-690 desc */
   .cta{ padding:var(--sp-140) 0; text-align:center; }
@@ -420,21 +417,11 @@
   </div>
 </footer>
 
-<script src="assets/vendor/motion-bundle.min.js"></script>
 <script>
 (function(){
-  const { gsap, ScrollTrigger, Lenis, Swiper } = window.__MOTION_LIBS__ || {};
-  if (!Lenis) return;
-  const lenis = new Lenis({ duration: 1.1, easing: t => 1 - Math.pow(1 - t, 3) });
-  if (gsap && ScrollTrigger) {
-    lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add((time) => lenis.raf(time * 1000));
-    gsap.ticker.lagSmoothing(0);
-  } else {
-    function raf(time){ lenis.raf(time); requestAnimationFrame(raf); }
-    requestAnimationFrame(raf);
-  }
-
+  // Not: Özel yumuşak kaydırma (Lenis) kaldırıldı — trackpad'de gecikmeli/ağır hissettiriyordu
+  // ve yüklenemediğinde tüm script'i durdurup menü/harita/slider'ı da devre dışı bırakıyordu.
+  // Artık native tarayıcı scroll'u kullanılıyor, daha hızlı ve güvenilir.
   const nav = document.getElementById('mainNav');
   window.addEventListener('scroll', () => {
     nav.classList.toggle('is-scrolled', window.scrollY > 40);
@@ -471,22 +458,6 @@
       s.style.left = d.x + '%'; s.style.top = d.y + '%';
       mapWrap.appendChild(s);
     });
-  }
-
-  // Core Solutions — scroll'a bağlı sticky görsel değişimi (referansın video-swap mantığının IO karşılığı)
-  const solList = document.getElementById('solutionsList');
-  const solSticky = document.getElementById('solutionsSticky');
-  if (solList && solSticky && 'IntersectionObserver' in window) {
-    const imgs = solSticky.querySelectorAll('img');
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          const n = e.target.dataset.n;
-          imgs.forEach(img => img.classList.toggle('is-active', img.dataset.n === n));
-        }
-      });
-    }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
-    solList.querySelectorAll('.solutions-item').forEach(el => io.observe(el));
   }
 
   // Mini süreç kartı — sağ altta, otomatik sırayla dönen tek kart (hem masaüstü hem mobil)
