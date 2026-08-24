@@ -174,6 +174,64 @@
       .reveal{ opacity:0; transform:translateY(28px); }
       .reveal-group .reveal:nth-child(1){ transition-delay:0s; }
       @media (prefers-reduced-motion: reduce){ .reveal{ opacity:1 !important; transform:none !important; } }
+
+      /* ============================================================
+         KÖKTEN TEMA DEĞİŞİKLİĞİ — tranzport.webflow.io'nun gerçek CSS'inden
+         çıkarılan ölçekle: H1 3.75rem/500, H2 3.5rem/600, bölüm dikey boşluğu
+         8.75rem(140px) masaüstü / 5rem(80px) mobil, koyu lacivert zemin +
+         yeşil vurgu site genelinde. Kart/ikon renkleri korunuyor (koyu zeminde
+         canlı rozet gibi duruyor) ama zeminler ve metin koyu temaya çevrildi. */
+      body{ background:var(--deep); }
+      h1.display-4, h1.display-5, h1.display-6{ font-weight:500 !important; letter-spacing:-.02em; }
+      h1.display-4{ font-size:clamp(2.4rem, 5vw, 3.75rem) !important; line-height:1.1 !important; }
+      h1.display-5{ font-size:clamp(2rem, 4vw, 3.1rem) !important; line-height:1.15 !important; }
+      h4.text-primary{ font-family:'IBM Plex Mono',monospace; font-size:13px; text-transform:uppercase; letter-spacing:.1em; font-weight:600; }
+      .container-fluid.py-5{ padding-top:5.5rem !important; padding-bottom:5.5rem !important; }
+      @media (min-width:992px){ .container-fluid.py-5{ padding-top:8.75rem !important; padding-bottom:8.75rem !important; } }
+
+      #neden-biz, #surec, .feature, #paketler, #ulke-agi, .FAQ, #araclar, .globe-wrap{
+        background:var(--deep) !important;
+      }
+      #neden-biz p, #surec p, .feature p, #paketler p, #ulke-agi p, .FAQ p, #araclar p,
+      #neden-biz small, #surec small, .feature small,
+      .globe-wrap p{ color:rgba(255,255,255,.68) !important; }
+      #neden-biz h1, #surec h1, .feature h1, #paketler h1, #ulke-agi h1, .FAQ h1, #araclar h1, .globe-wrap h1,
+      #neden-biz h2, #surec h2, .feature h2, #paketler h2, #ulke-agi h2,
+      #neden-biz h4, #surec h4, .feature h4, #paketler h4, #ulke-agi h4, .globe-wrap h4,
+      #neden-biz h5, #surec h5, .feature h5, #paketler h5,
+      #neden-biz h6, #surec h6, .feature h6, #paketler h6{ color:#fff !important; }
+      #surec .fw-bold, .feature .fw-bold, .feature h2{ color:#fff !important; }
+
+      /* Kartlar: beyaz zemin yerine cam-koyu (glass) kart — ikon rozetleri
+         renkli kalıyor, kart zemini koyulaştı, ince beyaz-alfa kenarlık eklendi. */
+      .service-item, .price-item, .accordion-item, .stat-chip{
+        background:rgba(255,255,255,.045) !important;
+        border:1px solid rgba(255,255,255,.09) !important;
+        backdrop-filter:blur(6px);
+      }
+      .service-item p, .price-item p, .accordion-body{ color:rgba(255,255,255,.65) !important; }
+      .service-item h4, .price-item h4, .price-item h3, .accordion-button{
+        color:#fff !important; background:transparent !important;
+      }
+      .accordion-button::after{ filter:invert(1); }
+      .accordion-button:not(.collapsed){ box-shadow:none !important; }
+      .stat-chip b{ color:#fff !important; }
+      .stat-chip span{ color:rgba(255,255,255,.55) !important; }
+
+      #ulke-agi{ background:var(--deep) !important; }
+      .price-item{ background:rgba(255,255,255,.045) !important; }
+      .pricing-card{ background:var(--deep2) !important; border-color:rgba(255,255,255,.1) !important; }
+      .pricing-card:hover{ box-shadow:0 20px 50px -20px rgba(31,174,112,.35) !important; }
+      .pricing-glow{ background:linear-gradient(180deg, rgba(31,174,112,.12) 0%, var(--deep2) 45%) !important; box-shadow:0 0 0 1.5px var(--brand-green), 0 24px 60px -18px rgba(31,174,112,.5) !important; }
+      .pricing-name, .pricing-price{ color:#fff !important; }
+      .pricing-desc, .pricing-note{ color:rgba(255,255,255,.6) !important; }
+      .pricing-feats{ color:rgba(255,255,255,.78) !important; border-top-color:rgba(255,255,255,.1) !important; }
+      .pricing-ico{ background:rgba(255,255,255,.08) !important; }
+
+      .globe-loading{ color:rgba(255,255,255,.5) !important; }
+      .btn-outline-dark, .btn-dark{ background:transparent !important; border-color:rgba(255,255,255,.35) !important; color:#fff !important; }
+      .btn-dark:hover{ background:var(--brand-green) !important; border-color:var(--brand-green) !important; }
+      .region-tile{ box-shadow:0 10px 30px -14px rgba(0,0,0,.5); }
     </style>
 </head>
 
