@@ -61,7 +61,7 @@
   body{ font-family:'Manrope',sans-serif; background:var(--dark-main); color:#fff; overflow-x:hidden; }
   a{ color:inherit; }
   img{ max-width:100%; display:block; }
-  .wrap{ max-width:var(--container-max); margin:0 auto; padding:0 var(--container-pad); }
+  .wrap{ width:100%; max-width:var(--container-max); margin:0 auto; padding:0 var(--container-pad); }
   @media (max-width:767px){ .wrap{ padding:0 var(--container-pad-mobile); } }
 
   /* Nav — referans .navbar: padding 24px→(scroll'da büyür)40px, .nav-brand 140x24px */
@@ -117,23 +117,6 @@
   .hero-bottom{ position:relative; z-index:1; }
   .hero-btns{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:40px; }
 
-  /* Mini süreç kartı — sağ altta, küçük, otomatik sırayla dönen tek kart (masaüstü + mobil ortak) */
-  .mini-slider{ position:absolute; right:var(--container-pad); bottom:40px; width:200px; z-index:3; }
-  @media (max-width:767px){ .mini-slider{ right:var(--container-pad-mobile); bottom:64px; width:118px; } }
-
-  .slide-card{ position:relative; display:block; border-radius:14px; overflow:hidden; height:150px; text-decoration:none; }
-  @media (max-width:767px){ .slide-card{ height:120px; } }
-  .slide-card img{ width:100%; height:100%; object-fit:cover; position:absolute; inset:0; opacity:0; transition:opacity .6s ease; }
-  .slide-card img.is-active{ opacity:1; }
-  .slide-card::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 35%, rgba(6,8,20,.95) 100%); z-index:1; }
-  .slide-info{ position:absolute; left:0; right:0; bottom:0; padding:12px; z-index:2; height:34px; }
-  .slide-info h3{ position:absolute; left:12px; right:12px; bottom:12px; font-size:13px; font-weight:700; opacity:0; transform:translateY(4px); transition:opacity .4s, transform .4s; }
-  .slide-info h3.is-active{ opacity:1; transform:translateY(0); }
-  .slide-info p{ display:none; }
-  .mini-slider-dots{ display:flex; gap:5px; margin-top:8px; justify-content:flex-end; }
-  @media (max-width:767px){ .mini-slider-dots{ justify-content:center; } }
-  .mini-slider-dots span{ width:14px; height:2px; border-radius:2px; background:rgba(255,255,255,.25); transition:background .3s; }
-  .mini-slider-dots span.is-active{ background:var(--green); }
 
   @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
 
@@ -262,27 +245,6 @@
       </div>
 
     </div>
-  </div>
-
-  <!-- Mini süreç kartı: sağ altta, küçük, otomatik sırayla dönen tek kart -->
-  <div class="mini-slider" id="miniSlider">
-    <div class="slide-card">
-      <img class="is-active" data-n="1" src="assets/photos/slider/talep-imza.jpg" alt="Talep formu imzalanıyor">
-      <img data-n="2" src="assets/photos/slider/fabrika-eslesme.jpg" alt="Fabrika ile el sıkışma">
-      <img data-n="3" src="assets/photos/slider/numune-kontrol.jpg" alt="Numune kalite kontrolü">
-      <img data-n="4" src="assets/photos/slider/seri-uretim.jpg" alt="Fabrika üretim hattı">
-      <img data-n="5" src="assets/photos/slider/konteyner-gemi.jpg" alt="Konteyner gemisi">
-      <img data-n="6" src="assets/photos/slider/gumruk-teslimat.jpg" alt="Gümrük ve teslimat">
-      <div class="slide-info">
-        <h3 class="is-active" data-n="1">Talep &amp; Teklif</h3>
-        <h3 data-n="2">Fabrika Eşleştirme</h3>
-        <h3 data-n="3">Numune Süreci</h3>
-        <h3 data-n="4">Seri Üretim</h3>
-        <h3 data-n="5">Konteyner &amp; Gemi</h3>
-        <h3 data-n="6">Gümrük &amp; Teslimat</h3>
-      </div>
-    </div>
-    <div class="mini-slider-dots" id="miniSliderDots"></div>
   </div>
 </section>
 
@@ -452,23 +414,6 @@
     });
   }
 
-  // Mini süreç kartı — sağ altta, otomatik sırayla dönen tek kart (hem masaüstü hem mobil)
-  const miniSlider = document.getElementById('miniSlider');
-  if (miniSlider) {
-    const imgs = miniSlider.querySelectorAll('.slide-card img');
-    const titles = miniSlider.querySelectorAll('.slide-info h3');
-    const dotsWrap = document.getElementById('miniSliderDots');
-    const total = imgs.length;
-    imgs.forEach((_, i) => { const d = document.createElement('span'); if (i === 0) d.className = 'is-active'; dotsWrap.appendChild(d); });
-    const dots = dotsWrap.querySelectorAll('span');
-    let active = 0;
-    setInterval(() => {
-      active = (active + 1) % total;
-      imgs.forEach(img => img.classList.toggle('is-active', img.dataset.n === String(active + 1)));
-      titles.forEach(t => t.classList.toggle('is-active', t.dataset.n === String(active + 1)));
-      dots.forEach((d, i) => d.classList.toggle('is-active', i === active));
-    }, 3200);
-  }
 })();
 </script>
 </body>
