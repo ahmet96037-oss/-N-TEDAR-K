@@ -85,6 +85,22 @@
   @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(31,174,112,.6);} 70%{ box-shadow:0 0 0 8px rgba(31,174,112,0);} 100%{ box-shadow:0 0 0 0 rgba(31,174,112,0);} }
 
   @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
+
+  /* About Us — tranzport'taki asimetrik grid: sol dar etiket+açıklama, sağ geniş büyük iddia+CTA */
+  .section{ padding:95px 0; }
+  @media (max-width:767px){ .section{ padding:56px 0; } }
+  .about-top{ display:grid; grid-template-columns:0.8fr 2.2fr; gap:60px; align-items:start; margin-bottom:64px; }
+  @media (max-width:900px){ .about-top{ grid-template-columns:1fr; gap:28px; } }
+  .about-label{ font-size:14px; font-weight:700; letter-spacing:.02em; }
+  .about-desc{ color:var(--text-dim); font-size:15px; line-height:1.6; max-width:30ch; }
+  .about-claim h2{ font-size:clamp(1.7rem, 3.4vw, 2.75rem); font-weight:500; line-height:1.22; letter-spacing:-.01em; margin-bottom:32px; }
+  .about-claim h2 b{ color:var(--green); font-weight:600; }
+
+  .trust-strip{ border-top:1px solid var(--line); padding-top:36px; display:grid; grid-template-columns:repeat(4,1fr); gap:24px; }
+  @media (max-width:767px){ .trust-strip{ grid-template-columns:repeat(2,1fr); } }
+  .trust-item{ display:flex; flex-direction:column; gap:6px; }
+  .trust-item .num{ font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:600; color:#fff; }
+  .trust-item .lbl{ font-size:13px; color:var(--text-faint); line-height:1.4; }
 </style>
 </head>
 <body>
@@ -166,7 +182,27 @@
   </div>
 </section>
 
-<!-- Sıradaki bölümler (Neden Biz, Süreç, Paketler, Ülke Ağı, SSS) burada sırayla eklenecek. -->
+<section class="section" id="neden-biz">
+  <div class="wrap">
+    <div class="about-top">
+      <p class="about-label">Hakkımızda</p>
+      <p class="about-desc">Fabrika görüşmesinden gümrük teslimatına kadar süreci kendi ekibimizle yürütür, her aşamayı yazılı olarak raporlarız.</p>
+      <div class="about-claim">
+        <h2>Fabrikayı seçmekten konteyneri gümrükten çekmeye kadar <b>tek bir ekiple</b>, tek panelden yönetilen ithalat süreci.</h2>
+        <a href="/takip.html" class="btn btn-ghost">Süreci İnceleyin</a>
+      </div>
+    </div>
+
+    <div class="trust-strip">
+      <div class="trust-item"><span class="num">6</span><span class="lbl">Aşamalı süreç — talep, eşleştirme, numune, üretim, sevkiyat, gümrük</span></div>
+      <div class="trust-item"><span class="num">7/24</span><span class="lbl">Canlı sipariş takip paneli</span></div>
+      <div class="trust-item"><span class="num">GTİP</span><span class="lbl">Resmi kaynaklardan vergi ve mevzuat hesaplama</span></div>
+      <div class="trust-item"><span class="num">Yerinde</span><span class="lbl">Fabrikada fiziksel numune ve kalite kontrolü</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Sıradaki bölümler (Süreç detay, Paketler, Ülke Ağı, SSS, Footer) burada sırayla eklenecek. -->
 
 <script src="assets/vendor/motion-bundle.min.js"></script>
 <script>
