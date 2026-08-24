@@ -117,23 +117,23 @@
   .hero-bottom{ position:relative; z-index:1; }
   .hero-btns{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:40px; }
 
-  .slider-counter{ display:flex; align-items:center; gap:16px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-faint); margin-bottom:16px; }
-  .slider-track{ flex:1; height:2px; background:rgba(255,255,255,.15); border-radius:2px; overflow:hidden; }
-  .slider-progress{ height:100%; width:16.6%; background:var(--green); transform-origin:left; transition:transform .35s ease; }
+  /* Mini süreç kartı — sağ altta, küçük, otomatik sırayla dönen tek kart (masaüstü + mobil ortak) */
+  .mini-slider{ position:absolute; right:var(--container-pad); bottom:40px; width:200px; z-index:3; }
+  @media (max-width:767px){ .mini-slider{ right:var(--container-pad-mobile); bottom:24px; width:130px; } }
 
-  .swiper{ overflow:hidden; width:100%; }
-  .swiper-wrapper{ display:flex; }
-  .swiper-slide{ flex-shrink:0; width:320px; margin-right:16px; }
-  @media (max-width:575px){ .swiper-slide{ width:230px; } }
-
-  .slide-card{ position:relative; display:block; border-radius:18px; overflow:hidden; height:220px; text-decoration:none; cursor:grab; }
-  .slide-card:active{ cursor:grabbing; }
-  .slide-card img{ width:100%; height:100%; object-fit:cover; transition:transform .5s; }
-  .slide-card:hover img{ transform:scale(1.06); }
-  .slide-card::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 38%, rgba(10,14,31,.94) 100%); }
-  .slide-info{ position:absolute; left:0; right:0; bottom:0; padding:16px; z-index:2; }
-  .slide-info h3{ font-size:15.5px; font-weight:700; margin-bottom:3px; }
-  .slide-info p{ font-size:12px; color:rgba(255,255,255,.7); line-height:1.4; }
+  .slide-card{ position:relative; display:block; border-radius:14px; overflow:hidden; height:150px; text-decoration:none; }
+  @media (max-width:767px){ .slide-card{ height:120px; } }
+  .slide-card img{ width:100%; height:100%; object-fit:cover; position:absolute; inset:0; opacity:0; transition:opacity .6s ease; }
+  .slide-card img.is-active{ opacity:1; }
+  .slide-card::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 35%, rgba(6,8,20,.95) 100%); z-index:1; }
+  .slide-info{ position:absolute; left:0; right:0; bottom:0; padding:12px; z-index:2; height:34px; }
+  .slide-info h3{ position:absolute; left:12px; right:12px; bottom:12px; font-size:13px; font-weight:700; opacity:0; transform:translateY(4px); transition:opacity .4s, transform .4s; }
+  .slide-info h3.is-active{ opacity:1; transform:translateY(0); }
+  .slide-info p{ display:none; }
+  .mini-slider-dots{ display:flex; gap:5px; margin-top:8px; justify-content:flex-end; }
+  @media (max-width:767px){ .mini-slider-dots{ justify-content:center; } }
+  .mini-slider-dots span{ width:14px; height:2px; border-radius:2px; background:rgba(255,255,255,.25); transition:background .3s; }
+  .mini-slider-dots span.is-active{ background:var(--green); }
 
   .live-counter{ display:none; align-items:center; gap:8px; margin-top:24px; font-size:13px; color:var(--text-dim); position:relative; z-index:1; }
   .live-counter b{ color:#fff; }
@@ -256,7 +256,7 @@
     <video autoplay loop muted playsinline poster="assets/photos/ship_aerial.jpg">
       <source src="assets/video/hero-cargo.mp4" type="video/mp4">
     </video>
-    <img class="fallback" src="assets/photos/ship_aerial.jpg" alt="Açık denizde konteyner gemisi, kuş bakışı">
+    <img class="fallback" src="assets/photos/ship_aerial.jpg" alt="Vinçlerin konteyner gemisine yükleme yaptığı liman, kuş bakışı">
     <div class="hero-scrim"></div>
   </div>
 
@@ -270,44 +270,31 @@
         <a href="/takip.html" class="btn btn-ghost">Siparişimi Takip Et</a>
       </div>
 
-      <div class="slider-counter">
-        <span id="sIdx">01</span>
-        <div class="slider-track"><div class="slider-progress" id="sProgress"></div></div>
-        <span>06</span>
-      </div>
-      <div class="swiper hero-swiper">
-        <div class="swiper-wrapper">
-          <a href="/takip.html#rfq" class="slide-card swiper-slide">
-            <img src="assets/photos/slider/talep-imza.jpg" alt="Talep formu imzalanıyor">
-            <div class="slide-info"><h3>Talep &amp; Teklif</h3><p>Ürün, miktar ve hedef fiyatınızı iletirsiniz.</p></div>
-          </a>
-          <a href="/takip.html#rfq" class="slide-card swiper-slide">
-            <img src="assets/photos/slider/fabrika-eslesme.jpg" alt="Fabrika ile el sıkışma">
-            <div class="slide-info"><h3>Fabrika Eşleştirme</h3><p>Uygun tedarikçiler karşılaştırmalı teklifle bulunur.</p></div>
-          </a>
-          <a href="/takip.html#rfq" class="slide-card swiper-slide">
-            <img src="assets/photos/slider/numune-kontrol.jpg" alt="Numune kalite kontrolü">
-            <div class="slide-info"><h3>Numune Süreci</h3><p>Yerinde QC ekibimiz fiziksel olarak kontrol eder.</p></div>
-          </a>
-          <a href="/takip.html#rfq" class="slide-card swiper-slide">
-            <img src="assets/photos/slider/seri-uretim.jpg" alt="Fabrika üretim hattı">
-            <div class="slide-info"><h3>Seri Üretim</h3><p>Onay sonrası ilerleme periyodik paylaşılır.</p></div>
-          </a>
-          <a href="#ulke-agi" class="slide-card swiper-slide">
-            <img src="assets/photos/slider/konteyner-gemi.jpg" alt="Konteyner gemisi">
-            <div class="slide-info"><h3>Konteyner &amp; Gemi</h3><p>Canlı konum takibi panelinizde açılır.</p></div>
-          </a>
-          <a href="/takip.html#rfq" class="slide-card swiper-slide">
-            <img src="assets/photos/slider/gumruk-teslimat.jpg" alt="Gümrük ve teslimat">
-            <div class="slide-info"><h3>Gümrük &amp; Teslimat</h3><p>Mal gümrükten çekilip adresinize ulaştırılır.</p></div>
-          </a>
-        </div>
-      </div>
-
       <div class="live-counter" id="canliSayac">
         <span class="live-dot"></span> <b id="canliSayacDeger">—</b> sipariş şu anda canlı takip ediliyor
       </div>
     </div>
+  </div>
+
+  <!-- Mini süreç kartı: sağ altta, küçük, otomatik sırayla dönen tek kart -->
+  <div class="mini-slider" id="miniSlider">
+    <div class="slide-card">
+      <img class="is-active" data-n="1" src="assets/photos/slider/talep-imza.jpg" alt="Talep formu imzalanıyor">
+      <img data-n="2" src="assets/photos/slider/fabrika-eslesme.jpg" alt="Fabrika ile el sıkışma">
+      <img data-n="3" src="assets/photos/slider/numune-kontrol.jpg" alt="Numune kalite kontrolü">
+      <img data-n="4" src="assets/photos/slider/seri-uretim.jpg" alt="Fabrika üretim hattı">
+      <img data-n="5" src="assets/photos/slider/konteyner-gemi.jpg" alt="Konteyner gemisi">
+      <img data-n="6" src="assets/photos/slider/gumruk-teslimat.jpg" alt="Gümrük ve teslimat">
+      <div class="slide-info">
+        <h3 class="is-active" data-n="1">Talep &amp; Teklif</h3>
+        <h3 data-n="2">Fabrika Eşleştirme</h3>
+        <h3 data-n="3">Numune Süreci</h3>
+        <h3 data-n="4">Seri Üretim</h3>
+        <h3 data-n="5">Konteyner &amp; Gemi</h3>
+        <h3 data-n="6">Gümrük &amp; Teslimat</h3>
+      </div>
+    </div>
+    <div class="mini-slider-dots" id="miniSliderDots"></div>
   </div>
 </section>
 
@@ -529,18 +516,22 @@
     solList.querySelectorAll('.solutions-item').forEach(el => io.observe(el));
   }
 
-  if (Swiper) {
-    const sw = new Swiper('.hero-swiper', {
-      slidesPerView: 'auto', spaceBetween: 16, freeMode: true, grabCursor: true,
-      mousewheel: { forceToAxis: true },
-      on: { slideChange(){ upd(this); }, progress(){ upd(this); } },
-    });
-    function upd(s){
-      const toplam = s.slides.length;
-      const aktif = Math.min(toplam, Math.max(1, s.activeIndex + 1));
-      document.getElementById('sIdx').textContent = String(aktif).padStart(2,'0');
-      document.getElementById('sProgress').style.transform = `scaleX(${Math.min(1, Math.max(0, s.progress || 0))})`;
-    }
+  // Mini süreç kartı — sağ altta, otomatik sırayla dönen tek kart (hem masaüstü hem mobil)
+  const miniSlider = document.getElementById('miniSlider');
+  if (miniSlider) {
+    const imgs = miniSlider.querySelectorAll('.slide-card img');
+    const titles = miniSlider.querySelectorAll('.slide-info h3');
+    const dotsWrap = document.getElementById('miniSliderDots');
+    const total = imgs.length;
+    imgs.forEach((_, i) => { const d = document.createElement('span'); if (i === 0) d.className = 'is-active'; dotsWrap.appendChild(d); });
+    const dots = dotsWrap.querySelectorAll('span');
+    let active = 0;
+    setInterval(() => {
+      active = (active + 1) % total;
+      imgs.forEach(img => img.classList.toggle('is-active', img.dataset.n === String(active + 1)));
+      titles.forEach(t => t.classList.toggle('is-active', t.dataset.n === String(active + 1)));
+      dots.forEach((d, i) => d.classList.toggle('is-active', i === active));
+    }, 3200);
   }
 })();
 
