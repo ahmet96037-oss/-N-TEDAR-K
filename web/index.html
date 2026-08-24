@@ -167,8 +167,8 @@
   .footprint-head h2{ font-size:clamp(1.5rem,3vw,var(--fs-32)); font-weight:500; margin-bottom:12px; max-width:33.375rem; }
   .footprint-head p{ color:var(--text-faint); font-size:var(--fs-16); max-width:220px; }
 
-  .footprint-map-wrap{ position:relative; width:100%; max-width:900px; aspect-ratio:900/456; }
-  .footprint-map-wrap img{ width:100%; height:100%; object-fit:contain; opacity:.5; filter:invert(1) brightness(1.4); }
+  .footprint-map-wrap{ position:relative; width:100%; max-width:900px; aspect-ratio:2/1; overflow:hidden; }
+  .footprint-map-wrap img{ width:100%; height:100%; object-fit:fill; opacity:.5; filter:invert(1) brightness(1.4); }
   .map-dot{ position:absolute; width:5px; height:5px; border-radius:50%; background:var(--green); transform:translate(-50%,-50%); box-shadow:0 0 0 0 rgba(31,174,112,.7); animation:dotpulse 2.6s infinite; }
   @keyframes dotpulse{ 0%{ box-shadow:0 0 0 0 rgba(31,174,112,.55);} 70%{ box-shadow:0 0 0 9px rgba(31,174,112,0);} 100%{ box-shadow:0 0 0 0 rgba(31,174,112,0);} }
 
