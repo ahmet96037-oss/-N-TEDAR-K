@@ -4,31 +4,210 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tedarik Ağı — İthalat İhracat ve Gümrük Danışmanlığı</title>
+<meta name="description" content="Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip edin. Çok ülkeli tedarik ağı, yerinde kalite kontrol ve yazılı risk güvencesiyle ithalat-ihracat danışmanlığı.">
 <link href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><rect width=%2240%22 height=%2240%22 rx=%229%22 fill=%22%231fae70%22/></svg>" rel="icon">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <style>
-  *{ box-sizing:border-box; }
-  html,body{ margin:0; padding:0; }
-  body{ font-family:'Manrope',sans-serif; background:#fff; color:#0a0e1f; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px 20px; }
-  .note{ max-width:520px; }
-  .note h1{ font-size:22px; font-weight:700; margin-bottom:10px; }
-  .note p{ color:#6b7280; font-size:14.5px; line-height:1.6; margin-bottom:28px; }
-  .links{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
-  .links a{ font-family:'IBM Plex Mono',monospace; font-size:13px; text-decoration:none; color:#0a0e1f; border:1px solid #e4e4e7; padding:10px 18px; border-radius:30px; transition:all .15s; }
-  .links a:hover{ background:#0a0e1f; color:#fff; }
+  /* ===== Sıfırdan temel — tranzport.webflow.io referans alınarak, kendi
+     kimliğimize (yeşil vurgu, gerçek içerik) uyarlanmış yeni tasarım sistemi.
+     Eski Bootstrap/Mailler şablonu tamamen bırakıldı, temiz kod. ===== */
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  :root{
+    --deep:#0a0e1f; --deep2:#0f1630; --green:#1fae70; --green-ink:#178a5a;
+    --text-dim:rgba(255,255,255,.6); --text-faint:rgba(255,255,255,.4); --line:rgba(255,255,255,.09);
+  }
+  html{ scroll-behavior:smooth; }
+  body{ font-family:'Manrope',sans-serif; background:var(--deep); color:#fff; overflow-x:hidden; }
+  a{ color:inherit; }
+  img{ max-width:100%; display:block; }
+  .wrap{ max-width:1280px; margin:0 auto; padding:0 40px; }
+  @media (max-width:767px){ .wrap{ padding:0 20px; } }
+
+  /* Nav */
+  .nav{ position:fixed; top:0; left:0; right:0; z-index:50; display:flex; align-items:center; justify-content:space-between;
+    padding:20px 40px; background:rgba(10,14,31,.7); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); transition:background .3s; }
+  @media (max-width:767px){ .nav{ padding:16px 20px; } }
+  .nav-logo{ font-family:'Manrope',sans-serif; font-weight:800; font-size:19px; letter-spacing:-.02em; text-decoration:none; display:flex; align-items:center; gap:9px; }
+  .nav-logo svg{ flex:none; }
+  .nav-links{ display:flex; align-items:center; gap:28px; }
+  .nav-links a{ font-size:14px; color:var(--text-dim); text-decoration:none; transition:color .15s; }
+  .nav-links a:hover{ color:#fff; }
+  .nav-cta{ display:flex; align-items:center; gap:10px; }
+  @media (max-width:900px){ .nav-links{ display:none; } }
+
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-family:'Manrope',sans-serif; font-weight:700;
+    font-size:14.5px; padding:13px 26px; border-radius:30px; text-decoration:none; border:1.5px solid transparent; cursor:pointer; transition:all .18s; }
+  .btn-primary{ background:var(--green); color:#fff; }
+  .btn-primary:hover{ background:var(--green-ink); }
+  .btn-ghost{ background:transparent; color:#fff; border-color:rgba(255,255,255,.3); }
+  .btn-ghost:hover{ border-color:#fff; }
+
+  /* Hero */
+  .hero{ position:relative; min-height:100vh; display:flex; flex-direction:column; justify-content:flex-end; overflow:hidden; padding-top:170px; padding-bottom:60px; }
+  .hero-bg{ position:absolute; inset:0; z-index:0; }
+  .hero-bg video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .hero-bg img.fallback{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:none; }
+  @media (max-width:767px){ .hero-bg video{ display:none; } .hero-bg img.fallback{ display:block; } }
+  .hero-scrim{ position:absolute; inset:0; background:linear-gradient(115deg, rgba(10,14,31,.95) 0%, rgba(10,14,31,.8) 42%, rgba(15,22,48,.5) 68%, rgba(31,174,112,.15) 100%); }
+  @media (max-width:900px){ .hero-scrim{ background:linear-gradient(180deg, rgba(10,14,31,.7) 0%, rgba(10,14,31,.92) 55%, rgba(10,14,31,.97) 100%); } }
+
+  .hero-eyebrow{ position:relative; z-index:1; font-family:'IBM Plex Mono',monospace; font-size:14px; letter-spacing:.06em; color:rgba(255,255,255,.8); margin-bottom:20px; }
+  .hero-title{ position:relative; z-index:1; font-weight:500; letter-spacing:-.02em; line-height:1.06;
+    font-size:clamp(2.4rem, 6vw, 4.6rem); max-width:16ch; margin-bottom:56px; }
+
+  .hero-bottom{ position:relative; z-index:1; }
+  .hero-btns{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:40px; }
+
+  .slider-counter{ display:flex; align-items:center; gap:16px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-faint); margin-bottom:16px; }
+  .slider-track{ flex:1; height:2px; background:rgba(255,255,255,.15); border-radius:2px; overflow:hidden; }
+  .slider-progress{ height:100%; width:16.6%; background:var(--green); transform-origin:left; transition:transform .35s ease; }
+
+  .swiper{ overflow:hidden; width:100%; }
+  .swiper-wrapper{ display:flex; }
+  .swiper-slide{ flex-shrink:0; width:320px; margin-right:16px; }
+  @media (max-width:575px){ .swiper-slide{ width:230px; } }
+
+  .slide-card{ position:relative; display:block; border-radius:18px; overflow:hidden; height:220px; text-decoration:none; cursor:grab; }
+  .slide-card:active{ cursor:grabbing; }
+  .slide-card img{ width:100%; height:100%; object-fit:cover; transition:transform .5s; }
+  .slide-card:hover img{ transform:scale(1.06); }
+  .slide-card::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 38%, rgba(10,14,31,.94) 100%); }
+  .slide-info{ position:absolute; left:0; right:0; bottom:0; padding:16px; z-index:2; }
+  .slide-info h3{ font-size:15.5px; font-weight:700; margin-bottom:3px; }
+  .slide-info p{ font-size:12px; color:rgba(255,255,255,.7); line-height:1.4; }
+
+  .live-counter{ display:none; align-items:center; gap:8px; margin-top:24px; font-size:13px; color:var(--text-dim); position:relative; z-index:1; }
+  .live-counter b{ color:#fff; }
+  .live-dot{ width:8px; height:8px; border-radius:50%; background:var(--green); animation:pulse 1.8s infinite; }
+  @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(31,174,112,.6);} 70%{ box-shadow:0 0 0 8px rgba(31,174,112,0);} 100%{ box-shadow:0 0 0 0 rgba(31,174,112,0);} }
+
+  @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
 </style>
 </head>
 <body>
-  <div class="note">
-    <h1>Ana sayfa yeniden inşa ediliyor</h1>
-    <p>Ana sayfa şu anda sıfırdan, adım adım yeniden kuruluyor. Bu sırada aşağıdaki sayfalar tam çalışır durumda.</p>
-    <div class="links">
-      <a href="/hesapla.html">GTİP Vergi Hesaplama</a>
-      <a href="/takip.html">Müşteri Girişi</a>
-      <a href="/admin.html">Admin</a>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">
+    <svg width="30" height="30" viewBox="0 0 40 40"><rect width="40" height="40" rx="9" fill="#1fae70"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.3"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.3"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/></svg>
+    Tedarik Ağı
+  </a>
+  <div class="nav-links">
+    <a href="#surec">Süreç</a>
+    <a href="#neden-biz">Neden Biz</a>
+    <a href="#paketler">Paketler</a>
+    <a href="/hesapla.html">Vergi Hesaplama</a>
+  </div>
+  <div class="nav-cta">
+    <a href="/takip.html" class="btn btn-ghost" style="padding:10px 20px; font-size:13.5px;">Müşteri Girişi</a>
+    <a href="/takip.html#rfq" class="btn btn-primary" style="padding:10px 20px; font-size:13.5px;">Teklif Al</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg">
+    <video autoplay loop muted playsinline poster="assets/photos/ship_aerial.jpg">
+      <source src="assets/video/hero-cargo.mp4" type="video/mp4">
+    </video>
+    <img class="fallback" src="assets/photos/ship_aerial.jpg" alt="Açık denizde konteyner gemisi, kuş bakışı">
+    <div class="hero-scrim"></div>
+  </div>
+
+  <div class="wrap">
+    <p class="hero-eyebrow">LİSANSLI. GÜVENİLİR. ŞEFFAF.</p>
+    <h1 class="hero-title">Talepten Teslimata, Uçtan Uca İthalat Yönetimi</h1>
+
+    <div class="hero-bottom">
+      <div class="hero-btns">
+        <a href="/takip.html#rfq" class="btn btn-primary">Ücretsiz Teklif Alın</a>
+        <a href="/takip.html" class="btn btn-ghost">Siparişimi Takip Et</a>
+      </div>
+
+      <div class="slider-counter">
+        <span id="sIdx">01</span>
+        <div class="slider-track"><div class="slider-progress" id="sProgress"></div></div>
+        <span>06</span>
+      </div>
+      <div class="swiper hero-swiper">
+        <div class="swiper-wrapper">
+          <a href="/takip.html#rfq" class="slide-card swiper-slide">
+            <img src="assets/photos/slider/talep-imza.jpg" alt="Talep formu imzalanıyor">
+            <div class="slide-info"><h3>Talep &amp; Teklif</h3><p>Ürün, miktar ve hedef fiyatınızı iletirsiniz.</p></div>
+          </a>
+          <a href="/takip.html#rfq" class="slide-card swiper-slide">
+            <img src="assets/photos/slider/fabrika-eslesme.jpg" alt="Fabrika ile el sıkışma">
+            <div class="slide-info"><h3>Fabrika Eşleştirme</h3><p>Uygun tedarikçiler karşılaştırmalı teklifle bulunur.</p></div>
+          </a>
+          <a href="/takip.html#rfq" class="slide-card swiper-slide">
+            <img src="assets/photos/slider/numune-kontrol.jpg" alt="Numune kalite kontrolü">
+            <div class="slide-info"><h3>Numune Süreci</h3><p>Yerinde QC ekibimiz fiziksel olarak kontrol eder.</p></div>
+          </a>
+          <a href="/takip.html#rfq" class="slide-card swiper-slide">
+            <img src="assets/photos/slider/seri-uretim.jpg" alt="Fabrika üretim hattı">
+            <div class="slide-info"><h3>Seri Üretim</h3><p>Onay sonrası ilerleme periyodik paylaşılır.</p></div>
+          </a>
+          <a href="#ulke-agi" class="slide-card swiper-slide">
+            <img src="assets/photos/slider/konteyner-gemi.jpg" alt="Konteyner gemisi">
+            <div class="slide-info"><h3>Konteyner &amp; Gemi</h3><p>Canlı konum takibi panelinizde açılır.</p></div>
+          </a>
+          <a href="/takip.html#rfq" class="slide-card swiper-slide">
+            <img src="assets/photos/slider/gumruk-teslimat.jpg" alt="Gümrük ve teslimat">
+            <div class="slide-info"><h3>Gümrük &amp; Teslimat</h3><p>Mal gümrükten çekilip adresinize ulaştırılır.</p></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="live-counter" id="canliSayac">
+        <span class="live-dot"></span> <b id="canliSayacDeger">—</b> sipariş şu anda canlı takip ediliyor
+      </div>
     </div>
   </div>
+</section>
+
+<!-- Sıradaki bölümler (Neden Biz, Süreç, Paketler, Ülke Ağı, SSS) burada sırayla eklenecek. -->
+
+<script src="assets/vendor/motion-bundle.min.js"></script>
+<script>
+(function(){
+  const { gsap, ScrollTrigger, Lenis, Swiper } = window.__MOTION_LIBS__ || {};
+  if (!Lenis) return;
+  const lenis = new Lenis({ duration: 1.1, easing: t => 1 - Math.pow(1 - t, 3) });
+  if (gsap && ScrollTrigger) {
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+  } else {
+    function raf(time){ lenis.raf(time); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+  }
+
+  const nav = document.querySelector('.nav');
+  window.addEventListener('scroll', () => {
+    nav.style.background = window.scrollY > 40 ? 'rgba(10,14,31,.94)' : 'rgba(10,14,31,.7)';
+  });
+
+  if (Swiper) {
+    const sw = new Swiper('.hero-swiper', {
+      slidesPerView: 'auto', spaceBetween: 16, freeMode: true, grabCursor: true,
+      mousewheel: { forceToAxis: true },
+      on: { slideChange(){ upd(this); }, progress(){ upd(this); } },
+    });
+    function upd(s){
+      const toplam = s.slides.length;
+      const aktif = Math.min(toplam, Math.max(1, s.activeIndex + 1));
+      document.getElementById('sIdx').textContent = String(aktif).padStart(2,'0');
+      document.getElementById('sProgress').style.transform = `scaleX(${Math.min(1, Math.max(0, s.progress || 0))})`;
+    }
+  }
+})();
+
+fetch('/api/tk/istatistik-genel').then(r => r.ok ? r.json() : null).then(d => {
+  if (!d || !d.aktif_siparis) return;
+  document.getElementById('canliSayacDeger').textContent = d.aktif_siparis;
+  document.getElementById('canliSayac').style.display = 'inline-flex';
+}).catch(() => {});
+</script>
 </body>
 </html>
