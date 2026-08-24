@@ -26,17 +26,30 @@
   .wrap{ max-width:1280px; margin:0 auto; padding:0 40px; }
   @media (max-width:767px){ .wrap{ padding:0 20px; } }
 
-  /* Nav */
+  /* Nav — tranzport gibi: sadece logo + hamburger, açılınca tam ekran menü */
   .nav{ position:fixed; top:0; left:0; right:0; z-index:50; display:flex; align-items:center; justify-content:space-between;
-    padding:20px 40px; background:rgba(10,14,31,.7); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); transition:background .3s; }
-  @media (max-width:767px){ .nav{ padding:16px 20px; } }
-  .nav-logo{ font-family:'Manrope',sans-serif; font-weight:800; font-size:19px; letter-spacing:-.02em; text-decoration:none; display:flex; align-items:center; gap:9px; }
+    padding:28px 40px; background:transparent; transition:background .3s, padding .3s; }
+  .nav.is-scrolled{ background:rgba(10,14,31,.75); backdrop-filter:blur(10px); padding:16px 40px; border-bottom:1px solid var(--line); }
+  @media (max-width:767px){ .nav, .nav.is-scrolled{ padding:18px 20px; } }
+  .nav-logo{ font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:17px; letter-spacing:.02em; text-decoration:none; display:flex; align-items:center; gap:9px; text-transform:uppercase; }
   .nav-logo svg{ flex:none; }
-  .nav-links{ display:flex; align-items:center; gap:28px; }
-  .nav-links a{ font-size:14px; color:var(--text-dim); text-decoration:none; transition:color .15s; }
-  .nav-links a:hover{ color:#fff; }
-  .nav-cta{ display:flex; align-items:center; gap:10px; }
-  @media (max-width:900px){ .nav-links{ display:none; } }
+
+  .menu-btn{ position:relative; z-index:60; width:44px; height:44px; border-radius:50%; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.04);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .menu-btn span{ position:absolute; width:16px; height:1.5px; background:#fff; transition:transform .3s, opacity .3s; }
+  .menu-btn span:first-child{ transform:translateY(-4px); }
+  .menu-btn span:last-child{ transform:translateY(4px); }
+  .menu-btn.is-open span:first-child{ transform:rotate(45deg); }
+  .menu-btn.is-open span:last-child{ transform:rotate(-45deg); }
+
+  .menu-panel{ position:fixed; inset:0; z-index:55; background:var(--deep2); display:flex; flex-direction:column; justify-content:center;
+    padding:0 40px; opacity:0; pointer-events:none; transform:translateY(-12px); transition:opacity .35s, transform .35s; }
+  .menu-panel.is-open{ opacity:1; pointer-events:auto; transform:translateY(0); }
+  @media (max-width:767px){ .menu-panel{ padding:0 20px; } }
+  .menu-links{ display:flex; flex-direction:column; gap:6px; margin-bottom:44px; }
+  .menu-links a{ font-size:clamp(2rem,6vw,3.2rem); font-weight:500; letter-spacing:-.02em; text-decoration:none; color:#fff; padding:10px 0; transition:color .15s; }
+  .menu-links a:hover{ color:var(--green); }
+  .menu-cta{ display:flex; gap:14px; flex-wrap:wrap; }
 
   .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-family:'Manrope',sans-serif; font-weight:700;
     font-size:14.5px; padding:13px 26px; border-radius:30px; text-decoration:none; border:1.5px solid transparent; cursor:pointer; transition:all .18s; }
@@ -51,8 +64,9 @@
   .hero-bg video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
   .hero-bg img.fallback{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:none; }
   @media (max-width:767px){ .hero-bg video{ display:none; } .hero-bg img.fallback{ display:block; } }
-  .hero-scrim{ position:absolute; inset:0; background:linear-gradient(115deg, rgba(10,14,31,.95) 0%, rgba(10,14,31,.8) 42%, rgba(15,22,48,.5) 68%, rgba(31,174,112,.15) 100%); }
-  @media (max-width:900px){ .hero-scrim{ background:linear-gradient(180deg, rgba(10,14,31,.7) 0%, rgba(10,14,31,.92) 55%, rgba(10,14,31,.97) 100%); } }
+  .hero-bg video, .hero-bg img.fallback{ filter:brightness(.55) saturate(.85); }
+  .hero-scrim{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(6,8,20,.55) 0%, rgba(6,8,20,.35) 30%, rgba(6,8,20,.55) 62%, rgba(6,8,20,.92) 100%); }
+  @media (max-width:900px){ .hero-scrim{ background:linear-gradient(180deg, rgba(6,8,20,.65) 0%, rgba(6,8,20,.55) 35%, rgba(6,8,20,.9) 70%, rgba(6,8,20,.97) 100%); } }
 
   .hero-eyebrow{ position:relative; z-index:1; font-family:'IBM Plex Mono',monospace; font-size:14px; letter-spacing:.06em; color:rgba(255,255,255,.8); margin-bottom:20px; }
   .hero-title{ position:relative; z-index:1; font-weight:500; letter-spacing:-.02em; line-height:1.06;
@@ -105,22 +119,27 @@
 </head>
 <body>
 
-<nav class="nav">
+<nav class="nav" id="mainNav">
   <a href="/" class="nav-logo">
-    <svg width="30" height="30" viewBox="0 0 40 40"><rect width="40" height="40" rx="9" fill="#1fae70"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.3"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.3"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/></svg>
+    <svg width="26" height="26" viewBox="0 0 40 40"><rect width="40" height="40" rx="9" fill="#1fae70"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.3"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.3"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/></svg>
     Tedarik Ağı
   </a>
-  <div class="nav-links">
-    <a href="#surec">Süreç</a>
+  <button type="button" class="menu-btn" id="menuBtn" aria-label="Menü"><span></span><span></span></button>
+</nav>
+
+<div class="menu-panel" id="menuPanel">
+  <div class="menu-links">
     <a href="#neden-biz">Neden Biz</a>
+    <a href="#surec">Süreç</a>
     <a href="#paketler">Paketler</a>
     <a href="/hesapla.html">Vergi Hesaplama</a>
+    <a href="/takip.html">Müşteri Girişi</a>
   </div>
-  <div class="nav-cta">
-    <a href="/takip.html" class="btn btn-ghost" style="padding:10px 20px; font-size:13.5px;">Müşteri Girişi</a>
-    <a href="/takip.html#rfq" class="btn btn-primary" style="padding:10px 20px; font-size:13.5px;">Teklif Al</a>
+  <div class="menu-cta">
+    <a href="/takip.html#rfq" class="btn btn-primary">Ücretsiz Teklif Alın</a>
+    <a href="/takip.html" class="btn btn-ghost">Siparişimi Takip Et</a>
   </div>
-</nav>
+</div>
 
 <section class="hero">
   <div class="hero-bg">
@@ -219,10 +238,21 @@
     requestAnimationFrame(raf);
   }
 
-  const nav = document.querySelector('.nav');
+  const nav = document.getElementById('mainNav');
   window.addEventListener('scroll', () => {
-    nav.style.background = window.scrollY > 40 ? 'rgba(10,14,31,.94)' : 'rgba(10,14,31,.7)';
+    nav.classList.toggle('is-scrolled', window.scrollY > 40);
   });
+
+  const menuBtn = document.getElementById('menuBtn');
+  const menuPanel = document.getElementById('menuPanel');
+  menuBtn.addEventListener('click', () => {
+    const open = menuPanel.classList.toggle('is-open');
+    menuBtn.classList.toggle('is-open', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  });
+  menuPanel.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    menuPanel.classList.remove('is-open'); menuBtn.classList.remove('is-open'); document.body.style.overflow = '';
+  }));
 
   if (Swiper) {
     const sw = new Swiper('.hero-swiper', {
