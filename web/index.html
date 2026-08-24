@@ -138,24 +138,38 @@
   .trust-item .num{ font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:600; color:#fff; }
   .trust-item .lbl{ font-size:13px; color:var(--text-faint); line-height:1.4; }
 
-  /* Operational Footprint — referans .footprint_body (min-height 720px, padding-left 48px, gap 64px)
-     + .footprint-card_wrapper (glass: bg #ffffff0f, border #ffffff1f, radius 16px, blur 1.5rem, gap 20px) */
-  .footprint{ background:var(--deep2); position:relative; overflow:hidden; }
-  .footprint-body{ display:flex; flex-direction:column; justify-content:center; gap:4rem; min-height:45rem; padding:var(--sp-130) 0 var(--sp-130) 3rem; position:relative; }
-  @media (max-width:767px){ .footprint-body{ padding:var(--sp-70) 0 var(--sp-70) 0; gap:2.5rem; } }
-  .footprint-head h2{ font-size:clamp(1.5rem,3vw,var(--fs-32)); font-weight:500; margin-bottom:12px; max-width:33.375rem; }
-  .footprint-head p{ color:var(--text-faint); font-size:var(--fs-16); max-width:220px; }
+  /* Operational Footprint — referansın 600vh pinned-scroll mantığı: bölüm boyunca scroll ilerledikçe
+     harita katmanları ve yandaki bilgi kartı aşama aşama değişir (sticky + scroll-progress JS) */
+  .footprint{ background:var(--deep2); position:relative; }
+  .footprint-scroll{ height:320vh; position:relative; }
+  @media (max-width:900px){ .footprint-scroll{ height:auto; } }
+  .footprint-sticky{ position:sticky; top:0; min-height:100vh; display:flex; flex-direction:column; justify-content:center; gap:2.5rem; padding:var(--sp-130) 0; }
+  @media (max-width:900px){ .footprint-sticky{ position:static; min-height:auto; padding:var(--sp-70) 0; } }
+  .footprint-head h2{ font-size:clamp(1.5rem,3vw,var(--fs-32)); font-weight:500; margin-bottom:12px; max-width:33.375rem; transition:opacity .3s; }
+  .footprint-head p{ color:var(--text-faint); font-size:var(--fs-16); max-width:280px; transition:opacity .3s; }
+
+  .footprint-progress{ display:flex; gap:6px; margin-top:20px; }
+  .footprint-progress span{ flex:1; height:2px; background:rgba(255,255,255,.15); border-radius:2px; overflow:hidden; position:relative; }
+  .footprint-progress span::after{ content:""; position:absolute; inset:0; background:var(--green); transform:scaleX(0); transform-origin:left; transition:transform .25s linear; }
+  .footprint-progress span.is-done::after{ transform:scaleX(1); }
 
   .footprint-map-wrap{ position:relative; width:100%; max-width:900px; aspect-ratio:2/1; overflow:hidden; }
-  .footprint-map-wrap img{ width:100%; height:100%; object-fit:fill; opacity:.5; filter:invert(1) brightness(1.4); }
-  .map-dot{ position:absolute; width:5px; height:5px; border-radius:50%; background:var(--green); transform:translate(-50%,-50%); box-shadow:0 0 0 0 rgba(31,174,112,.7); animation:dotpulse 2.6s infinite; }
+  .footprint-map-wrap .map-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:0; filter:invert(1) brightness(1.4); transition:opacity .5s ease; }
+  .footprint-map-wrap .map-img[data-stage="0"]{ object-fit:fill; }
+  .footprint-map-wrap .map-img.is-active{ opacity:.5; }
+  .map-dot{ position:absolute; width:5px; height:5px; border-radius:50%; background:var(--green); transform:translate(-50%,-50%) scale(0);
+    box-shadow:0 0 0 0 rgba(31,174,112,.7); transition:transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .map-dot.is-shown{ transform:translate(-50%,-50%) scale(1); animation:dotpulse 2.6s infinite; }
   @keyframes dotpulse{ 0%{ box-shadow:0 0 0 0 rgba(31,174,112,.55);} 70%{ box-shadow:0 0 0 9px rgba(31,174,112,0);} 100%{ box-shadow:0 0 0 0 rgba(31,174,112,0);} }
 
   /* referans .footprint-card_wrapper: gerçek glassmorphism ölçüleri */
   .footprint-card{ background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-card);
     backdrop-filter:blur(1.5rem); -webkit-backdrop-filter:blur(1.5rem); display:flex; flex-direction:column; gap:1.25rem;
-    padding:1.75rem; width:100%; max-width:320px; position:absolute; right:0; bottom:var(--sp-130); z-index:2; }
-  @media (max-width:900px){ .footprint-card{ position:static; max-width:100%; margin-top:24px; } }
+    padding:1.75rem; width:100%; max-width:320px; position:absolute; right:3rem; bottom:var(--sp-130); z-index:2; }
+  @media (max-width:900px){ .footprint-card{ position:static; max-width:100%; margin-top:24px; right:auto; } }
+  .footprint-card-stage{ display:none; flex-direction:column; gap:1.25rem; }
+  .footprint-card-stage.is-active{ display:flex; animation:fadeUp .4s ease; }
+  @keyframes fadeUp{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:translateY(0);} }
   .footprint-card .row .lbl{ font-size:var(--fs-14); color:var(--text-dim); margin-bottom:2px; }
   .footprint-card .row .val{ font-size:var(--fs-24); font-weight:500; }
   .footprint-divider{ height:1px; background:var(--line); }
@@ -271,24 +285,44 @@
 </section>
 
 <section class="footprint">
-  <div class="wrap">
-    <div class="footprint-body">
+  <div class="wrap footprint-scroll" id="footprintScroll">
+    <div class="footprint-sticky">
       <div class="footprint-head">
-        <h2>Operasyonel Yayılımımız</h2>
-        <p>Gerçek zamanlı izlenen güzergahlar üzerinden çalışan tedarik ve lojistik ağı</p>
+        <h2 id="footprintTitle">Küresel Tedarik Ağı</h2>
+        <p id="footprintDesc">Scroll ettikçe güzergah dünyadan Çin'deki tedarik merkezlerine, oradan Türkiye gümrüklerine yakınlaşır</p>
+        <div class="footprint-progress"><span data-i="0"></span><span data-i="1"></span><span data-i="2"></span></div>
       </div>
 
+      <!-- 3 aşama: Dünya → Çin (tedarik merkezleri) → Türkiye (varış gümrükleri) -->
       <div class="footprint-map-wrap" id="footprintMap">
-        <img src="assets/photos/world-map.svg" alt="Dünya haritası — tedarik ve sevkiyat güzergahları">
-        <!-- Noktalar gerçek şehir koordinatlarından (ekvator dikdörtgen izdüşüm) hesaplandı: JS ile enjekte edilir -->
+        <img class="map-img is-active" data-stage="0" src="assets/photos/world-map.svg" alt="Dünya haritası — tedarik ve sevkiyat güzergahları">
+        <img class="map-img" data-stage="1" src="assets/photos/china-outline.svg" alt="Çin haritası — tedarik merkezi şehirler">
+        <img class="map-img" data-stage="2" src="assets/photos/turkey-outline.svg" alt="Türkiye haritası — varış gümrükleri">
+        <!-- Noktalar JS ile enjekte edilir, gerçek şehir koordinatlarından hesaplanmış -->
       </div>
 
       <div class="footprint-card">
-        <div class="row"><div class="lbl">Ana tedarik ülkesi</div><div class="val">Çin</div></div>
-        <div class="footprint-divider"></div>
-        <div class="row"><div class="lbl">Varış</div><div class="val">Türkiye gümrükleri</div></div>
-        <div class="footprint-divider"></div>
-        <div class="row"><div class="lbl">Süreç</div><div class="val">6 aşama, tek panel</div></div>
+        <div class="footprint-card-stage is-active" data-stage="0">
+          <div class="row"><div class="lbl">Ana tedarik ülkesi</div><div class="val">Çin</div></div>
+          <div class="footprint-divider"></div>
+          <div class="row"><div class="lbl">Varış</div><div class="val">Türkiye gümrükleri</div></div>
+          <div class="footprint-divider"></div>
+          <div class="row"><div class="lbl">Süreç</div><div class="val">6 aşama, tek panel</div></div>
+        </div>
+        <div class="footprint-card-stage" data-stage="1">
+          <div class="row"><div class="lbl">Tedarik merkezleri</div><div class="val">Şangay, Şenzhen, Guangzhou</div></div>
+          <div class="footprint-divider"></div>
+          <div class="row"><div class="lbl">Ek merkezler</div><div class="val">Pekin, Wuhan</div></div>
+          <div class="footprint-divider"></div>
+          <div class="row"><div class="lbl">Yerinde kontrol</div><div class="val">Fabrikada QC ekibi</div></div>
+        </div>
+        <div class="footprint-card-stage" data-stage="2">
+          <div class="row"><div class="lbl">Ana varış limanı</div><div class="val">İstanbul</div></div>
+          <div class="footprint-divider"></div>
+          <div class="row"><div class="lbl">Diğer noktalar</div><div class="val">İzmir, Mersin, Ankara</div></div>
+          <div class="footprint-divider"></div>
+          <div class="row"><div class="lbl">Gümrük</div><div class="val">Uzman ekiple takip</div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -392,8 +426,9 @@
     menuPanel.classList.remove('is-open'); menuBtn.classList.remove('is-open'); document.body.style.overflow = '';
   }));
 
-  // Footprint haritası — gerçek şehir koordinatlarından (CN_TR + GLOBAL rota uçları) hesaplanmış noktalar
-  const FOOTPRINT_DOTS = [
+  // Footprint — 3 aşamalı scroll-pinned harita: Dünya (genel rota uçları) → Çin (tedarik şehirleri) → Türkiye (varış şehirleri)
+  // Tüm koordinatlar gerçek şehir enlem/boylamlarından hesaplandı.
+  const DOTS_WORLD = [
     {x:98.55,y:70.47},{x:33.78,y:69.22},{x:55.12,y:68.85},{x:92.00,y:68.82},{x:30.37,y:68.58},
     {x:38.01,y:62.73},{x:36.70,y:58.77},{x:28.60,y:56.69},{x:79.68,y:53.45},{x:60.23,y:50.72},
     {x:78.84,y:49.25},{x:29.42,y:47.38},{x:50.94,y:46.38},{x:71.55,y:42.79},{x:70.24,y:39.40},
@@ -404,14 +439,70 @@
     {x:25.66,y:26.73},{x:29.56,y:24.72},{x:50.65,y:22.86},{x:15.80,y:22.62},{x:49.96,y:21.38},
     {x:53.72,y:20.82},{x:60.45,y:19.02},
   ];
+  // Çin haritası bounding box (73–135E, 18–54N) üzerinden hesaplandı — gerçek tedarik şehirleri
+  const DOTS_CHINA = [
+    {x:78.2,y:63.3,label:'Şangay'}, {x:70.0,y:39.2,label:'Pekin'}, {x:66.2,y:87.4,label:'Şenzhen'},
+    {x:64.9,y:85.7,label:'Guangzhou'}, {x:66.6,y:65.0,label:'Wuhan'},
+  ];
+  // Türkiye haritası bounding box (26–45E, 36–42N) üzerinden hesaplandı — gerçek varış şehirleri
+  const DOTS_TURKEY = [
+    {x:15.7,y:16.5,label:'İstanbul'}, {x:6.0,y:59.7,label:'İzmir'},
+    {x:45.5,y:86.7,label:'Mersin'}, {x:36.1,y:34.5,label:'Ankara'},
+  ];
   const mapWrap = document.getElementById('footprintMap');
+  const dotSets = [DOTS_WORLD, DOTS_CHINA, DOTS_TURKEY];
+  const dotLayers = [];
   if (mapWrap) {
-    FOOTPRINT_DOTS.forEach(d => {
-      const s = document.createElement('span');
-      s.className = 'map-dot';
-      s.style.left = d.x + '%'; s.style.top = d.y + '%';
-      mapWrap.appendChild(s);
+    dotSets.forEach((set, stage) => {
+      const layer = document.createElement('div');
+      layer.className = 'map-dot-layer';
+      layer.style.cssText = 'position:absolute; inset:0; opacity:' + (stage === 0 ? '1' : '0') + '; transition:opacity .4s;';
+      set.forEach(d => {
+        const s = document.createElement('span');
+        s.className = 'map-dot is-shown';
+        s.style.left = d.x + '%'; s.style.top = d.y + '%';
+        layer.appendChild(s);
+      });
+      mapWrap.appendChild(layer);
+      dotLayers.push(layer);
     });
+  }
+
+  // Scroll ilerlemesine göre aşama (0/1/2) belirleme ve harita+kart+nokta katmanlarını güncelleme
+  const fpScroll = document.getElementById('footprintScroll');
+  if (fpScroll) {
+    const mapImgs = document.querySelectorAll('.map-img');
+    const cardStages = document.querySelectorAll('.footprint-card-stage');
+    const progressDots = document.querySelectorAll('.footprint-progress span');
+    const titleEl = document.getElementById('footprintTitle');
+    const descEl = document.getElementById('footprintDesc');
+    const STAGE_TEXT = [
+      { t: 'Küresel Tedarik Ağı', d: 'Scroll ettikçe güzergah dünyadan Çin\'deki tedarik merkezlerine, oradan Türkiye gümrüklerine yakınlaşır' },
+      { t: 'Çin — Tedarik Merkezleri', d: 'Fabrika ve üretim bölgelerimizin yoğunlaştığı gerçek şehirler' },
+      { t: 'Türkiye — Varış Noktaları', d: 'Malın gümrükten çekilip teslim edildiği gerçek şehirler' },
+    ];
+    let currentStage = -1;
+    function setStage(stage) {
+      if (stage === currentStage) return;
+      currentStage = stage;
+      mapImgs.forEach(img => img.classList.toggle('is-active', Number(img.dataset.stage) === stage));
+      cardStages.forEach(c => c.classList.toggle('is-active', Number(c.dataset.stage) === stage));
+      dotLayers.forEach((layer, i) => { layer.style.opacity = i === stage ? '1' : '0'; });
+      progressDots.forEach((d, i) => d.classList.toggle('is-done', i <= stage));
+      titleEl.textContent = STAGE_TEXT[stage].t;
+      descEl.textContent = STAGE_TEXT[stage].d;
+    }
+    function onScroll() {
+      const rect = fpScroll.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      if (total <= 0) { setStage(0); return; }
+      const progress = Math.min(1, Math.max(0, -rect.top / total));
+      const stage = progress < 0.33 ? 0 : progress < 0.66 ? 1 : 2;
+      setStage(stage);
+    }
+    setStage(0);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
   }
 
 })();
