@@ -135,11 +135,6 @@
   .mini-slider-dots span{ width:14px; height:2px; border-radius:2px; background:rgba(255,255,255,.25); transition:background .3s; }
   .mini-slider-dots span.is-active{ background:var(--green); }
 
-  .live-counter{ display:none; align-items:center; gap:8px; margin-top:24px; font-size:13px; color:var(--text-dim); position:relative; z-index:1; }
-  .live-counter b{ color:#fff; }
-  .live-dot{ width:8px; height:8px; border-radius:50%; background:var(--green); animation:pulse 1.8s infinite; }
-  @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(31,174,112,.6);} 70%{ box-shadow:0 0 0 8px rgba(31,174,112,0);} 100%{ box-shadow:0 0 0 0 rgba(31,174,112,0);} }
-
   @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
 
   /* About Us — referans .padding-section-130 (130px) + .about_top (442px/718px sütun, 156px gap) */
@@ -266,9 +261,6 @@
         <a href="/takip.html" class="btn btn-ghost">Siparişimi Takip Et</a>
       </div>
 
-      <div class="live-counter" id="canliSayac">
-        <span class="live-dot"></span> <b id="canliSayacDeger">—</b> sipariş şu anda canlı takip ediliyor
-      </div>
     </div>
   </div>
 
@@ -478,12 +470,6 @@
     }, 3200);
   }
 })();
-
-fetch('/api/tk/istatistik-genel').then(r => r.ok ? r.json() : null).then(d => {
-  if (!d || !d.aktif_siparis) return;
-  document.getElementById('canliSayacDeger').textContent = d.aktif_siparis;
-  document.getElementById('canliSayac').style.display = 'inline-flex';
-}).catch(() => {});
 </script>
 </body>
 </html>
