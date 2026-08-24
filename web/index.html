@@ -194,18 +194,6 @@
   .map-dot.is-focus{ width:9px; height:9px; opacity:1; }
   @keyframes dotpulse{ 0%{ box-shadow:0 0 0 0 rgba(31,174,112,.55);} 70%{ box-shadow:0 0 0 9px rgba(31,174,112,0);} 100%{ box-shadow:0 0 0 0 rgba(31,174,112,0);} }
 
-  /* referans .footprint-card_wrapper: gerçek glassmorphism ölçüleri */
-  .footprint-card{ background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-card);
-    backdrop-filter:blur(1.5rem); -webkit-backdrop-filter:blur(1.5rem); display:flex; flex-direction:column; gap:1.25rem;
-    padding:1.75rem; width:100%; max-width:320px; position:absolute; right:3rem; bottom:var(--sp-130); z-index:2; }
-  @media (max-width:900px){ .footprint-card{ position:static; max-width:100%; margin-top:24px; right:auto; } }
-  .footprint-card-stage{ display:none; flex-direction:column; gap:1.25rem; }
-  .footprint-card-stage.is-active{ display:flex; animation:fadeUp .4s ease; }
-  @keyframes fadeUp{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:translateY(0);} }
-  .footprint-card .row .lbl{ font-size:var(--fs-14); color:var(--text-dim); margin-bottom:2px; }
-  .footprint-card .row .val{ font-size:var(--fs-24); font-weight:500; }
-  .footprint-divider{ height:1px; background:var(--line); }
-
   /* Core Solutions — referans "section-white": TEMA TERSİNE DÖNÜYOR, beyaz zemin + siyah metin.
      .solutions_body: sticky görsel + numaralı liste (41.5rem/madde), ilk madde 100vh */
   .solutions{ background:var(--white-bg,#f0f0f0); color:#0a0e1f; padding:var(--sp-140) 0; }
