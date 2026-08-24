@@ -22,6 +22,7 @@
     --green:#1fae70;          /* referans --main-green:#2cac66, kendi marka yeşilimiz */
     --green-ink:#178a5a;
     --white:#f9f9ff;
+    --white-bg:#f0f0f0;
     --map:#2d2d42;
     --text-dim:rgba(255,255,255,.6);   /* referans .opacity-60 */
     --text-faint:rgba(255,255,255,.4); /* referans .opacity-40 */
@@ -180,6 +181,28 @@
   .footprint-card .row .lbl{ font-size:var(--fs-14); color:var(--text-dim); margin-bottom:2px; }
   .footprint-card .row .val{ font-size:var(--fs-24); font-weight:500; }
   .footprint-divider{ height:1px; background:var(--line); }
+
+  /* Core Solutions — referans "section-white": TEMA TERSİNE DÖNÜYOR, beyaz zemin + siyah metin.
+     .solutions_body: sticky görsel + numaralı liste (41.5rem/madde), ilk madde 100vh */
+  .solutions{ background:var(--white-bg,#f0f0f0); color:#0a0e1f; padding:var(--sp-140) 0; }
+  .solutions-head{ text-align:center; max-width:51.5rem; margin:0 auto var(--sp-40); }
+  .solutions-head h2{ font-size:clamp(1.6rem,3.6vw,var(--fs-44)); font-weight:500; line-height:1.15; }
+
+  .solutions-body{ display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:start; }
+  @media (max-width:900px){ .solutions-body{ grid-template-columns:1fr; gap:24px; } }
+  .solutions-sticky{ position:sticky; top:120px; aspect-ratio:4/3; border-radius:16px; overflow:hidden; background:#0a0e1f; }
+  .solutions-sticky img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .5s ease; }
+  .solutions-sticky img.is-active{ opacity:1; }
+  @media (max-width:900px){ .solutions-sticky{ position:static; } }
+
+  .solutions-list{ display:flex; flex-direction:column; }
+  .solutions-item{ min-height:41.5rem; display:flex; flex-direction:column; justify-content:center; padding:2.875rem 0; border-top:1px solid rgba(10,14,31,.1); }
+  .solutions-item:first-child{ min-height:60vh; border-top:none; }
+  @media (max-width:900px){ .solutions-item, .solutions-item:first-child{ min-height:auto; padding:28px 0; } }
+  .solutions-item .n{ font-family:'IBM Plex Mono',monospace; font-size:14px; opacity:.4; margin-bottom:16px; }
+  .solutions-item h3{ font-size:var(--fs-24); font-weight:500; margin-bottom:14px; }
+  .solutions-item p{ opacity:.55; font-size:var(--fs-16); line-height:1.5; max-width:38ch; margin-bottom:20px; }
+  .solutions-item a{ font-size:14px; font-weight:600; text-decoration:none; border-bottom:1px solid #0a0e1f; padding-bottom:2px; color:#0a0e1f; }
 </style>
 </head>
 <body>
@@ -312,7 +335,63 @@
   </div>
 </section>
 
-<!-- Sıradaki bölümler (Süreç detay, Paketler, SSS, Footer) burada sırayla eklenecek. -->
+<section class="solutions">
+  <div class="wrap">
+    <div class="solutions-head">
+      <h2>Karmaşık Tedarik Süreçleri İçin Temel Çözümlerimiz</h2>
+    </div>
+    <div class="solutions-body">
+      <div class="solutions-sticky" id="solutionsSticky">
+        <img class="is-active" data-n="1" src="assets/photos/singapore_port.jpg" alt="Singapur limanı konteyner terminali">
+        <img data-n="2" src="assets/photos/terminal.jpg" alt="Fabrika üretim ve depolama alanı">
+        <img data-n="3" src="assets/photos/slider/numune-kontrol.jpg" alt="Numune kalite kontrolü">
+        <img data-n="4" src="assets/photos/cargo_747.jpg" alt="Kargo uçağı yükleme">
+        <img data-n="5" src="assets/photos/suez_convoy.jpg" alt="Süveyş kanalı konvoyu">
+        <img data-n="6" src="assets/photos/globe_blue.jpg" alt="Küresel gümrük ve GTİP danışmanlığı">
+      </div>
+      <div class="solutions-list" id="solutionsList">
+        <div class="solutions-item" data-n="1">
+          <div class="n">01</div>
+          <h3>Fabrika Bulma &amp; Eşleştirme</h3>
+          <p>Talebinize uygun, karşılaştırmalı teklif veren gerçek üreticilerle doğrudan eşleştirme.</p>
+          <a href="/takip.html#rfq">Detaylı bilgi</a>
+        </div>
+        <div class="solutions-item" data-n="2">
+          <div class="n">02</div>
+          <h3>Üretim Takibi</h3>
+          <p>Seri üretim sürecinin periyodik fotoğraf ve raporlarla ilerlemesini panelinizden izlersiniz.</p>
+          <a href="/takip.html#rfq">Detaylı bilgi</a>
+        </div>
+        <div class="solutions-item" data-n="3">
+          <div class="n">03</div>
+          <h3>Yerinde Numune &amp; Kalite Kontrolü</h3>
+          <p>Fabrikada fiziksel numune kontrolü yapan ekibimiz, üretime başlamadan önce onay verir.</p>
+          <a href="/takip.html#rfq">Detaylı bilgi</a>
+        </div>
+        <div class="solutions-item" data-n="4">
+          <div class="n">04</div>
+          <h3>Konteyner &amp; Hava Kargo Lojistiği</h3>
+          <p>Malın limana ulaşmasından konteyner takibine kadar tüm sevkiyat süreci canlı izlenir.</p>
+          <a href="/takip.html#rfq">Detaylı bilgi</a>
+        </div>
+        <div class="solutions-item" data-n="5">
+          <div class="n">05</div>
+          <h3>Gümrük Danışmanlığı</h3>
+          <p>Gümrükten çekim, evrak ve mevzuat süreçleri uzman ekibimiz tarafından yönetilir.</p>
+          <a href="/takip.html#rfq">Detaylı bilgi</a>
+        </div>
+        <div class="solutions-item" data-n="6">
+          <div class="n">06</div>
+          <h3>GTİP &amp; Vergi Hesaplama</h3>
+          <p>Resmi kaynaklara dayalı GTİP, KDV, ek vergi ve korunma önlemi hesaplama aracımızla önceden bilirsiniz.</p>
+          <a href="/hesapla.html">Hesaplama aracını aç</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Sıradaki bölümler (Paketler, SSS, Footer) burada sırayla eklenecek. -->
 
 <script src="assets/vendor/motion-bundle.min.js"></script>
 <script>
@@ -365,6 +444,22 @@
       s.style.left = d.x + '%'; s.style.top = d.y + '%';
       mapWrap.appendChild(s);
     });
+  }
+
+  // Core Solutions — scroll'a bağlı sticky görsel değişimi (referansın video-swap mantığının IO karşılığı)
+  const solList = document.getElementById('solutionsList');
+  const solSticky = document.getElementById('solutionsSticky');
+  if (solList && solSticky && 'IntersectionObserver' in window) {
+    const imgs = solSticky.querySelectorAll('img');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const n = e.target.dataset.n;
+          imgs.forEach(img => img.classList.toggle('is-active', img.dataset.n === n));
+        }
+      });
+    }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+    solList.querySelectorAll('.solutions-item').forEach(el => io.observe(el));
   }
 
   if (Swiper) {
