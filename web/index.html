@@ -172,11 +172,12 @@
   .footprint-map-wrap{ position:relative; width:100%; aspect-ratio:1.971/1; overflow:hidden; border-radius:8px; }
   @media (max-width:900px){ .footprint-map-wrap{ aspect-ratio:1.971/1; } }
   /* Referanstaki gibi büyük, "radar" tarzı glow'lu pin — merkezde beyaz nokta, dışta yumuşak halka */
-  .map-pin{ position:absolute; width:26px; height:26px; border-radius:50%; transform:translate(-50%,-50%) scale(0);
-    background:radial-gradient(circle, rgba(31,174,112,.9) 0%, rgba(31,174,112,.35) 45%, transparent 72%);
+  .map-pin{ position:absolute; width:38px; height:38px; border-radius:50%; transform:translate(-50%,-50%) scale(0);
+    background:radial-gradient(circle, rgba(31,174,112,.7) 0%, rgba(31,174,112,.28) 35%, rgba(31,174,112,.08) 60%, transparent 80%);
     display:flex; align-items:center; justify-content:center; transition:transform .4s cubic-bezier(.34,1.56,.64,1), opacity .3s; opacity:0; }
   .map-pin.is-shown{ transform:translate(-50%,-50%) scale(1); opacity:1; }
-  .map-pin::after{ content:""; width:8px; height:8px; border-radius:50%; background:var(--green); border:2px solid #fff; box-sizing:border-box; }
+  .map-pin::after{ content:""; width:10px; height:10px; border-radius:50%; background:var(--green); border:2.5px solid #fff; box-sizing:border-box;
+    box-shadow:0 0 12px 2px rgba(31,174,112,.8); }
   .map-region-glow{ position:absolute; width:220px; height:220px; border-radius:50%; transform:translate(-50%,-50%) scale(0);
     background:radial-gradient(circle, rgba(31,174,112,.5) 0%, rgba(31,174,112,.14) 55%, transparent 75%);
     transition:transform .5s cubic-bezier(.34,1.2,.64,1), opacity .4s; opacity:0; pointer-events:none; }
@@ -188,8 +189,9 @@
   /* Zoom bu gruba uygulanır — harita görseli ve noktalar birlikte, aynı oranda büyür/kayar, hiç kaymaz */
   .footprint-zoom-group{ position:absolute; inset:0; width:100%; height:100%; transform-origin:50% 50%; transform:scale(1);
     transition:transform 1s cubic-bezier(.22,.61,.36,1); }
-  .footprint-map-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:fill; opacity:.6;
-    filter:grayscale(1) invert(1) brightness(1.3) contrast(.85); }
+  /* referans --map:#2d2d42 tonuna (hafif indigo/mor) yaklaştırmak için hue-rotate eklendi */
+  .footprint-map-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:fill; opacity:.65;
+    filter:grayscale(1) invert(1) brightness(1.25) contrast(.85) sepia(.4) hue-rotate(200deg) saturate(1.8); }
   .map-dot.is-shown{ transform:translate(-50%,-50%) scale(1); animation:dotpulse 2.6s infinite; }
   .map-dot.is-focus{ width:9px; height:9px; opacity:1; }
   @keyframes dotpulse{ 0%{ box-shadow:0 0 0 0 rgba(31,174,112,.55);} 70%{ box-shadow:0 0 0 9px rgba(31,174,112,0);} 100%{ box-shadow:0 0 0 0 rgba(31,174,112,0);} }
