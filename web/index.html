@@ -14,7 +14,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
@@ -119,6 +119,61 @@
       .pricing-note{ font-size:12px; color:#a1a1aa; margin:0 0 6px; min-height:32px; line-height:1.5; }
       .pricing-feats{ margin-top:24px; padding-top:20px; border-top:1px solid #eef0f4; font-size:14px; color:#3f3f46; }
       .pricing-feats p{ margin-bottom:11px; }
+
+      /* === Hareket/kimlik yenilemesi — tranzport.webflow.io referans alınarak:
+         Manrope font + koyu lacivert/yeşil vurgulu hero + Lenis yumuşak kaydırma +
+         GSAP ScrollTrigger ile kaydırdıkça beliren bölümler. Kütüphaneler
+         kendi sunucumuzda (assets/vendor/motion-bundle.min.js, esbuild ile tek
+         dosyada derlendi) — CDN bağımlılığı yok, three.js küresinde olduğu gibi. */
+      :root{ --deep:#0a0e1f; --deep2:#0f1630; --brand-green:#1fae70; --brand-green-ink:#178a5a; }
+      body{ font-family:'Manrope',sans-serif; }
+      .navbar-brand h1, h1, h2, h3, .display-4, .display-5, .display-6{ font-family:'Manrope',sans-serif; }
+      .mono{ font-family:'IBM Plex Mono',ui-monospace,monospace; }
+      html.lenis, html.lenis body{ height:auto; }
+      .lenis.lenis-smooth{ scroll-behavior:auto !important; }
+      .lenis.lenis-smooth [data-lenis-prevent]{ overscroll-behavior:contain; }
+      .lenis.lenis-stopped{ overflow:hidden; }
+
+      .hero-photo{ background:var(--deep); }
+      /* Gerçek video dosyamız yok (kendi fotoğraflarımız var) — aynı "canlı arka
+         plan" hissini, fotoğrafı çok yavaş yakınlaştırıp kaydırarak (Ken Burns)
+         veriyoruz. Slayt geçişi zaten var (opacity), buna hareket ekliyoruz. */
+      .hero-slide{ animation:heroKenBurns 22s ease-in-out infinite alternate; }
+      @keyframes heroKenBurns{ 0%{ transform:scale(1.02) translate(0,0); } 100%{ transform:scale(1.13) translate(-1.5%,-1.5%); } }
+      @media (prefers-reduced-motion: reduce){ .hero-slide{ animation:none; } }
+      /* Gerçek video arka plan (Pexels, CC0/ücretsiz ticari kullanım lisanslı,
+         Alexander Bobrov — açık deniz konteyner gemisi drone çekimi). Masaüstünde
+         video, mobilde veri tasarrufu + otomatik oynatma tutarsızlığı nedeniyle
+         statik fotoğraf gösterilir. */
+      .hero-video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+      .hero-photo-fallback{ display:none; }
+      @media (max-width:767px){
+        .hero-video{ display:none; }
+        .hero-photo-fallback{ display:block; }
+      }
+      .hero-scrim{ background:linear-gradient(120deg, rgba(10,14,31,.94) 0%, rgba(10,14,31,.82) 40%, rgba(15,22,48,.55) 70%, rgba(31,174,112,.18) 100%) !important; }
+      @media (max-width: 991px){ .hero-scrim{ background:linear-gradient(180deg, rgba(10,14,31,.75) 0%, rgba(10,14,31,.92) 55%, rgba(10,14,31,.96) 100%) !important; } }
+      nav.navbar-light{ background:rgba(10,14,31,.72) !important; backdrop-filter:blur(10px); box-shadow:none !important; border-bottom:1px solid rgba(255,255,255,.08); transition:background .3s; }
+      nav.navbar-light .navbar-brand h1{ color:#fff !important; }
+      nav.navbar-light .nav-link{ color:rgba(255,255,255,.78) !important; }
+      nav.navbar-light .nav-link:hover, nav.navbar-light .nav-link.active{ color:#fff !important; }
+      nav.navbar-light .btn-outline-light{ border-color:rgba(255,255,255,.35); }
+      nav.navbar-light .btn-primary{ background:var(--brand-green) !important; border-color:var(--brand-green) !important; }
+      .btn-primary{ background:var(--brand-green) !important; border-color:var(--brand-green) !important; }
+      .btn-primary:hover{ background:var(--brand-green-ink) !important; border-color:var(--brand-green-ink) !important; }
+      .text-primary{ color:var(--brand-green) !important; }
+      .hero-header h1 span{ color:#5fe3a8 !important; }
+      .live-counter .dot{ background:var(--brand-green); box-shadow:0 0 0 0 rgba(31,174,112,.6); }
+      @keyframes liveDotPulse{ 0%{ box-shadow:0 0 0 0 rgba(31,174,112,.55); } 70%{ box-shadow:0 0 0 8px rgba(31,174,112,0); } 100%{ box-shadow:0 0 0 0 rgba(31,174,112,0); } }
+      .pricing-glow{ box-shadow:0 0 0 1.5px var(--brand-green), 0 24px 50px -18px rgba(31,174,112,.4); background:linear-gradient(180deg, #f2fbf6 0%, #ffffff 40%); }
+      .pricing-badge, .pricing-glow .pricing-ico{ background:var(--brand-green) !important; }
+
+      /* Scroll-reveal: GSAP ScrollTrigger her .reveal öğesini görünür olunca
+         gerçek zamanlı animasyonla belirtiyor — statik değil, kaydırma
+         yönüne/hızına duyarlı (init script'te ayarlanıyor). */
+      .reveal{ opacity:0; transform:translateY(28px); }
+      .reveal-group .reveal:nth-child(1){ transition-delay:0s; }
+      @media (prefers-reduced-motion: reduce){ .reveal{ opacity:1 !important; transform:none !important; } }
     </style>
 </head>
 
@@ -156,8 +211,10 @@
 
         <div class="hero-header hero-photo overflow-hidden px-5">
             <div class="hero-bg">
-                <img src="assets/photos/ship_aerial.jpg" class="hero-slide active" alt="Açık denizde seyir halinde konteyner gemisi, kuş bakışı">
-                <img src="assets/photos/suez_convoy.jpg" class="hero-slide" alt="Süveyş Kanalı'ndan geçen uluslararası konteyner gemisi konvoyu">
+                <video class="hero-video" autoplay loop muted playsinline poster="assets/photos/ship_aerial.jpg">
+                    <source src="assets/video/hero-cargo.mp4" type="video/mp4">
+                </video>
+                <img src="assets/photos/ship_aerial.jpg" class="hero-slide hero-photo-fallback active" alt="Açık denizde seyir halinde konteyner gemisi, kuş bakışı">
                 <div class="hero-scrim"></div>
             </div>
             <div class="row gy-5 align-items-center position-relative">
@@ -892,20 +949,64 @@
       }).catch(() => {});
     })();
     </script>
+    <!-- Not: eski çoklu-fotoğraf geçiş script'i kaldırıldı — hero artık gerçek
+         video (masaüstü) + tek fallback fotoğraf (mobil) kullanıyor, aktif
+         durumu HTML'de sabit (.active class'ı zaten fallback img üzerinde). -->
+
+    <!-- Hareket altyapısı: Lenis (yumuşak/fizik tabanlı kaydırma) + GSAP ScrollTrigger
+         (kaydırdıkça beliren bölümler) — tranzport.webflow.io referans alınarak,
+         kendi sunucumuzda barındırılan tek dosyalık bundle (assets/vendor/motion-bundle.min.js,
+         esbuild ile gsap@3.12.5 + @studio-freight/lenis derlendi, CDN yok). -->
+    <script src="assets/vendor/motion-bundle.min.js"></script>
     <script>
-    // Hero görsel şeridi: 3 gerçek görsel arasında otomatik geçiş (soft fade)
     (function(){
-      const slides = document.querySelectorAll('.hero-slide');
-      const dots = document.querySelectorAll('.hero-dot');
-      if (!slides.length) return;
-      let i = 0;
-      setInterval(() => {
-        slides[i].classList.remove('active');
-        dots[i] && dots[i].classList.remove('active');
-        i = (i + 1) % slides.length;
-        slides[i].classList.add('active');
-        dots[i] && dots[i].classList.add('active');
-      }, 4200);
+      const { gsap, ScrollTrigger, Lenis } = window.__MOTION_LIBS__ || {};
+      if (!gsap || !Lenis) return;
+
+      // Lenis: sayfa geneli yumuşak kaydırma
+      const lenis = new Lenis({ duration: 1.1, easing: t => 1 - Math.pow(1 - t, 3) });
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add((time) => lenis.raf(time * 1000));
+      gsap.ticker.lagSmoothing(0);
+
+      // Navbar: en üstte şeffaf/koyu, kaydırınca daha opak
+      const nav = document.querySelector('nav.navbar-light');
+      if (nav) {
+        ScrollTrigger.create({
+          start: 80, end: 99999,
+          onUpdate: self => nav.style.background = self.progress > 0 || window.scrollY > 40
+            ? 'rgba(10,14,31,.94)' : 'rgba(10,14,31,.72)',
+        });
+      }
+
+      // Kaydırdıkça beliren kart grupları — mevcut kart class'larını otomatik hedefler,
+      // HTML'e dokunmadan. Her grup kendi içinde art arda (stagger) belirir.
+      const gruplar = ['.stat-chip', '.region-tile', '.pricing-card', '.card', '.step-card'];
+      gruplar.forEach(sel => {
+        const els = gsap.utils.toArray(sel);
+        if (!els.length) return;
+        // Aynı satırdaki kartları grupla (parent bazlı), grup görünür olunca hep birlikte stagger ile belir.
+        const parents = [...new Set(els.map(e => e.parentElement))];
+        parents.forEach(parent => {
+          const kardesler = els.filter(e => e.parentElement === parent);
+          gsap.set(kardesler, { opacity: 0, y: 26 });
+          ScrollTrigger.create({
+            trigger: parent,
+            start: 'top 85%',
+            once: true,
+            onEnter: () => gsap.to(kardesler, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out', stagger: 0.08 }),
+          });
+        });
+      });
+
+      // Genel başlık/paragraf belirmesi (section başlıkları)
+      gsap.utils.toArray('h2.display-5, h2.display-6').forEach(h => {
+        gsap.set(h, { opacity: 0, y: 18 });
+        ScrollTrigger.create({
+          trigger: h, start: 'top 88%', once: true,
+          onEnter: () => gsap.to(h, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }),
+        });
+      });
     })();
     </script>
 </body>
