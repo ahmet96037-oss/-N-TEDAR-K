@@ -154,7 +154,15 @@
   .footprint-progress span.is-done::after{ transform:scaleX(1); }
 
   /* Tek gerçek dünya haritası (ülke sınırlarıyla) — referans gibi scroll'da bölgeye ZOOM yapılıyor, harita değişmiyor */
-  .footprint-map-wrap{ position:relative; width:100%; max-width:900px; aspect-ratio:2/1; overflow:hidden; border-radius:4px; }
+  .footprint-map-wrap{ position:relative; width:100%; max-width:900px; aspect-ratio:1.971/1; overflow:hidden; border-radius:4px; }
+  .map-region-glow{ position:absolute; width:180px; height:180px; border-radius:50%; transform:translate(-50%,-50%) scale(0);
+    background:radial-gradient(circle, rgba(31,174,112,.55) 0%, rgba(31,174,112,.15) 55%, transparent 75%);
+    transition:transform .5s cubic-bezier(.34,1.2,.64,1), opacity .4s; opacity:0; pointer-events:none; }
+  .map-region-glow.is-active{ transform:translate(-50%,-50%) scale(1); opacity:1; }
+  .map-region-label{ position:absolute; transform:translate(-50%,-100%); margin-top:-14px; font-family:'IBM Plex Mono',monospace;
+    font-size:11px; color:#fff; background:rgba(10,14,31,.85); padding:4px 9px; border-radius:20px; white-space:nowrap;
+    opacity:0; transition:opacity .4s; pointer-events:none; border:1px solid var(--glass-border); }
+  .map-region-label.is-active{ opacity:1; }
   /* Zoom bu gruba uygulanır — harita görseli ve noktalar birlikte, aynı oranda büyür/kayar, hiç kaymaz */
   .footprint-zoom-group{ position:absolute; inset:0; width:100%; height:100%; transform-origin:50% 50%; transform:scale(1);
     transition:transform 1s cubic-bezier(.22,.61,.36,1); }
@@ -301,7 +309,7 @@
            harita hiç değişmiyor, sadece kamera yakınlaşıyor (referansın gerçek mekanizması) -->
       <div class="footprint-map-wrap" id="footprintMap">
         <div class="footprint-zoom-group" id="footprintZoomGroup">
-          <img class="footprint-map-img" id="footprintMapImg" src="assets/photos/world-detailed.svg" alt="Dünya haritası, ülke sınırlarıyla — tedarik ve sevkiyat güzergahı">
+          <img class="footprint-map-img" id="footprintMapImg" src="assets/photos/world-map.svg" alt="Dünya haritası — tedarik ve sevkiyat güzergahı">
           <!-- Noktalar JS ile enjekte edilir, gerçek şehir enlem/boylamlarından hesaplanmış (aynı projeksiyon, tüm aşamalarda geçerli) -->
         </div>
       </div>
@@ -434,35 +442,44 @@
   // Footprint — TEK gerçek dünya haritası (ülke sınırlarıyla), scroll ilerledikçe bölgeye ZOOM yapılıyor.
   // Tüm noktalar aynı equirectangular projeksiyonla hesaplandı: x%=(lng+180)/360*100, y%=(90-lat)/180*100
   // — böylece harita hiç değişmeden, sadece kamera yakınlaşarak Çin ve Türkiye şehirlerine odaklanabiliyor.
-  const ALL_DOTS = [
-    // Genel küresel rota uçları (dünya görünümünde hepsi görünür)
+  const WORLD_DOTS = [
     {x:98.55,y:70.47},{x:33.78,y:69.22},{x:55.12,y:68.85},{x:92.00,y:68.82},{x:30.37,y:68.58},
     {x:38.01,y:62.73},{x:36.70,y:58.77},{x:28.60,y:56.69},{x:79.68,y:53.45},{x:60.23,y:50.72},
     {x:78.84,y:49.25},{x:29.42,y:47.38},{x:50.94,y:46.38},{x:71.55,y:42.79},{x:70.24,y:39.40},
     {x:22.46,y:39.20},{x:65.35,y:36.00},{x:27.72,y:35.69},{x:71.45,y:34.10},{x:23.51,y:33.47},
     {x:17.15,y:31.08},{x:88.79,y:30.18},{x:25.66,y:26.73},{x:29.56,y:24.72},{x:50.65,y:22.86},
     {x:15.80,y:22.62},{x:49.96,y:21.38},{x:53.72,y:20.82},{x:60.45,y:19.02},
-    // Çin — gerçek tedarik merkezi şehirleri (aynı projeksiyon, focus:'china')
-    {x:83.74,y:32.65,focus:'china',label:'Şangay'}, {x:82.34,y:27.83,focus:'china',label:'Pekin'},
-    {x:81.68,y:37.48,focus:'china',label:'Şenzhen'}, {x:81.46,y:37.15,focus:'china',label:'Guangzhou'},
-    {x:81.75,y:33.00,focus:'china',label:'Wuhan'},
-    // Türkiye — gerçek varış şehirleri (aynı projeksiyon, focus:'turkey')
-    {x:58.05,y:27.22,focus:'turkey',label:'İstanbul'}, {x:57.54,y:28.65,focus:'turkey',label:'İzmir'},
-    {x:59.62,y:29.56,focus:'turkey',label:'Mersin'}, {x:59.13,y:27.82,focus:'turkey',label:'Ankara'},
   ];
+  // Çin ve Türkiye için hassas pin yerine tek büyük, affedici "bölge vurgusu" (glow) — küçük koordinat
+  // sapmaları görünmez kalır; gerçek şehir isimleri zaten yandaki bilgi kartında yazılı.
+  const CHINA_CENTER = { x: 82.2, y: 33.6, label: 'Çin — Tedarik Bölgesi' };
+  const TURKEY_CENTER = { x: 58.6, y: 28.3, label: 'Türkiye — Varış Bölgesi' };
+
   const mapWrap = document.getElementById('footprintZoomGroup');
   const mapImg = document.getElementById('footprintZoomGroup');
+  const worldDots = [];
   if (mapWrap) {
-    ALL_DOTS.forEach(d => {
+    WORLD_DOTS.forEach(d => {
       const s = document.createElement('span');
-      s.className = 'map-dot is-shown' + (d.focus ? ' is-focus focus-' + d.focus : ' is-focus-world');
+      s.className = 'map-dot is-shown';
       s.style.left = d.x + '%'; s.style.top = d.y + '%';
       mapWrap.appendChild(s);
+      worldDots.push(s);
     });
   }
-  // Odak merkezleri: Çin ve Türkiye kümelerinin ortalama koordinatı (transform-origin için)
-  const CHINA_CENTER = { x: 82.2, y: 33.6 };
-  const TURKEY_CENTER = { x: 58.6, y: 28.3 };
+  function makeRegionGlow(center) {
+    const glow = document.createElement('div');
+    glow.className = 'map-region-glow';
+    glow.style.left = center.x + '%'; glow.style.top = center.y + '%';
+    const label = document.createElement('div');
+    label.className = 'map-region-label';
+    label.style.left = center.x + '%'; label.style.top = center.y + '%';
+    label.textContent = center.label;
+    mapWrap.appendChild(glow); mapWrap.appendChild(label);
+    return { glow, label };
+  }
+  const chinaMark = mapWrap ? makeRegionGlow(CHINA_CENTER) : null;
+  const turkeyMark = mapWrap ? makeRegionGlow(TURKEY_CENTER) : null;
 
   // Scroll ilerlemesine göre aşama (0/1/2) belirleme: harita zoom eder, kart/başlık/noktalar değişir
   const fpScroll = document.getElementById('footprintScroll');
@@ -471,9 +488,6 @@
     const progressDots = document.querySelectorAll('.footprint-progress span');
     const titleEl = document.getElementById('footprintTitle');
     const descEl = document.getElementById('footprintDesc');
-    const worldDots = mapWrap.querySelectorAll('.is-focus-world');
-    const chinaDots = mapWrap.querySelectorAll('.focus-china');
-    const turkeyDots = mapWrap.querySelectorAll('.focus-turkey');
     const STAGE_TEXT = [
       { t: 'Küresel Tedarik Ağı', d: 'Scroll ettikçe harita dünyadan Çin\'deki tedarik merkezlerine, oradan Türkiye gümrüklerine yakınlaşır' },
       { t: 'Çin — Tedarik Merkezleri', d: 'Fabrika ve üretim bölgelerimizin yoğunlaştığı gerçek şehirler' },
@@ -493,14 +507,14 @@
         mapImg.style.transform = 'scale(1)';
       } else if (stage === 1) {
         mapImg.style.transformOrigin = CHINA_CENTER.x + '% ' + CHINA_CENTER.y + '%';
-        mapImg.style.transform = 'scale(5)';
+        mapImg.style.transform = 'scale(3.2)';
       } else {
         mapImg.style.transformOrigin = TURKEY_CENTER.x + '% ' + TURKEY_CENTER.y + '%';
-        mapImg.style.transform = 'scale(5)';
+        mapImg.style.transform = 'scale(3.2)';
       }
       worldDots.forEach(d => d.style.opacity = stage === 0 ? '.85' : '0');
-      chinaDots.forEach(d => d.style.opacity = stage === 1 ? '1' : '0');
-      turkeyDots.forEach(d => d.style.opacity = stage === 2 ? '1' : '0');
+      if (chinaMark) { chinaMark.glow.classList.toggle('is-active', stage === 1); chinaMark.label.classList.toggle('is-active', stage === 1); }
+      if (turkeyMark) { turkeyMark.glow.classList.toggle('is-active', stage === 2); turkeyMark.label.classList.toggle('is-active', stage === 2); }
     }
     function onScroll() {
       const rect = fpScroll.getBoundingClientRect();
