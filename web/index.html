@@ -158,6 +158,28 @@
   .trust-item{ display:flex; flex-direction:column; gap:6px; }
   .trust-item .num{ font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:600; color:#fff; }
   .trust-item .lbl{ font-size:13px; color:var(--text-faint); line-height:1.4; }
+
+  /* Operational Footprint — referans .footprint_body (min-height 720px, padding-left 48px, gap 64px)
+     + .footprint-card_wrapper (glass: bg #ffffff0f, border #ffffff1f, radius 16px, blur 1.5rem, gap 20px) */
+  .footprint{ background:var(--deep2); position:relative; overflow:hidden; }
+  .footprint-body{ display:flex; flex-direction:column; justify-content:center; gap:4rem; min-height:45rem; padding:var(--sp-130) 0 var(--sp-130) 3rem; position:relative; }
+  @media (max-width:767px){ .footprint-body{ padding:var(--sp-70) 0 var(--sp-70) 0; gap:2.5rem; } }
+  .footprint-head h2{ font-size:clamp(1.5rem,3vw,var(--fs-32)); font-weight:500; margin-bottom:12px; max-width:33.375rem; }
+  .footprint-head p{ color:var(--text-faint); font-size:var(--fs-16); max-width:220px; }
+
+  .footprint-map-wrap{ position:relative; width:100%; max-width:900px; aspect-ratio:900/456; }
+  .footprint-map-wrap img{ width:100%; height:100%; object-fit:contain; opacity:.5; filter:invert(1) brightness(1.4); }
+  .map-dot{ position:absolute; width:5px; height:5px; border-radius:50%; background:var(--green); transform:translate(-50%,-50%); box-shadow:0 0 0 0 rgba(31,174,112,.7); animation:dotpulse 2.6s infinite; }
+  @keyframes dotpulse{ 0%{ box-shadow:0 0 0 0 rgba(31,174,112,.55);} 70%{ box-shadow:0 0 0 9px rgba(31,174,112,0);} 100%{ box-shadow:0 0 0 0 rgba(31,174,112,0);} }
+
+  /* referans .footprint-card_wrapper: gerçek glassmorphism ölçüleri */
+  .footprint-card{ background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-card);
+    backdrop-filter:blur(1.5rem); -webkit-backdrop-filter:blur(1.5rem); display:flex; flex-direction:column; gap:1.25rem;
+    padding:1.75rem; width:100%; max-width:320px; position:absolute; right:0; bottom:var(--sp-130); z-index:2; }
+  @media (max-width:900px){ .footprint-card{ position:static; max-width:100%; margin-top:24px; } }
+  .footprint-card .row .lbl{ font-size:var(--fs-14); color:var(--text-dim); margin-bottom:2px; }
+  .footprint-card .row .val{ font-size:var(--fs-24); font-weight:500; }
+  .footprint-divider{ height:1px; background:var(--line); }
 </style>
 </head>
 <body>
@@ -266,7 +288,31 @@
   </div>
 </section>
 
-<!-- Sıradaki bölümler (Süreç detay, Paketler, Ülke Ağı, SSS, Footer) burada sırayla eklenecek. -->
+<section class="footprint">
+  <div class="wrap">
+    <div class="footprint-body">
+      <div class="footprint-head">
+        <h2>Operasyonel Yayılımımız</h2>
+        <p>Gerçek zamanlı izlenen güzergahlar üzerinden çalışan tedarik ve lojistik ağı</p>
+      </div>
+
+      <div class="footprint-map-wrap" id="footprintMap">
+        <img src="assets/photos/world-map.svg" alt="Dünya haritası — tedarik ve sevkiyat güzergahları">
+        <!-- Noktalar gerçek şehir koordinatlarından (ekvator dikdörtgen izdüşüm) hesaplandı: JS ile enjekte edilir -->
+      </div>
+
+      <div class="footprint-card">
+        <div class="row"><div class="lbl">Ana tedarik ülkesi</div><div class="val">Çin</div></div>
+        <div class="footprint-divider"></div>
+        <div class="row"><div class="lbl">Varış</div><div class="val">Türkiye gümrükleri</div></div>
+        <div class="footprint-divider"></div>
+        <div class="row"><div class="lbl">Süreç</div><div class="val">6 aşama, tek panel</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Sıradaki bölümler (Süreç detay, Paketler, SSS, Footer) burada sırayla eklenecek. -->
 
 <script src="assets/vendor/motion-bundle.min.js"></script>
 <script>
@@ -298,6 +344,28 @@
   menuPanel.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
     menuPanel.classList.remove('is-open'); menuBtn.classList.remove('is-open'); document.body.style.overflow = '';
   }));
+
+  // Footprint haritası — gerçek şehir koordinatlarından (CN_TR + GLOBAL rota uçları) hesaplanmış noktalar
+  const FOOTPRINT_DOTS = [
+    {x:98.55,y:70.47},{x:33.78,y:69.22},{x:55.12,y:68.85},{x:92.00,y:68.82},{x:30.37,y:68.58},
+    {x:38.01,y:62.73},{x:36.70,y:58.77},{x:28.60,y:56.69},{x:79.68,y:53.45},{x:60.23,y:50.72},
+    {x:78.84,y:49.25},{x:29.42,y:47.38},{x:50.94,y:46.38},{x:71.55,y:42.79},{x:70.24,y:39.40},
+    {x:22.46,y:39.20},{x:81.68,y:37.48},{x:81.46,y:37.15},{x:65.35,y:36.00},{x:27.72,y:35.69},
+    {x:71.45,y:34.10},{x:23.51,y:33.47},{x:58.68,y:33.31},{x:81.75,y:33.00},{x:83.74,y:32.65},
+    {x:17.15,y:31.08},{x:88.79,y:30.18},{x:58.53,y:29.50},{x:85.27,y:29.13},{x:57.54,y:28.65},
+    {x:82.34,y:27.83},{x:58.07,y:27.67},{x:29.44,y:27.38},{x:58.32,y:27.35},{x:58.05,y:27.22},
+    {x:25.66,y:26.73},{x:29.56,y:24.72},{x:50.65,y:22.86},{x:15.80,y:22.62},{x:49.96,y:21.38},
+    {x:53.72,y:20.82},{x:60.45,y:19.02},
+  ];
+  const mapWrap = document.getElementById('footprintMap');
+  if (mapWrap) {
+    FOOTPRINT_DOTS.forEach(d => {
+      const s = document.createElement('span');
+      s.className = 'map-dot';
+      s.style.left = d.x + '%'; s.style.top = d.y + '%';
+      mapWrap.appendChild(s);
+    });
+  }
 
   if (Swiper) {
     const sw = new Swiper('.hero-swiper', {
