@@ -215,6 +215,14 @@
       .footprint-stat span{ font-size:12.5px; color:rgba(255,255,255,.45); }
       .footprint-stat b{ color:#fff; font-weight:700; font-size:15px; }
       @media (max-width:991px){ .footprint-row{ flex-direction:column; } .footprint-globe-col{ width:100%; } }
+
+      /* Düz 2D dünya haritası — küre yerine, tranzport'un gerçek yapısı */
+      .flat-map-stage{ position:relative; width:100%; max-width:640px; }
+      .flat-map-img{ width:100%; height:auto; display:block; filter:invert(1) brightness(.35) sepia(.3) hue-rotate(175deg) saturate(1.4); opacity:.9; }
+      .map-dot{ position:absolute; width:8px; height:8px; margin:-4px 0 0 -4px; border-radius:50%; background:var(--brand-green);
+        box-shadow:0 0 0 0 rgba(31,174,112,.6); animation:mapDotPulse 2.4s infinite; }
+      .map-dot::before{ content:""; position:absolute; inset:-3px; border-radius:50%; background:var(--brand-green); opacity:.35; }
+      @keyframes mapDotPulse{ 0%{ box-shadow:0 0 0 0 rgba(31,174,112,.55); } 70%{ box-shadow:0 0 0 10px rgba(31,174,112,0); } 100%{ box-shadow:0 0 0 0 rgba(31,174,112,0); } }
       .hero-scrim{ background:linear-gradient(120deg, rgba(10,14,31,.94) 0%, rgba(10,14,31,.82) 40%, rgba(15,22,48,.55) 70%, rgba(31,174,112,.18) 100%) !important; }
       @media (max-width: 991px){ .hero-scrim{ background:linear-gradient(180deg, rgba(10,14,31,.75) 0%, rgba(10,14,31,.92) 55%, rgba(10,14,31,.96) 100%) !important; } }
       nav.navbar-light{ background:rgba(10,14,31,.72) !important; backdrop-filter:blur(10px); box-shadow:none !important; border-bottom:1px solid rgba(255,255,255,.08); transition:background .3s; }
@@ -617,9 +625,11 @@
     <!-- Feature End -->
 
 
-    <!-- Operasyonel Ayak İzi — tranzport'un numaralı sol sütun + istatistik kartı
-         yapısı; sağda gerçek WebGL 3D küremiz (onlardaki düz 2D haritadan daha
-         gelişmiş — kendi güçlü yanımızı koruyoruz, birebir kopya değil). -->
+    <!-- Operasyonel Ayak İzi — tranzport'un gerçek yapısı: numaralı sol sütun +
+         istatistik kartı + düz 2D dünya haritası (Wikimedia Commons, kamu malı
+         BlankMap-World-Equirectangular.svg) üzerinde gerçek rota koordinatlarımızdan
+         (aynı three.js küresinde kullanılan CN_TR+GLOBAL verisi) türetilen
+         yeşil parlayan nokta işaretleri. -->
     <div class="globe-wrap">
         <div class="container">
             <div class="footprint-row">
@@ -641,8 +651,9 @@
                     </div>
                 </div>
                 <div class="footprint-col footprint-globe-col">
-                    <div class="globe-stage" id="globeStage">
-                        <div class="globe-loading" id="globeLoading">Küre yükleniyor…</div>
+                    <div class="flat-map-stage">
+                        <img src="assets/photos/world-map.svg" class="flat-map-img" alt="Dünya haritası — gerçek tedarik/gümrük ağı rotaları">
+                        <span class='map-dot' style='left:98.55%; top:70.47%;'></span><span class='map-dot' style='left:33.78%; top:69.22%;'></span><span class='map-dot' style='left:55.12%; top:68.85%;'></span><span class='map-dot' style='left:92.00%; top:68.82%;'></span><span class='map-dot' style='left:30.37%; top:68.58%;'></span><span class='map-dot' style='left:57.83%; top:64.30%;'></span><span class='map-dot' style='left:38.01%; top:62.73%;'></span><span class='map-dot' style='left:36.70%; top:58.77%;'></span><span class='map-dot' style='left:28.60%; top:56.69%;'></span><span class='map-dot' style='left:82.00%; top:54.67%;'></span><span class='map-dot' style='left:79.68%; top:53.45%;'></span><span class='map-dot' style='left:54.24%; top:52.47%;'></span><span class='map-dot' style='left:60.23%; top:50.72%;'></span><span class='map-dot' style='left:28.20%; top:50.10%;'></span><span class='map-dot' style='left:78.84%; top:49.25%;'></span><span class='map-dot' style='left:29.42%; top:47.38%;'></span><span class='map-dot' style='left:50.94%; top:46.38%;'></span><span class='map-dot' style='left:71.55%; top:42.79%;'></span><span class='map-dot' style='left:77.92%; top:42.36%;'></span><span class='map-dot' style='left:83.61%; top:41.89%;'></span><span class='map-dot' style='left:70.24%; top:39.40%;'></span><span class='map-dot' style='left:22.46%; top:39.20%;'></span><span class='map-dot' style='left:79.40%; top:38.32%;'></span><span class='map-dot' style='left:81.68%; top:37.48%;'></span><span class='map-dot' style='left:81.46%; top:37.15%;'></span><span class='map-dot' style='left:75.11%; top:36.77%;'></span><span class='map-dot' style='left:65.35%; top:36.00%;'></span><span class='map-dot' style='left:27.72%; top:35.69%;'></span><span class='map-dot' style='left:71.45%; top:34.10%;'></span><span class='map-dot' style='left:23.51%; top:33.47%;'></span><span class='map-dot' style='left:58.68%; top:33.31%;'></span><span class='map-dot' style='left:81.75%; top:33.00%;'></span><span class='map-dot' style='left:83.74%; top:32.65%;'></span><span class='map-dot' style='left:48.03%; top:32.34%;'></span><span class='map-dot' style='left:70.29%; top:31.29%;'></span><span class='map-dot' style='left:17.15%; top:31.08%;'></span><span class='map-dot' style='left:88.79%; top:30.18%;'></span><span class='map-dot' style='left:58.53%; top:29.50%;'></span><span class='map-dot' style='left:85.27%; top:29.13%;'></span><span class='map-dot' style='left:57.54%; top:28.65%;'></span><span class='map-dot' style='left:82.34%; top:27.83%;'></span><span class='map-dot' style='left:58.07%; top:27.67%;'></span><span class='map-dot' style='left:48.97%; top:27.55%;'></span><span class='map-dot' style='left:29.44%; top:27.38%;'></span><span class='map-dot' style='left:58.32%; top:27.35%;'></span><span class='map-dot' style='left:58.05%; top:27.22%;'></span><span class='map-dot' style='left:25.66%; top:26.73%;'></span><span class='map-dot' style='left:71.35%; top:25.99%;'></span><span class='map-dot' style='left:29.56%; top:24.72%;'></span><span class='map-dot' style='left:50.65%; top:22.86%;'></span><span class='map-dot' style='left:15.80%; top:22.62%;'></span><span class='map-dot' style='left:52.90%; top:21.57%;'></span><span class='map-dot' style='left:49.96%; top:21.38%;'></span><span class='map-dot' style='left:53.72%; top:20.82%;'></span><span class='map-dot' style='left:60.45%; top:19.02%;'></span><span class='map-dot' style='left:55.02%; top:17.04%;'></span><span class='map-dot' style='left:79.26%; top:15.82%;'></span><span class='map-dot' style='left:43.90%; top:14.36%;'></span>
                     </div>
                 </div>
             </div>
@@ -956,168 +967,6 @@
     <script src="assets/mailler/lib/counterup/counterup.min.js"></script>
     <script src="assets/mailler/js/main.js"></script>
 
-    <!-- Küresel ağ görselleştirmesi — gerçek 3D döner küre (three.js + three-globe).
-         Önceki sürüm bu kütüphaneleri harici bir CDN'den (esm.sh) canlı olarak
-         yüklüyordu; bu bazı ağlarda/CDN dalgalanmalarında "geç yükleniyor ya da hiç
-         yüklenmiyor" şikayetine yol açtı. Bu sürümde three.js + OrbitControls +
-         three-globe kendi sunucumuzda (assets/vendor/globe-bundle.min.js, esbuild
-         ile tek dosyada derlendi) barındırılıyor — hiçbir harici ağ isteği yok,
-         bu yüzden her zaman hızlı ve güvenilir yükleniyor. Rota verisi (gerçek
-         şehir koordinatları) aynen korundu. -->
-    <script src="assets/vendor/globe-bundle.min.js"></script>
-    <script>
-    (async () => {
-      const stage = document.getElementById('globeStage');
-      const loading = document.getElementById('globeLoading');
-      if (!stage) return;
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        loading.textContent = 'Küre görselleştirmesi hareket azaltma modunda devre dışı.';
-        return;
-      }
-      const { THREE, OrbitControls, ThreeGlobe } = window.__GLOBE_LIBS__ || {};
-      if (!THREE || !ThreeGlobe) {
-        loading.textContent = 'Küre yüklenemedi.';
-        return;
-      }
-
-      const CN_TR = [
-        [31.2304,121.4737, 41.0082,28.9784], [22.5431,114.0579, 41.0082,28.9784],
-        [39.9042,116.4074, 40.1885,29.0610], [23.1291,113.2644, 38.4237,27.1428],
-        [31.2304,121.4737, 36.8969,30.7133], [30.5928,114.3055, 40.7654,29.9408],
-      ];
-      const GLOBAL = [
-        [22.5431,114.0579, 1.3521,103.8198], [1.3521,103.8198, 12.9716,77.5946],
-        [12.9716,77.5946, 25.2048,55.2708], [25.2048,55.2708, 41.0082,28.9784],
-        [41.0082,28.9784, 52.5200,13.4050], [52.5200,13.4050, 51.5072,-0.1276],
-        [19.0760,72.8777, 25.2048,55.2708], [28.6139,77.2090, 19.0760,72.8777],
-        [55.7558,37.6173, 52.5200,13.4050], [39.9042,116.4074, 55.7558,37.6173],
-        [48.8566,2.3522, 41.0082,28.9784], [31.2304,121.4737, 35.6762,139.6503],
-        [35.6762,139.6503, 37.5665,126.9780], [37.5665,126.9780, -6.2088,106.8456],
-        [51.5072,-0.1276, 40.7128,-74.0060], [40.7128,-74.0060, 34.0522,-118.2437],
-        [34.0522,-118.2437, 49.2827,-123.1207], [49.2827,-123.1207, 45.5017,-73.5673],
-        [45.5017,-73.5673, 41.8781,-87.6298], [41.8781,-87.6298, 29.7604,-95.3698],
-        [29.7604,-95.3698, 25.7617,-80.1918], [40.7128,-74.0060, 19.4326,-99.1332],
-        [19.4326,-99.1332, 4.7110,-74.0721], [4.7110,-74.0721, -12.0464,-77.0428],
-        [-12.0464,-77.0428, -33.4489,-70.6693], [-33.4489,-70.6693, -34.6037,-58.3816],
-        [-34.6037,-58.3816, -22.9068,-43.1729], [-22.9068,-43.1729, -15.7939,-47.8828],
-        [22.5431,114.0579, -1.3026,36.8219], [-1.3026,36.8219, -33.9249,18.4241],
-        [-33.9249,18.4241, -22.9068,-43.1729], [30.0444,31.2357, -1.3026,36.8219],
-        [6.5244,3.3792, 30.0444,31.2357], [6.5244,3.3792, -33.9249,18.4241],
-        [41.0082,28.9784, 30.0444,31.2357],
-        [34.0522,-118.2437, -33.8688,151.2093], [-6.2088,106.8456, -33.8688,151.2093],
-        [-33.8688,151.2093, -36.8485,174.7633], [-33.8688,151.2093, -22.9068,-43.1729],
-        [1.3521,103.8198, -33.8688,151.2093], [22.5431,114.0579, -33.8688,151.2093],
-        [51.1657,10.4515, 59.3293,18.0686], [59.3293,18.0686, 55.7558,37.6173],
-        [43.2220,76.8512, 55.7558,37.6173], [43.2220,76.8512, 31.2304,121.4737],
-        [23.8103,90.4125, 19.0760,72.8777], [33.6844,73.0479, 28.6139,77.2090],
-        [31.7917,-7.0926, 40.4168,-3.7038], [31.7917,-7.0926, 6.5244,3.3792],
-        [30.0444,31.2357, 25.2048,55.2708], [-25.7461,28.1881, -1.3026,36.8219],
-        [-4.4419,15.2663, -25.7461,28.1881], [-15.7939,-47.8828, -34.6037,-58.3816],
-        [19.4326,-99.1332, -0.1807,-78.4678], [-0.1807,-78.4678, -12.0464,-77.0428],
-        [45.5017,-73.5673, 51.5072,-0.1276], [64.1466,-21.9426, 51.5072,-0.1276],
-        [55.7558,37.6173, 61.5240,105.3188], [61.5240,105.3188, 35.6762,139.6503],
-        [13.7563,100.5018, 21.0285,105.8542], [21.0285,105.8542, 22.5431,114.0579],
-        [14.5995,120.9842, 1.3521,103.8198], [-8.4095,115.1889, -33.8688,151.2093],
-      ];
-      try {
-        const countries = await fetch('/data/countries.geo.json').then(r => r.json());
-        const ARC_COLORS = ['#465fff', '#9333ea', '#0e7490', '#db2777'];
-        const rndColor = () => ARC_COLORS[Math.floor(Math.random() * ARC_COLORS.length)];
-        const ROUTES = [...CN_TR, ...GLOBAL]
-          .map(([sLa,sLo,eLa,eLo]) => ({ startLat:sLa, startLng:sLo, endLat:eLa, endLng:eLo, color: rndColor() }))
-          .map(r => ({ ...r, order: Math.round(Math.random() * 3), arcAlt: .15 + Math.random() * .35 }));
-        const globePoints = ROUTES.flatMap(r => [
-          { lat:r.startLat, lng:r.startLng, color:r.color },
-          { lat:r.endLat, lng:r.endLng, color:r.color },
-        ]);
-        const globe = new ThreeGlobe()
-          .hexPolygonsData(countries.features)
-          .hexPolygonResolution(3)
-          .hexPolygonMargin(0.7)
-          .showAtmosphere(true)
-          .atmosphereColor('#465fff')
-          .atmosphereAltitude(0.14)
-          .hexPolygonColor(() => 'rgba(255,255,255,0.7)')
-          .arcsData(ROUTES)
-          .arcColor('color')
-          .arcAltitude('arcAlt')
-          .arcStroke(() => [0.32, 0.28, 0.3][Math.round(Math.random() * 2)])
-          .arcDashLength(0.9)
-          .arcDashGap(2)
-          .arcDashInitialGap('order')
-          .arcDashAnimateTime(900)
-          .pointsData(globePoints)
-          .pointColor('color')
-          .pointsMerge(true)
-          .pointAltitude(0)
-          .pointRadius(2)
-          .ringsData([])
-          .ringColor(() => (t) => `rgba(255,255,255,${1 - t})`)
-          .ringMaxRadius(3)
-          .ringPropagationSpeed(3)
-          .ringRepeatPeriod((1000 * 0.9) / 1);
-        globe.globeMaterial().color = new THREE.Color('#101828');
-        globe.globeMaterial().emissive = new THREE.Color('#101828');
-        globe.globeMaterial().emissiveIntensity = 0.1;
-        globe.globeMaterial().shininess = 0.9;
-        setInterval(() => {
-          const sample = globePoints
-            .map(p => ({ p, r: Math.random() }))
-            .sort((a,b) => a.r - b.r)
-            .slice(0, Math.floor(globePoints.length * 0.85))
-            .map(x => x.p);
-          globe.ringsData(sample);
-        }, 500);
-        const width = stage.clientWidth, height = stage.clientHeight;
-        const scene = new THREE.Scene();
-        scene.add(globe);
-        scene.add(new THREE.AmbientLight('#465fff', 0.8));
-        const dLight1 = new THREE.DirectionalLight(0xffffff, 0.7);
-        dLight1.position.set(-400, 100, 400);
-        scene.add(dLight1);
-        const dLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
-        dLight2.position.set(-200, 500, 200);
-        scene.add(dLight2);
-        const pLight = new THREE.PointLight(0xffffff, 0.8);
-        pLight.position.set(-200, 500, 200);
-        scene.add(pLight);
-        const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 2000);
-        camera.position.z = 280;
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.setSize(width, height);
-        stage.appendChild(renderer.domElement);
-        loading.style.opacity = '0';
-        setTimeout(() => loading.remove(), 400);
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableZoom = false;
-        controls.enablePan = false;
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 0.6;
-        controls.minPolarAngle = Math.PI / 3.2;
-        controls.maxPolarAngle = Math.PI - Math.PI / 3.2;
-        function onResize() {
-          const w = stage.clientWidth, h = stage.clientHeight;
-          camera.aspect = w / h; camera.updateProjectionMatrix();
-          renderer.setSize(w, h);
-        }
-        window.addEventListener('resize', onResize);
-        let raf;
-        (function animate(){
-          raf = requestAnimationFrame(animate);
-          controls.update();
-          renderer.render(scene, camera);
-        })();
-        document.addEventListener('visibilitychange', () => {
-          if (document.hidden) cancelAnimationFrame(raf);
-          else animate();
-        });
-      } catch (err) {
-        console.error('Küre yüklenemedi:', err);
-        if (loading) loading.textContent = 'Küre yüklenemedi.';
-      }
-    })();
-    </script>
     <script>
     // Gerçek zamanlı canlı sayaç — panel verisinden, sayfa yüklenince bir kez çekilir.
     (function(){
