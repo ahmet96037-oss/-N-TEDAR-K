@@ -151,6 +151,41 @@
         .hero-video{ display:none; }
         .hero-photo-fallback{ display:block; }
       }
+
+      /* Hero yeniden inşası — tranzport.webflow.io'nun gerçek yapısı: büyük tek
+         sütun başlık + altta kaydırılabilir "01...06" sayaçlı hizmet slider'ı
+         (Swiper). Görseller kendi/lisanslı, yapı birebir. */
+      .hero-photo{ padding-top:170px; padding-bottom:70px; }
+      @media (max-width:767px){ .hero-photo{ padding-top:130px; padding-bottom:40px; } }
+      .hero-title-xl{ font-family:'Manrope',sans-serif; font-weight:500; letter-spacing:-.02em;
+        font-size:clamp(2.4rem, 6vw, 4.5rem); line-height:1.06; }
+      .hero-bottom-row{ margin-top:64px; }
+      .hero-btn-group{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:44px; }
+
+      .hero-slider-wrap{ position:relative; }
+      .hero-slider-counter{ display:flex; align-items:center; gap:16px; font-family:'IBM Plex Mono',monospace;
+        font-size:13px; color:rgba(255,255,255,.55); margin-bottom:16px; }
+      .hero-slider-track{ flex:1; height:2px; background:rgba(255,255,255,.15); position:relative; overflow:hidden; border-radius:2px; }
+      .hero-slider-progress{ position:absolute; inset:0; width:16.66%; background:var(--brand-green); transition:transform .35s ease; transform-origin:left; }
+
+      /* Swiper temel davranışı — resmi swiper.css yerine, self-host bundle'ımızın
+         (JS-only) ihtiyaç duyduğu minimum stil elle yazıldı, CDN bağımlılığı yok. */
+      .swiper{ position:relative; overflow:hidden; width:100%; }
+      .swiper-wrapper{ position:relative; display:flex; width:100%; height:100%; box-sizing:content-box; }
+      .swiper-slide{ flex-shrink:0; width:100%; height:100%; position:relative; }
+      .hero-swiper .swiper-slide{ width:320px; margin-right:16px; }
+
+      .hero-slide-card{ display:block; position:relative; border-radius:18px; overflow:hidden; height:230px;
+        text-decoration:none; cursor:grab; }
+      .hero-slide-card:active{ cursor:grabbing; }
+      .hero-slide-card img{ width:100%; height:100%; object-fit:cover; transition:transform .5s ease; }
+      .hero-slide-card:hover img{ transform:scale(1.06); }
+      .hero-slide-card::after{ content:""; position:absolute; inset:0;
+        background:linear-gradient(180deg, transparent 40%, rgba(10,14,31,.92) 100%); }
+      .hero-slide-info{ position:absolute; left:0; right:0; bottom:0; padding:18px; z-index:2; }
+      .hero-slide-info h3{ color:#fff; font-size:16px; font-weight:700; margin:0 0 4px; }
+      .hero-slide-info p{ color:rgba(255,255,255,.72); font-size:12.5px; margin:0; line-height:1.4; }
+      @media (max-width:575px){ .hero-swiper .swiper-slide{ width:240px; } .hero-slide-card{ height:190px; } }
       .hero-scrim{ background:linear-gradient(120deg, rgba(10,14,31,.94) 0%, rgba(10,14,31,.82) 40%, rgba(15,22,48,.55) 70%, rgba(31,174,112,.18) 100%) !important; }
       @media (max-width: 991px){ .hero-scrim{ background:linear-gradient(180deg, rgba(10,14,31,.75) 0%, rgba(10,14,31,.92) 55%, rgba(10,14,31,.96) 100%) !important; } }
       nav.navbar-light{ background:rgba(10,14,31,.72) !important; backdrop-filter:blur(10px); box-shadow:none !important; border-bottom:1px solid rgba(255,255,255,.08); transition:background .3s; }
@@ -275,14 +310,55 @@
                 <img src="assets/photos/ship_aerial.jpg" class="hero-slide hero-photo-fallback active" alt="Açık denizde seyir halinde konteyner gemisi, kuş bakışı">
                 <div class="hero-scrim"></div>
             </div>
-            <div class="row gy-5 align-items-center position-relative">
-                <div class="col-12 col-lg-7 wow fadeInLeft" data-wow-delay="0.1s">
-                    <p class="mono text-uppercase mb-3" style="font-size:13px; letter-spacing:.1em; color:#c7d2ff;">İthalat • İhracat • Gümrük Danışmanlığı</p>
-                    <h1 class="display-4 text-white mb-4 wow fadeInUp" data-wow-delay="0.3s">Talepten teslimata, <span style="color:#8fa0ff;">her adımı canlı</span> izleyin.</h1>
-                    <p class="fs-4 mb-4 wow fadeInUp" data-wow-delay="0.5s" style="font-size:1.15rem !important; color:rgba(255,255,255,.85);">Altı kıtaya yayılan tedarikçi/gümrük ağıyla ithalat-ihracat danışmanlığı veriyoruz. Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip portalınızdan izlersiniz — kara kutu değil, sistemli bir süreç.</p>
-                    <a href="/takip.html#rfq" class="btn btn-primary rounded-pill py-3 px-5 me-3 wow fadeInUp" data-wow-delay="0.7s">Ücretsiz Danışmanlık Talebi</a>
-                    <a href="#ulke-agi" class="btn btn-outline-light rounded-pill py-3 px-5 wow fadeInUp" data-wow-delay="0.7s">Ülke Ağımızı Keşfedin</a>
-                    <div id="canliSayac" class="live-counter wow fadeInUp" data-wow-delay="0.9s" style="display:none;">
+            <div class="position-relative">
+                <p class="mono text-uppercase mb-3 wow fadeInUp" data-wow-delay="0.1s" style="font-size:15px; letter-spacing:.1em; color:rgba(255,255,255,.85);">Lisanslı. Güvenilir. Şeffaf.</p>
+                <h1 class="hero-title-xl text-white mb-5 wow fadeInUp" data-wow-delay="0.3s" style="max-width:16ch;">Talepten Teslimata, Uçtan Uca İthalat Yönetimi</h1>
+
+                <div class="hero-bottom-row wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="hero-btn-group">
+                        <a href="/takip.html#rfq" class="btn btn-primary rounded-pill py-3 px-5">Ücretsiz Teklif Alın</a>
+                        <a href="/takip.html" class="btn btn-outline-light rounded-pill py-3 px-5">Siparişimi Takip Et</a>
+                    </div>
+
+                    <!-- Gerçek 6 fazlı süreç — tranzport'un "01...06" sayaçlı, kaydırılabilir
+                         hizmet slider'ından uyarlandı (Swiper). Görseller: Pexels, ücretsiz
+                         ticari lisanslı, kendi sunucumuzda barındırılıyor. -->
+                    <div class="hero-slider-wrap">
+                        <div class="hero-slider-counter">
+                            <span id="heroSliderIdx">01</span>
+                            <div class="hero-slider-track"><div class="hero-slider-progress" id="heroSliderProgress"></div></div>
+                            <span>06</span>
+                        </div>
+                        <div class="swiper hero-swiper">
+                            <div class="swiper-wrapper">
+                                <a href="/takip.html#rfq" class="hero-slide-card swiper-slide">
+                                    <img src="assets/photos/slider/talep-imza.jpg" alt="Danışmanlık talep formu imzalanıyor">
+                                    <div class="hero-slide-info"><h3>Talep &amp; Teklif</h3><p>Ürün, miktar ve hedef fiyatınızı iletirsiniz.</p></div>
+                                </a>
+                                <a href="/takip.html#rfq" class="hero-slide-card swiper-slide">
+                                    <img src="assets/photos/slider/fabrika-eslesme.jpg" alt="Fabrika ile anlaşma el sıkışması">
+                                    <div class="hero-slide-info"><h3>Fabrika Eşleştirme</h3><p>Uygun tedarikçiler karşılaştırmalı teklifle bulunur.</p></div>
+                                </a>
+                                <a href="/takip.html#rfq" class="hero-slide-card swiper-slide">
+                                    <img src="assets/photos/slider/numune-kontrol.jpg" alt="Numune kalite kontrol dokümantasyonu">
+                                    <div class="hero-slide-info"><h3>Numune Süreci</h3><p>Yerinde QC ekibimiz fiziksel olarak kontrol eder.</p></div>
+                                </a>
+                                <a href="/takip.html#rfq" class="hero-slide-card swiper-slide">
+                                    <img src="assets/photos/slider/seri-uretim.jpg" alt="Fabrikada seri üretim hattı">
+                                    <div class="hero-slide-info"><h3>Seri Üretim</h3><p>Onay sonrası ilerleme periyodik paylaşılır.</p></div>
+                                </a>
+                                <a href="#ulke-agi" class="hero-slide-card swiper-slide">
+                                    <img src="assets/photos/slider/konteyner-gemi.jpg" alt="Açık denizde konteyner gemisi">
+                                    <div class="hero-slide-info"><h3>Konteyner &amp; Gemi</h3><p>Canlı konum takibi panelinizde açılır.</p></div>
+                                </a>
+                                <a href="/takip.html#rfq" class="hero-slide-card swiper-slide">
+                                    <img src="assets/photos/slider/gumruk-teslimat.jpg" alt="Gümrük ve teslimat kontrolü">
+                                    <div class="hero-slide-info"><h3>Gümrük &amp; Teslimat</h3><p>Mal gümrükten çekilip adresinize ulaştırılır.</p></div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="canliSayac" class="live-counter wow fadeInUp" data-wow-delay="0.7s" style="display:none;">
                         <span class="dot"></span> <b id="canliSayacDeger">—</b> sipariş şu anda canlı takip ediliyor
                     </div>
                 </div>
@@ -1018,8 +1094,27 @@
     <script src="assets/vendor/motion-bundle.min.js"></script>
     <script>
     (function(){
-      const { gsap, ScrollTrigger, Lenis } = window.__MOTION_LIBS__ || {};
+      const { gsap, ScrollTrigger, Lenis, Swiper } = window.__MOTION_LIBS__ || {};
       if (!gsap || !Lenis) return;
+
+      // Hero slider: 6 gerçek faz, sürükleyerek/tekerlekle kaydırılabilir,
+      // "01...06" sayaç ve ilerleme çubuğu güncelleniyor.
+      if (Swiper) {
+        const heroSwiper = new Swiper('.hero-swiper', {
+          slidesPerView: 'auto', spaceBetween: 16, freeMode: true, grabCursor: true, mousewheel: { forceToAxis: true },
+          on: {
+            slideChange: function(){ guncelleSayac(this); },
+            progress: function(){ guncelleSayac(this); },
+          },
+        });
+        function guncelleSayac(sw){
+          const toplam = sw.slides.length;
+          const aktif = Math.min(toplam, Math.max(1, sw.activeIndex + 1));
+          document.getElementById('heroSliderIdx').textContent = String(aktif).padStart(2, '0');
+          const progress = document.getElementById('heroSliderProgress');
+          if (progress) progress.style.transform = `scaleX(${Math.min(1, Math.max(0, sw.progress || 0))})`;
+        }
+      }
 
       // Lenis: sayfa geneli yumuşak kaydırma
       const lenis = new Lenis({ duration: 1.1, easing: t => 1 - Math.pow(1 - t, 3) });
