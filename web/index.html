@@ -103,11 +103,12 @@
   /* About Us — tranzport'taki asimetrik grid: sol dar etiket+açıklama, sağ geniş büyük iddia+CTA */
   .section{ padding:95px 0; }
   @media (max-width:767px){ .section{ padding:56px 0; } }
-  .about-top{ display:grid; grid-template-columns:0.8fr 2.2fr; gap:60px; align-items:start; margin-bottom:64px; }
+  .about-top{ display:grid; grid-template-columns:0.85fr 2.15fr; gap:60px; align-items:start; margin-bottom:64px; }
   @media (max-width:900px){ .about-top{ grid-template-columns:1fr; gap:28px; } }
-  .about-label{ font-size:14px; font-weight:700; letter-spacing:.02em; }
+  .about-left{ display:flex; flex-direction:column; gap:22px; }
+  .about-label{ font-size:15px; font-weight:400; color:var(--text-dim); }
   .about-desc{ color:var(--text-dim); font-size:15px; line-height:1.6; max-width:30ch; }
-  .about-claim h2{ font-size:clamp(1.7rem, 3.4vw, 2.75rem); font-weight:500; line-height:1.22; letter-spacing:-.01em; margin-bottom:32px; }
+  .about-claim h2{ font-size:clamp(1.6rem, 2.6vw, 2.25rem); font-weight:500; line-height:1.28; letter-spacing:-.01em; margin-bottom:32px; }
   .about-claim h2 b{ color:var(--green); font-weight:600; }
 
   .trust-strip{ border-top:1px solid var(--line); padding-top:36px; display:grid; grid-template-columns:repeat(4,1fr); gap:24px; }
@@ -204,8 +205,10 @@
 <section class="section" id="neden-biz">
   <div class="wrap">
     <div class="about-top">
-      <p class="about-label">Hakkımızda</p>
-      <p class="about-desc">Fabrika görüşmesinden gümrük teslimatına kadar süreci kendi ekibimizle yürütür, her aşamayı yazılı olarak raporlarız.</p>
+      <div class="about-left">
+        <p class="about-label">Hakkımızda</p>
+        <p class="about-desc">Fabrika görüşmesinden gümrük teslimatına kadar süreci kendi ekibimizle yürütür, her aşamayı yazılı olarak raporlarız.</p>
+      </div>
       <div class="about-claim">
         <h2>Fabrikayı seçmekten konteyneri gümrükten çekmeye kadar <b>tek bir ekiple</b>, tek panelden yönetilen ithalat süreci.</h2>
         <a href="/takip.html" class="btn btn-ghost">Süreci İnceleyin</a>
