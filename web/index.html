@@ -153,13 +153,17 @@
   .footprint-progress span::after{ content:""; position:absolute; inset:0; background:var(--green); transform:scaleX(0); transform-origin:left; transition:transform .25s linear; }
   .footprint-progress span.is-done::after{ transform:scaleX(1); }
 
-  .footprint-map-wrap{ position:relative; width:100%; max-width:900px; aspect-ratio:2/1; overflow:hidden; }
-  .footprint-map-wrap .map-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:0; filter:grayscale(1) invert(1) brightness(1.4); transition:opacity .5s ease; }
-  .footprint-map-wrap .map-img[data-stage="0"]{ object-fit:fill; }
-  .footprint-map-wrap .map-img.is-active{ opacity:.5; }
-  .map-dot{ position:absolute; width:5px; height:5px; border-radius:50%; background:var(--green); transform:translate(-50%,-50%) scale(0);
-    box-shadow:0 0 0 0 rgba(31,174,112,.7); transition:transform .4s cubic-bezier(.34,1.56,.64,1); }
+  /* Tek gerçek dünya haritası (ülke sınırlarıyla) — referans gibi scroll'da bölgeye ZOOM yapılıyor, harita değişmiyor */
+  .footprint-map-wrap{ position:relative; width:100%; max-width:900px; aspect-ratio:2/1; overflow:hidden; border-radius:4px; }
+  /* Zoom bu gruba uygulanır — harita görseli ve noktalar birlikte, aynı oranda büyür/kayar, hiç kaymaz */
+  .footprint-zoom-group{ position:absolute; inset:0; width:100%; height:100%; transform-origin:50% 50%; transform:scale(1);
+    transition:transform 1s cubic-bezier(.22,.61,.36,1); }
+  .footprint-map-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:fill; opacity:.55;
+    filter:grayscale(1) invert(1) brightness(1.35) contrast(.9); }
+  .map-dot{ position:absolute; width:6px; height:6px; border-radius:50%; background:var(--green); transform:translate(-50%,-50%) scale(0);
+    box-shadow:0 0 0 0 rgba(31,174,112,.7); transition:transform .4s cubic-bezier(.34,1.56,.64,1), opacity .3s; opacity:.85; }
   .map-dot.is-shown{ transform:translate(-50%,-50%) scale(1); animation:dotpulse 2.6s infinite; }
+  .map-dot.is-focus{ width:9px; height:9px; opacity:1; }
   @keyframes dotpulse{ 0%{ box-shadow:0 0 0 0 rgba(31,174,112,.55);} 70%{ box-shadow:0 0 0 9px rgba(31,174,112,0);} 100%{ box-shadow:0 0 0 0 rgba(31,174,112,0);} }
 
   /* referans .footprint-card_wrapper: gerçek glassmorphism ölçüleri */
@@ -293,12 +297,13 @@
         <div class="footprint-progress"><span data-i="0"></span><span data-i="1"></span><span data-i="2"></span></div>
       </div>
 
-      <!-- 3 aşama: Dünya → Çin (tedarik merkezleri) → Türkiye (varış gümrükleri) -->
+      <!-- Tek gerçek dünya haritası (ülke sınırlarıyla) — scroll ilerledikçe Çin ve Türkiye bölgesine ZOOM yapılıyor,
+           harita hiç değişmiyor, sadece kamera yakınlaşıyor (referansın gerçek mekanizması) -->
       <div class="footprint-map-wrap" id="footprintMap">
-        <img class="map-img is-active" data-stage="0" src="assets/photos/world-map.svg" alt="Dünya haritası — tedarik ve sevkiyat güzergahları">
-        <img class="map-img" data-stage="1" src="assets/photos/china-outline.svg" alt="Çin haritası — tedarik merkezi şehirler">
-        <img class="map-img" data-stage="2" src="assets/photos/turkey-outline.svg" alt="Türkiye haritası — varış gümrükleri">
-        <!-- Noktalar JS ile enjekte edilir, gerçek şehir koordinatlarından hesaplanmış -->
+        <div class="footprint-zoom-group" id="footprintZoomGroup">
+          <img class="footprint-map-img" id="footprintMapImg" src="assets/photos/world-detailed.svg" alt="Dünya haritası, ülke sınırlarıyla — tedarik ve sevkiyat güzergahı">
+          <!-- Noktalar JS ile enjekte edilir, gerçek şehir enlem/boylamlarından hesaplanmış (aynı projeksiyon, tüm aşamalarda geçerli) -->
+        </div>
       </div>
 
       <div class="footprint-card">
@@ -426,58 +431,51 @@
     menuPanel.classList.remove('is-open'); menuBtn.classList.remove('is-open'); document.body.style.overflow = '';
   }));
 
-  // Footprint — 3 aşamalı scroll-pinned harita: Dünya (genel rota uçları) → Çin (tedarik şehirleri) → Türkiye (varış şehirleri)
-  // Tüm koordinatlar gerçek şehir enlem/boylamlarından hesaplandı.
-  const DOTS_WORLD = [
+  // Footprint — TEK gerçek dünya haritası (ülke sınırlarıyla), scroll ilerledikçe bölgeye ZOOM yapılıyor.
+  // Tüm noktalar aynı equirectangular projeksiyonla hesaplandı: x%=(lng+180)/360*100, y%=(90-lat)/180*100
+  // — böylece harita hiç değişmeden, sadece kamera yakınlaşarak Çin ve Türkiye şehirlerine odaklanabiliyor.
+  const ALL_DOTS = [
+    // Genel küresel rota uçları (dünya görünümünde hepsi görünür)
     {x:98.55,y:70.47},{x:33.78,y:69.22},{x:55.12,y:68.85},{x:92.00,y:68.82},{x:30.37,y:68.58},
     {x:38.01,y:62.73},{x:36.70,y:58.77},{x:28.60,y:56.69},{x:79.68,y:53.45},{x:60.23,y:50.72},
     {x:78.84,y:49.25},{x:29.42,y:47.38},{x:50.94,y:46.38},{x:71.55,y:42.79},{x:70.24,y:39.40},
-    {x:22.46,y:39.20},{x:81.68,y:37.48},{x:81.46,y:37.15},{x:65.35,y:36.00},{x:27.72,y:35.69},
-    {x:71.45,y:34.10},{x:23.51,y:33.47},{x:58.68,y:33.31},{x:81.75,y:33.00},{x:83.74,y:32.65},
-    {x:17.15,y:31.08},{x:88.79,y:30.18},{x:58.53,y:29.50},{x:85.27,y:29.13},{x:57.54,y:28.65},
-    {x:82.34,y:27.83},{x:58.07,y:27.67},{x:29.44,y:27.38},{x:58.32,y:27.35},{x:58.05,y:27.22},
-    {x:25.66,y:26.73},{x:29.56,y:24.72},{x:50.65,y:22.86},{x:15.80,y:22.62},{x:49.96,y:21.38},
-    {x:53.72,y:20.82},{x:60.45,y:19.02},
+    {x:22.46,y:39.20},{x:65.35,y:36.00},{x:27.72,y:35.69},{x:71.45,y:34.10},{x:23.51,y:33.47},
+    {x:17.15,y:31.08},{x:88.79,y:30.18},{x:25.66,y:26.73},{x:29.56,y:24.72},{x:50.65,y:22.86},
+    {x:15.80,y:22.62},{x:49.96,y:21.38},{x:53.72,y:20.82},{x:60.45,y:19.02},
+    // Çin — gerçek tedarik merkezi şehirleri (aynı projeksiyon, focus:'china')
+    {x:83.74,y:32.65,focus:'china',label:'Şangay'}, {x:82.34,y:27.83,focus:'china',label:'Pekin'},
+    {x:81.68,y:37.48,focus:'china',label:'Şenzhen'}, {x:81.46,y:37.15,focus:'china',label:'Guangzhou'},
+    {x:81.75,y:33.00,focus:'china',label:'Wuhan'},
+    // Türkiye — gerçek varış şehirleri (aynı projeksiyon, focus:'turkey')
+    {x:58.05,y:27.22,focus:'turkey',label:'İstanbul'}, {x:57.54,y:28.65,focus:'turkey',label:'İzmir'},
+    {x:59.62,y:29.56,focus:'turkey',label:'Mersin'}, {x:59.13,y:27.82,focus:'turkey',label:'Ankara'},
   ];
-  // Çin haritası bounding box (73–135E, 18–54N) üzerinden hesaplandı — gerçek tedarik şehirleri
-  const DOTS_CHINA = [
-    {x:78.2,y:63.3,label:'Şangay'}, {x:70.0,y:39.2,label:'Pekin'}, {x:66.2,y:87.4,label:'Şenzhen'},
-    {x:64.9,y:85.7,label:'Guangzhou'}, {x:66.6,y:65.0,label:'Wuhan'},
-  ];
-  // Türkiye haritası bounding box (26–45E, 36–42N) üzerinden hesaplandı — gerçek varış şehirleri
-  const DOTS_TURKEY = [
-    {x:15.7,y:16.5,label:'İstanbul'}, {x:6.0,y:59.7,label:'İzmir'},
-    {x:45.5,y:86.7,label:'Mersin'}, {x:36.1,y:34.5,label:'Ankara'},
-  ];
-  const mapWrap = document.getElementById('footprintMap');
-  const dotSets = [DOTS_WORLD, DOTS_CHINA, DOTS_TURKEY];
-  const dotLayers = [];
+  const mapWrap = document.getElementById('footprintZoomGroup');
+  const mapImg = document.getElementById('footprintZoomGroup');
   if (mapWrap) {
-    dotSets.forEach((set, stage) => {
-      const layer = document.createElement('div');
-      layer.className = 'map-dot-layer';
-      layer.style.cssText = 'position:absolute; inset:0; opacity:' + (stage === 0 ? '1' : '0') + '; transition:opacity .4s;';
-      set.forEach(d => {
-        const s = document.createElement('span');
-        s.className = 'map-dot is-shown';
-        s.style.left = d.x + '%'; s.style.top = d.y + '%';
-        layer.appendChild(s);
-      });
-      mapWrap.appendChild(layer);
-      dotLayers.push(layer);
+    ALL_DOTS.forEach(d => {
+      const s = document.createElement('span');
+      s.className = 'map-dot is-shown' + (d.focus ? ' is-focus focus-' + d.focus : ' is-focus-world');
+      s.style.left = d.x + '%'; s.style.top = d.y + '%';
+      mapWrap.appendChild(s);
     });
   }
+  // Odak merkezleri: Çin ve Türkiye kümelerinin ortalama koordinatı (transform-origin için)
+  const CHINA_CENTER = { x: 82.2, y: 33.6 };
+  const TURKEY_CENTER = { x: 58.6, y: 28.3 };
 
-  // Scroll ilerlemesine göre aşama (0/1/2) belirleme ve harita+kart+nokta katmanlarını güncelleme
+  // Scroll ilerlemesine göre aşama (0/1/2) belirleme: harita zoom eder, kart/başlık/noktalar değişir
   const fpScroll = document.getElementById('footprintScroll');
   if (fpScroll) {
-    const mapImgs = document.querySelectorAll('.map-img');
     const cardStages = document.querySelectorAll('.footprint-card-stage');
     const progressDots = document.querySelectorAll('.footprint-progress span');
     const titleEl = document.getElementById('footprintTitle');
     const descEl = document.getElementById('footprintDesc');
+    const worldDots = mapWrap.querySelectorAll('.is-focus-world');
+    const chinaDots = mapWrap.querySelectorAll('.focus-china');
+    const turkeyDots = mapWrap.querySelectorAll('.focus-turkey');
     const STAGE_TEXT = [
-      { t: 'Küresel Tedarik Ağı', d: 'Scroll ettikçe güzergah dünyadan Çin\'deki tedarik merkezlerine, oradan Türkiye gümrüklerine yakınlaşır' },
+      { t: 'Küresel Tedarik Ağı', d: 'Scroll ettikçe harita dünyadan Çin\'deki tedarik merkezlerine, oradan Türkiye gümrüklerine yakınlaşır' },
       { t: 'Çin — Tedarik Merkezleri', d: 'Fabrika ve üretim bölgelerimizin yoğunlaştığı gerçek şehirler' },
       { t: 'Türkiye — Varış Noktaları', d: 'Malın gümrükten çekilip teslim edildiği gerçek şehirler' },
     ];
@@ -485,12 +483,24 @@
     function setStage(stage) {
       if (stage === currentStage) return;
       currentStage = stage;
-      mapImgs.forEach(img => img.classList.toggle('is-active', Number(img.dataset.stage) === stage));
       cardStages.forEach(c => c.classList.toggle('is-active', Number(c.dataset.stage) === stage));
-      dotLayers.forEach((layer, i) => { layer.style.opacity = i === stage ? '1' : '0'; });
       progressDots.forEach((d, i) => d.classList.toggle('is-done', i <= stage));
       titleEl.textContent = STAGE_TEXT[stage].t;
       descEl.textContent = STAGE_TEXT[stage].d;
+
+      if (stage === 0) {
+        mapImg.style.transformOrigin = '50% 50%';
+        mapImg.style.transform = 'scale(1)';
+      } else if (stage === 1) {
+        mapImg.style.transformOrigin = CHINA_CENTER.x + '% ' + CHINA_CENTER.y + '%';
+        mapImg.style.transform = 'scale(5)';
+      } else {
+        mapImg.style.transformOrigin = TURKEY_CENTER.x + '% ' + TURKEY_CENTER.y + '%';
+        mapImg.style.transform = 'scale(5)';
+      }
+      worldDots.forEach(d => d.style.opacity = stage === 0 ? '.85' : '0');
+      chinaDots.forEach(d => d.style.opacity = stage === 1 ? '1' : '0');
+      turkeyDots.forEach(d => d.style.opacity = stage === 2 ? '1' : '0');
     }
     function onScroll() {
       const rect = fpScroll.getBoundingClientRect();
