@@ -249,6 +249,18 @@
   @media (max-width:767px){ .marquee-item{ width:230px; padding:16px; } }
 
   /* Final CTA — referans .text-size-* h1 seviyesinde büyük (~56px), .mw-690 desc */
+  /* Quick Access — mouse hareketiyle beliren grid arka planı (spotlight/mask efekti) */
+  .quickaccess{ position:relative; padding:var(--sp-140) 0; text-align:center; overflow:hidden; background:var(--dark-main); }
+  .quickaccess-grid{ position:absolute; inset:0; pointer-events:none;
+    background-image:linear-gradient(rgba(31,174,112,.35) 1px, transparent 1px), linear-gradient(90deg, rgba(31,174,112,.35) 1px, transparent 1px);
+    background-size:44px 44px;
+    -webkit-mask-image:radial-gradient(320px circle at var(--mx,50%) var(--my,20%), #000 0%, transparent 72%);
+    mask-image:radial-gradient(320px circle at var(--mx,50%) var(--my,20%), #000 0%, transparent 72%);
+    transition:-webkit-mask-position .05s linear; }
+  .quickaccess-eyebrow{ position:relative; z-index:1; color:var(--text-faint); font-size:var(--fs-16); margin-bottom:16px; }
+  .quickaccess h2{ position:relative; z-index:1; font-size:clamp(1.8rem,4.4vw,3rem); font-weight:500; line-height:1.15; max-width:38rem; margin:0 auto 40px; }
+  .quickaccess .hero-btns{ position:relative; z-index:1; justify-content:center; margin-bottom:0; }
+
   .cta{ padding:var(--sp-140) 0; text-align:center; position:relative; overflow:hidden; }
   .cta-bg{ position:absolute; inset:0; z-index:0; }
   .cta-bg video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:brightness(.5) saturate(.85); }
@@ -463,6 +475,18 @@
         </video>
         <img data-n="6" src="assets/photos/gorsel3-kargo-ucak2.jpg" alt="Kargo uçağı yükleme — GTİP ve vergi süreci">
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="quickaccess" id="quickAccess">
+  <div class="quickaccess-grid" id="quickAccessGrid"></div>
+  <div class="wrap">
+    <p class="quickaccess-eyebrow">Temel araçlara hızlı erişim</p>
+    <h2>Tedarik Ağı ile zaten bir sipariş sürecinde misiniz?</h2>
+    <div class="hero-btns">
+      <a href="/takip.html" class="btn btn-primary">Siparişimi Takip Et</a>
+      <a href="/hesapla.html" class="btn btn-ghost">Vergi Hesaplama Aracı</a>
     </div>
   </div>
 </section>
@@ -685,6 +709,19 @@
       });
     }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
     solList.querySelectorAll('.solutions-item').forEach(el => io.observe(el));
+  }
+
+  // Quick Access — mouse hareket ettikçe grid arka planı imlecin olduğu yerde belirir (spotlight/mask efekti)
+  const qaSection = document.getElementById('quickAccess');
+  const qaGrid = document.getElementById('quickAccessGrid');
+  if (qaSection && qaGrid) {
+    qaSection.addEventListener('mousemove', (e) => {
+      const rect = qaSection.getBoundingClientRect();
+      const mx = ((e.clientX - rect.left) / rect.width) * 100;
+      const my = ((e.clientY - rect.top) / rect.height) * 100;
+      qaGrid.style.setProperty('--mx', mx + '%');
+      qaGrid.style.setProperty('--my', my + '%');
+    });
   }
 
   // Scroll-reveal — görünüme giren .reveal / .reveal-stagger elemanları bir kez fade+translateY ile belirir
