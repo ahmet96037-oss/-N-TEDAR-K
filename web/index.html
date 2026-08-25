@@ -65,9 +65,11 @@
   @media (max-width:767px){ .wrap{ padding:0 var(--container-pad-mobile); } }
 
   /* Nav — referans .navbar: padding 24px→(scroll'da büyür)40px, .nav-brand 140x24px */
+  /* Aşağı kaydırınca gizlenir, yukarı kaydırınca geri gelir — beyaz bölümlerin üstünde koyu bar asılı kalmasın diye */
   .nav{ position:fixed; top:0; left:0; right:0; z-index:50; display:flex; align-items:center; justify-content:space-between;
-    padding:24px var(--container-pad); background:transparent; transition:background .3s, padding .3s; }
+    padding:24px var(--container-pad); background:transparent; transition:background .3s, padding .3s, transform .35s ease; }
   .nav.is-scrolled{ background:rgba(5,5,30,.7); backdrop-filter:blur(10px); padding:40px var(--container-pad); }
+  .nav.is-hidden{ transform:translateY(-110%); }
   @media (max-width:767px){ .nav, .nav.is-scrolled{ padding:18px var(--container-pad-mobile) !important; } }
   .nav-logo{ font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:16px; letter-spacing:.02em; text-decoration:none;
     display:flex; align-items:center; gap:9px; text-transform:uppercase; height:24px; }
@@ -524,9 +526,21 @@
   // ve yüklenemediğinde tüm script'i durdurup menü/harita/slider'ı da devre dışı bırakıyordu.
   // Artık native tarayıcı scroll'u kullanılıyor, daha hızlı ve güvenilir.
   const nav = document.getElementById('mainNav');
+  let lastY = window.scrollY;
+  let navTicking = false;
   window.addEventListener('scroll', () => {
-    nav.classList.toggle('is-scrolled', window.scrollY > 40);
-  });
+    if (navTicking) return;
+    navTicking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+      nav.classList.toggle('is-scrolled', y > 40);
+      // Aşağı kaydırırken (40px'den sonra) gizle, yukarı kaydırırken hemen göster
+      if (y > lastY && y > 120) nav.classList.add('is-hidden');
+      else nav.classList.remove('is-hidden');
+      lastY = y;
+      navTicking = false;
+    });
+  }, { passive: true });
 
   const menuBtn = document.getElementById('menuBtn');
   const menuPanel = document.getElementById('menuPanel');
