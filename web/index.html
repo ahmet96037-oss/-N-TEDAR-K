@@ -157,9 +157,9 @@
      ALT ALTA), sağ geniş sütun (harita). Scroll ilerledikçe harita tek görsel üzerinde bölgeye zoom yapıyor. */
   .footprint{ background:var(--deep2); position:relative; }
   .footprint-scroll{ height:320vh; position:relative; }
-  @media (max-width:900px){ .footprint-scroll{ height:auto; } }
+  @media (max-width:900px){ .footprint-scroll{ height:260vh; } }
   .footprint-sticky{ position:sticky; top:0; min-height:100vh; display:flex; align-items:center; padding:var(--sp-130) 0; }
-  @media (max-width:900px){ .footprint-sticky{ position:static; min-height:auto; padding:var(--sp-70) 0; } }
+  @media (max-width:900px){ .footprint-sticky{ min-height:100vh; padding:var(--sp-70) 0; } }
 
   .footprint-grid{ display:grid; grid-template-columns:1fr 2.4fr; gap:4rem; align-items:center; width:100%; }
   @media (max-width:900px){ .footprint-grid{ grid-template-columns:1fr; gap:28px; } }
@@ -226,13 +226,16 @@
   /* Ekran görüntüsündeki gerçek mekanizma: sol dar sütun scroll'da kayan numaralı liste (01,02,...),
      sağ geniş sütun sticky görsel — aktif maddeye göre görsel/video değişir (kırpılmış köşe efekti dahil) */
   .solutions-body{ display:grid; grid-template-columns:1fr 1.6fr; gap:4rem; align-items:start; margin-top:var(--sp-40); }
-  @media (max-width:900px){ .solutions-body{ grid-template-columns:1fr; gap:0; } }
+  /* Mobilde de aynı sticky-scroll davranışı: görsel üstte sabit kalır, madde listesi altında akar
+     (flex + order ile görsel DOM'da sonra olsa da görsel olarak öne alınıyor) */
+  @media (max-width:900px){ .solutions-body{ display:flex; flex-direction:column; gap:0; margin-top:24px; } }
 
   .solutions-sticky{ position:sticky; top:110px; aspect-ratio:4/3; border-radius:16px; overflow:hidden; background:#0a0e1f; }
   /* Referanstaki gibi yumuşak, yuvarlak "oyuk" köşe — düz çapraz kesim yerine gerçek concave-corner tekniği */
   .solutions-sticky::before{ content:""; position:absolute; top:0; left:0; width:64px; height:64px;
     background:var(--white-bg,#f0f0f0); border-bottom-right-radius:64px; z-index:3; }
-  @media (max-width:900px){ .solutions-sticky{ position:static; aspect-ratio:16/10; margin-bottom:24px; } .solutions-sticky::before{ width:40px; height:40px; border-bottom-right-radius:40px; } }
+  @media (max-width:900px){ .solutions-sticky{ position:sticky; top:70px; order:-1; aspect-ratio:4/3; margin-bottom:24px; }
+    .solutions-sticky::before{ width:40px; height:40px; border-bottom-right-radius:40px; } }
   .solutions-sticky img, .solutions-sticky video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .5s ease; }
   .solutions-sticky img.is-active, .solutions-sticky video.is-active{ opacity:1; }
 
@@ -304,12 +307,12 @@
 
   .cases-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
   @media (max-width:1000px){ .cases-row{ grid-template-columns:repeat(2,1fr); } }
-  @media (max-width:600px){ .cases-row{ grid-template-columns:1fr; } }
-  /* Kart 3D flip — üstüne gelince kart arkasına dönüp görseli gösteriyor (fade değil, gerçek dönme) */
+  @media (max-width:600px){ .cases-row{ grid-template-columns:repeat(2,1fr); gap:10px; } .case-card{ height:260px; } .case-card h3{ font-size:17px; } }
+  /* Kart 3D flip — masaüstünde hover ile, mobilde dokunma olmadan JS'in eklediği .is-flipped sınıfıyla sürekli otomatik döner */
   .case-card{ display:block; height:420px; text-decoration:none; color:#fff; perspective:1400px; }
   .case-card-inner{ position:relative; width:100%; height:100%; transform-style:preserve-3d;
     transition:transform .6s cubic-bezier(.22,.61,.36,1); }
-  .case-card:hover .case-card-inner{ transform:rotateY(180deg); }
+  .case-card:hover .case-card-inner, .case-card-inner.is-flipped{ transform:rotateY(180deg); }
   .case-face{ position:absolute; inset:0; border-radius:14px; overflow:hidden; padding:24px; backface-visibility:hidden; -webkit-backface-visibility:hidden; }
   .case-front{ background:var(--dark-main); }
   .case-card.is-green .case-front{ background:var(--green); }
@@ -882,6 +885,15 @@
       });
     }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
     solList.querySelectorAll('.solutions-item').forEach(el => io.observe(el));
+  }
+
+  // Hizmet kartları — dokunma olmayan cihazlarda (mobil) hover çalışmadığı için kartlar sırayla,
+  // sürekli otomatik flip yapar (referanstaki hover hissini mobilde de korumak için)
+  if (window.matchMedia('(hover: none)').matches) {
+    const caseInners = document.querySelectorAll('.case-card-inner');
+    caseInners.forEach((inner, i) => {
+      setInterval(() => { inner.classList.toggle('is-flipped'); }, 2800 + i * 260);
+    });
   }
 
   // Quick Access — mouse hareket ettikçe grid arka planı imlecin olduğu yerde belirir (spotlight/mask efekti)
