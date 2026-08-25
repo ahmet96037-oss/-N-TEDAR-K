@@ -210,8 +210,9 @@
   .footprint-map-img path{ transition:fill .5s ease; }
   /* Normal hal: referans --map:#2d2d42 tonu zaten SVG'nin kendi fill'inde gömülü.
      Vurgulanmış (noktalı işaretli) hal: Çin/Türkiye stage'inde ilgili ülke yeşile döner + nokta deseni. */
+  /* Tüm ülke düz yeşile boyanmasın diye — hafif yarı saydam dolgu + belirgin parlak kontur */
   .footprint-map-img .country-china.is-marked,
-  .footprint-map-img .country-turkey.is-marked{ fill:var(--green); }
+  .footprint-map-img .country-turkey.is-marked{ fill:var(--green); fill-opacity:.22; stroke:var(--green); stroke-width:1.4; }
   .map-dot.is-shown{ transform:translate(-50%,-50%) scale(1); animation:dotpulse 2.6s infinite; }
   .map-dot.is-focus{ width:9px; height:9px; opacity:1; }
   @keyframes dotpulse{ 0%{ box-shadow:0 0 0 0 rgba(31,174,112,.55);} 70%{ box-shadow:0 0 0 9px rgba(31,174,112,0);} 100%{ box-shadow:0 0 0 0 rgba(31,174,112,0);} }
@@ -233,7 +234,7 @@
   /* Referanstaki gibi yumuşak, yuvarlak "oyuk" köşe — düz çapraz kesim yerine gerçek concave-corner tekniği */
   .solutions-sticky::before{ content:""; position:absolute; top:0; left:0; width:64px; height:64px;
     background:var(--white-bg,#f0f0f0); border-bottom-right-radius:64px; z-index:3; }
-  @media (max-width:900px){ .solutions-sticky{ position:sticky; top:70px; order:-1; aspect-ratio:4/3; margin-bottom:24px; }
+  @media (max-width:900px){ .solutions-sticky{ position:sticky; top:70px; order:-1; width:100%; aspect-ratio:4/3; margin-bottom:24px; }
     .solutions-sticky::before{ width:40px; height:40px; border-bottom-right-radius:40px; } }
   .solutions-sticky img, .solutions-sticky video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .5s ease; }
   .solutions-sticky img.is-active, .solutions-sticky video.is-active{ opacity:1; }
@@ -261,8 +262,8 @@
   .pricing-head p{ color:var(--text-dim); font-size:var(--fs-16); }
 
   .pricing-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; align-items:stretch; }
-  @media (max-width:900px){ .pricing-row{ display:flex; grid-template-columns:none; overflow-x:auto; gap:16px; padding:6px 4px 10px;
-    scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
+  @media (max-width:900px){ .pricing-row{ display:flex; grid-template-columns:none; overflow-x:auto; overflow-y:hidden; gap:16px; padding:6px 4px 10px;
+    scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; touch-action:pan-x; align-items:stretch; }
     .pricing-row .pricing-card{ flex:none; width:84vw; max-width:340px; scroll-snap-align:center; } }
   .pricing-card{ position:relative; background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:20px;
     backdrop-filter:blur(1.5rem); padding:2.25rem 2rem; display:flex; flex-direction:column; text-align:left; transition:border-color .25s, transform .25s; }
