@@ -254,27 +254,29 @@
      gerçekten görüşmeye yönlendiriyor), bu tasarım sistemine (Manrope, glassmorphism, yeşil vurgu) uyarlandı. */
   .pricing{ background:var(--dark-main); padding:var(--sp-140) 0; }
   .pricing-head{ text-align:center; max-width:38rem; margin:0 auto var(--sp-40); }
-  .pricing-head .eyebrow{ font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--green); letter-spacing:.04em; margin-bottom:14px; }
+  .pricing-head .eyebrow{ font-size:15px; font-weight:600; color:var(--green); margin-bottom:14px; }
   .pricing-head h2{ font-size:clamp(1.8rem,4vw,var(--fs-44)); font-weight:500; margin-bottom:14px; }
   .pricing-head p{ color:var(--text-dim); font-size:var(--fs-16); }
 
-  .pricing-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; align-items:start; }
+  .pricing-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; align-items:stretch; }
   @media (max-width:900px){ .pricing-row{ grid-template-columns:1fr; } }
-  .pricing-card{ position:relative; background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-card);
-    backdrop-filter:blur(1.5rem); padding:2rem; display:flex; flex-direction:column; text-align:left; }
-  .pricing-card.is-popular{ border-color:var(--green); box-shadow:0 0 0 1px var(--green), 0 24px 50px -18px rgba(31,174,112,.35); }
+  .pricing-card{ position:relative; background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:20px;
+    backdrop-filter:blur(1.5rem); padding:2.25rem 2rem; display:flex; flex-direction:column; text-align:left; transition:border-color .25s, transform .25s; }
+  .pricing-card:hover{ transform:translateY(-4px); border-color:rgba(255,255,255,.25); }
+  .pricing-card.is-popular{ border-color:var(--green); box-shadow:0 0 0 1px var(--green), 0 24px 50px -18px rgba(31,174,112,.4); }
+  .pricing-card.is-popular:hover{ border-color:var(--green); }
   .pricing-badge{ position:absolute; top:-13px; right:28px; background:var(--green); color:#fff; font-size:11px; font-weight:700;
     text-transform:uppercase; letter-spacing:.04em; padding:5px 14px; border-radius:20px; }
-  .pricing-name{ font-size:20px; font-weight:600; margin-bottom:6px; }
-  .pricing-desc{ font-size:13.5px; color:var(--text-dim); min-height:38px; line-height:1.5; margin-bottom:20px; }
-  .pricing-price{ font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:30px; line-height:1; margin-bottom:8px; }
-  .pricing-price .per{ font-size:13px; font-weight:400; color:var(--text-faint); margin-left:4px; }
-  .pricing-note{ font-size:12px; color:var(--text-faint); line-height:1.5; margin-bottom:20px; min-height:32px; }
-  .pricing-feats{ margin-top:auto; padding-top:20px; border-top:1px solid var(--line); font-size:13.5px; color:var(--text-dim); display:flex; flex-direction:column; gap:10px; }
-  .pricing-feats .no{ color:var(--text-faint); opacity:.6; }
+  .pricing-name{ font-size:22px; font-weight:600; letter-spacing:-.01em; margin-bottom:8px; }
+  .pricing-desc{ font-size:14px; color:var(--text-dim); min-height:42px; line-height:1.55; margin-bottom:24px; }
+  .pricing-price{ font-family:'Manrope',sans-serif; font-weight:700; font-size:34px; letter-spacing:-.01em; line-height:1; margin-bottom:10px; }
+  .pricing-price .per{ font-size:14px; font-weight:500; color:var(--text-faint); margin-left:3px; }
+  .pricing-note{ font-size:13px; color:var(--text-faint); line-height:1.55; margin-bottom:0; min-height:34px; }
+  .pricing-feats{ margin-top:auto; padding-top:22px; border-top:1px solid var(--line); font-size:14px; color:var(--text-dim); display:flex; flex-direction:column; gap:11px; }
+  .pricing-feats .no{ color:var(--text-faint); opacity:.55; }
   .pricing-feats .yes::before{ content:"✓ "; color:var(--green); font-weight:700; }
   .pricing-feats .no::before{ content:"– "; }
-  .pricing-card .btn{ width:100%; margin-top:22px; }
+  .pricing-card .btn{ width:100%; margin-top:24px; font-size:14.5px; }
 
   .quickaccess{ position:relative; padding:var(--sp-140) 0; text-align:center; overflow:hidden; background:var(--dark-main); }
   /* Sönük çizgiler yerine: parlak, ışıltılı çizgiler + kesişim noktalarında yıldız gibi parlayan noktalar */
@@ -676,6 +678,10 @@
 </section>
 
 <footer class="footer">
+  <svg class="footer-lines" viewBox="0 0 1440 520" preserveAspectRatio="none" aria-hidden="true">
+    <path class="rl" d="M -20,40 L 200,40 Q 260,40 260,100 L 260,240 Q 260,300 320,300 L 1120,300 Q 1180,300 1180,240 L 1180,60 Q 1180,10 1240,10 L 1460,10"/>
+    <path class="rg" d="M -20,40 L 200,40 Q 260,40 260,100 L 260,240 Q 260,300 320,300 L 1120,300 Q 1180,300 1180,240 L 1180,60 Q 1180,10 1240,10 L 1460,10"/>
+  </svg>
   <div class="wrap">
     <div class="footer-top reveal">
       <div class="footer-brand-block">
