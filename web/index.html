@@ -262,7 +262,9 @@
   .pricing-head p{ color:var(--text-dim); font-size:var(--fs-16); }
 
   .pricing-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; align-items:stretch; }
-  @media (max-width:900px){ .pricing-row{ grid-template-columns:1fr; } }
+  @media (max-width:900px){ .pricing-row{ display:flex; grid-template-columns:none; overflow-x:auto; gap:16px; padding:6px 4px 10px;
+    scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
+    .pricing-row .pricing-card{ flex:none; width:84vw; max-width:340px; scroll-snap-align:center; } }
   .pricing-card{ position:relative; background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:20px;
     backdrop-filter:blur(1.5rem); padding:2.25rem 2rem; display:flex; flex-direction:column; text-align:left; transition:border-color .25s, transform .25s; }
   .pricing-card:hover{ transform:translateY(-4px); border-color:rgba(255,255,255,.25); }
