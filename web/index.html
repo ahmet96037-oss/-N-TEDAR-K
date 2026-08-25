@@ -243,7 +243,11 @@
   @media (max-width:767px){ .marquee-item{ width:230px; padding:16px; } }
 
   /* Final CTA — referans .text-size-* h1 seviyesinde büyük (~56px), .mw-690 desc */
-  .cta{ padding:var(--sp-140) 0; text-align:center; }
+  .cta{ padding:var(--sp-140) 0; text-align:center; position:relative; overflow:hidden; }
+  .cta-bg{ position:absolute; inset:0; z-index:0; }
+  .cta-bg video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:brightness(.5) saturate(.85); }
+  .cta-scrim{ position:absolute; inset:0; background:linear-gradient(180deg, var(--dark-main) 0%, rgba(10,14,31,.75) 40%, rgba(10,14,31,.75) 60%, var(--dark-main) 100%); }
+  .cta .wrap{ position:relative; z-index:1; }
   .cta h2{ font-size:clamp(2rem,5.5vw,3.5rem); font-weight:500; line-height:1.1; letter-spacing:-.01em; max-width:43.125rem; margin:0 auto 16px; }
   .cta p{ color:var(--text-dim); font-size:var(--fs-16); max-width:33.375rem; margin:0 auto var(--sp-40); }
   .cta .hero-btns{ justify-content:center; margin-bottom:0; }
@@ -440,10 +444,12 @@
       <div class="solutions-sticky" id="solutionsSticky">
         <img class="is-active" data-n="1" src="assets/photos/gorsel5-vinc-konteyner.jpg" alt="Vinçle konteyner kaldırma">
         <img data-n="2" src="assets/photos/gorsel2-gemi-kusbakisi.jpg" alt="Konteyner gemisi kuş bakışı">
-        <video data-n="3" autoplay loop muted playsinline poster="assets/photos/warehouse-review-poster.jpg">
-          <source src="assets/video/warehouse-review.mp4" type="video/mp4">
+        <video data-n="3" autoplay loop muted playsinline poster="assets/photos/depo-ici-poster.jpg">
+          <source src="assets/video/depo-ici.mp4" type="video/mp4">
         </video>
-        <img data-n="4" src="assets/photos/gorsel1-kargo-ucak.jpg" alt="Kargo uçağı yükleme">
+        <video data-n="4" autoplay loop muted playsinline poster="assets/photos/ucak-inis-poster.jpg">
+          <source src="assets/video/ucak-inis.mp4" type="video/mp4">
+        </video>
         <img data-n="5" src="assets/photos/gorsel4-vinc-gece.jpg" alt="Gece vinç ile konteyner aktarımı">
         <img data-n="6" src="assets/photos/globe_blue.jpg" alt="Küresel gümrük ve GTİP danışmanlığı">
       </div>
@@ -452,6 +458,12 @@
 </section>
 
 <section class="cta">
+  <div class="cta-bg">
+    <video autoplay loop muted playsinline poster="assets/photos/vinc-aktarma-poster.jpg">
+      <source src="assets/video/vinc-aktarma.mp4" type="video/mp4">
+    </video>
+    <div class="cta-scrim"></div>
+  </div>
   <div class="wrap reveal">
     <h2>İşinizi Bir Sonraki Aşamaya Taşıyalım</h2>
     <p>İster tek seferlik bir sipariş, ister düzenli tedarik ihtiyacınız olsun — ekibimiz uçtan uca yönetmeye hazır.</p>
