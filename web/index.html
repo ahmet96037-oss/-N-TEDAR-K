@@ -237,18 +237,19 @@
     background:var(--white-bg,#f0f0f0); border-bottom-right-radius:64px; z-index:3; }
   /* Mobilde paylaşılan sticky panel tamamen kapatılıyor — her madde artık kendi görselini taşıyor,
      böylece bağımsız kalıyorlar ve üst üste binme/karışma olmuyor */
-  @media (max-width:900px){ .solutions-sticky{ display:none; } }
+  /* Mobilde de referans gibi sticky kalıyor — ama artık her madde yeterince uzun (90vh) scroll alanına
+     sahip olduğu için görsel, kendi metniyle çakışmadan tam eşleşiyor, sonraki maddeye geçince değişiyor */
+  @media (max-width:900px){ .solutions-sticky{ position:sticky; top:70px; order:-1; width:100%; aspect-ratio:4/3; margin-bottom:24px; }
+    .solutions-sticky::before{ width:40px; height:40px; border-bottom-right-radius:40px; } }
   .solutions-sticky img, .solutions-sticky video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .5s ease; }
   .solutions-sticky img.is-active, .solutions-sticky video.is-active{ opacity:1; }
 
   .solutions-item-media{ display:none; }
-  @media (max-width:900px){ .solutions-item-media{ display:block; width:100%; aspect-ratio:4/3; border-radius:16px; overflow:hidden; margin-bottom:20px; background:#0a0e1f; } }
-  .solutions-item-media img, .solutions-item-media video{ width:100%; height:100%; object-fit:cover; }
 
   .solutions-list{ display:flex; flex-direction:column; }
   .solutions-item{ min-height:34rem; display:flex; flex-direction:column; justify-content:center; padding:2.5rem 0; border-top:1px solid rgba(10,14,31,.1); }
   .solutions-item:first-child{ min-height:22rem; border-top:none; padding-top:0; }
-  @media (max-width:900px){ .solutions-item{ min-height:auto; padding:28px 0; } .solutions-item:first-child{ min-height:auto; padding-top:28px; } }
+  @media (max-width:900px){ .solutions-item{ min-height:100vh; padding:28px 0; } .solutions-item:first-child{ min-height:100vh; } }
   .solutions-item .n{ font-family:'IBM Plex Mono',monospace; font-size:14px; opacity:.4; margin-bottom:14px; }
   .solutions-item h3{ font-size:clamp(1.8rem,3.2vw,var(--fs-44)); font-weight:500; line-height:1.1; margin-bottom:14px; }
   .solutions-item p{ opacity:.55; font-size:var(--fs-16); line-height:1.5; max-width:34ch; margin-bottom:18px; }
@@ -504,42 +505,36 @@
     <div class="solutions-body">
       <div class="solutions-list" id="solutionsList">
         <div class="solutions-item" data-n="1">
-          <div class="solutions-item-media"><img src="assets/photos/slider/fabrika-eslesme.jpg" alt="Fabrika ile el sıkışma — üretici eşleştirme"></div>
           <div class="n">01</div>
           <h3>Fabrika Bulma &amp; Eşleştirme</h3>
           <p>Talebinize uygun, karşılaştırmalı teklif veren gerçek üreticilerle doğrudan eşleştirme.</p>
           <a href="/takip.html#rfq">Detaylı bilgi</a>
         </div>
         <div class="solutions-item" data-n="2">
-          <div class="solutions-item-media"><video autoplay loop muted playsinline poster="assets/photos/warehouse-review-poster.jpg"><source src="assets/video/warehouse-review.mp4" type="video/mp4"></video></div>
           <div class="n">02</div>
           <h3>Üretim Takibi</h3>
           <p>Seri üretim sürecinin periyodik fotoğraf ve raporlarla ilerlemesini panelinizden izlersiniz.</p>
           <a href="/takip.html#rfq">Detaylı bilgi</a>
         </div>
         <div class="solutions-item" data-n="3">
-          <div class="solutions-item-media"><video autoplay loop muted playsinline poster="assets/photos/depo-ici-poster.jpg"><source src="assets/video/depo-ici.mp4" type="video/mp4"></video></div>
           <div class="n">03</div>
           <h3>Yerinde Numune &amp; Kalite Kontrolü</h3>
           <p>Fabrikada fiziksel numune kontrolü yapan ekibimiz, üretime başlamadan önce onay verir.</p>
           <a href="/takip.html#rfq">Detaylı bilgi</a>
         </div>
         <div class="solutions-item" data-n="4">
-          <div class="solutions-item-media"><video autoplay loop muted playsinline poster="assets/photos/ucak-inis-poster.jpg"><source src="assets/video/ucak-inis.mp4" type="video/mp4"></video></div>
           <div class="n">04</div>
           <h3>Konteyner &amp; Hava Kargo Lojistiği</h3>
           <p>Malın limana ulaşmasından konteyner takibine kadar tüm sevkiyat süreci canlı izlenir.</p>
           <a href="/takip.html#rfq">Detaylı bilgi</a>
         </div>
         <div class="solutions-item" data-n="5">
-          <div class="solutions-item-media"><video autoplay loop muted playsinline poster="assets/photos/vinc-aktarma-poster.jpg"><source src="assets/video/vinc-aktarma.mp4" type="video/mp4"></video></div>
           <div class="n">05</div>
           <h3>Gümrük Danışmanlığı</h3>
           <p>Gümrükten çekim, evrak ve mevzuat süreçleri uzman ekibimiz tarafından yönetilir.</p>
           <a href="/takip.html#rfq">Detaylı bilgi</a>
         </div>
         <div class="solutions-item" data-n="6">
-          <div class="solutions-item-media"><img src="assets/photos/gorsel3-kargo-ucak2.jpg" alt="Kargo uçağı yükleme — GTİP ve vergi süreci"></div>
           <div class="n">06</div>
           <h3>GTİP &amp; Vergi Hesaplama</h3>
           <p>Resmi kaynaklara dayalı GTİP, KDV, ek vergi ve korunma önlemi hesaplama aracımızla önceden bilirsiniz.</p>
