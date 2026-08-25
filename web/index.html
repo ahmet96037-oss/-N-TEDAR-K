@@ -277,20 +277,26 @@
   .cases-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
   @media (max-width:1000px){ .cases-row{ grid-template-columns:repeat(2,1fr); } }
   @media (max-width:600px){ .cases-row{ grid-template-columns:1fr; } }
-  .case-card{ position:relative; display:block; height:420px; border-radius:14px; overflow:hidden; padding:24px; text-decoration:none; color:#fff;
-    background:var(--dark-main); transition:transform .3s ease; }
-  .case-card:hover{ transform:translateY(-4px); }
-  .case-card.is-green{ background:var(--green); }
-  .case-card.is-white{ background:#fff; color:#0a0e1f; }
-  .case-card .date{ position:relative; z-index:2; font-size:13px; opacity:.7; margin-bottom:10px; display:block; }
-  .case-card h3{ position:relative; z-index:2; font-size:22px; font-weight:600; line-height:1.2; }
-  .case-card .case-img{ position:absolute; inset:0; opacity:0; transition:opacity .4s ease; z-index:1; }
-  .case-card .case-img img{ width:100%; height:100%; object-fit:cover; }
-  .case-card .case-img::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(5,5,20,.15) 0%, rgba(5,5,20,.75) 100%); }
-  .case-card:hover .case-img{ opacity:1; }
-  .case-card:hover .date, .case-card:hover h3{ color:#fff; }
+  /* Kart 3D flip — üstüne gelince kart arkasına dönüp görseli gösteriyor (fade değil, gerçek dönme) */
+  .case-card{ display:block; height:420px; text-decoration:none; color:#fff; perspective:1400px; }
+  .case-card-inner{ position:relative; width:100%; height:100%; transform-style:preserve-3d;
+    transition:transform .6s cubic-bezier(.22,.61,.36,1); }
+  .case-card:hover .case-card-inner{ transform:rotateY(180deg); }
+  .case-face{ position:absolute; inset:0; border-radius:14px; overflow:hidden; padding:24px; backface-visibility:hidden; -webkit-backface-visibility:hidden; }
+  .case-front{ background:var(--dark-main); }
+  .case-card.is-green .case-front{ background:var(--green); }
+  .case-card.is-white .case-front{ background:#fff; color:#0a0e1f; }
+  .case-back{ transform:rotateY(180deg); }
+  .case-back img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .case-back::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(5,5,20,.1) 0%, rgba(5,5,20,.8) 100%); }
+  .case-back .date, .case-back h3{ position:relative; z-index:2; }
+  .case-card .date{ font-size:13px; opacity:.7; margin-bottom:10px; display:block; }
+  .case-card h3{ font-size:22px; font-weight:600; line-height:1.2; }
 
   .cta{ padding:var(--sp-140) 0; text-align:center; position:relative; overflow:hidden; }
+  .cta-lines{ position:absolute; inset:0; z-index:0; width:100%; height:100%; pointer-events:none; }
+  .cta-lines .rl{ fill:none; stroke:rgba(255,255,255,.14); stroke-width:1.5; }
+  .cta-lines .rg{ fill:none; stroke:var(--green); stroke-width:2; opacity:.9; filter:drop-shadow(0 0 5px rgba(31,174,112,.8)); }
   .cta-bg{ position:absolute; inset:0; z-index:0; }
   .cta-bg video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:brightness(.5) saturate(.85); }
   .cta-scrim{ position:absolute; inset:0; background:linear-gradient(180deg, var(--dark-main) 0%, rgba(10,14,31,.75) 40%, rgba(10,14,31,.75) 60%, var(--dark-main) 100%); }
@@ -520,24 +526,28 @@
 
     <div class="cases-row reveal-stagger">
       <a href="/takip.html#rfq" class="case-card">
-        <span class="date">Aşama 01</span>
-        <h3>Fabrika Bulma &amp; Eşleştirme</h3>
-        <div class="case-img"><img src="assets/photos/slider/fabrika-eslesme.jpg" alt="Fabrika ile el sıkışma"></div>
+        <div class="case-card-inner">
+          <div class="case-face case-front"><span class="date">Aşama 01</span><h3>Fabrika Bulma &amp; Eşleştirme</h3></div>
+          <div class="case-face case-back"><img src="assets/photos/slider/fabrika-eslesme.jpg" alt="Fabrika ile el sıkışma"><span class="date">Aşama 01</span><h3>Fabrika Bulma &amp; Eşleştirme</h3></div>
+        </div>
       </a>
       <a href="/takip.html#rfq" class="case-card is-green">
-        <span class="date">Aşama 02–03</span>
-        <h3>Üretim &amp; Numune Takibi</h3>
-        <div class="case-img"><img src="assets/photos/slider/seri-uretim.jpg" alt="Fabrika seri üretim hattı"></div>
+        <div class="case-card-inner">
+          <div class="case-face case-front"><span class="date">Aşama 02–03</span><h3>Üretim &amp; Numune Takibi</h3></div>
+          <div class="case-face case-back"><img src="assets/photos/slider/seri-uretim.jpg" alt="Fabrika seri üretim hattı"><span class="date">Aşama 02–03</span><h3>Üretim &amp; Numune Takibi</h3></div>
+        </div>
       </a>
       <a href="/takip.html" class="case-card is-white">
-        <span class="date">Aşama 04</span>
-        <h3>Konteyner &amp; Hava Kargo Takibi</h3>
-        <div class="case-img"><img src="assets/photos/ucak-inis-poster.jpg" alt="Kargo uçağı inişi"></div>
+        <div class="case-card-inner">
+          <div class="case-face case-front"><span class="date">Aşama 04</span><h3>Konteyner &amp; Hava Kargo Takibi</h3></div>
+          <div class="case-face case-back"><img src="assets/photos/ucak-inis-poster.jpg" alt="Kargo uçağı inişi"><span class="date">Aşama 04</span><h3>Konteyner &amp; Hava Kargo Takibi</h3></div>
+        </div>
       </a>
       <a href="/hesapla.html" class="case-card">
-        <span class="date">Aşama 05–06</span>
-        <h3>Gümrük &amp; GTİP Vergi Hesaplama</h3>
-        <div class="case-img"><img src="assets/photos/slider/gumruk-teslimat.jpg" alt="Gümrükten teslimat"></div>
+        <div class="case-card-inner">
+          <div class="case-face case-front"><span class="date">Aşama 05–06</span><h3>Gümrük &amp; GTİP Vergi Hesaplama</h3></div>
+          <div class="case-face case-back"><img src="assets/photos/slider/gumruk-teslimat.jpg" alt="Gümrükten teslimat"><span class="date">Aşama 05–06</span><h3>Gümrük &amp; GTİP Vergi Hesaplama</h3></div>
+        </div>
       </a>
     </div>
   </div>
@@ -562,6 +572,12 @@
     </video>
     <div class="cta-scrim"></div>
   </div>
+  <!-- Referanstaki gibi dekoratif "rota" çizgisi — beyaz ince yol, köşelerde yeşil parlayan segmentler -->
+  <svg class="cta-lines" viewBox="0 0 1440 620" preserveAspectRatio="none" aria-hidden="true">
+    <path class="rl" d="M -20,60 L 260,60 Q 320,60 320,120 L 320,340 Q 320,400 380,400 L 1180,400 Q 1240,400 1240,340 L 1240,80 Q 1240,20 1300,20 L 1460,20"/>
+    <path class="rg" d="M 260,60 Q 320,60 320,120 L 320,180"/>
+    <path class="rg" d="M 1180,400 Q 1240,400 1240,340 L 1240,280"/>
+  </svg>
   <div class="wrap reveal">
     <h2>İşinizi Bir Sonraki Aşamaya Taşıyalım</h2>
     <p>İster tek seferlik bir sipariş, ister düzenli tedarik ihtiyacınız olsun — ekibimiz uçtan uca yönetmeye hazır.</p>
