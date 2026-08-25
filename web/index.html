@@ -251,11 +251,16 @@
   /* Final CTA — referans .text-size-* h1 seviyesinde büyük (~56px), .mw-690 desc */
   /* Quick Access — mouse hareketiyle beliren grid arka planı (spotlight/mask efekti) */
   .quickaccess{ position:relative; padding:var(--sp-140) 0; text-align:center; overflow:hidden; background:var(--dark-main); }
-  .quickaccess-grid{ position:absolute; inset:0; pointer-events:none;
-    background-image:linear-gradient(rgba(31,174,112,.35) 1px, transparent 1px), linear-gradient(90deg, rgba(31,174,112,.35) 1px, transparent 1px);
-    background-size:44px 44px;
-    -webkit-mask-image:radial-gradient(320px circle at var(--mx,50%) var(--my,20%), #000 0%, transparent 72%);
-    mask-image:radial-gradient(320px circle at var(--mx,50%) var(--my,20%), #000 0%, transparent 72%);
+  /* Sönük çizgiler yerine: parlak, ışıltılı çizgiler + kesişim noktalarında yıldız gibi parlayan noktalar */
+  .quickaccess-grid{ position:absolute; inset:0; pointer-events:none; opacity:.9;
+    background-image:
+      radial-gradient(circle, rgba(120,255,190,1) 1.6px, transparent 1.8px),
+      linear-gradient(rgba(31,174,112,.9) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(31,174,112,.9) 1px, transparent 1px);
+    background-size:44px 44px, 44px 44px, 44px 44px;
+    filter:drop-shadow(0 0 3px rgba(80,255,170,.9)) drop-shadow(0 0 14px rgba(31,174,112,.7));
+    -webkit-mask-image:radial-gradient(420px circle at var(--mx,50%) var(--my,20%), #000 0%, #000 35%, transparent 78%);
+    mask-image:radial-gradient(420px circle at var(--mx,50%) var(--my,20%), #000 0%, #000 35%, transparent 78%);
     transition:-webkit-mask-position .05s linear; }
   .quickaccess-eyebrow{ position:relative; z-index:1; color:var(--text-faint); font-size:var(--fs-16); margin-bottom:16px; }
   .quickaccess h2{ position:relative; z-index:1; font-size:clamp(1.8rem,4.4vw,3rem); font-weight:500; line-height:1.15; max-width:38rem; margin:0 auto 40px; }
