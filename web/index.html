@@ -266,6 +266,30 @@
   .quickaccess h2{ position:relative; z-index:1; font-size:clamp(1.8rem,4.4vw,3rem); font-weight:500; line-height:1.15; max-width:38rem; margin:0 auto 40px; }
   .quickaccess .hero-btns{ position:relative; z-index:1; justify-content:center; margin-bottom:0; }
 
+  /* Hizmet Kategorileri — referanstaki "Case Studies" görsel/etkileşim kalıbı: hover'da fotoğraf açılıyor,
+     tıklayınca ilgili sayfaya gidiyor. İçerik gerçek: uydurma vaka çalışması değil, gerçek hizmet kategorilerimiz. */
+  .cases{ background:var(--white-bg,#f0f0f0); color:#0a0e1f; padding:var(--sp-140) 0; }
+  .cases-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:var(--sp-40); flex-wrap:wrap; }
+  .cases-eyebrow{ font-size:14px; color:rgba(10,14,31,.5); margin-bottom:14px; }
+  .cases-head h2{ font-size:clamp(1.8rem,4vw,var(--fs-44)); font-weight:500; line-height:1.1; }
+  .cases-head .btn-primary{ flex:none; }
+
+  .cases-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  @media (max-width:1000px){ .cases-row{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:600px){ .cases-row{ grid-template-columns:1fr; } }
+  .case-card{ position:relative; display:block; height:420px; border-radius:14px; overflow:hidden; padding:24px; text-decoration:none; color:#fff;
+    background:var(--dark-main); transition:transform .3s ease; }
+  .case-card:hover{ transform:translateY(-4px); }
+  .case-card.is-green{ background:var(--green); }
+  .case-card.is-white{ background:#fff; color:#0a0e1f; }
+  .case-card .date{ position:relative; z-index:2; font-size:13px; opacity:.7; margin-bottom:10px; display:block; }
+  .case-card h3{ position:relative; z-index:2; font-size:22px; font-weight:600; line-height:1.2; }
+  .case-card .case-img{ position:absolute; inset:0; opacity:0; transition:opacity .4s ease; z-index:1; }
+  .case-card .case-img img{ width:100%; height:100%; object-fit:cover; }
+  .case-card .case-img::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(5,5,20,.15) 0%, rgba(5,5,20,.75) 100%); }
+  .case-card:hover .case-img{ opacity:1; }
+  .case-card:hover .date, .case-card:hover h3{ color:#fff; }
+
   .cta{ padding:var(--sp-140) 0; text-align:center; position:relative; overflow:hidden; }
   .cta-bg{ position:absolute; inset:0; z-index:0; }
   .cta-bg video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:brightness(.5) saturate(.85); }
@@ -480,6 +504,41 @@
         </video>
         <img data-n="6" src="assets/photos/gorsel3-kargo-ucak2.jpg" alt="Kargo uçağı yükleme — GTİP ve vergi süreci">
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="cases">
+  <div class="wrap">
+    <div class="cases-head reveal">
+      <div>
+        <p class="cases-eyebrow">Hizmet Kategorilerimiz</p>
+        <h2>Sürecin Her Aşamasında<br>Gerçek Destek</h2>
+      </div>
+      <a href="#surec" class="btn btn-primary" style="background:var(--green); color:#fff;">Tüm Süreci İnceleyin</a>
+    </div>
+
+    <div class="cases-row reveal-stagger">
+      <a href="/takip.html#rfq" class="case-card">
+        <span class="date">Aşama 01</span>
+        <h3>Fabrika Bulma &amp; Eşleştirme</h3>
+        <div class="case-img"><img src="assets/photos/slider/fabrika-eslesme.jpg" alt="Fabrika ile el sıkışma"></div>
+      </a>
+      <a href="/takip.html#rfq" class="case-card is-green">
+        <span class="date">Aşama 02–03</span>
+        <h3>Üretim &amp; Numune Takibi</h3>
+        <div class="case-img"><img src="assets/photos/slider/seri-uretim.jpg" alt="Fabrika seri üretim hattı"></div>
+      </a>
+      <a href="/takip.html" class="case-card is-white">
+        <span class="date">Aşama 04</span>
+        <h3>Konteyner &amp; Hava Kargo Takibi</h3>
+        <div class="case-img"><img src="assets/photos/ucak-inis-poster.jpg" alt="Kargo uçağı inişi"></div>
+      </a>
+      <a href="/hesapla.html" class="case-card">
+        <span class="date">Aşama 05–06</span>
+        <h3>Gümrük &amp; GTİP Vergi Hesaplama</h3>
+        <div class="case-img"><img src="assets/photos/slider/gumruk-teslimat.jpg" alt="Gümrükten teslimat"></div>
+      </a>
     </div>
   </div>
 </section>
