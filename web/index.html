@@ -221,20 +221,25 @@
   .solutions-head{ text-align:center; max-width:51.5rem; margin:0 auto var(--sp-40); }
   .solutions-head h2{ font-size:clamp(1.6rem,3.6vw,var(--fs-44)); font-weight:500; line-height:1.15; }
 
-  .solutions-hero-img{ width:100%; aspect-ratio:16/7; border-radius:8px; overflow:hidden; margin-top:8px; }
-  .solutions-hero-img img, .solutions-hero-img video{ width:100%; height:100%; object-fit:cover; }
-  @media (max-width:767px){ .solutions-hero-img{ aspect-ratio:4/3; } }
+  /* Ekran görüntüsündeki gerçek mekanizma: sol dar sütun scroll'da kayan numaralı liste (01,02,...),
+     sağ geniş sütun sticky görsel — aktif maddeye göre görsel/video değişir (kırpılmış köşe efekti dahil) */
+  .solutions-body{ display:grid; grid-template-columns:1fr 1.6fr; gap:4rem; align-items:start; margin-top:var(--sp-40); }
+  @media (max-width:900px){ .solutions-body{ grid-template-columns:1fr; gap:0; } }
 
-  /* Aşamalar — görselin altında sürekli sağdan sola akan otomatik marquee şerit */
-  .marquee-wrap{ margin-top:var(--sp-40); overflow:hidden; -webkit-mask-image:linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-    mask-image:linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
-  .marquee-track{ display:flex; width:max-content; gap:20px; animation:marquee-scroll 32s linear infinite; }
-  .marquee-track:hover{ animation-play-state:paused; }
-  @keyframes marquee-scroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
-  .marquee-item{ flex:none; width:290px; display:flex; gap:14px; align-items:flex-start; background:#fff; border:1px solid rgba(10,14,31,.08); border-radius:12px; padding:20px; }
-  .marquee-item .n{ font-family:'IBM Plex Mono',monospace; font-size:13px; opacity:.35; flex:none; padding-top:2px; }
-  .marquee-item h4{ font-size:15px; font-weight:700; margin-bottom:6px; }
-  .marquee-item p{ font-size:13px; opacity:.55; line-height:1.45; }
+  .solutions-sticky{ position:sticky; top:110px; aspect-ratio:4/3; border-radius:4px; overflow:hidden; background:#0a0e1f;
+    clip-path:polygon(0 0, 22% 0, 30% 8%, 100% 8%, 100% 100%, 0 100%); }
+  @media (max-width:900px){ .solutions-sticky{ position:static; aspect-ratio:16/10; clip-path:none; margin-bottom:24px; } }
+  .solutions-sticky img, .solutions-sticky video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .5s ease; }
+  .solutions-sticky img.is-active, .solutions-sticky video.is-active{ opacity:1; }
+
+  .solutions-list{ display:flex; flex-direction:column; }
+  .solutions-item{ min-height:34rem; display:flex; flex-direction:column; justify-content:center; padding:2.5rem 0; border-top:1px solid rgba(10,14,31,.1); }
+  .solutions-item:first-child{ min-height:22rem; border-top:none; padding-top:0; }
+  @media (max-width:900px){ .solutions-item{ min-height:auto; padding:28px 0; } .solutions-item:first-child{ min-height:auto; } }
+  .solutions-item .n{ font-family:'IBM Plex Mono',monospace; font-size:14px; opacity:.4; margin-bottom:14px; }
+  .solutions-item h3{ font-size:clamp(1.8rem,3.2vw,var(--fs-44)); font-weight:500; line-height:1.1; margin-bottom:14px; }
+  .solutions-item p{ opacity:.55; font-size:var(--fs-16); line-height:1.5; max-width:34ch; margin-bottom:18px; }
+  .solutions-item a{ font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; text-decoration:none; border-bottom:1px solid #0a0e1f; padding-bottom:2px; color:#0a0e1f; }
   @media (max-width:767px){ .marquee-item{ width:230px; padding:16px; } }
 
   /* Final CTA — referans .text-size-* h1 seviyesinde büyük (~56px), .mw-690 desc */
@@ -389,29 +394,59 @@
     <div class="solutions-head reveal">
       <h2>Karmaşık Tedarik Süreçleri İçin Temel Çözümlerimiz</h2>
     </div>
-    <div class="solutions-hero-img reveal">
-      <video autoplay loop muted playsinline poster="assets/photos/warehouse-review-poster.jpg">
-        <source src="assets/video/warehouse-review.mp4" type="video/mp4">
-      </video>
-    </div>
-  </div>
 
-  <!-- Aşamalar artık aşağıda otomatik kayan (marquee) şerit — sürekli sağdan sola akıyor -->
-  <div class="marquee-wrap">
-    <div class="marquee-track" id="marqueeTrack">
-      <div class="marquee-item"><span class="n">01</span><div><h4>Fabrika Bulma &amp; Eşleştirme</h4><p>Karşılaştırmalı teklifle doğrudan üretici eşleştirme.</p></div></div>
-      <div class="marquee-item"><span class="n">02</span><div><h4>Üretim Takibi</h4><p>Periyodik fotoğraf ve rapor ile canlı ilerleme.</p></div></div>
-      <div class="marquee-item"><span class="n">03</span><div><h4>Numune &amp; Kalite Kontrolü</h4><p>Fabrikada yerinde fiziksel numune onayı.</p></div></div>
-      <div class="marquee-item"><span class="n">04</span><div><h4>Konteyner &amp; Hava Kargo</h4><p>Limandan konteyner takibine canlı sevkiyat izleme.</p></div></div>
-      <div class="marquee-item"><span class="n">05</span><div><h4>Gümrük Danışmanlığı</h4><p>Evrak ve mevzuat süreci uzman ekiple yönetilir.</p></div></div>
-      <div class="marquee-item"><span class="n">06</span><div><h4>GTİP &amp; Vergi Hesaplama</h4><p>Resmi kaynaklı GTİP, KDV ve ek vergi hesaplama.</p></div></div>
-      <!-- Kesintisiz döngü için aynı 6 öge tekrar (translateX -50% ile sorunsuz sarar) -->
-      <div class="marquee-item" aria-hidden="true"><span class="n">01</span><div><h4>Fabrika Bulma &amp; Eşleştirme</h4><p>Karşılaştırmalı teklifle doğrudan üretici eşleştirme.</p></div></div>
-      <div class="marquee-item" aria-hidden="true"><span class="n">02</span><div><h4>Üretim Takibi</h4><p>Periyodik fotoğraf ve rapor ile canlı ilerleme.</p></div></div>
-      <div class="marquee-item" aria-hidden="true"><span class="n">03</span><div><h4>Numune &amp; Kalite Kontrolü</h4><p>Fabrikada yerinde fiziksel numune onayı.</p></div></div>
-      <div class="marquee-item" aria-hidden="true"><span class="n">04</span><div><h4>Konteyner &amp; Hava Kargo</h4><p>Limandan konteyner takibine canlı sevkiyat izleme.</p></div></div>
-      <div class="marquee-item" aria-hidden="true"><span class="n">05</span><div><h4>Gümrük Danışmanlığı</h4><p>Evrak ve mevzuat süreci uzman ekiple yönetilir.</p></div></div>
-      <div class="marquee-item" aria-hidden="true"><span class="n">06</span><div><h4>GTİP &amp; Vergi Hesaplama</h4><p>Resmi kaynaklı GTİP, KDV ve ek vergi hesaplama.</p></div></div>
+    <!-- Sağdaki gerçek ekran görüntüsündeki mekanizma: sol scroll'da kayan numaralı liste, sağ sticky görsel/video —
+         aktif maddeye göre değişiyor. IntersectionObserver ile yönetiliyor. -->
+    <div class="solutions-body">
+      <div class="solutions-list" id="solutionsList">
+        <div class="solutions-item" data-n="1">
+          <div class="n">01</div>
+          <h3>Fabrika Bulma &amp; Eşleştirme</h3>
+          <p>Talebinize uygun, karşılaştırmalı teklif veren gerçek üreticilerle doğrudan eşleştirme.</p>
+          <a href="/takip.html#rfq">Detaylı bilgi</a>
+        </div>
+        <div class="solutions-item" data-n="2">
+          <div class="n">02</div>
+          <h3>Üretim Takibi</h3>
+          <p>Seri üretim sürecinin periyodik fotoğraf ve raporlarla ilerlemesini panelinizden izlersiniz.</p>
+          <a href="/takip.html#rfq">Detaylı bilgi</a>
+        </div>
+        <div class="solutions-item" data-n="3">
+          <div class="n">03</div>
+          <h3>Yerinde Numune &amp; Kalite Kontrolü</h3>
+          <p>Fabrikada fiziksel numune kontrolü yapan ekibimiz, üretime başlamadan önce onay verir.</p>
+          <a href="/takip.html#rfq">Detaylı bilgi</a>
+        </div>
+        <div class="solutions-item" data-n="4">
+          <div class="n">04</div>
+          <h3>Konteyner &amp; Hava Kargo Lojistiği</h3>
+          <p>Malın limana ulaşmasından konteyner takibine kadar tüm sevkiyat süreci canlı izlenir.</p>
+          <a href="/takip.html#rfq">Detaylı bilgi</a>
+        </div>
+        <div class="solutions-item" data-n="5">
+          <div class="n">05</div>
+          <h3>Gümrük Danışmanlığı</h3>
+          <p>Gümrükten çekim, evrak ve mevzuat süreçleri uzman ekibimiz tarafından yönetilir.</p>
+          <a href="/takip.html#rfq">Detaylı bilgi</a>
+        </div>
+        <div class="solutions-item" data-n="6">
+          <div class="n">06</div>
+          <h3>GTİP &amp; Vergi Hesaplama</h3>
+          <p>Resmi kaynaklara dayalı GTİP, KDV, ek vergi ve korunma önlemi hesaplama aracımızla önceden bilirsiniz.</p>
+          <a href="/hesapla.html">Hesaplama aracını aç</a>
+        </div>
+      </div>
+
+      <div class="solutions-sticky" id="solutionsSticky">
+        <img class="is-active" data-n="1" src="assets/photos/singapore_port.jpg" alt="Singapur limanı konteyner terminali">
+        <img data-n="2" src="assets/photos/terminal.jpg" alt="Fabrika üretim ve depolama alanı">
+        <video data-n="3" autoplay loop muted playsinline poster="assets/photos/warehouse-review-poster.jpg">
+          <source src="assets/video/warehouse-review.mp4" type="video/mp4">
+        </video>
+        <img data-n="4" src="assets/photos/cargo_747.jpg" alt="Kargo uçağı yükleme">
+        <img data-n="5" src="assets/photos/suez_convoy.jpg" alt="Süveyş kanalı konvoyu">
+        <img data-n="6" src="assets/photos/globe_blue.jpg" alt="Küresel gümrük ve GTİP danışmanlığı">
+      </div>
     </div>
   </div>
 </section>
@@ -589,6 +624,26 @@
     setStage(0);
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
+  }
+
+  // Core Solutions — scroll'a bağlı sticky görsel değişimi (ekran görüntüsündeki referans mekanizma)
+  const solList = document.getElementById('solutionsList');
+  const solSticky = document.getElementById('solutionsSticky');
+  if (solList && solSticky && 'IntersectionObserver' in window) {
+    const media = solSticky.querySelectorAll('img, video');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const n = e.target.dataset.n;
+          media.forEach(m => {
+            const active = m.dataset.n === n;
+            m.classList.toggle('is-active', active);
+            if (m.tagName === 'VIDEO' && active) { m.play().catch(() => {}); }
+          });
+        }
+      });
+    }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+    solList.querySelectorAll('.solutions-item').forEach(el => io.observe(el));
   }
 
   // Scroll-reveal — görünüme giren .reveal / .reveal-stagger elemanları bir kez fade+translateY ile belirir
