@@ -534,9 +534,8 @@
     requestAnimationFrame(() => {
       const y = window.scrollY;
       nav.classList.toggle('is-scrolled', y > 40);
-      // Aşağı kaydırırken (40px'den sonra) gizle, yukarı kaydırırken hemen göster
-      if (y > lastY && y > 120) nav.classList.add('is-hidden');
-      else nav.classList.remove('is-hidden');
+      // Sadece sayfanın en üstündeyken görünür — kaydırma yönü fark etmeksizin, biraz aşağı inilince tamamen gizlenir
+      nav.classList.toggle('is-hidden', y > 40);
       lastY = y;
       navTicking = false;
     });
