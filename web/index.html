@@ -442,16 +442,16 @@
       </div>
 
       <div class="solutions-sticky" id="solutionsSticky">
-        <img class="is-active" data-n="1" src="assets/photos/gorsel5-vinc-konteyner.jpg" alt="Vinçle konteyner kaldırma">
-        <img data-n="2" src="assets/photos/gorsel2-gemi-kusbakisi.jpg" alt="Konteyner gemisi kuş bakışı">
+        <img class="is-active" data-n="1" src="assets/photos/slider/fabrika-eslesme.jpg" alt="Fabrika ile el sıkışma — üretici eşleştirme">
+        <img data-n="2" src="assets/photos/slider/seri-uretim.jpg" alt="Fabrika seri üretim hattı">
         <video data-n="3" autoplay loop muted playsinline poster="assets/photos/depo-ici-poster.jpg">
           <source src="assets/video/depo-ici.mp4" type="video/mp4">
         </video>
         <video data-n="4" autoplay loop muted playsinline poster="assets/photos/ucak-inis-poster.jpg">
           <source src="assets/video/ucak-inis.mp4" type="video/mp4">
         </video>
-        <img data-n="5" src="assets/photos/gorsel4-vinc-gece.jpg" alt="Gece vinç ile konteyner aktarımı">
-        <img data-n="6" src="assets/photos/globe_blue.jpg" alt="Küresel gümrük ve GTİP danışmanlığı">
+        <img data-n="5" src="assets/photos/slider/gumruk-teslimat.jpg" alt="Gümrükten teslimat">
+        <img data-n="6" src="assets/photos/gorsel3-kargo-ucak2.jpg" alt="Kargo uçağı yükleme — GTİP ve vergi süreci">
       </div>
     </div>
   </div>
@@ -624,7 +624,10 @@
       if (chinaPath) chinaPath.classList.toggle('is-marked', stage === 1);
       if (turkeyPath) turkeyPath.classList.toggle('is-marked', stage === 2);
     }
-    function onScroll() {
+    // Ağır iş (SVG transform + gradient) her scroll piksel'inde değil, rAF ile kare başına bir kez çalışsın —
+    // takılma/kayma hissinin asıl sebebi buydu (throttle yoktu).
+    let fpTicking = false;
+    function onScrollRaw() {
       const rect = fpScroll.getBoundingClientRect();
       const total = rect.height - window.innerHeight;
       if (total <= 0) { setStage(0); return; }
@@ -632,6 +635,11 @@
       fpLine.style.background = 'linear-gradient(180deg, var(--green) ' + (progress*100) + '%, var(--line) ' + (progress*100) + '%)';
       const stage = progress < 0.33 ? 0 : progress < 0.66 ? 1 : 2;
       setStage(stage);
+    }
+    function onScroll() {
+      if (fpTicking) return;
+      fpTicking = true;
+      requestAnimationFrame(() => { onScrollRaw(); fpTicking = false; });
     }
     setStage(0);
     window.addEventListener('scroll', onScroll, { passive: true });
