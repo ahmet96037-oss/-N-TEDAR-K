@@ -468,6 +468,7 @@ function render() {
   else if (view === 'tedarikciler') tedarikcilerYukle();
   else if (view === 'yeni-siparis') { document.querySelector('.main').innerHTML = yeniSiparisEkrani(); ysMusteriDropdownDoldur(); }
   else if (view === 'ayarlar') ayarlarYukle();
+  else if (view === 'kullanicilar') kullaniciYonetimiEkrani();
 }
 
 async function tedarikcilerYukle() {
@@ -626,12 +627,13 @@ function panelShell(innerHtml, activeView) {
         </div>
         <div class="side-group-label">Hesap</div>
         <div class="side-nav">
+          ${canManageUsers() ? `<button class="${activeView==='kullanicilar' ? 'active' : ''}" onclick="view='kullanicilar'; render();"><span class="ico"><i class="bi bi-people"></i></span><span>Kullanıcı Yönetimi</span></button>` : ''}
           <button class="${activeView==='ayarlar' ? 'active' : ''}" onclick="view='ayarlar'; render();"><span class="ico"><i class="bi bi-gear"></i></span><span>Ayarlar</span></button>
         </div>
         <div class="sidebar-foot">
           <div class="user-chip">
             <div class="av">${initial}</div>
-            <div><div style="font-size:13px; font-weight:700;">${adminEmail || 'Admin'}</div><div class="role">Yönetici</div></div>
+            <div><div style="font-size:13px; font-weight:700;">${adminEmail || 'Admin'}</div><div class="role">${ROL_ETIKET[benimRolum()] || 'Yönetici'}</div></div>
           </div>
           <button class="linklike" onclick="cikisYap()">Çıkış Yap</button>
         </div>
@@ -700,6 +702,102 @@ function musteriSiparislerineGit(email) {
 function cikisYap() {
   localStorage.removeItem('tk_admin_token'); localStorage.removeItem('tk_admin_email');
   token = null; adminEmail = ''; view = 'giris'; render();
+}
+
+// ---- RBAC (Rol Tabanlı Erişim Kontrolü) ----
+// Backend'de henüz tek seviyeli admin kimlik doğrulaması var (rol sütunu yok); bu yüzden
+// Nellavio'nun kendi referans projesinde de kullandığı "bağlantısız mod" ile aynı yaklaşımı
+// izliyoruz: takım/rol verisi tarayıcıda tutulur, gerçek backend'e rol eklendiğinde bu katman
+// aynı arayüzle backend'e bağlanacak şekilde tasarlandı (roleOf/canEdit tek noktadan okunuyor).
+function ekipListesi() {
+  try {
+    const kayitli = JSON.parse(localStorage.getItem('tk_admin_team') || 'null');
+    if (kayitli && kayitli.length) return kayitli;
+  } catch (e) {}
+  const varsayilan = [{ email: adminEmail || 'ekip@cintedarikagi.com', rol: 'admin' }];
+  localStorage.setItem('tk_admin_team', JSON.stringify(varsayilan));
+  return varsayilan;
+}
+function ekipKaydet(liste) { localStorage.setItem('tk_admin_team', JSON.stringify(liste)); }
+function benimRolum() {
+  const ben = ekipListesi().find(u => u.email === adminEmail);
+  return ben ? ben.rol : 'admin';
+}
+function canEdit() { return benimRolum() !== 'viewer'; }
+function canManageUsers() { return benimRolum() === 'admin'; }
+const ROL_ETIKET = { admin: 'Yönetici', editor: 'Editör', viewer: 'Görüntüleyici' };
+
+function kullaniciYonetimiEkrani() {
+  const main = document.querySelector('.main');
+  if (!canManageUsers()) {
+    main.innerHTML = `<div class="empty-state"><i class="bi bi-shield-lock" style="font-size:28px; display:block; margin-bottom:10px; opacity:.5;"></i>
+      <b>Erişim Reddedildi</b><p style="margin-top:6px;">Bu sayfayı yalnızca Yönetici rolündeki kullanıcılar görebilir.</p></div>`;
+    return;
+  }
+  const ekip = ekipListesi();
+  main.innerHTML = `<div class="breadcrumb">Hesap <i class="bi bi-chevron-right"></i> Kullanıcı Yönetimi</div>
+  <div class="page-head"><div><h1>Kullanıcı Yönetimi</h1><p>${ekip.length} kayıtlı ekip üyesi — rol bazlı erişim kontrolü (RBAC).</p></div></div>
+  <div class="panel" style="margin-bottom:16px;">
+    <h2 style="font-size:15px;">Yeni Ekip Üyesi Ekle</h2>
+    <div class="row2">
+      <div><label>E-posta</label><input id="yeniEkipEmail" placeholder="ornek@sirket.com"></div>
+      <div><label>Rol</label><select id="yeniEkipRol"><option value="admin">Yönetici — tam erişim</option><option value="editor" selected>Editör — düzenleyebilir, kullanıcı yönetemez</option><option value="viewer">Görüntüleyici — sadece okuma</option></select></div>
+    </div>
+    <button class="btn-dark" onclick="ekipUyesiEkle()">＋ Ekle</button>
+  </div>
+  <div class="table-card"><div class="table-wrap"><table><thead><tr><th>E-posta</th><th>Rol</th><th></th></tr></thead><tbody>
+    ${ekip.map((u, i) => `<tr>
+      <td>${u.email}${u.email === adminEmail ? ' <span class="pill st-blue">Siz</span>' : ''}</td>
+      <td><select onchange="ekipRolDegistir(${i}, this.value)" style="width:auto; margin:0; height:34px; padding:5px 8px;">
+        <option value="admin" ${u.rol==='admin'?'selected':''}>Yönetici</option>
+        <option value="editor" ${u.rol==='editor'?'selected':''}>Editör</option>
+        <option value="viewer" ${u.rol==='viewer'?'selected':''}>Görüntüleyici</option>
+      </select></td>
+      <td><button class="linklike" style="color:var(--bad);" onclick="ekipUyesiSil(${i})">Kaldır</button></td>
+    </tr>`).join('')}
+  </tbody></table></div></div>
+  <p style="color:var(--text-muted); font-size:12px; margin-top:14px;"><i class="bi bi-info-circle"></i> Not: Bu liste şu an tarayıcınızda tutuluyor (demo modu) — backend'e kullanıcı/rol tablosu eklendiğinde aynı arayüz gerçek hesaplara bağlanacak.</p>`;
+}
+function ekipUyesiEkle() {
+  const email = document.getElementById('yeniEkipEmail').value.trim();
+  const rol = document.getElementById('yeniEkipRol').value;
+  if (!email || !email.includes('@')) { showToast('Geçerli bir e-posta girin.', 'err'); return; }
+  const ekip = ekipListesi();
+  if (ekip.some(u => u.email === email)) { showToast('Bu e-posta zaten ekipte.', 'err'); return; }
+  ekip.push({ email, rol });
+  ekipKaydet(ekip);
+  showToast('Ekip üyesi eklendi.', 'ok');
+  kullaniciYonetimiEkrani();
+}
+function ekipRolDegistir(i, rol) {
+  const ekip = ekipListesi();
+  const kendim = ekip[i].email === adminEmail;
+  ekip[i].rol = rol;
+  ekipKaydet(ekip);
+  if (kendim && rol !== 'admin') {
+    // Nellavio'daki "self-demotion" davranışı: kendi yönetici yetkini kaldırırsan oturum kapanır
+    showToast('Kendi yöneticilik yetkinizi kaldırdınız — oturum kapatılıyor.', 'info');
+    setTimeout(cikisYap, 1200);
+    return;
+  }
+  showToast('Rol güncellendi.', 'ok');
+  kullaniciYonetimiEkrani();
+}
+function ekipUyesiSil(i) {
+  const ekip = ekipListesi();
+  if (ekip[i].email === adminEmail) { showToast('Kendinizi kaldıramazsınız.', 'err'); return; }
+  ekip.splice(i, 1);
+  ekipKaydet(ekip);
+  kullaniciYonetimiEkrani();
+}
+// render() sonrası çağrılır: viewer rolündeyken kaydet/aksiyon butonlarını salt-okunur yapar
+function rbacUygula() {
+  if (canEdit()) return;
+  document.querySelectorAll('.main button.primary, .main button.secondary').forEach(b => {
+    if (b.closest('.pagination') || b.closest('.filter-row')) return;
+    b.disabled = true;
+    b.title = 'Görüntüleyici rolünde düzenleme yapılamaz';
+  });
 }
 
 let siparisRowsCache = [];
@@ -1737,8 +1835,19 @@ function initShortcuts() {
   });
 }
 
+// Aksiyon butonları async loader'lar tarafından .main içine sonradan yazıldığı için (render()
+// senkron dönüyor), her DOM değişiminde RBAC kısıtlamasını yeniden uygulayan bir observer kullanılıyor
+// — tek tek her fonksiyona rbacUygula() eklemek yerine, tek yerden garanti altına alınıyor.
+function initRbacObserver() {
+  const app = document.getElementById('app');
+  if (!app) return;
+  let t = null;
+  new MutationObserver(() => { clearTimeout(t); t = setTimeout(rbacUygula, 30); }).observe(app, { childList: true, subtree: true });
+}
+
 initCmdk();
 initShortcuts();
+initRbacObserver();
 render();
 </script>
 </body>
