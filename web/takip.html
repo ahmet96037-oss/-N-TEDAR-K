@@ -276,6 +276,20 @@
   .belge-item .ad{ font-size:14px; font-weight:600; }
   .belge-item .tip{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); margin-top:2px; }
   .belge-item a{ color:var(--accent2-ink); font-size:13px; font-weight:700; text-decoration:none; }
+
+  /* ---- Toast bildirim sistemi — admin panelle aynı dil, alert() yerine ---- */
+  .toast-stack{ position:fixed; right:20px; bottom:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; max-width:340px; }
+  .toast{ display:flex; align-items:flex-start; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:12px 14px; box-shadow:0 12px 32px -8px rgba(0,0,0,.25); font-size:13.5px; color:var(--text); animation:toastIn .25s cubic-bezier(.2,.8,.3,1); }
+  .toast .ico{ flex:none; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; margin-top:1px; }
+  .toast.ok .ico{ background:var(--good-bg); color:var(--good); }
+  .toast.err .ico{ background:var(--bad-bg); color:var(--bad); }
+  .toast.info .ico{ background:color-mix(in srgb, var(--accent2) 14%, transparent); color:var(--accent2); }
+  .toast .msg{ flex:1; line-height:1.4; }
+  .toast.is-leaving{ animation:toastOut .2s ease forwards; }
+  @keyframes toastIn{ from{ opacity:0; transform:translateY(10px) scale(.96); } to{ opacity:1; transform:translateY(0) scale(1); } }
+  @keyframes toastOut{ to{ opacity:0; transform:translateY(6px) scale(.96); } }
+  @media (prefers-reduced-motion: reduce){ .toast{ animation:none; } .toast.is-leaving{ animation:none; opacity:0; } }
 </style>
 </head>
 <body>
@@ -286,9 +300,35 @@
 </div>
 
 <div id="app"></div>
+<div class="toast-stack" id="toastStack" aria-live="polite"></div>
 
 <script>
 const API = '';
+function showToast(msg, type) {
+  type = type || 'info';
+  const stack = document.getElementById('toastStack');
+  if (!stack) { alert(msg); return; }
+  const ico = type === 'ok' ? 'bi-check-lg' : type === 'err' ? 'bi-exclamation-lg' : 'bi-info-lg';
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<span class="ico"><i class="bi ${ico}"></i></span><span class="msg"></span>`;
+  el.querySelector('.msg').textContent = msg;
+  stack.appendChild(el);
+  setTimeout(() => { el.classList.add('is-leaving'); setTimeout(() => el.remove(), 220); }, 4200);
+}
+// Ctrl+/ — admin panelle aynı klavye kısayolu: koyu/açık/sistem temayı döngüsel değiştirir
+window.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+    e.preventDefault();
+    const buttons = document.querySelectorAll('#themeToggle button');
+    if (!buttons.length) return;
+    const order = ['light', 'dark', 'system'];
+    const current = localStorage.getItem('tema') || 'system';
+    const next = order[(order.indexOf(current) + 1) % order.length];
+    const btn = Array.from(buttons).find(b => b.dataset.mode === next);
+    if (btn) btn.click();
+  }
+});
 let token = localStorage.getItem('tk_token');
 let musteriAdi = localStorage.getItem('tk_ad') || '';
 const _siparisParam = new URLSearchParams(location.search).get('siparis');
@@ -499,10 +539,10 @@ async function tekrarSiparisVer(eskiSiparis) {
         hedef_fiyat: eskiSiparis.hedef_fiyat || null,
       })
     });
-    if (!res.ok) { alert('Yeni talep oluşturulamadı.'); return; }
+    if (!res.ok) { showToast('Yeni talep oluşturulamadı.', 'err'); return; }
     const d = await res.json();
     aktifSiparisNo = d.siparis_no; view = 'detay'; render();
-  } catch (e) { alert('Bağlantı hatası.'); }
+  } catch (e) { showToast('Bağlantı hatası.', 'err'); }
 }
 
 async function musteriMesajGonder(siparisNo) {

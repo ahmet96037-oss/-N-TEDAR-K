@@ -149,6 +149,49 @@
     .main{ padding:24px 18px; }
   }
 
+  /* ---- Daraltılabilir sidebar (Ctrl+\ veya marka satırındaki oka tıkla) — sadece ikonlar kalır ---- */
+  .app-shell.is-collapsed .sidebar{ width:72px; padding:20px 10px; }
+  .app-shell.is-collapsed .sidebar .brand-t, .app-shell.is-collapsed .sidebar .brand-sub,
+  .app-shell.is-collapsed .side-group-label, .app-shell.is-collapsed .side-nav button span:not(.ico),
+  .app-shell.is-collapsed .user-chip > div:last-child, .app-shell.is-collapsed .sidebar-foot .linklike,
+  .app-shell.is-collapsed .brand-row .chev{ display:none; }
+  .app-shell.is-collapsed .side-nav button{ justify-content:center; }
+  .app-shell.is-collapsed .theme-toggle{ display:none; }
+  @media (max-width:820px){ .app-shell.is-collapsed .sidebar{ width:100%; padding:14px 16px; } }
+
+  /* ---- Toast bildirim sistemi — alert() yerine sağ altta beliren, kendi kendine kapanan kart ---- */
+  .toast-stack{ position:fixed; right:20px; bottom:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; max-width:340px; }
+  .toast{ display:flex; align-items:flex-start; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:12px 14px; box-shadow:0 12px 32px -8px rgba(0,0,0,.25); font-size:13.5px; color:var(--text); animation:toastIn .25s cubic-bezier(.2,.8,.3,1); }
+  .toast .ico{ flex:none; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; margin-top:1px; }
+  .toast.ok .ico{ background:var(--good-bg); color:var(--good); }
+  .toast.err .ico{ background:var(--bad-bg); color:var(--bad); }
+  .toast.info .ico{ background:color-mix(in srgb, var(--accent2) 14%, transparent); color:var(--accent2); }
+  .toast .msg{ flex:1; line-height:1.4; }
+  .toast.is-leaving{ animation:toastOut .2s ease forwards; }
+  @keyframes toastIn{ from{ opacity:0; transform:translateY(10px) scale(.96); } to{ opacity:1; transform:translateY(0) scale(1); } }
+  @keyframes toastOut{ to{ opacity:0; transform:translateY(6px) scale(.96); } }
+  @media (prefers-reduced-motion: reduce){ .toast{ animation:none; } .toast.is-leaving{ animation:none; opacity:0; } }
+
+  /* ---- Komut paleti (⌘K) — arama kutusundaki kısayolla açılan, klavyeyle gezilen hızlı gezinme ---- */
+  .cmdk-overlay{ position:fixed; inset:0; background:rgba(9,9,11,.55); backdrop-filter:blur(2px); z-index:9998; display:flex; align-items:flex-start; justify-content:center; padding-top:14vh; opacity:0; pointer-events:none; transition:opacity .15s; }
+  .cmdk-overlay.is-open{ opacity:1; pointer-events:auto; }
+  .cmdk-box{ width:100%; max-width:560px; background:var(--surface); border:1px solid var(--border); border-radius:16px; box-shadow:0 30px 70px -12px rgba(0,0,0,.45); overflow:hidden; transform:translateY(-8px); transition:transform .15s; }
+  .cmdk-overlay.is-open .cmdk-box{ transform:translateY(0); }
+  .cmdk-input-row{ display:flex; align-items:center; gap:10px; padding:14px 18px; border-bottom:1px solid var(--border); }
+  .cmdk-input-row .ico{ opacity:.5; }
+  .cmdk-input-row input{ border:none; background:none; margin:0; padding:0; height:auto; font-size:15px; flex:1; }
+  .cmdk-input-row input:focus{ outline:none; }
+  .cmdk-input-row .kbd{ font-family:var(--font-body); font-weight:600; font-size:11px; color:var(--text-muted); background:var(--bg-alt); border:1px solid var(--border); border-radius:4px; padding:2px 6px; }
+  .cmdk-list{ max-height:340px; overflow-y:auto; padding:6px; }
+  .cmdk-group-label{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); padding:10px 10px 4px; }
+  .cmdk-item{ display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:9px; cursor:pointer; font-size:13.5px; color:var(--text); }
+  .cmdk-item .ico{ width:16px; text-align:center; flex:none; color:var(--text-muted); font-size:14px; }
+  .cmdk-item .sub{ margin-left:auto; font-size:11.5px; color:var(--text-muted); }
+  .cmdk-item.is-active{ background:color-mix(in srgb, var(--accent2) 12%, transparent); }
+  .cmdk-item.is-active .ico{ color:var(--accent2); }
+  .cmdk-empty{ padding:26px 18px; text-align:center; color:var(--text-muted); font-size:13px; }
+
   .panel-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:22px; flex-wrap:wrap; }
   /* shadcn admin dashboard referansındaki stat kartlarıyla birebir: ikon+etiket
      başlık satırı, büyük rakam, alt açıklama, alt satırda "Detaylar" linki. */
@@ -270,6 +313,19 @@
 </head>
 <body>
 <div id="app"></div>
+<!-- render() her view değişiminde #app'ı komple değiştirdiği için toast/komut paleti #app DIŞINDA —
+     yoksa bir bildirim gösterilirken sayfa değişince toast kaybolur, palet açıkken kapanırdı. -->
+<div class="toast-stack" id="toastStack" aria-live="polite"></div>
+<div class="cmdk-overlay" id="cmdkOverlay">
+  <div class="cmdk-box" role="dialog" aria-label="Komut paleti">
+    <div class="cmdk-input-row">
+      <span class="ico"><i class="bi bi-search"></i></span>
+      <input id="cmdkInput" placeholder="Sipariş no, müşteri veya sayfa ara..." autocomplete="off">
+      <span class="kbd">Esc</span>
+    </div>
+    <div class="cmdk-list" id="cmdkList"></div>
+  </div>
+</div>
 <script>
 const API = '';
 let token = localStorage.getItem('tk_admin_token');
@@ -387,6 +443,7 @@ function render() {
   if (view === 'giris') { app.innerHTML = authShell(girisEkrani()); initTheme(); return; }
   app.innerHTML = panelShell('<div class="empty-state">Yükleniyor…</div>', view);
   initTheme();
+  if (localStorage.getItem('tk_admin_sidebar') === 'collapsed') document.querySelector('.app-shell').classList.add('is-collapsed');
   if (view === 'liste') listeYukle();
   else if (view === 'detay') detayYukle(aktifSiparisNo);
   else if (view === 'musteriler') musterilerYukle();
@@ -538,20 +595,20 @@ function panelShell(innerHtml, activeView) {
   return `
     <div class="app-shell">
       <div class="sidebar">
-        <div class="brand-row">
+        <div class="brand-row" onclick="toggleSidebar()" title="Daralt/Genişlet (Ctrl+\\)">
           <div class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#465fff"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg><div><div class="brand-t">Tedarik Ağı</div><div class="brand-sub">Admin Paneli</div></div></div>
           <span class="chev">⌄</span>
         </div>
         <div class="side-group-label">Genel</div>
         <div class="side-nav">
-          <button class="${activeView==='liste'||activeView==='detay' ? 'active' : ''}" onclick="view='liste'; render();"><span class="ico"><i class="bi bi-grid-1x2"></i></span> Siparişler</button>
-          <button class="${activeView==='yeni-siparis' ? 'active' : ''}" onclick="view='yeni-siparis'; render();"><span class="ico"><i class="bi bi-plus-circle"></i></span> Yeni Sipariş</button>
-          <button class="${activeView==='musteriler' ? 'active' : ''}" onclick="view='musteriler'; render();"><span class="ico"><i class="bi bi-building"></i></span> Müşteriler</button>
-          <button class="${activeView==='tedarikciler' ? 'active' : ''}" onclick="view='tedarikciler'; render();"><span class="ico"><i class="bi bi-shop"></i></span> Tedarikçiler</button>
+          <button class="${activeView==='liste'||activeView==='detay' ? 'active' : ''}" onclick="view='liste'; render();"><span class="ico"><i class="bi bi-grid-1x2"></i></span><span>Siparişler</span></button>
+          <button class="${activeView==='yeni-siparis' ? 'active' : ''}" onclick="view='yeni-siparis'; render();"><span class="ico"><i class="bi bi-plus-circle"></i></span><span>Yeni Sipariş</span></button>
+          <button class="${activeView==='musteriler' ? 'active' : ''}" onclick="view='musteriler'; render();"><span class="ico"><i class="bi bi-building"></i></span><span>Müşteriler</span></button>
+          <button class="${activeView==='tedarikciler' ? 'active' : ''}" onclick="view='tedarikciler'; render();"><span class="ico"><i class="bi bi-shop"></i></span><span>Tedarikçiler</span></button>
         </div>
         <div class="side-group-label">Hesap</div>
         <div class="side-nav">
-          <button class="${activeView==='ayarlar' ? 'active' : ''}" onclick="view='ayarlar'; render();"><span class="ico"><i class="bi bi-gear"></i></span> Ayarlar</button>
+          <button class="${activeView==='ayarlar' ? 'active' : ''}" onclick="view='ayarlar'; render();"><span class="ico"><i class="bi bi-gear"></i></span><span>Ayarlar</span></button>
         </div>
         <div class="sidebar-foot">
           <div class="user-chip">
@@ -566,7 +623,7 @@ function panelShell(innerHtml, activeView) {
           <div class="topbar-search">
             <span class="ico"><i class="bi bi-search"></i></span>
             <input placeholder="Sipariş no, müşteri, firma veya ürün ara..." oninput="topbarAra(this.value)">
-            <span class="kbd">⌘K</span>
+            <span class="kbd" style="cursor:pointer;" onclick="cmdkOpen()">⌘K</span>
           </div>
           <div class="topbar-toggle">${themeToggleHtml()}</div>
         </div>
@@ -1310,6 +1367,7 @@ async function sevkiyatGuncelle(siparisNo) {
     method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
     body: JSON.stringify(body)
   });
+  showToast('Sevkiyat bilgisi güncellendi.', 'ok');
   detayYukle(siparisNo);
 }
 
@@ -1334,24 +1392,26 @@ async function mesajGonder(siparisNo) {
 
 async function tutarBelirle(siparisNo) {
   const toplam_tutar = parseFloat(document.getElementById('tutarGiris').value);
-  if (!toplam_tutar || toplam_tutar <= 0) { alert('Geçerli bir tutar girin.'); return; }
+  if (!toplam_tutar || toplam_tutar <= 0) { showToast('Geçerli bir tutar girin.', 'err'); return; }
   const para_birimi = document.getElementById('tutarParaBirimi').value;
   await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/tutar', {
     method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
     body: JSON.stringify({toplam_tutar, para_birimi})
   });
+  showToast('Tutar kaydedildi.', 'ok');
   detayYukle(siparisNo);
 }
 
 async function odemeEkle(siparisNo) {
   const tutar = parseFloat(document.getElementById('odemeTutar').value);
-  if (!tutar || tutar <= 0) { alert('Geçerli bir tutar girin.'); return; }
+  if (!tutar || tutar <= 0) { showToast('Geçerli bir tutar girin.', 'err'); return; }
   const para_birimi = document.getElementById('odemeParaBirimi').value;
   const aciklama = document.getElementById('odemeAciklama').value.trim() || null;
   await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/odeme', {
     method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
     body: JSON.stringify({tutar, para_birimi, aciklama})
   });
+  showToast('Ödeme eklendi.', 'ok');
   detayYukle(siparisNo);
 }
 
@@ -1361,6 +1421,7 @@ async function icNotKaydet(siparisNo) {
     method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
     body: JSON.stringify({ic_not})
   });
+  showToast('İç not kaydedildi.', 'ok');
 }
 
 async function ilerlet(siparisNo, durum) {
@@ -1378,6 +1439,7 @@ async function durumGuncelle(siparisNo) {
     method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
     body: JSON.stringify({durum, not_metni})
   });
+  showToast('Sipariş durumu güncellendi.', 'ok');
   detayYukle(siparisNo);
 }
 
@@ -1387,7 +1449,7 @@ async function belgeEkle(siparisNo) {
   const dosyaInput = document.getElementById('belgeDosya');
   const dosya = dosyaInput.files[0];
   const aciklama = document.getElementById('belgeAciklama').value.trim() || null;
-  if (!belge_tipi || !dosya) { alert('Belge tipi ve dosya seçimi zorunlu.'); return; }
+  if (!belge_tipi || !dosya) { showToast('Belge tipi ve dosya seçimi zorunlu.', 'err'); return; }
   const btn = document.getElementById('belgeEkleBtn');
   btn.disabled = true; btn.textContent = 'Yükleniyor...';
   const form = new FormData();
@@ -1398,10 +1460,11 @@ async function belgeEkle(siparisNo) {
     const res = await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/belge-yukle', {
       method:'POST', headers:{'Authorization':'Bearer '+token}, body: form
     });
-    if (!res.ok) { const e = await res.json().catch(()=>({})); alert('Yükleme başarısız: ' + (e.detail||res.status)); return; }
+    if (!res.ok) { const e = await res.json().catch(()=>({})); showToast('Yükleme başarısız: ' + (e.detail||res.status), 'err'); return; }
   } finally {
     btn.disabled = false; btn.textContent = 'Belgeyi Yükle';
   }
+  showToast('Belge yüklendi.', 'ok');
   detayYukle(siparisNo);
 }
 
@@ -1419,6 +1482,128 @@ function initTheme() {
   buttons.forEach(b => b.addEventListener('click', () => { localStorage.setItem('tema', b.dataset.mode); apply(b.dataset.mode); }));
 }
 
+// ---- Toast bildirim sistemi ----
+function showToast(msg, type) {
+  type = type || 'info';
+  const stack = document.getElementById('toastStack');
+  if (!stack) { alert(msg); return; }
+  const ico = type === 'ok' ? 'bi-check-lg' : type === 'err' ? 'bi-exclamation-lg' : 'bi-info-lg';
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<span class="ico"><i class="bi ${ico}"></i></span><span class="msg"></span>`;
+  el.querySelector('.msg').textContent = msg;
+  stack.appendChild(el);
+  setTimeout(() => {
+    el.classList.add('is-leaving');
+    setTimeout(() => el.remove(), 220);
+  }, 4200);
+}
+
+// ---- Komut paleti (⌘K) ----
+const CMDK_PAGES = [
+  { label: 'Siparişler', ico: 'bi-grid-1x2', go: () => { view = 'liste'; render(); } },
+  { label: 'Yeni Sipariş', ico: 'bi-plus-circle', go: () => { view = 'yeni-siparis'; render(); } },
+  { label: 'Müşteriler', ico: 'bi-building', go: () => { view = 'musteriler'; render(); } },
+  { label: 'Tedarikçiler', ico: 'bi-shop', go: () => { view = 'tedarikciler'; render(); } },
+  { label: 'Ayarlar', ico: 'bi-gear', go: () => { view = 'ayarlar'; render(); } },
+];
+let cmdkActiveIdx = 0;
+function cmdkResults(q) {
+  q = (q || '').trim().toLowerCase();
+  if (!q) return { pages: CMDK_PAGES, orders: [] };
+  const pages = CMDK_PAGES.filter(p => p.label.toLowerCase().includes(q));
+  const orders = (siparisRowsCache || []).filter(r =>
+    [r.siparis_no, r.musteri, r.firma, r.urun_aciklamasi].some(v => (v || '').toLowerCase().includes(q))
+  ).slice(0, 6);
+  return { pages, orders };
+}
+function cmdkRender() {
+  const input = document.getElementById('cmdkInput');
+  const list = document.getElementById('cmdkList');
+  if (!input || !list) return;
+  const { pages, orders } = cmdkResults(input.value);
+  const items = [
+    ...pages.map(p => ({ kind: 'page', label: p.label, ico: p.ico, run: p.go })),
+    ...orders.map(o => ({ kind: 'order', label: o.siparis_no, sub: o.musteri || o.firma || '', ico: 'bi-box-seam',
+      run: () => { aktifSiparisNo = o.siparis_no; view = 'detay'; render(); } })),
+  ];
+  cmdkActiveIdx = Math.min(cmdkActiveIdx, Math.max(0, items.length - 1));
+  if (!items.length) { list.innerHTML = '<div class="cmdk-empty">Sonuç bulunamadı</div>'; return; }
+  let html = '';
+  if (pages.length) html += '<div class="cmdk-group-label">Sayfalar</div>';
+  items.forEach((it, i) => {
+    if (it.kind === 'order' && i === pages.length) html += '<div class="cmdk-group-label">Siparişler</div>';
+    html += `<div class="cmdk-item${i === cmdkActiveIdx ? ' is-active' : ''}" data-idx="${i}">
+      <span class="ico"><i class="bi ${it.ico}"></i></span><span>${it.label}</span>${it.sub ? `<span class="sub">${it.sub}</span>` : ''}
+    </div>`;
+  });
+  list.innerHTML = html;
+  list.querySelectorAll('.cmdk-item').forEach(el => {
+    el.addEventListener('click', () => { items[Number(el.dataset.idx)].run(); cmdkClose(); });
+  });
+  list._items = items;
+}
+function cmdkOpen() {
+  const overlay = document.getElementById('cmdkOverlay');
+  const input = document.getElementById('cmdkInput');
+  if (!overlay) return;
+  overlay.classList.add('is-open');
+  cmdkActiveIdx = 0;
+  input.value = '';
+  cmdkRender();
+  setTimeout(() => input.focus(), 20);
+}
+function cmdkClose() {
+  const overlay = document.getElementById('cmdkOverlay');
+  if (overlay) overlay.classList.remove('is-open');
+}
+function initCmdk() {
+  const overlay = document.getElementById('cmdkOverlay');
+  const input = document.getElementById('cmdkInput');
+  if (!overlay || !input) return;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) cmdkClose(); });
+  input.addEventListener('input', () => { cmdkActiveIdx = 0; cmdkRender(); });
+  input.addEventListener('keydown', (e) => {
+    const list = document.getElementById('cmdkList');
+    const items = list._items || [];
+    if (e.key === 'ArrowDown') { e.preventDefault(); cmdkActiveIdx = Math.min(items.length - 1, cmdkActiveIdx + 1); cmdkRender(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); cmdkActiveIdx = Math.max(0, cmdkActiveIdx - 1); cmdkRender(); }
+    else if (e.key === 'Enter') { e.preventDefault(); if (items[cmdkActiveIdx]) { items[cmdkActiveIdx].run(); cmdkClose(); } }
+    else if (e.key === 'Escape') { cmdkClose(); }
+  });
+}
+
+// ---- Sidebar daralt/genişlet ----
+function toggleSidebar() {
+  const shell = document.querySelector('.app-shell');
+  if (!shell) return;
+  const collapsed = shell.classList.toggle('is-collapsed');
+  localStorage.setItem('tk_admin_sidebar', collapsed ? 'collapsed' : 'expanded');
+}
+
+// ---- Genel klavye kısayolları: ⌘/Ctrl+K komut paleti, Ctrl+\ sidebar, Ctrl+/ tema ----
+function initShortcuts() {
+  window.addEventListener('keydown', (e) => {
+    const overlay = document.getElementById('cmdkOverlay');
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); cmdkOpen(); return; }
+    if ((e.metaKey || e.ctrlKey) && e.key === '\\') { e.preventDefault(); toggleSidebar(); return; }
+    if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+      e.preventDefault();
+      const buttons = document.querySelectorAll('#themeToggle button');
+      if (!buttons.length) return;
+      const order = ['light', 'dark', 'system'];
+      const current = localStorage.getItem('tema') || 'system';
+      const next = order[(order.indexOf(current) + 1) % order.length];
+      const btn = Array.from(buttons).find(b => b.dataset.mode === next);
+      if (btn) btn.click();
+      return;
+    }
+    if (e.key === 'Escape' && overlay && overlay.classList.contains('is-open')) cmdkClose();
+  });
+}
+
+initCmdk();
+initShortcuts();
 render();
 </script>
 </body>
