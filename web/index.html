@@ -897,6 +897,11 @@
     }
     setStage(0);
     measureFp();
+    // Font/görsel geç yüklenip sayfa yüksekliğini kaydırdığında ölçüm bayatlıyordu (haritanın
+    // zoom etmeyi bırakmasının sebebi buydu) — load + fonts.ready + kısa bir gecikmeyle tazeliyoruz.
+    window.addEventListener('load', () => { measureFp(); onScrollRaw(); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { measureFp(); onScrollRaw(); });
+    setTimeout(() => { measureFp(); onScrollRaw(); }, 1200);
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', () => { measureFp(); onScrollRaw(); });
     onScroll();
@@ -952,6 +957,10 @@
     sizeTrack();
     measureSol();
     setActive(0);
+    // Font/görsel geç yüklenip sayfa yüksekliğini kaydırdığında ölçüm bayatlıyordu — aynı düzeltme burada da.
+    window.addEventListener('load', () => { sizeTrack(); measureSol(); update(); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { sizeTrack(); measureSol(); update(); });
+    setTimeout(() => { sizeTrack(); measureSol(); update(); }, 1200);
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', () => { sizeTrack(); measureSol(); update(); });
     update();
