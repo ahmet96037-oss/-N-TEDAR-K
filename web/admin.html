@@ -383,13 +383,15 @@
   .row-cust .av{ width:30px; height:30px; border-radius:50%; background:color-mix(in srgb, var(--accent2) 14%, transparent); color:var(--accent2); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11.5px; flex:none; }
   .pill{ display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; letter-spacing:0; text-transform:none; padding:4px 10px; border-radius:20px; background:var(--bg-alt); color:var(--text-muted); border:1px solid var(--border); white-space:nowrap; }
   .pill::before{ content:""; width:6px; height:6px; border-radius:50%; background:currentColor; }
-  .pill.st-blue{ background:#eff6ff; color:#1d4ed8; border-color:#bfdbfe; }
-  .pill.st-purple{ background:#faf5ff; color:#7e22ce; border-color:#e9d5ff; }
-  .pill.st-orange{ background:#fff7ed; color:#c2410c; border-color:#fed7aa; }
-  .pill.st-amber{ background:#fffbeb; color:#b45309; border-color:#fde68a; }
-  .pill.st-teal{ background:#f0fdfa; color:#0f766e; border-color:#99f6e4; }
-  .pill.st-pink{ background:#fdf2f8; color:#be185d; border-color:#fbcfe8; }
-  .pill.st-cyan{ background:#ecfeff; color:#0e7490; border-color:#a5f3fc; }
+  /* Adminator'ın .badge renk mantığıyla aynı: color-mix ile token'lardan üretiliyor, koyu/açık
+     temada otomatik uyum sağlıyor — eskiden sabit hex değerlerdi, koyu modda okunmuyordu. */
+  .pill.st-blue{ background:color-mix(in srgb, var(--accent-blue) 15%, transparent); color:var(--accent-blue); border-color:color-mix(in srgb, var(--accent-blue) 35%, transparent); }
+  .pill.st-purple{ background:color-mix(in srgb, var(--accent-purple) 15%, transparent); color:var(--accent-purple); border-color:color-mix(in srgb, var(--accent-purple) 35%, transparent); }
+  .pill.st-orange{ background:color-mix(in srgb, var(--accent) 15%, transparent); color:var(--accent); border-color:color-mix(in srgb, var(--accent) 35%, transparent); }
+  .pill.st-amber{ background:color-mix(in srgb, var(--accent) 15%, transparent); color:var(--accent); border-color:color-mix(in srgb, var(--accent) 35%, transparent); }
+  .pill.st-teal{ background:color-mix(in srgb, #14b8a6 15%, transparent); color:#14b8a6; border-color:color-mix(in srgb, #14b8a6 35%, transparent); }
+  .pill.st-pink{ background:color-mix(in srgb, #ec4899 15%, transparent); color:#ec4899; border-color:color-mix(in srgb, #ec4899 35%, transparent); }
+  .pill.st-cyan{ background:color-mix(in srgb, #06b6d4 15%, transparent); color:#06b6d4; border-color:color-mix(in srgb, #06b6d4 35%, transparent); }
   .pill.st-green{ background:var(--good-bg); color:var(--good); border-color:var(--good-bd); }
   .pill.st-red{ background:var(--bad-bg); color:var(--bad); border-color:var(--bad-bd); }
   .back{ background:none; border:none; color:var(--text-muted); font-size:13.5px; cursor:pointer; margin-bottom:16px; padding:0; font-weight:600; }

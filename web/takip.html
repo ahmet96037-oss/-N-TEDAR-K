@@ -246,13 +246,14 @@
   .ozet-top h2{ font-size:18px; margin:2px 0 0; }
   .durum-pill{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:6px 13px; border-radius:20px; background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent-ink); border:1px solid color-mix(in srgb, var(--accent) 32%, transparent); white-space:nowrap; }
   /* Süreç fazına göre renklendirilmiş rozetler — admin paneliyle aynı dil. */
-  .pill.st-blue{ background:#eff6ff; color:#1d4ed8; border-color:#bfdbfe; }
-  .pill.st-purple{ background:#faf5ff; color:#7e22ce; border-color:#e9d5ff; }
-  .pill.st-orange{ background:#fff7ed; color:#c2410c; border-color:#fed7aa; }
-  .pill.st-amber{ background:#fffbeb; color:#b45309; border-color:#fde68a; }
-  .pill.st-teal{ background:#f0fdfa; color:#0f766e; border-color:#99f6e4; }
-  .pill.st-pink{ background:#fdf2f8; color:#be185d; border-color:#fbcfe8; }
-  .pill.st-cyan{ background:#ecfeff; color:#0e7490; border-color:#a5f3fc; }
+  /* Admin panelle aynı düzeltme: color-mix ile token'lardan üretiliyor, koyu/açık temada uyum sağlıyor */
+  .pill.st-blue{ background:color-mix(in srgb, var(--accent-blue) 15%, transparent); color:var(--accent-blue); border-color:color-mix(in srgb, var(--accent-blue) 35%, transparent); }
+  .pill.st-purple{ background:color-mix(in srgb, var(--accent-purple) 15%, transparent); color:var(--accent-purple); border-color:color-mix(in srgb, var(--accent-purple) 35%, transparent); }
+  .pill.st-orange{ background:color-mix(in srgb, var(--accent) 15%, transparent); color:var(--accent); border-color:color-mix(in srgb, var(--accent) 35%, transparent); }
+  .pill.st-amber{ background:color-mix(in srgb, var(--accent) 15%, transparent); color:var(--accent); border-color:color-mix(in srgb, var(--accent) 35%, transparent); }
+  .pill.st-teal{ background:color-mix(in srgb, #14b8a6 15%, transparent); color:#14b8a6; border-color:color-mix(in srgb, #14b8a6 35%, transparent); }
+  .pill.st-pink{ background:color-mix(in srgb, #ec4899 15%, transparent); color:#ec4899; border-color:color-mix(in srgb, #ec4899 35%, transparent); }
+  .pill.st-cyan{ background:color-mix(in srgb, #06b6d4 15%, transparent); color:#06b6d4; border-color:color-mix(in srgb, #06b6d4 35%, transparent); }
   .pill.st-green{ background:var(--good-bg); color:var(--good); border-color:var(--good-bd); }
   .pill.st-red{ background:var(--bad-bg); color:var(--bad); border-color:var(--bad-bd); }
   .ozet-meta{ display:flex; gap:28px; flex-wrap:wrap; font-size:13.5px; color:var(--text-muted); margin-bottom:20px; }
