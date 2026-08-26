@@ -246,6 +246,17 @@
   .chart-row{ display:grid; grid-template-columns:1.3fr 1fr .8fr; gap:12px; margin-bottom:14px; }
   .chart-row .panel{ margin-bottom:0; }
   @media (max-width:900px){ .chart-row{ grid-template-columns:1fr; } }
+  /* 4. grafik (en aktif müşteriler) eklenince biraz daha dengeli dörtlü ızgara */
+  .chart-row-4{ grid-template-columns:1.1fr .85fr .65fr .85fr; }
+  @media (max-width:1200px){ .chart-row-4{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:900px){ .chart-row-4{ grid-template-columns:1fr; } }
+
+  /* Dashboard kartlarını aç/kapat popover'ı */
+  .kart-ayar-pop{ position:absolute; top:calc(100% + 6px); left:0; z-index:20; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; box-shadow:0 16px 40px -10px rgba(0,0,0,.25); padding:8px; min-width:200px; }
+  .kart-ayar-item{ display:flex; align-items:center; gap:9px; padding:7px 9px; border-radius:8px; font-size:13px; cursor:pointer; }
+  .kart-ayar-item:hover{ background:var(--bg-alt); }
+  .kart-ayar-item input{ width:auto; height:auto; margin:0; }
   .filter-row{ display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
   .filter-row input{ flex:1; min-width:220px; margin-bottom:0; }
   .filter-row select{ width:auto; min-width:180px; margin-bottom:0; }
@@ -690,14 +701,15 @@ let musteriRowsCache = [];
 // Stat kartı — paylaşılan referans tasarımdaki gibi ikon+etiket başlığı, büyük
 // rakam, alt açıklama ve (varsa GERÇEK, hesaplanmış) yeşil/kırmızı trend rozeti.
 // trendPct null ise rozet hiç basılmıyor — uydurma yüzde göstermiyoruz.
-function statCard(icon, label, value, caption, colorMode, trendPct, badgeTone, prefix) {
+function statCard(icon, label, value, caption, colorMode, trendPct, badgeTone, prefix, key) {
   const valColor = colorMode === 'bad' ? 'var(--bad)' : (colorMode === 'good' ? 'var(--good)' : 'var(--text)');
   let badge = '';
   if (trendPct !== undefined && trendPct !== null) {
     const up = trendPct >= 0;
     badge = `<span class="trend-badge ${up ? 'up' : 'down'}"><span class="dot"><i class="bi bi-arrow-${up ? 'up' : 'down'}"></i></span> %${Math.abs(trendPct)}</span>`;
   }
-  return `<div class="stat-card">
+  const hidden = kartGizliMi(key);
+  return `<div class="stat-card" data-key="${key || ''}" style="${hidden ? 'display:none;' : ''}">
     <div class="stat-ico-badge tone-${badgeTone || 'indigo'}">${icon}</div>
     <div class="stat-head">${label} <span class="info-ico" title="${caption}">ⓘ</span></div>
     <div class="v" style="color:${valColor};">${prefix || ''}${Number(value).toLocaleString('tr-TR', {maximumFractionDigits:0})}</div>
@@ -706,6 +718,63 @@ function statCard(icon, label, value, caption, colorMode, trendPct, badgeTone, p
       <a class="det" onclick="document.getElementById('siparisListe').scrollIntoView({behavior:'smooth'})">Detaylar →</a>
       ${badge}
     </div>
+  </div>`;
+}
+
+// ---- Dashboard kartlarını aç/kapat — Nellavio'daki "kişiselleştirilebilir kart mizanpajı" ----
+const STAT_CARD_DEFS = [
+  ['toplam', 'Toplam Sipariş'], ['aktif', 'Aktif Süreçte'], ['ozel', 'Dikkat Gerektiren'],
+  ['buhafta', 'Bu Hafta'], ['geciken', 'Gecikme Riski'], ['tahsilat', 'Bekleyen Tahsilat'],
+];
+function kartGizliSet() {
+  try { return new Set(JSON.parse(localStorage.getItem('tk_admin_hidden_cards') || '[]')); }
+  catch (e) { return new Set(); }
+}
+function kartGizliMi(key) { return key ? kartGizliSet().has(key) : false; }
+function toggleKartAyar(e) {
+  if (e) e.stopPropagation();
+  const pop = document.getElementById('kartAyarPop');
+  if (!pop) return;
+  const willOpen = pop.style.display === 'none';
+  if (!willOpen) { pop.style.display = 'none'; return; }
+  const gizli = kartGizliSet();
+  pop.innerHTML = STAT_CARD_DEFS.map(([key, label]) => `
+    <label class="kart-ayar-item">
+      <input type="checkbox" data-key="${key}" ${gizli.has(key) ? '' : 'checked'} onchange="kartGorunurlukDegistir('${key}', this.checked)">
+      ${label}
+    </label>`).join('');
+  pop.style.display = 'block';
+  const closeOnce = (ev) => { if (!pop.contains(ev.target) && ev.target.id !== 'kartAyarPop') { pop.style.display = 'none'; document.removeEventListener('click', closeOnce); } };
+  setTimeout(() => document.addEventListener('click', closeOnce), 0);
+}
+function kartGorunurlukDegistir(key, gorunur) {
+  const gizli = kartGizliSet();
+  if (gorunur) gizli.delete(key); else gizli.add(key);
+  localStorage.setItem('tk_admin_hidden_cards', JSON.stringify(Array.from(gizli)));
+  const card = document.querySelector(`#statGrid .stat-card[data-key="${key}"]`);
+  if (card) card.style.display = gorunur ? '' : 'none';
+}
+
+// Firma/müşteri bazlı sipariş sayısına göre en çok işlem yapılan 5 müşteri — yatay çubuklu sıralama
+function topMusteriGrafigi(rows) {
+  const sayim = {};
+  rows.forEach(r => { const ad = r.firma || r.musteri || 'Bilinmiyor'; sayim[ad] = (sayim[ad] || 0) + 1; });
+  const top = Object.entries(sayim).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const maxN = Math.max(1, ...top.map(t => t[1]));
+  const renkler = ['#465fff', '#14b8a6', '#ea580c', '#9333ea', '#0e7490'];
+  const bars = top.map(([ad, n], i) => `
+    <div style="margin-bottom:9px;">
+      <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom:3px;">
+        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:120px;">${ad}</span><b style="color:var(--text);">${n}</b>
+      </div>
+      <div style="height:6px; border-radius:4px; background:var(--bg-alt); overflow:hidden;">
+        <div style="height:100%; width:${(n / maxN * 100).toFixed(0)}%; background:${renkler[i % renkler.length]}; border-radius:4px;"></div>
+      </div>
+    </div>`).join('') || '<p style="color:var(--text-muted); font-size:12.5px;">Henüz veri yok.</p>';
+  return `<div class="panel chart-card">
+    <h2 style="font-size:15px;">En Aktif Müşteriler</h2>
+    <p style="color:var(--text-muted); font-size:12.5px; margin:0 0 12px;">Sipariş sayısına göre ilk 5, gerçek veri</p>
+    ${bars}
   </div>`;
 }
 
@@ -881,20 +950,22 @@ async function listeYukle() {
   let html = `<div class="breadcrumb">Genel <i class="bi bi-chevron-right"></i> Siparişler</div>
   <div class="page-head">
     <div><h1>Siparişler</h1><p>${siparisRowsCache.length} sipariş listeleniyor — talepten teslimata tüm süreç.</p></div>
-    <div class="page-head-actions">
+    <div class="page-head-actions" style="position:relative;">
+      <button class="btn-outline" onclick="toggleKartAyar(event)"><i class="bi bi-sliders"></i> Kartları Düzenle</button>
+      <div id="kartAyarPop" class="kart-ayar-pop" style="display:none;"></div>
       <button class="btn-outline" onclick="csvIndir(siparisRowsCache, ['siparis_no','urun_aciklamasi','miktar','durum','olusturulma'], 'siparisler.csv')">⬇ Dışa Aktar</button>
       <button class="btn-dark" onclick="view='yeni-siparis'; render();">＋ Yeni Sipariş</button>
     </div>
   </div>
-  <div class="stat-grid">
-    ${statCard('<i class="bi bi-box-seam"></i>', 'Toplam Sipariş', stats.toplam, 'tüm zamanlar', null, null, 'blue')}
-    ${statCard('<i class="bi bi-gear-wide-connected"></i>', 'Aktif Süreçte', stats.aktif, 'devam eden sipariş', null, null, 'purple')}
-    ${statCard('<i class="bi bi-exclamation-triangle"></i>', 'Dikkat Gerektiren', stats.ozel, 'beklemede / revizyon / iptal', stats.ozel > 0 ? 'bad' : null, null, 'orange')}
-    ${statCard('<i class="bi bi-calendar-week"></i>', 'Bu Hafta', stats.buHafta, 'geçen hafta: ' + stats.gecenHafta, null, stats.haftaTrend, 'indigo')}
-    ${statCard('<i class="bi bi-hourglass-split"></i>', 'Gecikme Riski', stats.geciken, '5+ gündür aynı aşamada', stats.geciken > 0 ? 'bad' : 'good', null, 'red')}
-    ${statCard('<i class="bi bi-cash-coin"></i>', 'Bekleyen Tahsilat', bekleyenTutar, bekleyenCaption, null, null, 'green', paraSembol[anaPara] || (anaPara ? anaPara+' ' : ''))}
+  <div class="stat-grid" id="statGrid">
+    ${statCard('<i class="bi bi-box-seam"></i>', 'Toplam Sipariş', stats.toplam, 'tüm zamanlar', null, null, 'blue', '', 'toplam')}
+    ${statCard('<i class="bi bi-gear-wide-connected"></i>', 'Aktif Süreçte', stats.aktif, 'devam eden sipariş', null, null, 'purple', '', 'aktif')}
+    ${statCard('<i class="bi bi-exclamation-triangle"></i>', 'Dikkat Gerektiren', stats.ozel, 'beklemede / revizyon / iptal', stats.ozel > 0 ? 'bad' : null, null, 'orange', '', 'ozel')}
+    ${statCard('<i class="bi bi-calendar-week"></i>', 'Bu Hafta', stats.buHafta, 'geçen hafta: ' + stats.gecenHafta, null, stats.haftaTrend, 'indigo', '', 'buhafta')}
+    ${statCard('<i class="bi bi-hourglass-split"></i>', 'Gecikme Riski', stats.geciken, '5+ gündür aynı aşamada', stats.geciken > 0 ? 'bad' : 'good', null, 'red', '', 'geciken')}
+    ${statCard('<i class="bi bi-cash-coin"></i>', 'Bekleyen Tahsilat', bekleyenTutar, bekleyenCaption, null, null, 'green', paraSembol[anaPara] || (anaPara ? anaPara+' ' : ''), 'tahsilat')}
   </div>
-  <div class="chart-row">${alanGrafigi(siparisRowsCache)}${barGrafigi(siparisRowsCache)}${tamamlanmaHalkasi(siparisRowsCache)}</div>
+  <div class="chart-row chart-row-4">${alanGrafigi(siparisRowsCache)}${barGrafigi(siparisRowsCache)}${tamamlanmaHalkasi(siparisRowsCache)}${topMusteriGrafigi(siparisRowsCache)}</div>
   <div id="siparisListe"></div>
   <div class="filter-row">
     <input id="filtreArama" placeholder="Sipariş no, müşteri, firma veya ürün ara..." oninput="siparisSayfa=1; siparisListesiCiz()">
