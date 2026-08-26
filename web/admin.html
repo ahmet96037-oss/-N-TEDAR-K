@@ -264,6 +264,20 @@
     border-radius:12px; padding:10px 14px; margin-bottom:10px; font-size:13.5px; }
   .bulk-bar button{ padding:6px 12px; font-size:12.5px; }
   table input[type="checkbox"]{ width:auto; height:auto; margin:0; cursor:pointer; }
+
+  /* Takvim */
+  .takvim-hafta-etiket{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:8px; }
+  .takvim-hafta-etiket div{ text-align:center; font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-muted); }
+  .takvim-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+  .takvim-gun{ aspect-ratio:1; border-radius:10px; border:1px solid var(--border); background:var(--bg-alt); padding:8px; display:flex; flex-direction:column; gap:6px; }
+  .takvim-gun.bos{ border:none; background:none; }
+  .takvim-gun .gn{ font-size:12.5px; font-weight:600; color:var(--text-muted); }
+  .takvim-gun.bugun{ border-color:var(--accent2); box-shadow:0 0 0 1px var(--accent2); }
+  .takvim-gun.bugun .gn{ color:var(--accent2); font-weight:800; }
+  .takvim-gun.dolu{ cursor:pointer; background:color-mix(in srgb, var(--accent2) 6%, var(--bg-alt)); }
+  .takvim-gun.dolu:hover{ background:color-mix(in srgb, var(--accent2) 12%, var(--bg-alt)); }
+  .takvim-badge{ margin-top:auto; font-size:10px; font-weight:700; color:#fff; background:var(--accent2); border-radius:20px; padding:2px 7px; align-self:flex-start; }
+  @media (max-width:700px){ .takvim-gun{ padding:5px; } .takvim-badge{ font-size:8.5px; padding:1px 5px; } }
   .filter-row{ display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
   .filter-row input{ flex:1; min-width:220px; margin-bottom:0; }
   .filter-row select{ width:auto; min-width:180px; margin-bottom:0; }
@@ -469,6 +483,8 @@ function render() {
   else if (view === 'yeni-siparis') { document.querySelector('.main').innerHTML = yeniSiparisEkrani(); ysMusteriDropdownDoldur(); }
   else if (view === 'ayarlar') ayarlarYukle();
   else if (view === 'kullanicilar') kullaniciYonetimiEkrani();
+  else if (view === 'takvim') takvimYukle();
+  else if (view === 'profil') profilYukle();
 }
 
 async function tedarikcilerYukle() {
@@ -573,6 +589,104 @@ function ayarlarYukle() {
   </div>`;
 }
 
+// ---- Takvim — gerçek sipariş tarihlerine göre ay görünümü (Nellavio'daki FullCalendar
+// entegrasyonunun sadeleştirilmiş, harici kütüphanesiz karşılığı; sürükle-bırak yerine
+// tıklayınca o güne ait siparişlere gidiyor — canlı veriyle çalışan, gerçek bir takvim). ----
+let takvimTarih = new Date();
+async function takvimYukle() {
+  const main = document.querySelector('.main');
+  main.innerHTML = '<div class="empty-state">Yükleniyor…</div>';
+  if (!siparisRowsCache.length) {
+    const res = await fetch(API + '/api/tk/admin/siparisler', {headers:{'Authorization':'Bearer '+token}});
+    if (res.status === 401) { cikisYap(); return; }
+    siparisRowsCache = await res.json();
+  }
+  takvimCiz();
+}
+function takvimCiz() {
+  const main = document.querySelector('.main');
+  const yil = takvimTarih.getFullYear(), ay = takvimTarih.getMonth();
+  const gunler = {};
+  siparisRowsCache.forEach(r => {
+    const d = new Date(r.olusturulma);
+    if (d.getFullYear() === yil && d.getMonth() === ay) {
+      const key = d.getDate();
+      (gunler[key] = gunler[key] || []).push(r);
+    }
+  });
+  const ilkGun = new Date(yil, ay, 1).getDay(); // 0=Pazar
+  const bosBaslangic = (ilkGun + 6) % 7; // Pazartesi başlangıçlı
+  const gunSayisi = new Date(yil, ay + 1, 0).getDate();
+  const bugun = new Date();
+  let hucreler = '';
+  for (let i = 0; i < bosBaslangic; i++) hucreler += '<div class="takvim-gun bos"></div>';
+  for (let g = 1; g <= gunSayisi; g++) {
+    const list = gunler[g] || [];
+    const buGun = bugun.getFullYear() === yil && bugun.getMonth() === ay && bugun.getDate() === g;
+    hucreler += `<div class="takvim-gun${buGun ? ' bugun' : ''}${list.length ? ' dolu' : ''}" ${list.length ? `onclick="takvimGuneGit(${yil},${ay},${g})"` : ''}>
+      <span class="gn">${g}</span>
+      ${list.length ? `<span class="takvim-badge">${list.length} sipariş</span>` : ''}
+    </div>`;
+  }
+  main.innerHTML = `<div class="breadcrumb">Genel <i class="bi bi-chevron-right"></i> Takvim</div>
+  <div class="page-head"><div><h1>Takvim</h1><p>Siparişlerin oluşturulma tarihlerine göre aylık görünüm.</p></div>
+    <div class="page-head-actions">
+      <button class="btn-outline" onclick="takvimAyDegistir(-1)"><i class="bi bi-chevron-left"></i></button>
+      <span style="align-self:center; font-weight:700; min-width:130px; text-align:center;">${takvimTarih.toLocaleDateString('tr-TR', {month:'long', year:'numeric'})}</span>
+      <button class="btn-outline" onclick="takvimAyDegistir(1)"><i class="bi bi-chevron-right"></i></button>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="takvim-hafta-etiket">${['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'].map(g => `<div>${g}</div>`).join('')}</div>
+    <div class="takvim-grid">${hucreler}</div>
+  </div>`;
+}
+function takvimAyDegistir(delta) {
+  takvimTarih = new Date(takvimTarih.getFullYear(), takvimTarih.getMonth() + delta, 1);
+  takvimCiz();
+}
+function takvimGuneGit(yil, ay, gun) {
+  const tarihStr = new Date(yil, ay, gun).toLocaleDateString('tr-TR', {day:'2-digit', month:'short'});
+  view = 'liste'; render();
+  setTimeout(() => {
+    const el = document.getElementById('filtreArama');
+    if (el) { el.value = tarihStr; siparisSayfa = 1; siparisListesiCiz(); }
+  }, 60);
+}
+
+// ---- Profil — hesap bilgisi + gerçek aktivite akışı (son sipariş/durum hareketleri) ----
+async function profilYukle() {
+  const main = document.querySelector('.main');
+  if (!siparisRowsCache.length) {
+    const res = await fetch(API + '/api/tk/admin/siparisler', {headers:{'Authorization':'Bearer '+token}});
+    if (res.status !== 401) siparisRowsCache = await res.json();
+  }
+  const initial = (adminEmail || '?').trim().charAt(0).toUpperCase();
+  const aktivite = [...siparisRowsCache]
+    .sort((a, b) => new Date(b.guncellenme || b.olusturulma) - new Date(a.guncellenme || a.olusturulma))
+    .slice(0, 8);
+  main.innerHTML = `<div class="breadcrumb">Hesap <i class="bi bi-chevron-right"></i> Profil</div>
+  <div class="page-head"><div><h1>Profil</h1><p>Hesap bilgileriniz ve son hareketler.</p></div></div>
+  <div class="row2" style="align-items:start;">
+    <div class="panel" style="text-align:center;">
+      <div class="av" style="width:64px; height:64px; border-radius:50%; background:var(--accent2); color:#fff; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:700; margin:0 auto 12px;">${initial}</div>
+      <h2 style="font-size:16px; margin-bottom:2px;">${adminEmail || 'Admin'}</h2>
+      <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">${ROL_ETIKET[benimRolum()] || 'Yönetici'}</p>
+      <div class="stat-mini-tile" style="margin-bottom:8px;"><div class="l">Toplam Sipariş</div><div class="v">${siparisRowsCache.length}</div></div>
+      <button class="btn-outline" style="width:100%;" onclick="view='ayarlar'; render();">Hesap Ayarları</button>
+    </div>
+    <div class="panel">
+      <h2 style="font-size:15px; margin-bottom:12px;">Son Hareketler</h2>
+      ${aktivite.length ? aktivite.map(r => `
+        <div class="gecmis-satir">
+          <div class="durum">${r.siparis_no} <span class="pill ${durumRenkSinifi(r.durum)}" style="margin-left:6px;">${r.durum_adi}</span></div>
+          <div class="not">${r.musteri || ''}${r.firma ? ' · ' + r.firma : ''} — ${r.urun_aciklamasi}</div>
+          <div class="meta">${new Date(r.guncellenme || r.olusturulma).toLocaleString('tr-TR')}</div>
+        </div>`).join('') : '<div class="empty-state">Henüz hareket yok.</div>'}
+    </div>
+  </div>`;
+}
+
 async function adminSifreDegistirKaydet() {
   const errBox = document.getElementById('sifreErr');
   const okBox = document.getElementById('sifreOk');
@@ -624,9 +738,11 @@ function panelShell(innerHtml, activeView) {
           <button class="${activeView==='yeni-siparis' ? 'active' : ''}" onclick="view='yeni-siparis'; render();"><span class="ico"><i class="bi bi-plus-circle"></i></span><span>Yeni Sipariş</span></button>
           <button class="${activeView==='musteriler' ? 'active' : ''}" onclick="view='musteriler'; render();"><span class="ico"><i class="bi bi-building"></i></span><span>Müşteriler</span></button>
           <button class="${activeView==='tedarikciler' ? 'active' : ''}" onclick="view='tedarikciler'; render();"><span class="ico"><i class="bi bi-shop"></i></span><span>Tedarikçiler</span></button>
+          <button class="${activeView==='takvim' ? 'active' : ''}" onclick="view='takvim'; render();"><span class="ico"><i class="bi bi-calendar3"></i></span><span>Takvim</span></button>
         </div>
         <div class="side-group-label">Hesap</div>
         <div class="side-nav">
+          <button class="${activeView==='profil' ? 'active' : ''}" onclick="view='profil'; render();"><span class="ico"><i class="bi bi-person-circle"></i></span><span>Profil</span></button>
           ${canManageUsers() ? `<button class="${activeView==='kullanicilar' ? 'active' : ''}" onclick="view='kullanicilar'; render();"><span class="ico"><i class="bi bi-people"></i></span><span>Kullanıcı Yönetimi</span></button>` : ''}
           <button class="${activeView==='ayarlar' ? 'active' : ''}" onclick="view='ayarlar'; render();"><span class="ico"><i class="bi bi-gear"></i></span><span>Ayarlar</span></button>
         </div>
