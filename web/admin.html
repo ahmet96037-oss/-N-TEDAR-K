@@ -2310,6 +2310,21 @@ function initRbacObserver() {
 // ---- Açılır menüler (bildirim zili, hesap avatarı) — Adminator'ın init.js'indeki initDropdowns()
 // mantığının birebir karşılığı: .dd-wrap.is-open sınıfını CSS zaten animasyonluyor. render() DOM'u
 // her seferinde yeniden yazdığı için event delegation kullanıyoruz (elementlere tek tek bağlamaya gerek yok). ----
+// Sayfa içeriğindeki (Kartları Düzenle vb.) elemanlarla iç içe geçmiş yığın bağlamları (stacking
+// context) yüzünden .dd-menu bazen içeriğin ALTINDA kalıyordu. CSS'in konumlandırmasına
+// güvenmek yerine açılınca position:fixed'e geçirip tetikleyici butona göre JS ile konumluyoruz —
+// bu şekilde hangi ebeveynin altında olduğundan tamamen bağımsız, garanti en üstte görünür.
+function ddMenuKonumla(wrap) {
+  const trigger = wrap.querySelector('[data-dropdown]');
+  const menu = wrap.querySelector('.dd-menu');
+  if (!trigger || !menu) return;
+  const r = trigger.getBoundingClientRect();
+  menu.style.position = 'fixed';
+  menu.style.top = (r.bottom + 10) + 'px';
+  menu.style.right = (window.innerWidth - r.right) + 'px';
+  menu.style.left = 'auto';
+  menu.style.zIndex = '9999';
+}
 function initDropdowns() {
   document.addEventListener('click', (e) => {
     const trigger = e.target.closest('[data-dropdown]');
@@ -2320,13 +2335,16 @@ function initDropdowns() {
       const willOpen = !wrap.classList.contains('is-open');
       document.querySelectorAll('.dd-wrap.is-open').forEach(w => { if (w !== wrap) w.classList.remove('is-open'); });
       wrap.classList.toggle('is-open', willOpen);
-      if (willOpen && wrap.querySelector('#bildirimPop')) bildirimIcerikDoldur();
+      if (willOpen) { ddMenuKonumla(wrap); if (wrap.querySelector('#bildirimPop')) bildirimIcerikDoldur(); }
       return;
     }
     if (!e.target.closest('.dd-wrap')) document.querySelectorAll('.dd-wrap.is-open').forEach(w => w.classList.remove('is-open'));
   });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') document.querySelectorAll('.dd-wrap.is-open').forEach(w => w.classList.remove('is-open'));
+  });
+  window.addEventListener('resize', () => {
+    document.querySelectorAll('.dd-wrap.is-open').forEach(ddMenuKonumla);
   });
 }
 
