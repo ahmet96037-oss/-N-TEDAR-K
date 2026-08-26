@@ -285,7 +285,12 @@
   .page-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:16px; flex-wrap:wrap; }
   .page-head h1{ font-family:var(--font-display); font-weight:700; font-size:20px; letter-spacing:-.01em; margin:0; }
   .page-head p{ color:var(--text-muted); font-size:12.5px; margin:3px 0 0; }
-  .page-head-actions{ display:flex; gap:10px; flex:none; }
+  .page-head-actions{ display:flex; gap:10px; flex:none; position:relative; z-index:1; }
+  /* Topbar açılır menüleri (bildirim/hesap) sayfa içeriğinin (Kartları Düzenle vb. butonların)
+     ÜSTÜNDE görünmeli — page-head-actions'a kart-ayar-pop için verdiğimiz position:relative
+     kendi düşük z-index'li yığın bağlamını yarattığından üstüne çıkabiliyordu. */
+  .d-topbar{ position:sticky; z-index:50; }
+  .dd-menu{ z-index:200; }
   .btn-dark{ background:var(--accent2-fill); color:#fff; border:none; padding:9px 16px; border-radius:8px; font-weight:600; font-size:13.5px; cursor:pointer; font-family:var(--font-body); }
   .btn-dark:hover{ background:var(--accent2-ink); }
   .btn-outline{ background:color-mix(in srgb, var(--text) 5%, transparent); color:var(--text); border:1px solid var(--border); padding:9px 16px; border-radius:8px; font-weight:600; font-size:13.5px; cursor:pointer; font-family:var(--font-body); }
