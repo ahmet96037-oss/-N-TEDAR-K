@@ -7,68 +7,63 @@
 <title>Admin — Tedarik Ağı</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Adminator (puikinsh/Adminator-admin-dashboard, MIT) — gerçek, framework gerektirmeyen
+     kaynak koddan derlenip alınan tasarım sistemi: fontlar, renk token'ları, sidebar/topbar/
+     kart bileşenleri birebir bu projeden. Sadece --primary rengini kendi yeşilimize çeviriyoruz
+     (aşağıdaki override bloğu), gerisi orijinal. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="assets/adminator/adminator.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
-<!-- jsVectorMap — hazır, iyi test edilmiş, React gerektirmeyen dünya haritası kütüphanesi.
-     Kendi elle çizdiğimiz harita yerine gerçek, profesyonel çizilmiş ülke sınırları + yerleşik
-     hover tooltip'i kullanıyoruz (ISO2 ülke kodlarıyla çalışıyor, bizim eşleştirme sistemimizle uyumlu). -->
 <link href="https://cdn.jsdelivr.net/npm/jsvectormap@1.7.0/dist/jsvectormap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.7.0/dist/jsvectormap.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.7.0/dist/maps/world.js" defer></script>
 <style>
+  /* Adminator'ın mavi --primary'sini marka yeşilimize çeviriyoruz. */
+  :root[data-theme="light"]{ --primary:#18915d !important; --primary-light:#1fae70 !important; --primary-dark:#137a4d !important; --primary-soft:#e9f7f0 !important; --primary-ring:rgba(31,174,112,.18) !important; }
+  :root[data-theme="dark"]{ --primary:#3db985 !important; --primary-light:#5fd39f !important; --primary-dark:#2f9d70 !important; --primary-soft:#0f2a20 !important; --primary-ring:rgba(61,185,133,.24) !important; }
+</style>
+<style>
   :root{
-    /* Nellavio'nun gerçek kaynak kodundan (src/styles/themes/{dark,light}.css) birebir alınan
-       renk tokenları: sayfa zemini ile kart zemini arasında hafif bir ton farkı var (kart biraz
-       daha açık), kenarlıklar neredeyse görünmez (%4-5 opaklık), radius 12px (rounded-xl),
-       gölge yok — ayrım sadece o çok hafif border ile sağlanıyor. Marka yeşilimizle (--green:#1fae70,
-       index.html) aynı ailede olduğu için ikisini birleştirdik. */
-    --bg:#f7f7f7; --bg-alt:#eef0f2; --surface:#ffffff; --text:rgba(0,0,0,.9); --text-muted:rgba(0,0,0,.6);
-    --good:#12b76a; --good-bg:#ecfdf3; --good-bd:#6ce9a6; --bad:#f04438; --bad-bg:#fef3f2; --bad-bd:#fda29b;
-    --accent:#d99a2b; --accent-ink:#a8721a; --accent2:#1fae70; --accent2-ink:#18915d; --accent2-fill:#1fae70;
-    --accent-blue:#7dd6e6; --accent-purple:#7e76db;
-    --signal:#c0392b; --signal-ink:#96271b; --border:rgba(0,0,0,.06);
-    --sidebar-bg:var(--surface); --sidebar-text:var(--text); --sidebar-text-dim:var(--text-muted); --sidebar-hover:var(--bg-alt);
-    --radius-card:12px; --radius-sm:10px; --card-shadow:none;
-    --font-display: "Outfit",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-    --font-body: "Open Sans",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-    --font-code: "IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    /* Adminator'ın gerçek derlenmiş CSS'inden (assets/adminator/adminator.css) birebir alınan
+       değerler — kendi eski token isimlerimizi (--bg, --surface, --accent2 vb.) koruyoruz ki
+       onları kullanan tüm mevcut sayfa kodumuz değişmeden yeni paleti otomatik alsın. */
+    --bg:#F0F4F8; --bg-alt:#F1F5F9; --surface:#ffffff; --text:#1E293B; --text-muted:#64748B;
+    --good:#10B981; --good-bg:#ECFDF5; --good-bd:#6ee7b7; --bad:#EF4444; --bad-bg:#FEF2F2; --bad-bd:#fca5a5;
+    --accent:#F59E0B; --accent-ink:#b45309; --accent2:#18915d; --accent2-ink:#137a4d; --accent2-fill:#1fae70;
+    --accent-blue:#0EA5E9; --accent-purple:#8B5CF6;
+    --signal:#EF4444; --signal-ink:#b91c1c; --border:#E4E8EF;
+    --sidebar-bg:var(--surface); --sidebar-text:var(--text); --sidebar-text-dim:var(--text-muted); --sidebar-hover:#F8FAFC;
+    --radius-card:14px; --radius-sm:10px; --card-shadow:0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.04);
+    --font-display: "Inter Tight","Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-body: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-code: "JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   }
-  /* Panel varsayılan olarak KOYU açılır — referans görsel dark mode'da çekilmiş, panelin
-     "kimliği" bu; açık tema hâlâ toggle ile erişilebilir ama artık ikincil.
-     Dark değerleri Nellavio'nun dark.css'inden birebir: primaryBg #1c2025 (kart/sidebar),
-     secondaryBg #161a1f (sayfa zemini), mainColor #3db985 (yeşil), chartSecondaryFill #5385c6 (mavi),
-     chartTertiaryFill #a8a2ff (mor), containedButtonBg #368060 (dolgun buton yeşili). */
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#161a1f; --bg-alt:#20242a; --surface:#1c2025; --text:#e7e9ec; --text-muted:#8c9196;
-      --good:#3db985; --good-bg:rgba(110,231,183,.08); --good-bd:rgba(110,231,183,.3); --bad:#f87171; --bad-bg:#3a1212; --bad-bd:#dc2626;
-      --accent:#e8b355; --accent-ink:#f3c878; --accent2:#3db985; --accent2-ink:#4a9373; --accent2-fill:#368060;
-      --accent-blue:#5385c6; --accent-purple:#a8a2ff;
-      --signal:#f87171; --signal-ink:#fca5a5; --border:rgba(255,255,255,.05);
+      --bg:#0B1120; --bg-alt:#1A2237; --surface:#141B2D; --text:#F1F5F9; --text-muted:#94A3B8;
+      --good:#34D399; --good-bg:#0F2A20; --good-bd:#34D399; --bad:#F87171; --bad-bg:#2B1414; --bad-bd:#F87171;
+      --accent:#FBBF24; --accent-ink:#fbbf24; --accent2:#3db985; --accent2-ink:#2f9d70; --accent2-fill:#368060;
+      --accent-blue:#38BDF8; --accent-purple:#A78BFA;
+      --signal:#F87171; --signal-ink:#fca5a5; --border:#222C42;
+      --sidebar-hover:#1C2438; --card-shadow:0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.25);
     }
   }
   :root[data-theme="dark"]{
-    --bg:#161a1f; --bg-alt:#20242a; --surface:#1c2025; --text:#e7e9ec; --text-muted:#8c9196;
-    --good:#3db985; --good-bg:rgba(110,231,183,.08); --good-bd:rgba(110,231,183,.3); --bad:#f87171; --bad-bg:#3a1212; --bad-bd:#dc2626;
-    --accent:#e8b355; --accent-ink:#f3c878; --accent2:#3db985; --accent2-ink:#4a9373; --accent2-fill:#368060;
-    --accent-blue:#5385c6; --accent-purple:#a8a2ff;
-    --signal:#f87171; --signal-ink:#fca5a5; --border:rgba(255,255,255,.05);
-  }
-  :root:not([data-theme="light"]):not([data-theme="dark"]){
-    /* İlk yüklemede sistem tercihi henüz okunmadan önce de koyu görünsün diye varsayılan koyu */
-    --bg:#161a1f; --bg-alt:#20242a; --surface:#1c2025; --text:#e7e9ec; --text-muted:#8c9196;
-    --good:#3db985; --good-bg:rgba(110,231,183,.08); --good-bd:rgba(110,231,183,.3); --bad:#f87171; --bad-bg:#3a1212; --bad-bd:#dc2626;
-    --accent:#e8b355; --accent-ink:#f3c878; --accent2:#3db985; --accent2-ink:#4a9373; --accent2-fill:#368060;
-    --accent-blue:#5385c6; --accent-purple:#a8a2ff;
-    --signal:#f87171; --signal-ink:#fca5a5; --border:rgba(255,255,255,.05);
+    --bg:#0B1120; --bg-alt:#1A2237; --surface:#141B2D; --text:#F1F5F9; --text-muted:#94A3B8;
+    --good:#34D399; --good-bg:#0F2A20; --good-bd:#34D399; --bad:#F87171; --bad-bg:#2B1414; --bad-bd:#F87171;
+    --accent:#FBBF24; --accent-ink:#fbbf24; --accent2:#3db985; --accent2-ink:#2f9d70; --accent2-fill:#368060;
+    --accent-blue:#38BDF8; --accent-purple:#A78BFA;
+    --signal:#F87171; --signal-ink:#fca5a5; --border:#222C42;
+    --sidebar-hover:#1C2438; --card-shadow:0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.25);
   }
   :root[data-theme="light"]{
-    --bg:#f7f7f7; --bg-alt:#eef0f2; --surface:#ffffff; --text:rgba(0,0,0,.9); --text-muted:rgba(0,0,0,.6);
-    --good:#12b76a; --good-bg:#ecfdf3; --good-bd:#6ce9a6; --bad:#f04438; --bad-bg:#fef3f2; --bad-bd:#fda29b;
-    --accent:#d99a2b; --accent-ink:#a8721a; --accent2:#1fae70; --accent2-ink:#18915d; --accent2-fill:#1fae70;
-    --accent-blue:#7dd6e6; --accent-purple:#7e76db;
-    --signal:#c0392b; --signal-ink:#96271b; --border:rgba(0,0,0,.06);
+    --bg:#F0F4F8; --bg-alt:#F1F5F9; --surface:#ffffff; --text:#1E293B; --text-muted:#64748B;
+    --good:#10B981; --good-bg:#ECFDF5; --good-bd:#6ee7b7; --bad:#EF4444; --bad-bg:#FEF2F2; --bad-bd:#fca5a5;
+    --accent:#F59E0B; --accent-ink:#b45309; --accent2:#18915d; --accent2-ink:#137a4d; --accent2-fill:#1fae70;
+    --accent-blue:#0EA5E9; --accent-purple:#8B5CF6;
+    --signal:#EF4444; --signal-ink:#b91c1c; --border:#E4E8EF;
+    --sidebar-hover:#F8FAFC; --card-shadow:0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.04);
   }
   *{box-sizing:border-box;}
   body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:15px; line-height:1.5; overflow-x:hidden; }
