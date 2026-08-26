@@ -846,10 +846,15 @@ async function profilYukle() {
 // ---- Analitik — Nellavio'nun Analytics sayfasının karşılığı: 4 KPI kartı + yıllık genel
 // bakış + en değerli müşteriler + son işlemler, hepsi gerçek sipariş/ödeme verisinden. ----
 function analitikKpiKarti(icon, label, value, tone) {
-  return `<div class="stat-card" style="display:flex; align-items:flex-start; gap:14px;">
-    <div class="stat-ico-badge tone-${tone}" style="width:40px; height:40px; font-size:17px; margin-bottom:0;">${icon}</div>
-    <div><div class="stat-head" style="margin-bottom:5px;">${label}</div><div class="v" style="font-size:22px;">${value}</div></div>
-  </div>`;
+  return `<article class="kpi-card">
+    <div class="kpi-top">
+      <div class="kpi-identity">
+        <div class="kpi-icon ${KPI_TONE_MAP[tone] || 'primary'}">${icon}</div>
+        <div class="kpi-label">${label}</div>
+      </div>
+    </div>
+    <div class="kpi-value" style="font-size:28px;">${value}</div>
+  </article>`;
 }
 function yillikGenelBakisGrafigi(rows) {
   const yil = new Date().getFullYear();
@@ -1252,24 +1257,31 @@ let musteriRowsCache = [];
 // Stat kartı — paylaşılan referans tasarımdaki gibi ikon+etiket başlığı, büyük
 // rakam, alt açıklama ve (varsa GERÇEK, hesaplanmış) yeşil/kırmızı trend rozeti.
 // trendPct null ise rozet hiç basılmıyor — uydurma yüzde göstermiyoruz.
+// Adminator'ın gerçek .kpi-card yapısı (kpi-top/kpi-icon/kpi-value/kpi-compare/kpi-pill) —
+// tone isimlerini Adminator'ın kpi-icon renk sınıflarına eşliyoruz.
+const KPI_TONE_MAP = { blue:'info', purple:'purple', orange:'warning', indigo:'primary', red:'danger', green:'success' };
 function statCard(icon, label, value, caption, colorMode, trendPct, badgeTone, prefix, key) {
-  const valColor = colorMode === 'bad' ? 'var(--bad)' : (colorMode === 'good' ? 'var(--good)' : 'var(--text)');
-  let badge = '';
+  let pill = '';
   if (trendPct !== undefined && trendPct !== null) {
     const up = trendPct >= 0;
-    badge = `<span class="trend-badge ${up ? 'up' : 'down'}"><span class="dot"><i class="bi bi-arrow-${up ? 'up' : 'down'}"></i></span> %${Math.abs(trendPct)}</span>`;
+    pill = `<span class="kpi-pill ${up ? 'up' : 'down'}"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17l10-10M7 7h10v10"${up ? '' : ' transform="rotate(90 12 12)"'}/></svg>%${Math.abs(trendPct)}</span>`;
   }
   const hidden = kartGizliMi(key);
-  return `<div class="stat-card" data-key="${key || ''}" style="${hidden ? 'display:none;' : ''}">
-    <div class="stat-ico-badge tone-${badgeTone || 'indigo'}">${icon}</div>
-    <div class="stat-head">${label} <span class="info-ico" title="${caption}">ⓘ</span></div>
-    <div class="v" style="color:${valColor};">${prefix || ''}${Number(value).toLocaleString('tr-TR', {maximumFractionDigits:0})}</div>
-    <div class="l">${caption}</div>
-    <div class="stat-foot">
-      <a class="det" onclick="document.getElementById('siparisListe').scrollIntoView({behavior:'smooth'})">Detaylar →</a>
-      ${badge}
+  const tone = KPI_TONE_MAP[badgeTone] || 'primary';
+  return `<article class="kpi-card stat-card" data-key="${key || ''}" style="${hidden ? 'display:none;' : ''}">
+    <div class="kpi-top">
+      <div class="kpi-identity">
+        <div class="kpi-icon ${tone}">${icon}</div>
+        <div class="kpi-label">${label}</div>
+      </div>
+      ${pill}
     </div>
-  </div>`;
+    <div class="kpi-value">${prefix || ''}${Number(value).toLocaleString('tr-TR', {maximumFractionDigits:0})}</div>
+    <div class="kpi-compare">
+      <span>${caption}</span>
+      <a style="margin-left:auto; color:var(--primary); font-weight:600; text-decoration:none;" onclick="document.getElementById('siparisListe').scrollIntoView({behavior:'smooth'})">Detaylar →</a>
+    </div>
+  </article>`;
 }
 
 // ---- Dashboard kartlarını aç/kapat — Nellavio'daki "kişiselleştirilebilir kart mizanpajı" ----
@@ -1788,7 +1800,7 @@ async function detayYukle(siparisNo) {
   const tedarikciler = await fetch(API + '/api/tk/admin/tedarikciler', {headers:{'Authorization':'Bearer '+token}}).then(r => r.json()).catch(() => []);
   const tedarikciOpts = '<option value="">— Seçilmedi —</option>' + tedarikciler.map(t => `<option value="${t.id}" ${d.tedarikci && d.tedarikci.id===t.id ? 'selected' : ''}>${t.ad}${t.sehir ? ' ('+t.sehir+')' : ''}</option>`).join('');
   const tedarikciPaneliHtml = `<div class="panel">
-    <div class="stat-ico-badge tone-indigo" style="margin-bottom:10px;"><i class="bi bi-shop"></i></div>
+    <div class="kpi-icon primary" style="margin-bottom:10px;"><i class="bi bi-shop"></i></div>
     <h2 style="font-size:16px;">Tedarikçi / Fabrika</h2>
     <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Bu siparişi üreten fabrikayı atayın — tedarikçi geçmişi ve performansı Tedarikçiler sayfasında birikir.</p>
     <select id="tedarikciSec" onchange="tedarikciAta('${d.siparis_no}', this.value)">${tedarikciOpts}</select>
@@ -1821,7 +1833,7 @@ async function detayYukle(siparisNo) {
       <div style="color:var(--text-muted); font-size:11.5px; text-align:right;">${new Date(g.tarih).toLocaleDateString('tr-TR')}<br>${g.kaydeden || ''}</div>
     </div>`).join('') : '<p style="color:var(--text-muted); font-size:13px; margin:0;">Henüz ödeme kaydı yok.</p>';
   const odemePaneliHtml = `<div class="panel">
-    <div class="stat-ico-badge tone-blue" style="margin-bottom:10px;"><i class="bi bi-cash-coin"></i></div>
+    <div class="kpi-icon info" style="margin-bottom:10px;"><i class="bi bi-cash-coin"></i></div>
     <h2 style="font-size:16px;">Ödeme &amp; Tahsilat</h2>
     <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Sipariş bedeli ve tahsilat kayıtları — müşteri panelinde de görünür.</p>
     ${o.toplam_tutar != null ? `
@@ -1860,7 +1872,7 @@ async function detayYukle(siparisNo) {
       </div>
     </div>`).join('') : '<p style="color:var(--text-muted); font-size:13px; margin:0;">Henüz mesaj yok.</p>';
   const mesajlarPaneliHtml = `<div class="panel">
-    <div class="stat-ico-badge tone-purple" style="margin-bottom:10px;"><i class="bi bi-chat-dots"></i></div>
+    <div class="kpi-icon purple" style="margin-bottom:10px;"><i class="bi bi-chat-dots"></i></div>
     <h2 style="font-size:16px;">Müşteri ile Mesajlaşma</h2>
     <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Müşterinin sorularını burada görüp cevaplayın — WhatsApp/e-posta yerine sistem içinde kalsın.</p>
     <div style="max-height:320px; overflow-y:auto; margin-bottom:14px;">${mesajBalonlari}</div>
@@ -1951,7 +1963,7 @@ async function detayYukle(siparisNo) {
     ${odemePaneliHtml}
     ${tedarikciPaneliHtml}
     <div class="panel">
-      <div class="stat-ico-badge tone-orange" style="margin-bottom:10px;"><i class="bi bi-lock"></i></div>
+      <div class="kpi-icon warning" style="margin-bottom:10px;"><i class="bi bi-lock"></i></div>
       <h2 style="font-size:16px;">İç Not <span style="font-weight:400; font-size:12px; color:var(--text-muted); text-transform:none; letter-spacing:0;">— sadece ekip görür</span></h2>
       <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Müşteri panelinde asla görünmez. Ör. "ödeme gecikmesi yaşadı, takip et", "zor müşteri, dikkatli ol".</p>
       <textarea id="icNot" rows="3" placeholder="Ekip içi not...">${d.ic_not || ''}</textarea>
