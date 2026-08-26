@@ -7,41 +7,54 @@
 <title>Sipariş Takip — Tedarik Ağı</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Adminator (puikinsh/Adminator-admin-dashboard, MIT) — admin panelle birebir aynı tasarım
+     sistemi, gerçek kaynak koddan derlenmiş. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="assets/adminator/adminator.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 <style>
+  :root[data-theme="light"]{ --primary:#18915d !important; --primary-light:#1fae70 !important; --primary-dark:#137a4d !important; --primary-soft:#e9f7f0 !important; --primary-ring:rgba(31,174,112,.18) !important; }
+  :root[data-theme="dark"]{ --primary:#3db985 !important; --primary-light:#5fd39f !important; --primary-dark:#2f9d70 !important; --primary-soft:#0f2a20 !important; --primary-ring:rgba(61,185,133,.24) !important; }
+</style>
+<style>
   :root{
-    /* Marka paleti — ithalat/ihracat/lojistik sektörünün tanıdık dili: koyu lacivert + amber/sarı vurgu (TransitFlow ve benzeri profesyonel lojistik temalarından esinlenildi) */
-    --bg:#f7f7f7; --bg-alt:#eef0f2; --surface:#ffffff; --text:rgba(0,0,0,.9); --text-muted:rgba(0,0,0,.6);
-    --good:#12b76a; --good-bg:#ecfdf3; --good-bd:#6ce9a6; --bad:#f04438; --bad-bg:#fef3f2; --bad-bd:#fda29b;
-    --accent:#d99a2b; --accent-ink:#a8721a; --accent2:#1fae70; --accent2-ink:#18915d; --accent2-fill:#1fae70;
-    --signal:#c0392b; --signal-ink:#96271b; --border:rgba(0,0,0,.06);
-    --sidebar-bg:var(--surface); --sidebar-text:var(--text); --sidebar-text-dim:var(--text-muted); --sidebar-hover:var(--bg-alt);
-    --radius-card:12px; --card-shadow:none;
-    --font-display: "Outfit",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-    --font-body: "Open Sans",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-    --font-code: "IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    /* Adminator'ın gerçek derlenmiş CSS'inden birebir alınan değerler — admin panelle aynı. */
+    --bg:#F0F4F8; --bg-alt:#F1F5F9; --surface:#ffffff; --text:#1E293B; --text-muted:#64748B;
+    --good:#10B981; --good-bg:#ECFDF5; --good-bd:#6ee7b7; --bad:#EF4444; --bad-bg:#FEF2F2; --bad-bd:#fca5a5;
+    --accent:#F59E0B; --accent-ink:#b45309; --accent2:#18915d; --accent2-ink:#137a4d; --accent2-fill:#1fae70;
+    --accent-blue:#0EA5E9; --accent-purple:#8B5CF6;
+    --signal:#EF4444; --signal-ink:#b91c1c; --border:#E4E8EF;
+    --sidebar-bg:var(--surface); --sidebar-text:var(--text); --sidebar-text-dim:var(--text-muted); --sidebar-hover:#F8FAFC;
+    --radius-card:14px; --card-shadow:0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.04);
+    --font-display: "Inter Tight","Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-body: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-code: "JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   }
-  /* Nellavio kaynak kodundaki (dark.css) gerçek değerler — admin panelle birebir aynı */
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#161a1f; --bg-alt:#20242a; --surface:#1c2025; --text:#e7e9ec; --text-muted:#8c9196;
-      --good:#3db985; --good-bg:rgba(110,231,183,.08); --good-bd:rgba(110,231,183,.3); --bad:#f87171; --bad-bg:#3a1212; --bad-bd:#dc2626;
-      --accent:#e8b355; --accent-ink:#f3c878; --accent2:#3db985; --accent2-ink:#4a9373; --accent2-fill:#368060;
-      --signal:#f87171; --signal-ink:#fca5a5; --border:rgba(255,255,255,.05);
+      --bg:#0B1120; --bg-alt:#1A2237; --surface:#141B2D; --text:#F1F5F9; --text-muted:#94A3B8;
+      --good:#34D399; --good-bg:#0F2A20; --good-bd:#34D399; --bad:#F87171; --bad-bg:#2B1414; --bad-bd:#F87171;
+      --accent:#FBBF24; --accent-ink:#fbbf24; --accent2:#3db985; --accent2-ink:#2f9d70; --accent2-fill:#368060;
+      --accent-blue:#38BDF8; --accent-purple:#A78BFA;
+      --signal:#F87171; --signal-ink:#fca5a5; --border:#222C42;
+      --sidebar-hover:#1C2438; --card-shadow:0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.25);
     }
   }
   :root[data-theme="dark"]{
-    --bg:#161a1f; --bg-alt:#20242a; --surface:#1c2025; --text:#e7e9ec; --text-muted:#8c9196;
-    --good:#3db985; --good-bg:rgba(110,231,183,.08); --good-bd:rgba(110,231,183,.3); --bad:#f87171; --bad-bg:#3a1212; --bad-bd:#dc2626;
-    --accent:#e8b355; --accent-ink:#f3c878; --accent2:#3db985; --accent2-ink:#4a9373; --accent2-fill:#368060;
-    --signal:#f87171; --signal-ink:#fca5a5; --border:rgba(255,255,255,.05);
+    --bg:#0B1120; --bg-alt:#1A2237; --surface:#141B2D; --text:#F1F5F9; --text-muted:#94A3B8;
+    --good:#34D399; --good-bg:#0F2A20; --good-bd:#34D399; --bad:#F87171; --bad-bg:#2B1414; --bad-bd:#F87171;
+    --accent:#FBBF24; --accent-ink:#fbbf24; --accent2:#3db985; --accent2-ink:#2f9d70; --accent2-fill:#368060;
+    --accent-blue:#38BDF8; --accent-purple:#A78BFA;
+    --signal:#F87171; --signal-ink:#fca5a5; --border:#222C42;
+    --sidebar-hover:#1C2438; --card-shadow:0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.25);
   }
-  :root:not([data-theme="light"]):not([data-theme="dark"]){
-    --bg:#161a1f; --bg-alt:#20242a; --surface:#1c2025; --text:#e7e9ec; --text-muted:#8c9196;
-    --good:#3db985; --good-bg:rgba(110,231,183,.08); --good-bd:rgba(110,231,183,.3); --bad:#f87171; --bad-bg:#3a1212; --bad-bd:#dc2626;
-    --accent:#e8b355; --accent-ink:#f3c878; --accent2:#3db985; --accent2-ink:#4a9373; --accent2-fill:#368060;
-    --signal:#f87171; --signal-ink:#fca5a5; --border:rgba(255,255,255,.05);
+  :root[data-theme="light"]{
+    --bg:#F0F4F8; --bg-alt:#F1F5F9; --surface:#ffffff; --text:#1E293B; --text-muted:#64748B;
+    --good:#10B981; --good-bg:#ECFDF5; --good-bd:#6ee7b7; --bad:#EF4444; --bad-bg:#FEF2F2; --bad-bd:#fca5a5;
+    --accent:#F59E0B; --accent-ink:#b45309; --accent2:#18915d; --accent2-ink:#137a4d; --accent2-fill:#1fae70;
+    --accent-blue:#0EA5E9; --accent-purple:#8B5CF6;
+    --signal:#EF4444; --signal-ink:#b91c1c; --border:#E4E8EF;
+    --sidebar-hover:#F8FAFC; --card-shadow:0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.04);
   }
   *{box-sizing:border-box;}
   body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.5; overflow-x:hidden; }
@@ -72,30 +85,12 @@
   h2{ font-family:var(--font-display); font-weight:700; font-size:19px; letter-spacing:-.01em; margin:0 0 6px; }
   .tarih{ font-variant-numeric:tabular-nums; }
 
-  /* ================= PRE-AUTH: tam ekran fotoğraf + ortalanmış cam kart ================= */
-  .auth-shell{ min-height:100vh; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; overflow:hidden; }
-  .auth-bg{ position:absolute; inset:0; z-index:0; }
-  .auth-bg img{ width:100%; height:100%; object-fit:cover; }
-  .auth-scrim{ position:absolute; inset:0; background:linear-gradient(175deg, rgba(9,9,11,.86) 0%, rgba(9,9,11,.78) 50%, rgba(9,9,11,.92) 100%); }
-  .auth-glass-wrap{ position:relative; z-index:1; width:100%; max-width:400px; display:flex; flex-direction:column; align-items:center; }
-  .auth-badge{ width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; margin-bottom:22px; box-shadow:0 8px 24px -8px rgba(0,0,0,.5); }
-  .auth-badge svg{ width:30px; height:30px; }
-  .auth-glass{ width:100%; background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.12); border-radius:26px; box-shadow:0 24px 60px -12px rgba(0,0,0,.6); padding:36px 32px; }
-  .auth-glass .back-home{ display:inline-block; margin-bottom:20px; font-size:13px; font-weight:600; color:rgba(255,255,255,.55); text-decoration:none; }
-  .auth-glass h2{ font-size:24px; color:#fff; margin-bottom:8px; }
-  .auth-glass .lede{ color:rgba(255,255,255,.6); font-size:14px; margin:0 0 24px; }
-  .auth-glass label{ color:rgba(255,255,255,.7); }
-  .auth-glass input, .auth-glass textarea{ background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:#fff; }
-  .auth-glass input::placeholder{ color:rgba(255,255,255,.35); }
-  .auth-glass input:focus, .auth-glass textarea:focus{ border-color:rgba(255,255,255,.35); background:rgba(255,255,255,.1); }
-  .auth-glass .demo-box{ background:rgba(31,174,112,.16); border-color:rgba(31,174,112,.35); color:#c7d2ff; }
-  .auth-glass .demo-box b{ color:#fff; }
-  .auth-glass .toggle-row{ color:rgba(255,255,255,.55); }
-  .auth-glass .linklike{ color:#8fa0ff; }
-  .auth-glass .err{ color:#ff8a8a; }
-  .auth-meta{ position:relative; z-index:1; display:flex; gap:26px; font-family:var(--font-code); font-size:11.5px; color:rgba(255,255,255,.5); margin-top:26px; flex-wrap:wrap; justify-content:center; }
-  .auth-meta b{ display:block; color:#fff; font-family:var(--font-body); font-size:14px; margin-top:3px; font-weight:700; }
-  @media (max-width:480px){ .auth-glass{ padding:28px 22px; } }
+  /* ================= PRE-AUTH: Adminator'ın gerçek auth-shell/auth-aside/auth-main/auth-card
+     sınıfları (admin.html ile birebir aynı) ================= */
+  .auth-card .sub{ color:var(--t-muted); font-size:14px; margin:0 0 8px; }
+  .auth-card .err{ color:var(--danger); font-size:13px; }
+  .auth-card .toggle-row{ text-align:center; margin-top:16px; font-size:13.5px; color:var(--t-muted); }
+  .auth-card .linklike{ color:var(--primary); font-weight:600; }
 
   /* ================= APP SHELL (post-auth panel) ================= */
   .app-shell{ display:flex; min-height:100vh; align-items:stretch; }
@@ -494,71 +489,110 @@ async function sifreDegistirKaydet() {
   okBox.style.display = 'block';
 }
 
+const BRAND_LOGO = `<svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#1fae70"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg>`;
+
 function authShell(innerHtml) {
+  // Adminator'ın gerçek split-panel auth tasarımı — admin paneliyle birebir aynı.
   return `
     <div class="auth-shell">
-      <div class="auth-bg">
-        <img src="assets/photos/terminal.jpg" alt="Konteyner terminali">
-        <div class="auth-scrim"></div>
-      </div>
-      <div class="auth-glass-wrap">
-        <a href="/" class="auth-badge"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#1fae70"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg></a>
-        <div class="auth-glass panel-fade">
-          <a href="/" class="back-home">← Ana sayfaya dön</a>
-          ${innerHtml}
+      <aside class="auth-aside">
+        <div class="auth-brand">
+          <div class="logo">${BRAND_LOGO}</div>
+          <div class="name">Tedarik Ağı</div>
         </div>
-        <div class="auth-meta">
-          <div>Süreç şeffaflığı<b>Canlı Takip</b></div>
-          <div>Kalite güvencesi<b>Yerinde QC</b></div>
-          <div>Risk yönetimi<b>Yazılı Taahhüt</b></div>
+        <div class="auth-aside-body">
+          <span class="auth-aside-eyebrow">Müşteri Paneli</span>
+          <h1>Siparişinizin her aşamasını canlı takip edin.</h1>
+          <p>Fabrika eşleştirmeden gümrük teslimatına — belgeleriniz, süreç geçmişiniz ve mesajlarınız tek panelde.</p>
         </div>
-      </div>
+        <div class="auth-aside-footer">
+          <span>© 2026 Tedarik Ağı</span>
+          <span>CANLI TAKİP · YERİNDE QC</span>
+        </div>
+      </aside>
+      <main class="auth-main">
+        <div class="auth-main-top">
+          <a href="/" style="font-size:12.5px; color:var(--t-muted); display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Ana sayfaya dön
+          </a>
+        </div>
+        <div class="auth-card panel-fade">${innerHtml}</div>
+      </main>
     </div>`;
 }
 
+const NAV_MUSTERI = [
+  { key: 'liste', text: 'Siparişlerim', icon: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>' },
+  { key: 'rfq', text: 'Yeni Talep', icon: '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>' },
+  { key: 'analitik', text: 'Analitik', icon: '<path d="M3 20V4M7 20v-6M11 20v-10M15 20v-4M19 20V8"/>' },
+];
+function navLinkMusteri(item, activeView, href) {
+  const active = item.key === activeView || (item.key === 'liste' && activeView === 'detay') ? ' is-active' : '';
+  const attrs = href ? `href="${href}"` : `href="javascript:void(0)" onclick="view='${item.key}'; render();"`;
+  return `<a class="nav-link${active}" ${attrs}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${item.icon}</svg>
+    <span>${item.text}</span>
+  </a>`;
+}
 function panelShell(innerHtml, activeView) {
   const initial = (musteriAdi || '?').trim().charAt(0).toUpperCase();
   return `
-    <div class="app-shell">
-      <div class="sidebar">
-        <div class="brand-row" onclick="toggleSidebar()" title="Daralt/Genişlet (Ctrl+\\)">
-          <a href="/" class="brand" onclick="event.stopPropagation()"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#1fae70"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg><span class="brand-t">Tedarik Ağı</span></a>
-          <span class="chev">⌄</span>
-        </div>
-        <div class="side-group-label">Genel</div>
-        <div class="side-nav">
-          <button class="${activeView==='liste'||activeView==='detay' ? 'active' : ''}" onclick="view='liste'; render();"><span class="ico"><i class="bi bi-box-seam"></i></span><span>Siparişlerim</span></button>
-          <button onclick="view='rfq'; render();"><span class="ico"><i class="bi bi-plus-circle"></i></span><span>Yeni Talep</span></button>
-          <button class="${activeView==='analitik' ? 'active' : ''}" onclick="view='analitik'; render();"><span class="ico"><i class="bi bi-graph-up-arrow"></i></span><span>Analitik</span></button>
-          <a href="/hesapla.html"><span class="ico"><i class="bi bi-calculator"></i></span><span>Vergi Hesaplama</span></a>
-        </div>
-        <div class="side-group-label">Hesap</div>
-        <div class="side-nav">
-          <button class="${activeView==='ayarlar' ? 'active' : ''}" onclick="view='ayarlar'; render();"><span class="ico"><i class="bi bi-gear"></i></span><span>Ayarlar</span></button>
-        </div>
-        <div class="sidebar-foot">
-          <div class="user-chip">
-            <div class="av">${initial}</div>
-            <div class="who"><div class="name">${musteriAdi || 'Hesabım'}</div><div class="role">Müşteri Paneli</div></div>
+    <div class="shell app-shell">
+      <aside class="d-sidebar sidebar">
+        <div class="brand brand-row" onclick="toggleSidebar()" title="Daralt/Genişlet (Ctrl+\\)">
+          <div class="brand-logo">${BRAND_LOGO}</div>
+          <div class="brand-text">
+            <div class="brand-name">Tedarik Ağı</div>
+            <div class="brand-tag">Müşteri Paneli</div>
           </div>
-          <button class="linklike" style="font-size:13px;" onclick="cikisYap()">Çıkış Yap</button>
         </div>
-      </div>
+        <nav class="nav-section">
+          <div class="nav-label">Genel</div>
+          ${NAV_MUSTERI.map(item => navLinkMusteri(item, activeView)).join('')}
+          ${navLinkMusteri({ text: 'Vergi Hesaplama', icon: '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>' }, '', '/hesapla.html')}
+        </nav>
+        <nav class="nav-section">
+          <div class="nav-label">Hesap</div>
+          <a class="nav-link${activeView==='ayarlar' ? ' is-active' : ''}" href="javascript:void(0)" onclick="view='ayarlar'; render();">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Ayarlar</span>
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="workspace" onclick="cikisYap()" title="Çıkış Yap" style="cursor:pointer;">
+            <div class="workspace-avatar">${initial}</div>
+            <div class="workspace-text">
+              <div class="workspace-name">${musteriAdi || 'Hesabım'}</div>
+              <div class="workspace-role">Müşteri</div>
+            </div>
+            <svg class="workspace-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          </div>
+        </div>
+      </aside>
       <div class="main-col">
-        <div class="topbar">
-          <div class="topbar-search">
-            <span class="ico"><i class="bi bi-search"></i></span>
-            <input placeholder="Sipariş ara..." oninput="panelAra(this.value)">
-            <span class="kbd" onclick="cmdkOpen()">⌘K</span>
+        <header class="d-topbar topbar">
+          <div class="crumbs">
+            <button class="hamburger" onclick="toggleSidebar()" aria-label="Menüyü aç">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
           </div>
-          <div class="topbar-right">
-            <div style="position:relative;">
-              <button class="icon-btn" onclick="toggleBildirimPop(event)" title="Bildirimler"><i class="bi bi-bell"></i>${bildirimSayisiMusteri() > 0 ? `<span class="notif-badge">${bildirimSayisiMusteri()}</span>` : ''}</button>
-              <div id="bildirimPop" class="kart-ayar-pop" style="display:none; right:0; left:auto; min-width:260px; position:absolute; top:calc(100% + 6px); background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:0 16px 40px -10px rgba(0,0,0,.25); padding:8px; z-index:20;"></div>
+          <div class="topbar-actions">
+            <button class="cmd" onclick="cmdkOpen()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              <span>Sipariş ara...</span>
+              <kbd class="kbd">⌘K</kbd>
+            </button>
+            <div class="dd-wrap">
+              <button class="icon-btn" data-dropdown aria-label="Bildirimler">
+                <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                ${bildirimSayisiMusteri() > 0 ? `<span class="count danger">${bildirimSayisiMusteri()}</span>` : ''}
+              </button>
+              <div id="bildirimPop" class="dd-menu"></div>
             </div>
           </div>
-        </div>
-        <div class="main">${innerHtml}</div>
+        </header>
+        <main class="content main panel-fade">${innerHtml}</main>
       </div>
     </div>`;
 }
@@ -573,16 +607,31 @@ function panelAra(v) {
 function girisEkrani() {
   return `
     <h2>Panelinize Giriş</h2>
-    <p class="lede">Sipariş takibiniz, belgeleriniz ve süreç geçmişiniz tek panelde.</p>
-    <div class="demo-box">
+    <p class="sub">Sipariş takibiniz, belgeleriniz ve süreç geçmişiniz tek panelde.</p>
+    <div class="demo-box" style="margin:16px 0;">
       <b>Hızlı test için:</b> Bilgiler otomatik dolduruldu, doğrudan "Giriş Yap"a basabilirsiniz.
     </div>
     <div id="girisErr" class="err"></div>
-    <label for="gEmail">E-posta</label>
-    <input id="gEmail" type="email" placeholder="ornek@firma.com" value="demo@cintedarikagi.com">
-    <label for="gSifre">Şifre</label>
-    <input id="gSifre" type="password" value="demo1234">
-    <button class="primary" onclick="girisYap()">Giriş Yap</button>
+    <form class="auth-form" onsubmit="event.preventDefault(); girisYap();">
+      <div class="field">
+        <label class="field-label" for="gEmail">E-posta</label>
+        <div class="input-icon">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
+          <input id="gEmail" class="input" type="email" placeholder="ornek@firma.com" value="demo@cintedarikagi.com" autocomplete="email" required>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="gSifre">Şifre</label>
+        <div class="input-icon">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+          <input id="gSifre" class="input" type="password" value="demo1234" autocomplete="current-password" required>
+        </div>
+      </div>
+      <button class="btn btn--primary auth-submit" type="submit" style="width:100%; justify-content:center;">
+        Giriş Yap
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+    </form>
     <div class="toggle-row">Hesabınız yok mu? <button class="linklike" onclick="view='rfq'; render();">Yeni talep oluşturun</button></div>`;
 }
 
@@ -697,22 +746,51 @@ function toggleSidebar() {
 function bildirimSayisiMusteri() {
   return musteriSiparisCache.reduce((t, r) => t + (r.okunmamis_mesaj || 0), 0);
 }
-function toggleBildirimPop(e) {
-  if (e) e.stopPropagation();
+function bildirimIcerikDoldur() {
   const pop = document.getElementById('bildirimPop');
   if (!pop) return;
-  const willOpen = pop.style.display === 'none';
-  if (!willOpen) { pop.style.display = 'none'; return; }
   const bildirimli = musteriSiparisCache.filter(r => r.okunmamis_mesaj > 0);
-  pop.innerHTML = bildirimli.length ? bildirimli.map(r => `
-    <div class="kart-ayar-item" style="align-items:flex-start; display:flex; gap:9px; padding:9px; border-radius:8px; cursor:pointer;" onclick="aktifSiparisNo='${r.siparis_no}'; view='detay'; render();">
-      <i class="bi bi-chat-dots-fill" style="color:var(--accent2); margin-top:2px;"></i>
-      <div><b>${r.siparis_no}</b><div style="font-size:11.5px; color:var(--text-muted);">${r.okunmamis_mesaj} yeni mesaj</div></div>
-    </div>`).join('') : '<div style="padding:14px; text-align:center; color:var(--text-muted); font-size:12.5px;">Yeni bildirim yok.</div>';
-  pop.style.display = 'block';
-  const closeOnce = (ev) => { if (!pop.contains(ev.target)) { pop.style.display = 'none'; document.removeEventListener('click', closeOnce); } };
-  setTimeout(() => document.addEventListener('click', closeOnce), 0);
+  pop.innerHTML = `<div class="dd-head"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Bildirimler</div>
+    <div class="dd-list">${bildirimli.length ? bildirimli.map(r => `
+      <a class="dd-item" href="javascript:void(0)" onclick="aktifSiparisNo='${r.siparis_no}'; view='detay'; render();">
+        <div class="dd-avatar a1"><i class="bi bi-chat-dots-fill"></i></div>
+        <div class="dd-body"><div class="dd-text"><strong>${r.siparis_no}</strong> için yeni mesaj</div><div class="dd-time">${r.okunmamis_mesaj} okunmamış</div></div>
+      </a>`).join('') : '<div style="padding:20px; text-align:center; color:var(--text-muted); font-size:12.5px;">Yeni bildirim yok.</div>'}</div>`;
 }
+// Adminator'ın .dd-wrap.is-open mekanizması — admin panelle birebir aynı, z-index yığın bağlamı
+// sorunlarından kaçınmak için açılınca position:fixed'e geçip JS ile konumlanıyor.
+function ddMenuKonumla(wrap) {
+  const trigger = wrap.querySelector('[data-dropdown]');
+  const menu = wrap.querySelector('.dd-menu');
+  if (!trigger || !menu) return;
+  const r = trigger.getBoundingClientRect();
+  menu.style.position = 'fixed';
+  menu.style.top = (r.bottom + 10) + 'px';
+  menu.style.right = (window.innerWidth - r.right) + 'px';
+  menu.style.left = 'auto';
+  menu.style.zIndex = '9999';
+}
+function initDropdowns() {
+  document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('[data-dropdown]');
+    if (trigger) {
+      e.stopPropagation();
+      const wrap = trigger.closest('.dd-wrap');
+      if (!wrap) return;
+      const willOpen = !wrap.classList.contains('is-open');
+      document.querySelectorAll('.dd-wrap.is-open').forEach(w => { if (w !== wrap) w.classList.remove('is-open'); });
+      wrap.classList.toggle('is-open', willOpen);
+      if (willOpen) { ddMenuKonumla(wrap); if (wrap.querySelector('#bildirimPop')) bildirimIcerikDoldur(); }
+      return;
+    }
+    if (!e.target.closest('.dd-wrap')) document.querySelectorAll('.dd-wrap.is-open').forEach(w => w.classList.remove('is-open'));
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') document.querySelectorAll('.dd-wrap.is-open').forEach(w => w.classList.remove('is-open'));
+  });
+  window.addEventListener('resize', () => { document.querySelectorAll('.dd-wrap.is-open').forEach(ddMenuKonumla); });
+}
+initDropdowns();
 
 // ---- Komut paleti (⌘K) — sayfalar + kendi siparişleri arasında hızlı arama ----
 const CMDK_PAGES_MUSTERI = [
@@ -1251,9 +1329,14 @@ render();
   const root = document.documentElement;
   const buttons = document.querySelectorAll('#themeToggle button');
   function apply(mode) {
-    if (mode === 'light') root.setAttribute('data-theme', 'light');
-    else if (mode === 'dark') root.setAttribute('data-theme', 'dark');
-    else root.removeAttribute('data-theme');
+    // Adminator'ın CSS'i --bg-card/--t-base/--primary gibi kendi token'larını sadece
+    // :root[data-theme=light/dark] altında tanımlıyor (prefers-color-scheme fallback'ı yok) —
+    // admin panelinde bulduğumuz aynı hata: attribute hiç set edilmeyince bu değişkenler boş
+    // kalıyordu. "Sistem" modunda bile gerçek tercihi JS ile çözüp attribute'u açıkça yazıyoruz.
+    const resolved = mode === 'system'
+      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : mode;
+    root.setAttribute('data-theme', resolved);
     buttons.forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
   }
   const saved = localStorage.getItem('tema') || 'system';
