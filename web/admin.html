@@ -591,6 +591,8 @@ function ulkeMapBaslat(containerId, ulkeSayim) {
   if (!document.getElementById(containerId)) return;
   ulkeMapSonParam = { containerId, ulkeSayim };
   if (ulkeMapAktif) { try { ulkeMapAktif.destroy(); } catch (e) {} ulkeMapAktif = null; }
+  // .destroy() eski SVG'yi konteynerden temizlemiyor (üst üste binmeye sebep oluyordu) — elle boşaltıyoruz
+  document.getElementById(containerId).innerHTML = '';
   const koyu = getComputedStyle(document.documentElement).getPropertyValue('--surface').trim() !== '#ffffff';
   const bosRenk = koyu ? '#26242e' : '#e8e8ef';
   const values = {};
