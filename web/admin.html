@@ -10,6 +10,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
+<!-- jsVectorMap — hazır, iyi test edilmiş, React gerektirmeyen dünya haritası kütüphanesi.
+     Kendi elle çizdiğimiz harita yerine gerçek, profesyonel çizilmiş ülke sınırları + yerleşik
+     hover tooltip'i kullanıyoruz (ISO2 ülke kodlarıyla çalışıyor, bizim eşleştirme sistemimizle uyumlu). -->
+<link href="https://cdn.jsdelivr.net/npm/jsvectormap@1.7.0/dist/jsvectormap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.7.0/dist/jsvectormap.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.7.0/dist/maps/world.js" defer></script>
 <style>
   :root{
     /* Nellavio'nun gerçek kaynak kodundan (src/styles/themes/{dark,light}.css) birebir alınan
@@ -570,28 +576,6 @@ const ULKE_ESLESTIRME = {
   'kamboca':{en:'Cambodia',iso2:'KH'}, 'sri lanka':{en:'Sri Lanka',iso2:'LK'}, 'yunanistan':{en:'Greece',iso2:'GR'},
   'portekiz':{en:'Portugal',iso2:'PT'}, 'belçika':{en:'Belgium',iso2:'BE'}, 'belcika':{en:'Belgium',iso2:'BE'},
 };
-// Native SVG <title> tooltip'i çok küçük/gecikmeli olduğu için fare ile gezerken belirgin
-// görünsün diye özel, imleci takip eden bir tooltip kutusu kullanıyoruz.
-function ulkeHaritaTooltipGuncelle(e) {
-  const tip = document.getElementById('ulkeTooltip');
-  if (!tip) return;
-  const wrap = e.currentTarget;
-  const path = e.target.closest('.ulke-path');
-  if (!path) { tip.style.opacity = '0'; return; }
-  const rect = wrap.getBoundingClientRect();
-  tip.textContent = path.dataset.etiket;
-  tip.style.left = (e.clientX - rect.left + 14) + 'px';
-  tip.style.top = (e.clientY - rect.top + 14) + 'px';
-  tip.style.opacity = '1';
-  wrap.querySelectorAll('.ulke-path.is-hover').forEach(p => p.classList.remove('is-hover'));
-  path.classList.add('is-hover');
-}
-function ulkeHaritaTooltipGizle() {
-  const tip = document.getElementById('ulkeTooltip');
-  if (tip) tip.style.opacity = '0';
-  document.querySelectorAll('.ulke-path.is-hover').forEach(p => p.classList.remove('is-hover'));
-}
-
 function ulkeEslestir(ulkeMetni) {
   if (!ulkeMetni) return null;
   const key = ulkeMetni.trim().toLowerCase();
@@ -601,25 +585,44 @@ function bayrakEmoji(iso2) {
   if (!iso2) return '🏳️';
   return String.fromCodePoint(...iso2.toUpperCase().split('').map(c => 0x1f1e6 + c.charCodeAt(0) - 65));
 }
-let dunyaGeoCache = null;
-async function dunyaGeoYukle() {
-  if (dunyaGeoCache) return dunyaGeoCache;
-  const res = await fetch('data/countries.geo.json');
-  dunyaGeoCache = await res.json();
-  return dunyaGeoCache;
+let ulkeMapSayac = 0;
+let ulkeMapAktif = null; // jsVectorMap instance'ı — sayfa değişince destroy edilir
+// jsVectorMap'i konteyner DOM'a eklendikten SONRA çağırıyoruz (kütüphane var olan bir
+// elementin boyutunu ölçerek çiziyor). Koyu/açık temaya göre renkleri elle veriyoruz
+// çünkü kütüphane CSS custom property'leri otomatik izlemiyor.
+function ulkeMapBaslat(containerId, ulkeSayim) {
+  if (typeof jsVectorMap === 'undefined') { setTimeout(() => ulkeMapBaslat(containerId, ulkeSayim), 150); return; }
+  if (!document.getElementById(containerId)) return;
+  if (ulkeMapAktif) { try { ulkeMapAktif.destroy(); } catch (e) {} ulkeMapAktif = null; }
+  const koyu = getComputedStyle(document.documentElement).getPropertyValue('--surface').trim() !== '#ffffff';
+  const bosRenk = koyu ? '#26242e' : '#e8e8ef';
+  const values = {};
+  Object.values(ulkeSayim).forEach(v => { values[v.iso2] = v.count; });
+  ulkeMapAktif = new jsVectorMap({
+    selector: '#' + containerId,
+    map: 'world',
+    zoomButtons: false,
+    zoomOnScroll: false,
+    regionsSelectable: false,
+    backgroundColor: 'transparent',
+    regionStyle: {
+      initial: { fill: bosRenk, stroke: koyu ? '#3a3844' : '#d8d8e2', strokeWidth: 0.4 },
+      hover: { fill: '#1fae70', cursor: 'pointer' },
+    },
+    series: {
+      regions: [{
+        values,
+        scale: [koyu ? '#1a4a36' : '#bfe8d6', '#1fae70'],
+        normalizeFunction: 'polynomial',
+      }],
+    },
+    onRegionTooltipShow(event, tooltip, code) {
+      const eslesen = Object.values(ulkeSayim).find(v => v.iso2 === code);
+      if (eslesen) tooltip.text(tooltip.text() + ' — ' + eslesen.count + ' tedarikçi', false);
+    },
+  });
 }
-// Basit equirectangular projeksiyon (index.html'deki harita ile aynı formül):
-// x=(lng+180)/360*W, y=(90-lat)/180*H — GeoJSON polygon/multipolygon'dan SVG path üretir.
-function geoToSvgPath(geometry, W, H) {
-  const ring = (coords) => 'M' + coords.map(([lng, lat]) => {
-    const x = (lng + 180) / 360 * W, y = (90 - lat) / 180 * H;
-    return x.toFixed(1) + ',' + y.toFixed(1);
-  }).join('L') + 'Z';
-  if (geometry.type === 'Polygon') return geometry.coordinates.map(ring).join(' ');
-  if (geometry.type === 'MultiPolygon') return geometry.coordinates.map(poly => poly.map(ring).join(' ')).join(' ');
-  return '';
-}
-async function tedarikciUlkeHaritasi(rows) {
+function tedarikciUlkeHaritasi(rows) {
   const ulkeSayim = {};
   rows.forEach(t => {
     const e = ulkeEslestir(t.ulke);
@@ -627,21 +630,9 @@ async function tedarikciUlkeHaritasi(rows) {
     ulkeSayim[e.en] = ulkeSayim[e.en] || { count: 0, iso2: e.iso2, orijinal: t.ulke };
     ulkeSayim[e.en].count++;
   });
-  const geo = await dunyaGeoYukle().catch(() => null);
-  const W = 1000, H = 500;
-  let mapSvg = '<p style="color:var(--text-muted); font-size:12.5px;">Harita verisi yüklenemedi.</p>';
-  if (geo) {
-    const paths = geo.features.map(f => {
-      const eslesen = ulkeSayim[f.properties.name];
-      const d = geoToSvgPath(f.geometry, W, H);
-      const etiket = f.properties.name + (eslesen ? ' — ' + eslesen.count + ' tedarikçi' : '');
-      return `<path class="ulke-path" data-etiket="${etiket.replace(/"/g,'&quot;')}" d="${d}" fill="${eslesen ? 'var(--accent2)' : 'var(--bg-alt)'}" fill-opacity="${eslesen ? '0.85' : '1'}" stroke="var(--border)" stroke-width="0.5"/>`;
-    }).join('');
-    mapSvg = `<div class="ulke-harita-wrap" onmousemove="ulkeHaritaTooltipGuncelle(event)" onmouseleave="ulkeHaritaTooltipGizle()">
-      <svg viewBox="0 0 ${W} ${H}" style="max-width:100%; max-height:100%; width:auto; height:auto; display:block; margin:0 auto;">${paths}</svg>
-      <div class="ulke-tooltip" id="ulkeTooltip"></div>
-    </div>`;
-  }
+  const containerId = 'ulkeMap' + (++ulkeMapSayac);
+  const mapSvg = `<div id="${containerId}" style="width:100%; height:100%;"></div>`;
+  setTimeout(() => ulkeMapBaslat(containerId, ulkeSayim), 0);
   const liste = Object.entries(ulkeSayim).sort((a, b) => b[1].count - a[1].count);
   return `<div class="panel" style="margin-bottom:16px;">
     <h2 style="font-size:15px; margin-bottom:2px;">Tedarikçi Ülkeleri</h2>
@@ -674,7 +665,7 @@ async function tedarikcilerYukle() {
     <div class="page-head-actions"><button class="btn-dark" onclick="tedarikciFormAc()">＋ Yeni Tedarikçi</button></div>
   </div>
   <div id="tedarikciForm"></div>
-  ${await tedarikciUlkeHaritasi(rows)}`;
+  ${tedarikciUlkeHaritasi(rows)}`;
   if (rows.length === 0) {
     html += '<div class="empty-state">Henüz tedarikçi kaydı yok.</div>';
   } else {
@@ -1517,7 +1508,7 @@ async function listeYukle() {
     .then(r => r.ok ? r.json() : [])
     .then(async (tedRows) => {
       const kutu = document.getElementById('ulkeHaritaKutu');
-      if (kutu) kutu.innerHTML = await tedarikciUlkeHaritasi(tedRows);
+      if (kutu) kutu.innerHTML = tedarikciUlkeHaritasi(tedRows);
     }).catch(() => {});
 }
 
