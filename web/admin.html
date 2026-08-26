@@ -2163,9 +2163,15 @@ function initTheme() {
   const root = document.documentElement;
   const buttons = document.querySelectorAll('#themeToggle button');
   function apply(mode) {
-    if (mode === 'light') root.setAttribute('data-theme', 'light');
-    else if (mode === 'dark') root.setAttribute('data-theme', 'dark');
-    else root.removeAttribute('data-theme');
+    // Adminator'ın CSS'i --bg-card/--t-base/--primary gibi kendi token'larını SADECE
+    // :root[data-theme=light] / [data-theme=dark] altında tanımlıyor (prefers-color-scheme
+    // fallback'ı yok) — "sistem" modunda attribute'u hiç set etmeyince bu değişkenler boş
+    // kalıyordu (örn. bildirim menüsü şeffaf görünüyordu). Bu yüzden "sistem" seçiliyken bile
+    // gerçek tercihi JS ile çözüp attribute'u HER ZAMAN açık şekilde yazıyoruz.
+    const resolved = mode === 'system'
+      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : mode;
+    root.setAttribute('data-theme', resolved);
     buttons.forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
   }
   const saved = localStorage.getItem('tema') || 'system';
