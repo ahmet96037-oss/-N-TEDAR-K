@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 <style>
   :root{
     /* Marka paleti — ithalat/ihracat/lojistik sektörünün tanıdık dili: koyu lacivert + amber/sarı vurgu (TransitFlow ve benzeri profesyonel lojistik temalarından esinlenildi) */
@@ -257,6 +258,12 @@
   .kart-ayar-item{ display:flex; align-items:center; gap:9px; padding:7px 9px; border-radius:8px; font-size:13px; cursor:pointer; }
   .kart-ayar-item:hover{ background:var(--bg-alt); }
   .kart-ayar-item input{ width:auto; height:auto; margin:0; }
+
+  /* Tablo çoklu seçim aksiyon çubuğu */
+  .bulk-bar{ display:flex; align-items:center; gap:10px; background:color-mix(in srgb, var(--accent2) 8%, var(--surface)); border:1px solid color-mix(in srgb, var(--accent2) 25%, var(--border));
+    border-radius:12px; padding:10px 14px; margin-bottom:10px; font-size:13.5px; }
+  .bulk-bar button{ padding:6px 12px; font-size:12.5px; }
+  table input[type="checkbox"]{ width:auto; height:auto; margin:0; cursor:pointer; }
   .filter-row{ display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
   .filter-row input{ flex:1; min-width:220px; margin-bottom:0; }
   .filter-row select{ width:auto; min-width:180px; margin-bottom:0; }
@@ -891,6 +898,21 @@ function csvIndir(rows, alanlar, dosyaAdi) {
   URL.revokeObjectURL(url);
 }
 
+// Gerçek .xlsx dışa aktarma (SheetJS/xlsx CDN) — Nellavio'daki "XLSX dışa aktarma" özelliği.
+// Kütüphane henüz yüklenmediyse (defer script) kullanıcıyı bekletmeden uyarır.
+function xlsxIndir(rows, alanlar, baslikMap, dosyaAdi) {
+  if (typeof XLSX === 'undefined') { showToast('Excel modülü henüz yükleniyor, birazdan tekrar deneyin.', 'err'); return; }
+  const veri = rows.map(r => {
+    const o = {};
+    alanlar.forEach(a => { o[baslikMap && baslikMap[a] || a] = r[a]; });
+    return o;
+  });
+  const sheet = XLSX.utils.json_to_sheet(veri);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, sheet, 'Veri');
+  XLSX.writeFile(wb, dosyaAdi);
+}
+
 function kopyala(metin, event) {
   navigator.clipboard.writeText(metin);
   const el = event.target;
@@ -982,6 +1004,7 @@ async function listeYukle() {
 
 let siparisSayfa = 1;
 const SIPARIS_SAYFA_BOYU = 8;
+const siparisSecili = new Set(); // çoklu seçim (Nellavio'daki tablo çoklu-seçim özelliği)
 
 function siparisListesiCiz() {
   const kutu = document.getElementById('siparisTablo');
@@ -1001,11 +1024,23 @@ function siparisListesiCiz() {
   if (siparisSayfa > toplamSayfa) siparisSayfa = toplamSayfa;
   const bas = (siparisSayfa - 1) * SIPARIS_SAYFA_BOYU;
   const rows = tumRows.slice(bas, bas + SIPARIS_SAYFA_BOYU);
-  let html = '<div class="table-card"><div class="table-wrap"><table><thead><tr><th>Sipariş No</th><th>Müşteri</th><th>Ürün</th><th>Durum</th><th>Tarih</th></tr></thead><tbody>';
+  const sayfaTumSecili = rows.length > 0 && rows.every(r => siparisSecili.has(r.siparis_no));
+  let html = '';
+  if (siparisSecili.size > 0) {
+    html += `<div class="bulk-bar"><b>${siparisSecili.size}</b> sipariş seçildi
+      <button class="btn-outline" onclick="siparisSecili.clear(); siparisListesiCiz();">Seçimi Temizle</button>
+      <button class="btn-outline" onclick="siparisSecilenleriIndir('csv')">⬇ CSV</button>
+      <button class="btn-outline" onclick="siparisSecilenleriIndir('xlsx')">⬇ XLSX</button>
+    </div>`;
+  }
+  html += '<div class="table-card"><div class="table-wrap"><table><thead><tr>'
+    + `<th style="width:34px;"><input type="checkbox" ${sayfaTumSecili ? 'checked' : ''} onchange="siparisSayfaTumunuSec(this.checked)"></th>`
+    + '<th>Sipariş No</th><th>Müşteri</th><th>Ürün</th><th>Durum</th><th>Tarih</th></tr></thead><tbody>';
   rows.forEach(r => {
     const baslar = (r.musteri || '?').trim().charAt(0).toUpperCase();
     const [avBg, avFg] = avatarRengi(r.musteri || r.email || '?');
     html += `<tr onclick="aktifSiparisNo='${r.siparis_no}'; view='detay'; render();">
+      <td onclick="event.stopPropagation()"><input type="checkbox" ${siparisSecili.has(r.siparis_no) ? 'checked' : ''} onchange="siparisSatirSec('${r.siparis_no}', this.checked)"></td>
       <td class="siparis-no">${r.siparis_no} <span onclick="kopyala('${r.siparis_no}', event)" title="Kopyala" style="cursor:pointer; opacity:.4; font-size:11px;"><i class="bi bi-copy"></i></span>${r.okunmamis_mesaj > 0 ? `<span title="${r.okunmamis_mesaj} okunmamış mesaj" style="display:inline-flex; align-items:center; gap:3px; margin-left:6px; font-size:10.5px; font-weight:700; color:#fff; background:var(--bad); padding:1px 7px; border-radius:20px;"><i class="bi bi-chat-dots-fill"></i> ${r.okunmamis_mesaj}</span>` : ''}</td>
       <td><div class="row-cust"><div class="av" style="background:${avBg}; color:${avFg};">${baslar}</div><div>${r.musteri}${r.firma ? ' <span style=\"color:var(--text-muted); font-weight:400;\">('+r.firma+')</span>' : ''}<br><a href="mailto:${r.email}" onclick="event.stopPropagation()" style="color:var(--text-muted); font-size:12px; text-decoration:none;">${r.email}</a></div></div></td>
       <td>${r.urun_aciklamasi}</td>
@@ -1022,8 +1057,34 @@ function siparisListesiCiz() {
       <button ${siparisSayfa>=toplamSayfa?'disabled':''} onclick="siparisSayfa++; siparisListesiCiz();"><i class="bi bi-chevron-right"></i></button>
     </div>
   </div></div>`;
-  html += `<div style="margin-top:16px;"><button class="secondary" onclick="csvIndir(siparisRowsCache, ['siparis_no','musteri','firma','email','urun_aciklamasi','durum_adi','olusturulma'], 'siparisler.csv')">⬇ CSV Olarak İndir</button></div>`;
+  html += `<div style="margin-top:16px; display:flex; gap:10px;">
+    <button class="secondary" onclick="csvIndir(siparisRowsCache, ['siparis_no','musteri','firma','email','urun_aciklamasi','durum_adi','olusturulma'], 'siparisler.csv')">⬇ CSV</button>
+    <button class="secondary" onclick="xlsxIndir(siparisRowsCache, ['siparis_no','musteri','firma','email','urun_aciklamasi','durum_adi','olusturulma'], {siparis_no:'Sipariş No', musteri:'Müşteri', firma:'Firma', email:'E-posta', urun_aciklamasi:'Ürün', durum_adi:'Durum', olusturulma:'Tarih'}, 'siparisler.xlsx')">⬇ XLSX</button>
+  </div>`;
   kutu.innerHTML = html;
+}
+
+function siparisSatirSec(no, secili) {
+  if (secili) siparisSecili.add(no); else siparisSecili.delete(no);
+  siparisListesiCiz();
+}
+function siparisSayfaTumunuSec(hepsi) {
+  const bas = (siparisSayfa - 1) * SIPARIS_SAYFA_BOYU;
+  const arama = (document.getElementById('filtreArama').value || '').toLowerCase().trim();
+  const durumFiltre = document.getElementById('filtreDurum').value;
+  const tumRows = siparisRowsCache.filter(r => {
+    if (durumFiltre && r.durum !== durumFiltre) return false;
+    if (!arama) return true;
+    return [r.siparis_no, r.musteri, r.firma, r.email, r.urun_aciklamasi].some(v => (v||'').toLowerCase().includes(arama));
+  });
+  tumRows.slice(bas, bas + SIPARIS_SAYFA_BOYU).forEach(r => { if (hepsi) siparisSecili.add(r.siparis_no); else siparisSecili.delete(r.siparis_no); });
+  siparisListesiCiz();
+}
+function siparisSecilenleriIndir(tip) {
+  const rows = siparisRowsCache.filter(r => siparisSecili.has(r.siparis_no));
+  const alanlar = ['siparis_no','musteri','firma','email','urun_aciklamasi','durum_adi','olusturulma'];
+  if (tip === 'xlsx') xlsxIndir(rows, alanlar, {siparis_no:'Sipariş No', musteri:'Müşteri', firma:'Firma', email:'E-posta', urun_aciklamasi:'Ürün', durum_adi:'Durum', olusturulma:'Tarih'}, 'secili-siparisler.xlsx');
+  else csvIndir(rows, alanlar, 'secili-siparisler.csv');
 }
 
 async function musterilerYukle() {
@@ -1054,7 +1115,10 @@ async function musterilerYukle() {
     html += '</tbody></table></div></div>';
   }
   musteriRowsCache = rows;
-  html += `<div style="margin-top:16px;"><button class="secondary" onclick="csvIndir(musteriRowsCache, ['ad_soyad','firma','email','telefon','siparis_sayisi'], 'musteriler.csv')">⬇ CSV Olarak İndir</button></div>`;
+  html += `<div style="margin-top:16px; display:flex; gap:10px;">
+    <button class="secondary" onclick="csvIndir(musteriRowsCache, ['ad_soyad','firma','email','telefon','siparis_sayisi'], 'musteriler.csv')">⬇ CSV</button>
+    <button class="secondary" onclick="xlsxIndir(musteriRowsCache, ['ad_soyad','firma','email','telefon','siparis_sayisi'], {ad_soyad:'Ad Soyad', firma:'Firma', email:'E-posta', telefon:'Telefon', siparis_sayisi:'Sipariş Sayısı'}, 'musteriler.xlsx')">⬇ XLSX</button>
+  </div>`;
   main.innerHTML = html;
 }
 
