@@ -224,32 +224,35 @@
   .solutions-head{ text-align:center; max-width:51.5rem; margin:0 auto var(--sp-40); }
   .solutions-head h2{ font-size:clamp(1.6rem,3.6vw,var(--fs-44)); font-weight:500; line-height:1.15; }
 
-  /* Ekran görüntüsündeki gerçek mekanizma: sol dar sütun scroll'da kayan numaralı liste (01,02,...),
-     sağ geniş sütun sticky görsel — aktif maddeye göre görsel/video değişir (kırpılmış köşe efekti dahil) */
-  .solutions-body{ display:grid; grid-template-columns:1fr 1.6fr; gap:4rem; align-items:start; margin-top:var(--sp-40); }
-  /* Mobilde de aynı sticky-scroll davranışı: görsel üstte sabit kalır, madde listesi altında akar
-     (flex + order ile görsel DOM'da sonra olsa da görsel olarak öne alınıyor) */
-  @media (max-width:900px){ .solutions-body{ display:flex; flex-direction:column; gap:0; margin-top:24px; } }
+  /* Tranzport referansındaki gerçek mekanizma: bölüm scroll boyunca PİNLENİR (sticky), içerik
+     yerinde durur ve sadece aktif madde/görsel çapraz-fade (cross-fade) ile değişir — metin
+     kaydırma sırasında yukarı doğru KAYMAZ. Scroll uzunluğunu solutions-track (JS ile yükseklik
+     verilir), pinlenen görünümü solutions-body sağlar. */
+  .solutions-track{ position:relative; }
+  .solutions-body{ position:sticky; top:110px; height:70vh; min-height:26rem; max-height:38rem;
+    display:grid; grid-template-columns:1fr 1.6fr; gap:4rem; align-items:center; }
+  @media (max-width:900px){ .solutions-body{ top:0; height:100svh; max-height:none;
+    display:flex; flex-direction:column; gap:0; } }
 
-  .solutions-sticky{ position:sticky; top:110px; aspect-ratio:4/3; border-radius:16px; overflow:hidden; background:#0a0e1f; }
+  .solutions-sticky{ position:relative; height:100%; aspect-ratio:auto; border-radius:16px; overflow:hidden; background:#0a0e1f; }
   /* Referanstaki gibi yumuşak, yuvarlak "oyuk" köşe — düz çapraz kesim yerine gerçek concave-corner tekniği */
   .solutions-sticky::before{ content:""; position:absolute; top:0; left:0; width:64px; height:64px;
     background:var(--white-bg,#f0f0f0); border-bottom-right-radius:64px; z-index:3; }
-  /* Mobilde paylaşılan sticky panel tamamen kapatılıyor — her madde artık kendi görselini taşıyor,
-     böylece bağımsız kalıyorlar ve üst üste binme/karışma olmuyor */
-  /* Mobilde de referans gibi sticky kalıyor — ama artık her madde yeterince uzun (90vh) scroll alanına
-     sahip olduğu için görsel, kendi metniyle çakışmadan tam eşleşiyor, sonraki maddeye geçince değişiyor */
-  @media (max-width:900px){ .solutions-sticky{ position:sticky; top:70px; order:-1; width:100%; aspect-ratio:4/3; margin-bottom:24px; }
+  @media (max-width:900px){ .solutions-sticky{ order:-1; width:100%; height:44svh; flex:none; margin-bottom:16px; }
     .solutions-sticky::before{ width:40px; height:40px; border-bottom-right-radius:40px; } }
   .solutions-sticky img, .solutions-sticky video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .5s ease; }
   .solutions-sticky img.is-active, .solutions-sticky video.is-active{ opacity:1; }
 
   .solutions-item-media{ display:none; }
 
-  .solutions-list{ display:flex; flex-direction:column; }
-  .solutions-item{ min-height:34rem; display:flex; flex-direction:column; justify-content:center; padding:2.5rem 0; border-top:1px solid rgba(10,14,31,.1); }
-  .solutions-item:first-child{ min-height:22rem; border-top:none; padding-top:0; }
-  @media (max-width:900px){ .solutions-item{ min-height:100vh; padding:28px 0; justify-content:flex-end; } .solutions-item:first-child{ min-height:100vh; justify-content:flex-end; } }
+  /* Madde metinleri artık akışta değil — aynı slotta üst üste, aktif olan opacity/translateY ile
+     belirir, diğerleri görünmez. Böylece scroll sırasında metin kayması olmaz, sadece geçiş olur. */
+  .solutions-list{ position:relative; height:100%; }
+  @media (max-width:900px){ .solutions-list{ flex:1; min-height:0; } }
+  .solutions-item{ position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center;
+    opacity:0; transform:translateY(22px); transition:opacity .55s ease, transform .55s ease; pointer-events:none; }
+  .solutions-item.is-active{ opacity:1; transform:translateY(0); pointer-events:auto; }
+  @media (max-width:900px){ .solutions-item{ justify-content:flex-end; padding-bottom:10px; } }
   .solutions-item .n{ font-family:'IBM Plex Mono',monospace; font-size:14px; opacity:.4; margin-bottom:14px; }
   .solutions-item h3{ font-size:clamp(1.8rem,3.2vw,var(--fs-44)); font-weight:500; line-height:1.1; margin-bottom:14px; }
   .solutions-item p{ opacity:.55; font-size:var(--fs-16); line-height:1.5; max-width:34ch; margin-bottom:18px; }
@@ -270,7 +273,7 @@
 
   .pricing-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; align-items:stretch; }
   @media (max-width:900px){ .pricing-row{ display:flex; grid-template-columns:none; overflow-x:auto; overflow-y:hidden; gap:16px; padding:6px 4px 10px;
-    scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; touch-action:pan-x; align-items:stretch; }
+    scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; touch-action:pan-x pan-y; align-items:stretch; }
     .pricing-row .pricing-card{ flex:none; width:84vw; max-width:340px; scroll-snap-align:center; } }
   .pricing-card{ position:relative; background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:20px;
     backdrop-filter:blur(1.5rem); padding:2.25rem 2rem; display:flex; flex-direction:column; text-align:left; transition:border-color .25s, transform .25s; }
@@ -314,14 +317,17 @@
   .cases-head h2{ font-size:clamp(1.8rem,4vw,var(--fs-44)); font-weight:500; line-height:1.1; }
   .cases-head .btn-primary{ flex:none; }
 
-  .cases-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
-  @media (max-width:1000px){ .cases-row{ grid-template-columns:repeat(2,1fr); } }
-  /* Mobilde paketlerdeki gibi: tek kart tam genişlik, yana kaydırmalı — dörtlü sıkışık grid değil */
-  @media (max-width:600px){ .cases-row{ display:flex; grid-template-columns:none; overflow-x:auto; overflow-y:hidden; gap:14px;
-    padding:6px 4px 10px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; touch-action:pan-x; }
-    .cases-row .case-card{ flex:none; width:82vw; max-width:340px; height:400px; scroll-snap-align:center; } }
+  /* Sürekli otomatik kayan şerit (marquee): kartlar JS ile klonlanıp track 2 katına çıkarılıyor,
+     CSS animasyonu -%50 translateX ile kesintisiz döngü sağlıyor. Dokunma/mouse üzerindeyken duraklar. */
+  .cases-row-wrap{ overflow:hidden; }
+  .cases-row{ display:flex; gap:16px; width:max-content; animation:casesMarquee 34s linear infinite; }
+  .cases-row-wrap:hover .cases-row{ animation-play-state:paused; }
+  @keyframes casesMarquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce){ .cases-row{ animation:none; } }
   /* Kart 3D flip — masaüstünde hover ile, mobilde dokunma olmadan JS'in eklediği .is-flipped sınıfıyla sürekli otomatik döner */
-  .case-card{ display:block; height:420px; text-decoration:none; color:#fff; perspective:1400px; }
+  .case-card{ display:block; flex:none; width:300px; height:420px; text-decoration:none; color:#fff; perspective:1400px; }
+  @media (max-width:1000px){ .case-card{ width:260px; height:380px; } }
+  @media (max-width:600px){ .case-card{ width:82vw; max-width:340px; height:360px; } }
   .case-card-inner{ position:relative; width:100%; height:100%; transform-style:preserve-3d;
     transition:transform .6s cubic-bezier(.22,.61,.36,1); }
   .case-card:hover .case-card-inner, .case-card-inner.is-flipped{ transform:rotateY(180deg); }
@@ -500,11 +506,12 @@
       <h2>Karmaşık Tedarik Süreçleri İçin Temel Çözümlerimiz</h2>
     </div>
 
-    <!-- Sağdaki gerçek ekran görüntüsündeki mekanizma: sol scroll'da kayan numaralı liste, sağ sticky görsel/video —
-         aktif maddeye göre değişiyor. IntersectionObserver ile yönetiliyor. -->
+    <!-- Tranzport referansındaki pinned-scroll mekanizması: solutions-track scroll uzunluğunu verir,
+         solutions-body pinlenip yerinde durur, maddeler ve görsel/video cross-fade ile değişir. -->
+    <div class="solutions-track" id="solutionsTrack">
     <div class="solutions-body">
       <div class="solutions-list" id="solutionsList">
-        <div class="solutions-item" data-n="1">
+        <div class="solutions-item is-active" data-n="1">
           <div class="n">01</div>
           <h3>Fabrika Bulma &amp; Eşleştirme</h3>
           <p>Talebinize uygun, karşılaştırmalı teklif veren gerçek üreticilerle doğrudan eşleştirme.</p>
@@ -559,6 +566,7 @@
         <img data-n="6" src="assets/photos/gorsel3-kargo-ucak2.jpg" alt="Kargo uçağı yükleme — GTİP ve vergi süreci">
       </div>
     </div>
+    </div>
   </div>
 </section>
 
@@ -572,31 +580,33 @@
       <a href="#surec" class="btn btn-primary" style="background:var(--green); color:#fff;">Tüm Süreci İnceleyin</a>
     </div>
 
-    <div class="cases-row reveal-stagger">
-      <a href="/takip.html#rfq" class="case-card">
-        <div class="case-card-inner">
-          <div class="case-face case-front"><span class="date">Aşama 01</span><h3>Fabrika Bulma &amp; Eşleştirme</h3></div>
-          <div class="case-face case-back"><img src="assets/photos/slider/fabrika-eslesme.jpg" alt="Fabrika ile el sıkışma"><span class="date">Aşama 01</span><h3>Fabrika Bulma &amp; Eşleştirme</h3></div>
-        </div>
-      </a>
-      <a href="/takip.html#rfq" class="case-card is-green">
-        <div class="case-card-inner">
-          <div class="case-face case-front"><span class="date">Aşama 02–03</span><h3>Üretim &amp; Numune Takibi</h3></div>
-          <div class="case-face case-back"><img src="assets/photos/slider/seri-uretim.jpg" alt="Fabrika seri üretim hattı"><span class="date">Aşama 02–03</span><h3>Üretim &amp; Numune Takibi</h3></div>
-        </div>
-      </a>
-      <a href="/takip.html" class="case-card is-white">
-        <div class="case-card-inner">
-          <div class="case-face case-front"><span class="date">Aşama 04</span><h3>Konteyner &amp; Hava Kargo Takibi</h3></div>
-          <div class="case-face case-back"><img src="assets/photos/ucak-inis-poster.jpg" alt="Kargo uçağı inişi"><span class="date">Aşama 04</span><h3>Konteyner &amp; Hava Kargo Takibi</h3></div>
-        </div>
-      </a>
-      <a href="/hesapla.html" class="case-card">
-        <div class="case-card-inner">
-          <div class="case-face case-front"><span class="date">Aşama 05–06</span><h3>Gümrük &amp; GTİP Vergi Hesaplama</h3></div>
-          <div class="case-face case-back"><img src="assets/photos/slider/gumruk-teslimat.jpg" alt="Gümrükten teslimat"><span class="date">Aşama 05–06</span><h3>Gümrük &amp; GTİP Vergi Hesaplama</h3></div>
-        </div>
-      </a>
+    <div class="cases-row-wrap reveal-stagger">
+      <div class="cases-row" id="casesRow">
+        <a href="/takip.html#rfq" class="case-card">
+          <div class="case-card-inner">
+            <div class="case-face case-front"><span class="date">Aşama 01</span><h3>Fabrika Bulma &amp; Eşleştirme</h3></div>
+            <div class="case-face case-back"><img src="assets/photos/slider/fabrika-eslesme.jpg" alt="Fabrika ile el sıkışma"><span class="date">Aşama 01</span><h3>Fabrika Bulma &amp; Eşleştirme</h3></div>
+          </div>
+        </a>
+        <a href="/takip.html#rfq" class="case-card is-green">
+          <div class="case-card-inner">
+            <div class="case-face case-front"><span class="date">Aşama 02–03</span><h3>Üretim &amp; Numune Takibi</h3></div>
+            <div class="case-face case-back"><img src="assets/photos/slider/seri-uretim.jpg" alt="Fabrika seri üretim hattı"><span class="date">Aşama 02–03</span><h3>Üretim &amp; Numune Takibi</h3></div>
+          </div>
+        </a>
+        <a href="/takip.html" class="case-card is-white">
+          <div class="case-card-inner">
+            <div class="case-face case-front"><span class="date">Aşama 04</span><h3>Konteyner &amp; Hava Kargo Takibi</h3></div>
+            <div class="case-face case-back"><img src="assets/photos/ucak-inis-poster.jpg" alt="Kargo uçağı inişi"><span class="date">Aşama 04</span><h3>Konteyner &amp; Hava Kargo Takibi</h3></div>
+          </div>
+        </a>
+        <a href="/hesapla.html" class="case-card">
+          <div class="case-card-inner">
+            <div class="case-face case-front"><span class="date">Aşama 05–06</span><h3>Gümrük &amp; GTİP Vergi Hesaplama</h3></div>
+            <div class="case-face case-back"><img src="assets/photos/slider/gumruk-teslimat.jpg" alt="Gümrükten teslimat"><span class="date">Aşama 05–06</span><h3>Gümrük &amp; GTİP Vergi Hesaplama</h3></div>
+          </div>
+        </a>
+      </div>
     </div>
   </div>
 </section>
@@ -693,10 +703,6 @@
 </section>
 
 <footer class="footer">
-  <svg class="footer-lines" viewBox="0 0 1440 520" preserveAspectRatio="none" aria-hidden="true">
-    <path class="rl" d="M -20,40 L 200,40 Q 260,40 260,100 L 260,240 Q 260,300 320,300 L 1120,300 Q 1180,300 1180,240 L 1180,60 Q 1180,10 1240,10 L 1460,10"/>
-    <path class="rg" d="M -20,40 L 200,40 Q 260,40 260,100 L 260,240 Q 260,300 320,300 L 1120,300 Q 1180,300 1180,240 L 1180,60 Q 1180,10 1240,10 L 1460,10"/>
-  </svg>
   <div class="wrap">
     <div class="footer-top reveal">
       <div class="footer-brand-block">
@@ -879,24 +885,60 @@
     onScroll();
   }
 
-  // Core Solutions — scroll'a bağlı sticky görsel değişimi (ekran görüntüsündeki referans mekanizma)
+  // Core Solutions — Tranzport referansındaki pinned-scroll: solutions-body scroll boyunca sabit
+  // (sticky) kalır, solutions-track'e verilen yükseklik kadar scroll ilerledikçe aktif madde/görsel
+  // ilerleme oranına göre cross-fade ile değişir. Masaüstü ve mobilde aynı mekanizma çalışır.
+  const solTrack = document.getElementById('solutionsTrack');
   const solList = document.getElementById('solutionsList');
   const solSticky = document.getElementById('solutionsSticky');
-  if (solList && solSticky && 'IntersectionObserver' in window) {
+  if (solTrack && solList && solSticky) {
+    const solBody = solTrack.querySelector('.solutions-body');
+    const items = Array.from(solList.querySelectorAll('.solutions-item'));
     const media = solSticky.querySelectorAll('img, video');
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          const n = e.target.dataset.n;
-          media.forEach(m => {
-            const active = m.dataset.n === n;
-            m.classList.toggle('is-active', active);
-            if (m.tagName === 'VIDEO' && active) { m.play().catch(() => {}); }
-          });
-        }
+    const STEP_VH = 90; // her madde için verilen scroll mesafesi (viewport yüksekliğinin %'si)
+
+    const sizeTrack = () => { solTrack.style.height = (items.length * STEP_VH) + 'vh'; };
+
+    let activeIdx = -1;
+    const setActive = (idx) => {
+      if (idx === activeIdx) return;
+      activeIdx = idx;
+      items.forEach((el, i) => el.classList.toggle('is-active', i === idx));
+      media.forEach(m => {
+        const active = Number(m.dataset.n) === idx + 1;
+        m.classList.toggle('is-active', active);
+        if (m.tagName === 'VIDEO' && active) { m.play().catch(() => {}); }
       });
-    }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
-    solList.querySelectorAll('.solutions-item').forEach(el => io.observe(el));
+    };
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const rect = solTrack.getBoundingClientRect();
+      const pinnedH = solBody ? solBody.offsetHeight : window.innerHeight;
+      const scrollable = solTrack.offsetHeight - pinnedH;
+      let progress = scrollable > 0 ? (-rect.top) / scrollable : 0;
+      progress = Math.min(1, Math.max(0, progress));
+      let idx = Math.floor(progress * items.length);
+      if (idx >= items.length) idx = items.length - 1;
+      if (idx < 0) idx = 0;
+      setActive(idx);
+    };
+    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+
+    sizeTrack();
+    setActive(0);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', () => { sizeTrack(); update(); });
+    update();
+  }
+
+  // Gerçek Destek kartları — kesintisiz sağa/sola kayan otomatik şerit: track'i klonlayıp
+  // 2 katına çıkarıyoruz, CSS animasyonu -%50 noktasında sıfırlanıp döngüyü şeffaf tamamlıyor
+  const casesRow = document.getElementById('casesRow');
+  if (casesRow) {
+    const originals = Array.from(casesRow.children);
+    originals.forEach(node => casesRow.appendChild(node.cloneNode(true)));
   }
 
   // Hizmet kartları — dokunma olmayan cihazlarda (mobil) hover çalışmadığı için kartlar sırayla,
