@@ -91,6 +91,10 @@
   .auth-card .err{ color:var(--danger); font-size:13px; }
   .auth-card .toggle-row{ text-align:center; margin-top:16px; font-size:13.5px; color:var(--t-muted); }
   .auth-card .linklike{ color:var(--primary); font-weight:600; }
+  /* Bizim eski .btn (tracking-links için) ile Adminator'ın .btn--primary'si aynı özgüllükte —
+     kendi .btn'imiz sonradan yüklendiği için kazanıp yeşil dolguyu eziyordu. */
+  .btn--primary{ background:var(--primary) !important; color:#fff !important; border-color:transparent !important; }
+  .btn--primary:hover{ background:var(--primary-dark) !important; }
 
   /* ================= APP SHELL (post-auth panel) ================= */
   .app-shell{ display:flex; min-height:100vh; align-items:stretch; }
