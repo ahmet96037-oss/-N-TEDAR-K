@@ -13,29 +13,31 @@
 <style>
   :root{
     /* Marka paleti — ithalat/ihracat/lojistik sektörünün tanıdık dili: koyu lacivert + amber/sarı vurgu (TransitFlow ve benzeri profesyonel lojistik temalarından esinlenildi) */
-    --bg:#fafafa; --bg-alt:#f4f4f5; --surface:#ffffff; --text:#09090b; --text-muted:#71717a;
+    --bg:#f7f7fb; --bg-alt:#eeeef6; --surface:#ffffff; --text:#0f0f17; --text-muted:#6b6b80;
     --good:#12b76a; --good-bg:#ecfdf3; --good-bd:#6ce9a6; --bad:#f04438; --bad-bg:#fef3f2; --bad-bd:#fda29b;
-    --accent:#d99a2b; --accent-ink:#a8721a; --accent2:#465fff; --accent2-ink:#3641f5;
-    --signal:#c0392b; --signal-ink:#96271b; --border:#dbe0e8;
+    --accent:#d99a2b; --accent-ink:#a8721a; --accent2:#6366f1; --accent2-ink:#4338ca;
+    --signal:#c0392b; --signal-ink:#96271b; --border:#e2e2ee;
+    --sidebar-bg:#111022; --sidebar-text:#e7e7f5; --sidebar-text-dim:#8f8fab; --sidebar-hover:#1c1a35;
+    --radius-card:20px; --radius-sm:12px;
     --font-display: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --font-body: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --font-code: "IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   }
-  /* Karanlık mod da aynı referans tasarımın (shadcn) kendi koyu paletiyle —
-     eski lacivert marka rengi değil, nötr zinc tonları. */
+  /* Karanlık mod — nötr zinc tonları, sidebar her modda aynı koyu mor-lacivert kalıyor
+     (Nellavio referansındaki gibi sidebar ile içerik arasında sürekli, kendi kimliği olan bir kontrast). */
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#09090b; --bg-alt:#18181b; --surface:#18181b; --text:#fafafa; --text-muted:#a1a1aa;
+      --bg:#0b0b12; --bg-alt:#16151f; --surface:#16151f; --text:#f5f5fa; --text-muted:#a1a1b5;
       --good:#6ce9a6; --good-bg:#052e16; --good-bd:#039855; --bad:#fda29b; --bad-bg:#450a0a; --bad-bd:#d92d20;
-      --accent:#e8b355; --accent-ink:#f3c878; --accent2:#7592ff; --accent2-ink:#9cb9ff;
-      --signal:#e2725f; --signal-ink:#f0a08e; --border:#27272a;
+      --accent:#e8b355; --accent-ink:#f3c878; --accent2:#818cf8; --accent2-ink:#a5b4fc;
+      --signal:#e2725f; --signal-ink:#f0a08e; --border:#26243a;
     }
   }
   :root[data-theme="dark"]{
-    --bg:#09090b; --bg-alt:#18181b; --surface:#18181b; --text:#fafafa; --text-muted:#a1a1aa;
+    --bg:#0b0b12; --bg-alt:#16151f; --surface:#16151f; --text:#f5f5fa; --text-muted:#a1a1b5;
     --good:#6ce9a6; --good-bg:#052e16; --good-bd:#039855; --bad:#fda29b; --bad-bg:#450a0a; --bad-bd:#d92d20;
-    --accent:#e8b355; --accent-ink:#f3c878; --accent2:#7592ff; --accent2-ink:#9cb9ff;
-    --signal:#e2725f; --signal-ink:#f0a08e; --border:#27272a;
+    --accent:#e8b355; --accent-ink:#f3c878; --accent2:#818cf8; --accent2-ink:#a5b4fc;
+    --signal:#e2725f; --signal-ink:#f0a08e; --border:#26243a;
   }
   *{box-sizing:border-box;}
   body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:15px; line-height:1.5; overflow-x:hidden; }
@@ -46,7 +48,7 @@
   .theme-toggle button.active{ background:var(--accent2); color:#fff; }
 
   label{ display:block; font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); margin-bottom:8px; font-weight:600; line-height:1.4; }
-  input, select, textarea{ width:100%; font-size:14.5px; padding:10px 11px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; margin-bottom:18px; box-sizing:border-box; height:42px; }
+  input, select, textarea{ width:100%; font-size:14.5px; padding:10px 11px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; margin-bottom:18px; box-sizing:border-box; height:42px; }
   textarea{ height:auto; }
   /* Native dosya seçme kutusu diğer input'larla aynı yükseklikte, düğmesi
      tema rengiyle uyumlu görünsün diye ayrıca stillendi — aksi halde tarayıcı
@@ -90,14 +92,14 @@
   .auth-badge{ width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; margin-bottom:22px; box-shadow:0 8px 24px -8px rgba(0,0,0,.5); }
   .auth-badge svg{ width:30px; height:30px; }
   .auth-card{ width:100%; background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.12); border-radius:26px; box-shadow:0 24px 60px -12px rgba(0,0,0,.6); padding:36px 32px; }
-  .auth-card .badge{ display:inline-block; font-family:var(--font-code); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#c7d2ff; background:rgba(70,95,255,.18); border:1px solid rgba(70,95,255,.35); padding:3px 10px; border-radius:20px; margin-bottom:16px; }
+  .auth-card .badge{ display:inline-block; font-family:var(--font-code); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#c7d2ff; background:rgba(99,102,241,.18); border:1px solid rgba(99,102,241,.35); padding:3px 10px; border-radius:20px; margin-bottom:16px; }
   .auth-card h2{ font-size:24px; margin-bottom:6px; color:#fff; }
   .auth-card .lede{ color:rgba(255,255,255,.6); font-size:14px; margin:0 0 24px; }
   .auth-card label{ color:rgba(255,255,255,.7); }
   .auth-card input{ background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:#fff; }
   .auth-card input::placeholder{ color:rgba(255,255,255,.35); }
   .auth-card input:focus{ border-color:rgba(255,255,255,.35); background:rgba(255,255,255,.1); }
-  .auth-card .demo-box{ background:rgba(70,95,255,.16); border-color:rgba(70,95,255,.35); color:#c7d2ff; }
+  .auth-card .demo-box{ background:rgba(99,102,241,.16); border-color:rgba(99,102,241,.35); color:#c7d2ff; }
   .auth-card .demo-box b{ color:#fff; }
   .auth-card .err{ color:#ff8a8a; }
   .auth-meta{ position:relative; z-index:1; display:flex; gap:26px; font-family:var(--font-code); font-size:11.5px; color:rgba(255,255,255,.5); margin-top:26px; flex-wrap:wrap; justify-content:center; }
@@ -108,28 +110,34 @@
   .app-shell{ display:flex; min-height:100vh; align-items:stretch; }
   /* ---- Sidebar: paylaşılan referansla birebir — açık/beyaz zemin, ince sağ
      kenarlık, net grup etiketleri, chevron'lu marka satırı, Bootstrap Icons. ---- */
-  .sidebar{ width:252px; flex:none; background:var(--surface); border-right:1px solid var(--border); padding:20px 14px; display:flex; flex-direction:column; }
-  .brand-row{ display:flex; align-items:center; justify-content:space-between; padding:6px; margin-bottom:18px; border-radius:8px; cursor:pointer; }
-  .brand-row:hover{ background:var(--bg-alt); }
-  .brand-row .chev{ color:var(--text-muted); font-size:12px; }
-  .sidebar .brand{ font-family:var(--font-display); font-weight:700; font-size:14px; text-decoration:none; color:var(--text); display:flex; align-items:center; gap:10px; }
+  /* Sidebar her zaman koyu (tema modundan bağımsız) — içerik alanının açık/koyu geçişinden
+     ayrı, kendi kimliği olan bir kontrast şeridi. Nellavio demo görselindeki koyu sidebar +
+     açık içerik ayrımıyla aynı dil. */
+  .sidebar{ width:260px; flex:none; background:var(--sidebar-bg); border-right:1px solid rgba(255,255,255,.06); padding:22px 14px; display:flex; flex-direction:column; }
+  .brand-row{ display:flex; align-items:center; justify-content:space-between; padding:6px; margin-bottom:20px; border-radius:10px; cursor:pointer; }
+  .brand-row:hover{ background:var(--sidebar-hover); }
+  .brand-row .chev{ color:var(--sidebar-text-dim); font-size:12px; }
+  .sidebar .brand{ font-family:var(--font-display); font-weight:700; font-size:14px; text-decoration:none; color:var(--sidebar-text); display:flex; align-items:center; gap:10px; }
   .sidebar .brand svg{ width:26px; height:26px; flex:none; }
   .sidebar .brand-t{ line-height:1.25; letter-spacing:-.01em; }
-  .sidebar .brand-sub{ font-family:var(--font-body); font-weight:400; font-size:11px; letter-spacing:.02em; text-transform:none; color:var(--text-muted); }
-  .side-group-label{ font-size:11px; font-weight:600; letter-spacing:.01em; text-transform:none; color:var(--text-muted); padding:0 10px; margin:16px 0 6px; }
+  .sidebar .brand-sub{ font-family:var(--font-body); font-weight:400; font-size:11px; letter-spacing:.02em; text-transform:none; color:var(--sidebar-text-dim); }
+  .side-group-label{ font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--sidebar-text-dim); padding:0 10px; margin:18px 0 8px; }
   .side-group-label:first-of-type{ margin-top:0; }
-  .side-nav{ display:flex; flex-direction:column; gap:1px; }
-  .side-nav button{ display:flex; align-items:center; gap:11px; padding:7px 10px; border-radius:10px; font-weight:600; font-size:14px; color:var(--text); cursor:pointer; border:none; background:none; text-align:left; width:100%; font-family:var(--font-body); transition:background .12s, color .12s; position:relative; }
-  .side-nav button:hover{ background:var(--bg-alt); }
-  .side-nav button.active{ background:color-mix(in srgb, var(--accent2) 12%, transparent); color:var(--accent2); font-weight:700; }
-  .side-nav button.active .ico{ color:var(--accent2); }
-  .side-nav .ico{ width:16px; text-align:center; flex:none; font-size:14.5px; color:var(--text-muted); }
-  .sidebar-foot{ margin-top:auto; padding-top:14px; border-top:1px solid var(--border); }
+  .side-nav{ display:flex; flex-direction:column; gap:2px; }
+  .side-nav button{ display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:10px; font-weight:600; font-size:14px; color:var(--sidebar-text); cursor:pointer; border:none; background:none; text-align:left; width:100%; font-family:var(--font-body); transition:background .12s, color .12s; position:relative; }
+  .side-nav button:hover{ background:var(--sidebar-hover); }
+  .side-nav button.active{ background:var(--accent2); color:#fff; font-weight:700; box-shadow:0 4px 14px -4px color-mix(in srgb, var(--accent2) 70%, transparent); }
+  .side-nav button.active .ico{ color:#fff; }
+  .side-nav .ico{ width:16px; text-align:center; flex:none; font-size:14.5px; color:var(--sidebar-text-dim); }
+  .sidebar-foot{ margin-top:auto; padding-top:14px; border-top:1px solid rgba(255,255,255,.08); }
   .user-chip{ display:flex; align-items:center; gap:10px; padding:6px; margin-bottom:6px; }
-  .user-chip .av{ width:28px; height:28px; border-radius:50%; background:var(--accent2); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:12px; flex:none; }
-  .user-chip b{ color:var(--text); }
-  .user-chip .role{ font-size:11px; color:var(--text-muted); }
-  .sidebar-foot .theme-toggle{ margin-bottom:8px; width:100%; justify-content:center; }
+  .user-chip .av{ width:30px; height:30px; border-radius:50%; background:var(--accent2); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:12px; flex:none; }
+  .user-chip b, .user-chip > div > div:first-child{ color:var(--sidebar-text); }
+  .user-chip .role{ font-size:11px; color:var(--sidebar-text-dim); }
+  .sidebar-foot .linklike{ color:var(--sidebar-text-dim); }
+  .sidebar-foot .linklike:hover{ color:var(--sidebar-text); }
+  .sidebar-foot .theme-toggle{ margin-bottom:8px; width:100%; justify-content:center; background:var(--sidebar-hover); border-color:rgba(255,255,255,.1); }
+  .sidebar-foot .theme-toggle button{ color:var(--sidebar-text-dim); }
   .main-col{ flex:1; display:flex; flex-direction:column; min-width:0; position:relative; }
   .topbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px 24px; border-bottom:1px solid var(--border); background:var(--surface); }
   /* Ana sayfadaki gibi, çok hafif dekoratif blob — sadece köşede, dikkat dağıtmadan
@@ -201,12 +209,12 @@
   @media (max-width:600px){ .stat-grid{ grid-template-columns:repeat(1,1fr); } }
   /* Ana sayfadaki yumuşak, ikon rozetli kart diliyle birebir — sert köşeli,
      ince çerçeveli "kurumsal dashboard" hissi yerine daire ikon + bol boşluk. */
-  .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 18px; box-shadow:0 2px 8px -4px rgba(70,95,255,.08); transition:transform .15s, box-shadow .15s; }
+  .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); padding:18px 20px; box-shadow:0 4px 16px -6px rgba(99,102,241,.1); transition:transform .15s, box-shadow .15s; }
   /* Ödeme paneli içindeki küçük özet kutucukları (Toplam/Ödenen/Bekleyen) */
   .stat-mini-tile{ background:var(--bg-alt); border:1px solid var(--border); border-radius:12px; padding:12px 14px; }
   .stat-mini-tile .l{ font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); margin-bottom:4px; }
   .stat-mini-tile .v{ font-family:var(--font-display); font-weight:800; font-size:18px; font-variant-numeric:tabular-nums; }
-  .stat-card:hover{ transform:translateY(-2px); box-shadow:0 10px 24px -6px rgba(70,95,255,.16); }
+  .stat-card:hover{ transform:translateY(-2px); box-shadow:0 10px 24px -6px rgba(99,102,241,.16); }
   .stat-ico-badge{ width:32px; height:32px; border-radius:9px; background:color-mix(in srgb, var(--accent2) 12%, transparent); color:var(--accent2); display:flex; align-items:center; justify-content:center; font-size:14px; margin-bottom:8px; }
   /* Referanstaki gibi kart başına farklı renk — hepsi aynı indigo yerine
      mavi/mor/turuncu/kırmızı dönüşümlü, göz için daha canlı bir dashboard. */
@@ -283,7 +291,7 @@
   .filter-row select{ width:auto; min-width:180px; margin-bottom:0; }
   .panel-head p{ color:var(--text-muted); font-size:14px; margin:6px 0 0; }
   /* shadcn/ui "Card" bileşeniyle birebir: rounded-lg + ince kenarlık + shadow-sm */
-  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin-bottom:14px; box-shadow:0 2px 8px -4px rgba(70,95,255,.06); }
+  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); padding:20px 22px; margin-bottom:14px; box-shadow:0 4px 16px -6px rgba(99,102,241,.08); }
   .panel h2{ letter-spacing:-.02em; }
   .empty-state{ background:var(--surface); border:1px dashed var(--border); border-radius:16px; padding:36px; text-align:center; color:var(--text-muted); }
   /* Müşteri panelindekiyle birebir aynı adım göstergesi. */
@@ -311,7 +319,7 @@
 
   /* Kurumsal tablo: mono/kod fontu yok (Inter + tabular-nums), satır başına
      müşteri avatarı, kategoriye göre renklendirilmiş durum rozetleri. */
-  .table-card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; box-shadow:0 2px 8px -4px rgba(70,95,255,.06); }
+  .table-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); overflow:hidden; box-shadow:0 4px 16px -6px rgba(99,102,241,.08); }
   .pagination{ display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-top:1px solid var(--border); font-size:12.5px; color:var(--text-muted); flex-wrap:wrap; gap:10px; }
   .pagination-btns{ display:flex; align-items:center; gap:10px; }
   .pagination-btns button{ width:28px; height:28px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; }
@@ -713,7 +721,7 @@ function authShell(innerHtml) {
         <div class="auth-scrim"></div>
       </div>
       <div class="auth-glass-wrap">
-        <a href="/" class="auth-badge"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#465fff"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg></a>
+        <a href="/" class="auth-badge"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#6366f1"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg></a>
         <div class="auth-card panel-fade">${innerHtml}</div>
         <div class="auth-meta">
           <div>Ekip erişimi<b>Sadece Yetkili</b></div>
@@ -729,7 +737,7 @@ function panelShell(innerHtml, activeView) {
     <div class="app-shell">
       <div class="sidebar">
         <div class="brand-row" onclick="toggleSidebar()" title="Daralt/Genişlet (Ctrl+\\)">
-          <div class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#465fff"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg><div><div class="brand-t">Tedarik Ağı</div><div class="brand-sub">Admin Paneli</div></div></div>
+          <div class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#6366f1"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg><div><div class="brand-t">Tedarik Ağı</div><div class="brand-sub">Admin Paneli</div></div></div>
           <span class="chev">⌄</span>
         </div>
         <div class="side-group-label">Genel</div>
@@ -982,7 +990,7 @@ function topMusteriGrafigi(rows) {
   rows.forEach(r => { const ad = r.firma || r.musteri || 'Bilinmiyor'; sayim[ad] = (sayim[ad] || 0) + 1; });
   const top = Object.entries(sayim).sort((a, b) => b[1] - a[1]).slice(0, 5);
   const maxN = Math.max(1, ...top.map(t => t[1]));
-  const renkler = ['#465fff', '#14b8a6', '#ea580c', '#9333ea', '#0e7490'];
+  const renkler = ['#6366f1', '#14b8a6', '#ea580c', '#9333ea', '#0e7490'];
   const bars = top.map(([ad, n], i) => `
     <div style="margin-bottom:9px;">
       <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom:3px;">
