@@ -760,6 +760,24 @@
 
 <script>
 (function(){
+  // Arkaplan videoları (hero, CTA) sadece HTML autoplay özniteliğine güveniyordu — bazı
+  // tarayıcılarda (özellikle mobil/veri tasarrufu modunda) bu sessizce reddedilip video
+  // durağan kalıyor, kullanıcı native "oynat" butonuyla karşılaşıyordu. Sayfa yüklenince
+  // JS ile de play() çağırıp garanti altına alıyoruz; hâlâ engellenirse (nadiren) sessizce
+  // poster görselinde kalır, hata fırlatmaz.
+  document.querySelectorAll('video[autoplay]').forEach(v => {
+    v.muted = true;
+    const dene = () => v.play().catch(() => {});
+    dene();
+    v.addEventListener('loadeddata', dene, { once: true });
+    v.addEventListener('canplay', dene, { once: true });
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      document.querySelectorAll('video[autoplay]').forEach(v => { if (v.paused) v.play().catch(() => {}); });
+    }
+  });
+
   // Not: Özel yumuşak kaydırma (Lenis) kaldırıldı — trackpad'de gecikmeli/ağır hissettiriyordu
   // ve yüklenemediğinde tüm script'i durdurup menü/harita/slider'ı da devre dışı bırakıyordu.
   // Artık native tarayıcı scroll'u kullanılıyor, daha hızlı ve güvenilir.
