@@ -1353,6 +1353,7 @@ async function listeYukle() {
     ${statCard('<i class="bi bi-cash-coin"></i>', 'Bekleyen Tahsilat', bekleyenTutar, bekleyenCaption, null, null, 'green', paraSembol[anaPara] || (anaPara ? anaPara+' ' : ''), 'tahsilat')}
   </div>
   <div class="chart-row chart-row-4">${alanGrafigi(siparisRowsCache)}${barGrafigi(siparisRowsCache)}${tamamlanmaHalkasi(siparisRowsCache)}${topMusteriGrafigi(siparisRowsCache)}</div>
+  <div id="ulkeHaritaKutu"></div>
   <div id="siparisListe"></div>
   <div class="filter-row">
     <input id="filtreArama" placeholder="Sipariş no, müşteri, firma veya ürün ara..." oninput="siparisSayfa=1; siparisListesiCiz()">
@@ -1365,6 +1366,14 @@ async function listeYukle() {
   <div id="siparisTablo"></div>`;
   main.innerHTML = html;
   siparisListesiCiz();
+  // Tedarikçi ülkeleri haritası — dashboard'a ayrı, hafif bir istek olarak sonradan doldurulur
+  // (siparişler listesini bloklamasın diye) — Nellavio'nun ana sayfadaki RevenuePerCountry'sinin karşılığı.
+  fetch(API + '/api/tk/admin/tedarikciler', {headers:{'Authorization':'Bearer '+token}})
+    .then(r => r.ok ? r.json() : [])
+    .then(async (tedRows) => {
+      const kutu = document.getElementById('ulkeHaritaKutu');
+      if (kutu) kutu.innerHTML = await tedarikciUlkeHaritasi(tedRows);
+    }).catch(() => {});
 }
 
 let siparisSayfa = 1;
