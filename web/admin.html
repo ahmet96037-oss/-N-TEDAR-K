@@ -585,9 +585,11 @@ let ulkeMapAktif = null; // jsVectorMap instance'ı — sayfa değişince destro
 // jsVectorMap'i konteyner DOM'a eklendikten SONRA çağırıyoruz (kütüphane var olan bir
 // elementin boyutunu ölçerek çiziyor). Koyu/açık temaya göre renkleri elle veriyoruz
 // çünkü kütüphane CSS custom property'leri otomatik izlemiyor.
+let ulkeMapSonParam = null; // tema değişince aynı haritayı yeni renklerle yeniden çizmek için
 function ulkeMapBaslat(containerId, ulkeSayim) {
   if (typeof jsVectorMap === 'undefined') { setTimeout(() => ulkeMapBaslat(containerId, ulkeSayim), 150); return; }
   if (!document.getElementById(containerId)) return;
+  ulkeMapSonParam = { containerId, ulkeSayim };
   if (ulkeMapAktif) { try { ulkeMapAktif.destroy(); } catch (e) {} ulkeMapAktif = null; }
   const koyu = getComputedStyle(document.documentElement).getPropertyValue('--surface').trim() !== '#ffffff';
   const bosRenk = koyu ? '#26242e' : '#e8e8ef';
@@ -2119,7 +2121,11 @@ function initTheme() {
   }
   const saved = localStorage.getItem('tema') || 'system';
   apply(saved);
-  buttons.forEach(b => b.addEventListener('click', () => { localStorage.setItem('tema', b.dataset.mode); apply(b.dataset.mode); }));
+  buttons.forEach(b => b.addEventListener('click', () => {
+    localStorage.setItem('tema', b.dataset.mode); apply(b.dataset.mode);
+    // Harita CSS custom property'leri otomatik izlemiyor — tema değişince aynı veriyle yeniden çiz
+    if (ulkeMapSonParam) ulkeMapBaslat(ulkeMapSonParam.containerId, ulkeMapSonParam.ulkeSayim);
+  }));
 }
 
 // ---- Toast bildirim sistemi ----
