@@ -229,16 +229,19 @@
      kaydırma sırasında yukarı doğru KAYMAZ. Scroll uzunluğunu solutions-track (JS ile yükseklik
      verilir), pinlenen görünümü solutions-body sağlar. */
   .solutions-track{ position:relative; }
-  .solutions-body{ position:sticky; top:110px; height:70vh; min-height:26rem; max-height:38rem;
-    display:grid; grid-template-columns:1fr 1.6fr; gap:4rem; align-items:center; }
-  @media (max-width:900px){ .solutions-body{ top:0; height:100svh; max-height:none;
+  .solutions-body{ position:sticky; top:110px;
+    display:grid; grid-template-columns:1fr 1.6fr; gap:4rem; align-items:stretch; }
+  @media (max-width:900px){ .solutions-body{ top:70px;
     display:flex; flex-direction:column; gap:0; } }
 
-  .solutions-sticky{ position:relative; height:100%; aspect-ratio:auto; border-radius:16px; overflow:hidden; background:#0a0e1f; }
+  /* Görsel eskisi gibi 4:3 oranında kalıyor (zorla germiyoruz) — büyüyüp bozulmasının sebebi buydu.
+     Grid satırının yüksekliği bu görselin doğal (aspect-ratio) yüksekliğine göre belirleniyor,
+     metin sütunu da align-items:stretch ile aynı yüksekliğe geriliyor. */
+  .solutions-sticky{ position:relative; aspect-ratio:4/3; border-radius:16px; overflow:hidden; background:#0a0e1f; }
   /* Referanstaki gibi yumuşak, yuvarlak "oyuk" köşe — düz çapraz kesim yerine gerçek concave-corner tekniği */
   .solutions-sticky::before{ content:""; position:absolute; top:0; left:0; width:64px; height:64px;
     background:var(--white-bg,#f0f0f0); border-bottom-right-radius:64px; z-index:3; }
-  @media (max-width:900px){ .solutions-sticky{ order:-1; width:100%; height:44svh; flex:none; margin-bottom:16px; }
+  @media (max-width:900px){ .solutions-sticky{ order:-1; width:100%; margin-bottom:16px; }
     .solutions-sticky::before{ width:40px; height:40px; border-bottom-right-radius:40px; } }
   .solutions-sticky img, .solutions-sticky video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .5s ease; }
   .solutions-sticky img.is-active, .solutions-sticky video.is-active{ opacity:1; }
@@ -246,13 +249,15 @@
   .solutions-item-media{ display:none; }
 
   /* Madde metinleri artık akışta değil — aynı slotta üst üste, aktif olan opacity/translateY ile
-     belirir, diğerleri görünmez. Böylece scroll sırasında metin kayması olmaz, sadece geçiş olur. */
+     belirir, diğerleri görünmez. Böylece scroll sırasında metin kayması olmaz, sadece geçiş olur.
+     Yükseklik masaüstünde görselin (4:3) belirlediği satır yüksekliğinden geliyor; mobilde ise
+     görselin altında sabit, yeterli bir metin alanı (15rem) ayrılıyor. */
   .solutions-list{ position:relative; height:100%; }
-  @media (max-width:900px){ .solutions-list{ flex:1; min-height:0; } }
+  @media (max-width:900px){ .solutions-list{ height:15rem; flex:none; } }
   .solutions-item{ position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center;
     opacity:0; transform:translateY(22px); transition:opacity .55s ease, transform .55s ease; pointer-events:none; }
   .solutions-item.is-active{ opacity:1; transform:translateY(0); pointer-events:auto; }
-  @media (max-width:900px){ .solutions-item{ justify-content:flex-end; padding-bottom:10px; } }
+  @media (max-width:900px){ .solutions-item{ justify-content:flex-start; } }
   .solutions-item .n{ font-family:'IBM Plex Mono',monospace; font-size:14px; opacity:.4; margin-bottom:14px; }
   .solutions-item h3{ font-size:clamp(1.8rem,3.2vw,var(--fs-44)); font-weight:500; line-height:1.1; margin-bottom:14px; }
   .solutions-item p{ opacity:.55; font-size:var(--fs-16); line-height:1.5; max-width:34ch; margin-bottom:18px; }
