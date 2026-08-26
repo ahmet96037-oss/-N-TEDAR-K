@@ -12,32 +12,57 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 <style>
   :root{
-    /* Marka paleti — ithalat/ihracat/lojistik sektörünün tanıdık dili: koyu lacivert + amber/sarı vurgu (TransitFlow ve benzeri profesyonel lojistik temalarından esinlenildi) */
-    --bg:#f7f7fb; --bg-alt:#eeeef6; --surface:#ffffff; --text:#0f0f17; --text-muted:#6b6b80;
+    /* Nellavio'nun gerçek kaynak kodundan (src/styles/themes/{dark,light}.css) birebir alınan
+       renk tokenları: sayfa zemini ile kart zemini arasında hafif bir ton farkı var (kart biraz
+       daha açık), kenarlıklar neredeyse görünmez (%4-5 opaklık), radius 12px (rounded-xl),
+       gölge yok — ayrım sadece o çok hafif border ile sağlanıyor. Marka yeşilimizle (--green:#1fae70,
+       index.html) aynı ailede olduğu için ikisini birleştirdik. */
+    --bg:#f7f7f7; --bg-alt:#eef0f2; --surface:#ffffff; --text:rgba(0,0,0,.9); --text-muted:rgba(0,0,0,.6);
     --good:#12b76a; --good-bg:#ecfdf3; --good-bd:#6ce9a6; --bad:#f04438; --bad-bg:#fef3f2; --bad-bd:#fda29b;
-    --accent:#d99a2b; --accent-ink:#a8721a; --accent2:#6366f1; --accent2-ink:#4338ca;
-    --signal:#c0392b; --signal-ink:#96271b; --border:#e2e2ee;
-    --sidebar-bg:#111022; --sidebar-text:#e7e7f5; --sidebar-text-dim:#8f8fab; --sidebar-hover:#1c1a35;
-    --radius-card:20px; --radius-sm:12px;
+    --accent:#d99a2b; --accent-ink:#a8721a; --accent2:#1fae70; --accent2-ink:#18915d; --accent2-fill:#1fae70;
+    --accent-blue:#7dd6e6; --accent-purple:#7e76db;
+    --signal:#c0392b; --signal-ink:#96271b; --border:rgba(0,0,0,.06);
+    --sidebar-bg:var(--surface); --sidebar-text:var(--text); --sidebar-text-dim:var(--text-muted); --sidebar-hover:var(--bg-alt);
+    --radius-card:12px; --radius-sm:10px; --card-shadow:none;
     --font-display: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --font-body: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --font-code: "IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   }
-  /* Karanlık mod — nötr zinc tonları, sidebar her modda aynı koyu mor-lacivert kalıyor
-     (Nellavio referansındaki gibi sidebar ile içerik arasında sürekli, kendi kimliği olan bir kontrast). */
+  /* Panel varsayılan olarak KOYU açılır — referans görsel dark mode'da çekilmiş, panelin
+     "kimliği" bu; açık tema hâlâ toggle ile erişilebilir ama artık ikincil.
+     Dark değerleri Nellavio'nun dark.css'inden birebir: primaryBg #1c2025 (kart/sidebar),
+     secondaryBg #161a1f (sayfa zemini), mainColor #3db985 (yeşil), chartSecondaryFill #5385c6 (mavi),
+     chartTertiaryFill #a8a2ff (mor), containedButtonBg #368060 (dolgun buton yeşili). */
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#0b0b12; --bg-alt:#16151f; --surface:#16151f; --text:#f5f5fa; --text-muted:#a1a1b5;
-      --good:#6ce9a6; --good-bg:#052e16; --good-bd:#039855; --bad:#fda29b; --bad-bg:#450a0a; --bad-bd:#d92d20;
-      --accent:#e8b355; --accent-ink:#f3c878; --accent2:#818cf8; --accent2-ink:#a5b4fc;
-      --signal:#e2725f; --signal-ink:#f0a08e; --border:#26243a;
+      --bg:#161a1f; --bg-alt:#20242a; --surface:#1c2025; --text:#e7e9ec; --text-muted:#8c9196;
+      --good:#3db985; --good-bg:rgba(110,231,183,.08); --good-bd:rgba(110,231,183,.3); --bad:#f87171; --bad-bg:#3a1212; --bad-bd:#dc2626;
+      --accent:#e8b355; --accent-ink:#f3c878; --accent2:#3db985; --accent2-ink:#4a9373; --accent2-fill:#368060;
+      --accent-blue:#5385c6; --accent-purple:#a8a2ff;
+      --signal:#f87171; --signal-ink:#fca5a5; --border:rgba(255,255,255,.05);
     }
   }
   :root[data-theme="dark"]{
-    --bg:#0b0b12; --bg-alt:#16151f; --surface:#16151f; --text:#f5f5fa; --text-muted:#a1a1b5;
-    --good:#6ce9a6; --good-bg:#052e16; --good-bd:#039855; --bad:#fda29b; --bad-bg:#450a0a; --bad-bd:#d92d20;
-    --accent:#e8b355; --accent-ink:#f3c878; --accent2:#818cf8; --accent2-ink:#a5b4fc;
-    --signal:#e2725f; --signal-ink:#f0a08e; --border:#26243a;
+    --bg:#161a1f; --bg-alt:#20242a; --surface:#1c2025; --text:#e7e9ec; --text-muted:#8c9196;
+    --good:#3db985; --good-bg:rgba(110,231,183,.08); --good-bd:rgba(110,231,183,.3); --bad:#f87171; --bad-bg:#3a1212; --bad-bd:#dc2626;
+    --accent:#e8b355; --accent-ink:#f3c878; --accent2:#3db985; --accent2-ink:#4a9373; --accent2-fill:#368060;
+    --accent-blue:#5385c6; --accent-purple:#a8a2ff;
+    --signal:#f87171; --signal-ink:#fca5a5; --border:rgba(255,255,255,.05);
+  }
+  :root:not([data-theme="light"]):not([data-theme="dark"]){
+    /* İlk yüklemede sistem tercihi henüz okunmadan önce de koyu görünsün diye varsayılan koyu */
+    --bg:#161a1f; --bg-alt:#20242a; --surface:#1c2025; --text:#e7e9ec; --text-muted:#8c9196;
+    --good:#3db985; --good-bg:rgba(110,231,183,.08); --good-bd:rgba(110,231,183,.3); --bad:#f87171; --bad-bg:#3a1212; --bad-bd:#dc2626;
+    --accent:#e8b355; --accent-ink:#f3c878; --accent2:#3db985; --accent2-ink:#4a9373; --accent2-fill:#368060;
+    --accent-blue:#5385c6; --accent-purple:#a8a2ff;
+    --signal:#f87171; --signal-ink:#fca5a5; --border:rgba(255,255,255,.05);
+  }
+  :root[data-theme="light"]{
+    --bg:#f7f7f7; --bg-alt:#eef0f2; --surface:#ffffff; --text:rgba(0,0,0,.9); --text-muted:rgba(0,0,0,.6);
+    --good:#12b76a; --good-bg:#ecfdf3; --good-bd:#6ce9a6; --bad:#f04438; --bad-bg:#fef3f2; --bad-bd:#fda29b;
+    --accent:#d99a2b; --accent-ink:#a8721a; --accent2:#1fae70; --accent2-ink:#18915d; --accent2-fill:#1fae70;
+    --accent-blue:#7dd6e6; --accent-purple:#7e76db;
+    --signal:#c0392b; --signal-ink:#96271b; --border:rgba(0,0,0,.06);
   }
   *{box-sizing:border-box;}
   body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:15px; line-height:1.5; overflow-x:hidden; }
@@ -57,9 +82,9 @@
   input[type="file"]::file-selector-button{ font-family:inherit; font-size:13px; font-weight:600; padding:7px 14px; margin-right:12px; border-radius:6px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; }
   input[type="file"]::file-selector-button:hover{ background:var(--bg-alt); }
   input:focus, select:focus, textarea:focus{ outline:2px solid var(--accent); outline-offset:1px; }
-  button.primary{ background:var(--accent2); color:#fff; border:none; padding:10px 18px; border-radius:30px; font-weight:700; font-size:14px; cursor:pointer; }
+  button.primary{ background:var(--accent2-fill); color:#fff; border:none; padding:10px 18px; border-radius:8px; font-weight:600; font-size:14px; cursor:pointer; }
   button.primary:hover{ background:var(--accent2-ink); }
-  button.secondary{ background:var(--surface); color:var(--text); border:1px solid var(--border); padding:10px 18px; border-radius:30px; font-weight:700; font-size:14px; cursor:pointer; }
+  button.secondary{ background:color-mix(in srgb, var(--text) 5%, transparent); color:var(--text); border:1px solid var(--border); padding:10px 18px; border-radius:8px; font-weight:600; font-size:14px; cursor:pointer; }
   button.secondary:hover{ border-color:var(--accent); }
   button:disabled{ opacity:.4; cursor:not-allowed; }
   .linklike{ background:none; border:none; color:var(--accent-ink); font-weight:600; cursor:pointer; padding:0; font-size:13px; text-decoration:underline; }
@@ -92,14 +117,14 @@
   .auth-badge{ width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; margin-bottom:22px; box-shadow:0 8px 24px -8px rgba(0,0,0,.5); }
   .auth-badge svg{ width:30px; height:30px; }
   .auth-card{ width:100%; background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.12); border-radius:26px; box-shadow:0 24px 60px -12px rgba(0,0,0,.6); padding:36px 32px; }
-  .auth-card .badge{ display:inline-block; font-family:var(--font-code); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#c7d2ff; background:rgba(99,102,241,.18); border:1px solid rgba(99,102,241,.35); padding:3px 10px; border-radius:20px; margin-bottom:16px; }
+  .auth-card .badge{ display:inline-block; font-family:var(--font-code); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#c7d2ff; background:rgba(31,174,112,.18); border:1px solid rgba(31,174,112,.35); padding:3px 10px; border-radius:20px; margin-bottom:16px; }
   .auth-card h2{ font-size:24px; margin-bottom:6px; color:#fff; }
   .auth-card .lede{ color:rgba(255,255,255,.6); font-size:14px; margin:0 0 24px; }
   .auth-card label{ color:rgba(255,255,255,.7); }
   .auth-card input{ background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:#fff; }
   .auth-card input::placeholder{ color:rgba(255,255,255,.35); }
   .auth-card input:focus{ border-color:rgba(255,255,255,.35); background:rgba(255,255,255,.1); }
-  .auth-card .demo-box{ background:rgba(99,102,241,.16); border-color:rgba(99,102,241,.35); color:#c7d2ff; }
+  .auth-card .demo-box{ background:rgba(31,174,112,.16); border-color:rgba(31,174,112,.35); color:#c7d2ff; }
   .auth-card .demo-box b{ color:#fff; }
   .auth-card .err{ color:#ff8a8a; }
   .auth-meta{ position:relative; z-index:1; display:flex; gap:26px; font-family:var(--font-code); font-size:11.5px; color:rgba(255,255,255,.5); margin-top:26px; flex-wrap:wrap; justify-content:center; }
@@ -126,8 +151,8 @@
   .side-nav{ display:flex; flex-direction:column; gap:2px; }
   .side-nav button{ display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:10px; font-weight:600; font-size:14px; color:var(--sidebar-text); cursor:pointer; border:none; background:none; text-align:left; width:100%; font-family:var(--font-body); transition:background .12s, color .12s; position:relative; }
   .side-nav button:hover{ background:var(--sidebar-hover); }
-  .side-nav button.active{ background:var(--accent2); color:#fff; font-weight:700; box-shadow:0 4px 14px -4px color-mix(in srgb, var(--accent2) 70%, transparent); }
-  .side-nav button.active .ico{ color:#fff; }
+  .side-nav button.active{ background:color-mix(in srgb, var(--text) 7%, transparent); color:var(--sidebar-text); font-weight:700; }
+  .side-nav button.active .ico{ color:var(--accent2); }
   .side-nav .ico{ width:16px; text-align:center; flex:none; font-size:14.5px; color:var(--sidebar-text-dim); }
   .sidebar-foot{ margin-top:auto; padding-top:14px; border-top:1px solid rgba(255,255,255,.08); }
   .user-chip{ display:flex; align-items:center; gap:10px; padding:6px; margin-bottom:6px; }
@@ -149,7 +174,11 @@
   .topbar-search input{ border:none; background:none; margin:0; padding:0; font-size:13.5px; flex:1; }
   .topbar-search input:focus{ outline:none; }
   .topbar-search .kbd{ font-family:var(--font-body); font-weight:600; font-size:11px; color:var(--text-muted); background:var(--bg-alt); border:1px solid var(--border); border-radius:4px; padding:1px 6px; }
+  .topbar-toggle{ display:flex; align-items:center; gap:10px; }
   .topbar-toggle .theme-toggle{ position:static; box-shadow:none; }
+  .icon-btn{ width:36px; height:36px; border-radius:10px; border:1px solid var(--border); background:color-mix(in srgb, var(--text) 4%, transparent); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:15px; position:relative; }
+  .icon-btn:hover{ background:color-mix(in srgb, var(--text) 7%, transparent); color:var(--text); }
+  .notif-badge{ position:absolute; top:-4px; right:-4px; background:var(--bad); color:#fff; font-size:10px; font-weight:700; min-width:16px; height:16px; border-radius:20px; display:flex; align-items:center; justify-content:center; padding:0 3px; }
   .main{ flex:1; padding:20px 28px; width:100%; max-width:none; }
   @media (max-width:820px){
     .app-shell{ flex-direction:column; }
@@ -209,12 +238,12 @@
   @media (max-width:600px){ .stat-grid{ grid-template-columns:repeat(1,1fr); } }
   /* Ana sayfadaki yumuşak, ikon rozetli kart diliyle birebir — sert köşeli,
      ince çerçeveli "kurumsal dashboard" hissi yerine daire ikon + bol boşluk. */
-  .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); padding:18px 20px; box-shadow:0 4px 16px -6px rgba(99,102,241,.1); transition:transform .15s, box-shadow .15s; }
+  .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); padding:18px 20px; box-shadow:var(--card-shadow); transition:border-color .15s; }
   /* Ödeme paneli içindeki küçük özet kutucukları (Toplam/Ödenen/Bekleyen) */
   .stat-mini-tile{ background:var(--bg-alt); border:1px solid var(--border); border-radius:12px; padding:12px 14px; }
   .stat-mini-tile .l{ font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); margin-bottom:4px; }
   .stat-mini-tile .v{ font-family:var(--font-display); font-weight:800; font-size:18px; font-variant-numeric:tabular-nums; }
-  .stat-card:hover{ transform:translateY(-2px); box-shadow:0 10px 24px -6px rgba(99,102,241,.16); }
+  .stat-card:hover{ border-color:color-mix(in srgb, var(--text) 15%, var(--border)); }
   .stat-ico-badge{ width:32px; height:32px; border-radius:9px; background:color-mix(in srgb, var(--accent2) 12%, transparent); color:var(--accent2); display:flex; align-items:center; justify-content:center; font-size:14px; margin-bottom:8px; }
   /* Referanstaki gibi kart başına farklı renk — hepsi aynı indigo yerine
      mavi/mor/turuncu/kırmızı dönüşümlü, göz için daha canlı bir dashboard. */
@@ -247,9 +276,9 @@
   .page-head h1{ font-family:var(--font-display); font-weight:700; font-size:20px; letter-spacing:-.01em; margin:0; }
   .page-head p{ color:var(--text-muted); font-size:12.5px; margin:3px 0 0; }
   .page-head-actions{ display:flex; gap:10px; flex:none; }
-  .btn-dark{ background:var(--accent2); color:#fff; border:none; padding:9px 16px; border-radius:30px; font-weight:600; font-size:13.5px; cursor:pointer; font-family:var(--font-body); }
+  .btn-dark{ background:var(--accent2-fill); color:#fff; border:none; padding:9px 16px; border-radius:8px; font-weight:600; font-size:13.5px; cursor:pointer; font-family:var(--font-body); }
   .btn-dark:hover{ background:var(--accent2-ink); }
-  .btn-outline{ background:var(--surface); color:var(--text); border:1px solid var(--border); padding:9px 16px; border-radius:30px; font-weight:600; font-size:13.5px; cursor:pointer; font-family:var(--font-body); }
+  .btn-outline{ background:color-mix(in srgb, var(--text) 5%, transparent); color:var(--text); border:1px solid var(--border); padding:9px 16px; border-radius:8px; font-weight:600; font-size:13.5px; cursor:pointer; font-family:var(--font-body); }
   .btn-outline:hover{ background:var(--bg-alt); }
   .chart-card svg{ display:block; }
   .chart-row{ display:grid; grid-template-columns:1.3fr 1fr .8fr; gap:12px; margin-bottom:14px; }
@@ -291,7 +320,7 @@
   .filter-row select{ width:auto; min-width:180px; margin-bottom:0; }
   .panel-head p{ color:var(--text-muted); font-size:14px; margin:6px 0 0; }
   /* shadcn/ui "Card" bileşeniyle birebir: rounded-lg + ince kenarlık + shadow-sm */
-  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); padding:20px 22px; margin-bottom:14px; box-shadow:0 4px 16px -6px rgba(99,102,241,.08); }
+  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); padding:20px 22px; margin-bottom:14px; box-shadow:var(--card-shadow); }
   .panel h2{ letter-spacing:-.02em; }
   .empty-state{ background:var(--surface); border:1px dashed var(--border); border-radius:16px; padding:36px; text-align:center; color:var(--text-muted); }
   /* Müşteri panelindekiyle birebir aynı adım göstergesi. */
@@ -319,7 +348,7 @@
 
   /* Kurumsal tablo: mono/kod fontu yok (Inter + tabular-nums), satır başına
      müşteri avatarı, kategoriye göre renklendirilmiş durum rozetleri. */
-  .table-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); overflow:hidden; box-shadow:0 4px 16px -6px rgba(99,102,241,.08); }
+  .table-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); overflow:hidden; box-shadow:var(--card-shadow); }
   .pagination{ display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-top:1px solid var(--border); font-size:12.5px; color:var(--text-muted); flex-wrap:wrap; gap:10px; }
   .pagination-btns{ display:flex; align-items:center; gap:10px; }
   .pagination-btns button{ width:28px; height:28px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; }
@@ -721,7 +750,7 @@ function authShell(innerHtml) {
         <div class="auth-scrim"></div>
       </div>
       <div class="auth-glass-wrap">
-        <a href="/" class="auth-badge"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#6366f1"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg></a>
+        <a href="/" class="auth-badge"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#1fae70"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg></a>
         <div class="auth-card panel-fade">${innerHtml}</div>
         <div class="auth-meta">
           <div>Ekip erişimi<b>Sadece Yetkili</b></div>
@@ -737,7 +766,7 @@ function panelShell(innerHtml, activeView) {
     <div class="app-shell">
       <div class="sidebar">
         <div class="brand-row" onclick="toggleSidebar()" title="Daralt/Genişlet (Ctrl+\\)">
-          <div class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#6366f1"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg><div><div class="brand-t">Tedarik Ağı</div><div class="brand-sub">Admin Paneli</div></div></div>
+          <div class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#1fae70"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg><div><div class="brand-t">Tedarik Ağı</div><div class="brand-sub">Admin Paneli</div></div></div>
           <span class="chev">⌄</span>
         </div>
         <div class="side-group-label">Genel</div>
@@ -769,7 +798,13 @@ function panelShell(innerHtml, activeView) {
             <input placeholder="Sipariş no, müşteri, firma veya ürün ara..." oninput="topbarAra(this.value)">
             <span class="kbd" style="cursor:pointer;" onclick="cmdkOpen()">⌘K</span>
           </div>
-          <div class="topbar-toggle">${themeToggleHtml()}</div>
+          <div class="topbar-toggle">
+            <div style="position:relative;">
+              <button class="icon-btn" onclick="toggleBildirimPop(event)" title="Bildirimler"><i class="bi bi-bell"></i>${bildirimSayisi() > 0 ? `<span class="notif-badge">${bildirimSayisi()}</span>` : ''}</button>
+              <div id="bildirimPop" class="kart-ayar-pop" style="display:none; right:0; left:auto; min-width:280px;"></div>
+            </div>
+            ${themeToggleHtml()}
+          </div>
         </div>
         <div class="main panel-fade">${innerHtml}</div>
       </div>
@@ -990,7 +1025,7 @@ function topMusteriGrafigi(rows) {
   rows.forEach(r => { const ad = r.firma || r.musteri || 'Bilinmiyor'; sayim[ad] = (sayim[ad] || 0) + 1; });
   const top = Object.entries(sayim).sort((a, b) => b[1] - a[1]).slice(0, 5);
   const maxN = Math.max(1, ...top.map(t => t[1]));
-  const renkler = ['#6366f1', '#14b8a6', '#ea580c', '#9333ea', '#0e7490'];
+  const renkler = ['#1fae70', '#5385c6', '#ea580c', '#a8a2ff', '#0e7490'];
   const bars = top.map(([ad, n], i) => `
     <div style="margin-bottom:9px;">
       <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom:3px;">
@@ -1133,6 +1168,27 @@ function xlsxIndir(rows, alanlar, baslikMap, dosyaAdi) {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, sheet, 'Veri');
   XLSX.writeFile(wb, dosyaAdi);
+}
+
+// ---- Bildirim zili — gerçek veri: okunmamış müşteri mesajı olan siparişler (uydurma değil) ----
+function bildirimSayisi() {
+  return siparisRowsCache.reduce((t, r) => t + (r.okunmamis_mesaj || 0), 0);
+}
+function toggleBildirimPop(e) {
+  if (e) e.stopPropagation();
+  const pop = document.getElementById('bildirimPop');
+  if (!pop) return;
+  const willOpen = pop.style.display === 'none';
+  if (!willOpen) { pop.style.display = 'none'; return; }
+  const bildirimli = siparisRowsCache.filter(r => r.okunmamis_mesaj > 0);
+  pop.innerHTML = bildirimli.length ? bildirimli.map(r => `
+    <div class="kart-ayar-item" style="align-items:flex-start;" onclick="aktifSiparisNo='${r.siparis_no}'; view='detay'; render();">
+      <i class="bi bi-chat-dots-fill" style="color:var(--bad); margin-top:2px;"></i>
+      <div><b>${r.siparis_no}</b><div style="font-size:11.5px; color:var(--text-muted);">${r.okunmamis_mesaj} okunmamış mesaj — ${r.musteri || ''}</div></div>
+    </div>`).join('') : '<div style="padding:14px; text-align:center; color:var(--text-muted); font-size:12.5px;">Yeni bildirim yok.</div>';
+  pop.style.display = 'block';
+  const closeOnce = (ev) => { if (!pop.contains(ev.target)) { pop.style.display = 'none'; document.removeEventListener('click', closeOnce); } };
+  setTimeout(() => document.addEventListener('click', closeOnce), 0);
 }
 
 function kopyala(metin, event) {
