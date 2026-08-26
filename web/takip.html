@@ -229,6 +229,20 @@
 
   /* ================= Sipariş detay: özet kartı ================= */
   .ozet-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); padding:18px 22px; margin-bottom:14px; }
+  /* Analitik sayfası KPI kartları — admin panelle aynı dil */
+  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+  @media (max-width:960px){ .stat-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:600px){ .stat-grid{ grid-template-columns:1fr; } }
+  .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); padding:18px 20px; box-shadow:var(--card-shadow); }
+  .stat-ico-badge{ width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:14px; flex:none; }
+  .stat-ico-badge.tone-blue{ background:rgba(83,133,198,.16); color:var(--accent-blue,#5385c6); }
+  .stat-ico-badge.tone-green{ background:rgba(61,185,133,.16); color:var(--accent2); }
+  .stat-ico-badge.tone-purple{ background:rgba(168,162,255,.16); color:var(--accent-purple,#a8a2ff); }
+  .stat-ico-badge.tone-orange{ background:rgba(232,179,85,.16); color:var(--accent); }
+  .stat-head{ font-size:11.5px; font-weight:600; color:var(--text-muted); }
+  .chart-row{ display:grid; grid-template-columns:1.3fr 1fr; gap:12px; margin-bottom:14px; }
+  @media (max-width:900px){ .chart-row{ grid-template-columns:1fr; } }
+  .chart-card h2{ font-size:15px; }
   .ozet-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:18px; }
   .ozet-top h2{ font-size:18px; margin:2px 0 0; }
   .durum-pill{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:6px 13px; border-radius:20px; background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent-ink); border:1px solid color-mix(in srgb, var(--accent) 32%, transparent); white-space:nowrap; }
@@ -403,6 +417,7 @@ function render() {
   if (view === 'liste') siparisListesiYukle();
   else if (view === 'detay') siparisDetayYukle(aktifSiparisNo);
   else if (view === 'ayarlar') ayarlarYukle();
+  else if (view === 'analitik') musteriAnalitikYukle();
 }
 
 async function ayarlarYukle() {
@@ -514,6 +529,7 @@ function panelShell(innerHtml, activeView) {
         <div class="side-nav">
           <button class="${activeView==='liste'||activeView==='detay' ? 'active' : ''}" onclick="view='liste'; render();"><span class="ico"><i class="bi bi-box-seam"></i></span><span>Siparişlerim</span></button>
           <button onclick="view='rfq'; render();"><span class="ico"><i class="bi bi-plus-circle"></i></span><span>Yeni Talep</span></button>
+          <button class="${activeView==='analitik' ? 'active' : ''}" onclick="view='analitik'; render();"><span class="ico"><i class="bi bi-graph-up-arrow"></i></span><span>Analitik</span></button>
           <a href="/hesapla.html"><span class="ico"><i class="bi bi-calculator"></i></span><span>Vergi Hesaplama</span></a>
         </div>
         <div class="side-group-label">Hesap</div>
@@ -840,6 +856,63 @@ function musteriTamamlanmaHalkasi(rows) {
       <text x="90" y="106" text-anchor="middle" font-size="11" fill="var(--text-muted)">${tamamlanan}/${toplam}</text>
     </svg>
   </div>`;
+}
+
+// ---- Analitik (müşteri) — Nellavio'nun Analytics sayfasının karşılığı, sadece kendi
+// siparişlerinize ait gerçek verilerle: KPI kartları, aylık talep trendi, son siparişler. ----
+function musteriAylikTrendGrafigi(rows) {
+  const yil = new Date().getFullYear();
+  const aylar = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+  const sayim = new Array(12).fill(0);
+  rows.forEach(r => { const d = new Date(r.olusturulma); if (d.getFullYear() === yil) sayim[d.getMonth()]++; });
+  const maxN = Math.max(1, ...sayim);
+  const W = 560, H = 150, PAD = 22, stepX = (W - PAD*2) / 12, barW = stepX * 0.55;
+  const bars = sayim.map((n, i) => {
+    const h = (n / maxN) * (H - PAD*2 - 14);
+    const x = PAD + i*stepX + (stepX - barW)/2, y = H - PAD - h;
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(h,1).toFixed(1)}" rx="3" fill="var(--accent2)"/>
+      <text x="${(x+barW/2).toFixed(1)}" y="${(H-PAD+12).toFixed(1)}" font-size="8.5" fill="var(--text-muted)" text-anchor="middle">${aylar[i]}</text>`;
+  }).join('');
+  return `<div class="panel" style="margin-bottom:0;">
+    <h2 style="font-size:15px;">${yil} Talep Trendiniz</h2>
+    <p style="color:var(--text-muted); font-size:12.5px; margin:0 0 10px;">Aylara göre oluşturduğunuz talep sayısı</p>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto;">${bars}</svg>
+  </div>`;
+}
+function musteriSonSiparisler(rows) {
+  const son = [...rows].sort((a, b) => new Date(b.olusturulma) - new Date(a.olusturulma)).slice(0, 6);
+  return `<div class="panel" style="margin-bottom:0;">
+    <h2 style="font-size:15px; margin-bottom:2px;">Son Siparişleriniz</h2>
+    <p style="color:var(--text-muted); font-size:12.5px; margin:0 0 12px;">En yeni 6 talep</p>
+    ${son.length ? son.map(r => `<div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); cursor:pointer;" onclick="aktifSiparisNo='${r.siparis_no}'; view='detay'; render();">
+      <div style="width:30px; height:30px; border-radius:9px; background:var(--bg-alt); display:flex; align-items:center; justify-content:center; flex:none;"><i class="bi bi-box-seam" style="font-size:13px; color:var(--text-muted);"></i></div>
+      <div style="flex:1; min-width:0;"><div style="font-size:13px; font-weight:600;">${r.siparis_no}</div><div style="font-size:11px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.urun_aciklamasi}</div></div>
+      <span class="pill ${durumRenkSinifi(r.durum)}">${r.durum_adi}</span>
+    </div>`).join('') : '<div class="empty-state">Henüz siparişiniz yok.</div>'}
+  </div>`;
+}
+async function musteriAnalitikYukle() {
+  const main = document.querySelector('.main');
+  main.innerHTML = '<div class="empty-state">Yükleniyor…</div>';
+  try {
+    const res = await fetch(API + '/api/tk/siparislerim', { headers: {'Authorization':'Bearer ' + token} });
+    if (res.status === 401) { cikisYap(); return; }
+    const rows = await res.json();
+    const aktif = rows.filter(r => r.durum !== 'teslim_edildi' && r.durum !== 'iptal_edildi').length;
+    const tamamlanan = rows.filter(r => r.durum === 'teslim_edildi').length;
+    const toplamAdet = rows.reduce((t, r) => t + (Number(r.miktar) || 0), 0);
+    main.innerHTML = `<div class="panel-fade">
+      <div class="panel-head"><div><h2>Analitik</h2><p>Sipariş geçmişiniz ve süreç performansınız — tamamı gerçek verilerinizden.</p></div></div>
+      <div class="stat-grid">
+        <div class="stat-card" style="display:flex; align-items:flex-start; gap:14px;"><div class="stat-ico-badge tone-blue" style="width:40px; height:40px; font-size:17px;"><i class="bi bi-box-seam"></i></div><div><div class="stat-head" style="margin-bottom:5px;">Toplam Sipariş</div><div style="font-family:var(--font-display); font-weight:800; font-size:22px;">${rows.length}</div></div></div>
+        <div class="stat-card" style="display:flex; align-items:flex-start; gap:14px;"><div class="stat-ico-badge tone-purple" style="width:40px; height:40px; font-size:17px;"><i class="bi bi-gear-wide-connected"></i></div><div><div class="stat-head" style="margin-bottom:5px;">Aktif Süreçte</div><div style="font-family:var(--font-display); font-weight:800; font-size:22px;">${aktif}</div></div></div>
+        <div class="stat-card" style="display:flex; align-items:flex-start; gap:14px;"><div class="stat-ico-badge tone-green" style="width:40px; height:40px; font-size:17px;"><i class="bi bi-check-circle"></i></div><div><div class="stat-head" style="margin-bottom:5px;">Tamamlanan</div><div style="font-family:var(--font-display); font-weight:800; font-size:22px;">${tamamlanan}</div></div></div>
+        <div class="stat-card" style="display:flex; align-items:flex-start; gap:14px;"><div class="stat-ico-badge tone-orange" style="width:40px; height:40px; font-size:17px;"><i class="bi bi-boxes"></i></div><div><div class="stat-head" style="margin-bottom:5px;">Toplam Ürün Adedi</div><div style="font-family:var(--font-display); font-weight:800; font-size:22px;">${toplamAdet}</div></div></div>
+      </div>
+      <div class="chart-row">${musteriFazGrafigi(rows) || '<div class="panel" style="margin-bottom:0;"><p class="empty-state">Henüz veri yok.</p></div>'}${musteriTamamlanmaHalkasi(rows)}</div>
+      <div class="chart-row">${musteriAylikTrendGrafigi(rows)}${musteriSonSiparisler(rows)}</div>
+    </div>`;
+  } catch (e) { main.innerHTML = '<div class="panel err">Yüklenemedi, bağlantınızı kontrol edin.</div>'; }
 }
 
 async function siparisListesiYukle() {

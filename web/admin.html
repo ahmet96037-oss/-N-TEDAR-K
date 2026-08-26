@@ -289,6 +289,9 @@
   .btn-outline:hover{ background:var(--bg-alt); }
   .chart-card svg{ display:block; }
   .chart-row{ display:grid; grid-template-columns:1.3fr 1fr .8fr; gap:12px; margin-bottom:14px; }
+  .chart-row-1{ grid-template-columns:1fr; }
+  .chart-row-2{ grid-template-columns:1fr 1fr; }
+  @media (max-width:900px){ .chart-row-2{ grid-template-columns:1fr; } }
   .chart-row .panel{ margin-bottom:0; }
   @media (max-width:900px){ .chart-row{ grid-template-columns:1fr; } }
   /* 4. grafik (en aktif müşteriler) eklenince biraz daha dengeli dörtlü ızgara */
@@ -310,9 +313,15 @@
   table input[type="checkbox"]{ width:auto; height:auto; margin:0; cursor:pointer; }
 
   /* Tedarikçi ülkeleri haritası */
-  .ulke-harita-grid{ display:grid; grid-template-columns:1.6fr 1fr; gap:20px; align-items:center; }
-  @media (max-width:820px){ .ulke-harita-grid{ grid-template-columns:1fr; } }
-  .ulke-harita-wrap{ position:relative; }
+  /* Nellavio referansındaki RevenuePerCountry kartıyla aynı oran: harita %65, liste %35,
+     sabit bir yükseklik içinde (referansta h-92/h-108 ~ 368-432px) — tüm sayfayı kaplayan
+     dev bir harita yerine, kart içinde kontrollü, kompakt bir görünüm. */
+  .ulke-harita-grid{ display:flex; gap:20px; align-items:flex-start; height:22rem; }
+  .ulke-harita-grid > .ulke-harita-col{ width:65%; height:100%; display:flex; align-items:center; justify-content:center; }
+  .ulke-harita-grid > .ulke-liste-col{ width:35%; height:100%; overflow-y:auto; }
+  @media (max-width:820px){ .ulke-harita-grid{ flex-direction:column; height:auto; }
+    .ulke-harita-grid > .ulke-harita-col, .ulke-harita-grid > .ulke-liste-col{ width:100%; height:auto; } }
+  .ulke-harita-wrap{ position:relative; width:100%; max-height:22rem; }
   .ulke-path{ cursor:pointer; transition:fill .1s, fill-opacity .1s; }
   .ulke-path.is-hover{ fill:var(--accent2) !important; fill-opacity:1 !important; stroke:var(--text); stroke-width:1; }
   .ulke-tooltip{ position:absolute; top:0; left:0; opacity:0; pointer-events:none; z-index:5; white-space:nowrap;
@@ -537,6 +546,7 @@ function render() {
   else if (view === 'yeni-siparis') { document.querySelector('.main').innerHTML = yeniSiparisEkrani(); ysMusteriDropdownDoldur(); }
   else if (view === 'ayarlar') ayarlarYukle();
   else if (view === 'kullanicilar') kullaniciYonetimiEkrani();
+  else if (view === 'analitik') analitikYukle();
   else if (view === 'takvim') takvimYukle();
   else if (view === 'profil') profilYukle();
 }
@@ -628,7 +638,7 @@ async function tedarikciUlkeHaritasi(rows) {
       return `<path class="ulke-path" data-etiket="${etiket.replace(/"/g,'&quot;')}" d="${d}" fill="${eslesen ? 'var(--accent2)' : 'var(--bg-alt)'}" fill-opacity="${eslesen ? '0.85' : '1'}" stroke="var(--border)" stroke-width="0.5"/>`;
     }).join('');
     mapSvg = `<div class="ulke-harita-wrap" onmousemove="ulkeHaritaTooltipGuncelle(event)" onmouseleave="ulkeHaritaTooltipGizle()">
-      <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block;">${paths}</svg>
+      <svg viewBox="0 0 ${W} ${H}" style="max-width:100%; max-height:100%; width:auto; height:auto; display:block; margin:0 auto;">${paths}</svg>
       <div class="ulke-tooltip" id="ulkeTooltip"></div>
     </div>`;
   }
@@ -637,11 +647,15 @@ async function tedarikciUlkeHaritasi(rows) {
     <h2 style="font-size:15px; margin-bottom:2px;">Tedarikçi Ülkeleri</h2>
     <p style="color:var(--text-muted); font-size:12.5px; margin:0 0 14px;">Kayıtlı tedarikçilerin bulunduğu ülkeler, gerçek veri — üzerine gelin, ülke adını görün</p>
     <div class="ulke-harita-grid">
-      <div>${mapSvg}</div>
-      <div>${liste.length ? liste.map(([en, v]) => `
-        <div style="display:flex; align-items:center; gap:9px; padding:7px 0; border-bottom:1px solid var(--border);">
-          <span style="font-size:18px;">${bayrakEmoji(v.iso2)}</span>
-          <span style="flex:1; font-size:13px;">${v.orijinal}</span>
+      <div class="ulke-harita-col">${mapSvg}</div>
+      <div class="ulke-liste-col">
+        <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; padding-bottom:8px; border-bottom:1px solid var(--border); margin-bottom:4px;">
+          <span>Ülke</span><span>Tedarikçi</span>
+        </div>
+        ${liste.length ? liste.map(([en, v]) => `
+        <div style="display:flex; align-items:center; gap:9px; padding:8px 0; border-bottom:1px solid var(--border);">
+          <span style="font-size:17px;">${bayrakEmoji(v.iso2)}</span>
+          <span style="flex:1; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${v.orijinal}</span>
           <b style="font-variant-numeric:tabular-nums;">${v.count}</b>
         </div>`).join('') : '<p style="color:var(--text-muted); font-size:12.5px;">Henüz eşleşen ülke yok.</p>'}
       </div>
@@ -850,6 +864,97 @@ async function profilYukle() {
   </div>`;
 }
 
+// ---- Analitik — Nellavio'nun Analytics sayfasının karşılığı: 4 KPI kartı + yıllık genel
+// bakış + en değerli müşteriler + son işlemler, hepsi gerçek sipariş/ödeme verisinden. ----
+function analitikKpiKarti(icon, label, value, tone) {
+  return `<div class="stat-card" style="display:flex; align-items:flex-start; gap:14px;">
+    <div class="stat-ico-badge tone-${tone}" style="width:40px; height:40px; font-size:17px; margin-bottom:0;">${icon}</div>
+    <div><div class="stat-head" style="margin-bottom:5px;">${label}</div><div class="v" style="font-size:22px;">${value}</div></div>
+  </div>`;
+}
+function yillikGenelBakisGrafigi(rows) {
+  const yil = new Date().getFullYear();
+  const aylar = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+  const sayim = new Array(12).fill(0);
+  rows.forEach(r => { const d = new Date(r.olusturulma); if (d.getFullYear() === yil) sayim[d.getMonth()]++; });
+  const maxN = Math.max(1, ...sayim);
+  const W = 760, H = 180, PAD = 26, stepX = (W - PAD*2) / 12, barW = stepX * 0.55;
+  const bars = sayim.map((n, i) => {
+    const h = (n / maxN) * (H - PAD*2 - 14);
+    const x = PAD + i*stepX + (stepX - barW)/2, y = H - PAD - h;
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="var(--accent2)"/>
+      <text x="${(x+barW/2).toFixed(1)}" y="${(H-PAD+12).toFixed(1)}" font-size="9" fill="var(--text-muted)" text-anchor="middle">${aylar[i]}</text>`;
+  }).join('');
+  return `<div class="panel chart-card">
+    <h2 style="font-size:15px;">${yil} Yılı Genel Bakış</h2>
+    <p style="color:var(--text-muted); font-size:12.5px; margin:0 0 10px;">Aylara göre sipariş sayısı, gerçek veri</p>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto;">${bars}</svg>
+  </div>`;
+}
+function enDegerliMusteriler(rows) {
+  const grup = {};
+  rows.forEach(r => {
+    const ad = r.musteri || r.email || 'Bilinmiyor';
+    grup[ad] = grup[ad] || { odenen: 0, siparis: 0, para: r.para_birimi || 'USD' };
+    grup[ad].odenen += Number(r.odenen_toplam || 0);
+    grup[ad].siparis++;
+  });
+  const top = Object.entries(grup).sort((a, b) => b[1].odenen - a[1].odenen).filter(([,v]) => v.odenen > 0).slice(0, 5);
+  const paraSembol = { USD:'$', EUR:'€', TRY:'₺', GBP:'£' };
+  return `<div class="panel">
+    <h2 style="font-size:15px; margin-bottom:2px;">En Değerli Müşteriler</h2>
+    <p style="color:var(--text-muted); font-size:12.5px; margin:0 0 12px;">Tahsil edilen tutara göre, gerçek ödeme kayıtları</p>
+    ${top.length ? top.map(([ad, v], i) => {
+      const [avBg, avFg] = avatarRengi(ad);
+      return `<div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border);">
+        <div class="av" style="background:${avBg}; color:${avFg}; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; flex:none;">${(ad||'?').charAt(0).toUpperCase()}</div>
+        <div style="flex:1; min-width:0;"><div style="font-size:13px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${ad}</div><div style="font-size:11px; color:var(--text-muted);">${v.siparis} sipariş</div></div>
+        <b style="font-variant-numeric:tabular-nums;">${paraSembol[v.para] || ''}${v.odenen.toLocaleString('tr-TR', {maximumFractionDigits:0})}</b>
+      </div>`;
+    }).join('') : '<p style="color:var(--text-muted); font-size:12.5px;">Henüz tahsilat kaydı yok.</p>'}
+  </div>`;
+}
+function sonIslemlerListesi(rows) {
+  const son = [...rows].sort((a, b) => new Date(b.olusturulma) - new Date(a.olusturulma)).slice(0, 6);
+  return `<div class="panel">
+    <h2 style="font-size:15px; margin-bottom:2px;">Son İşlemler</h2>
+    <p style="color:var(--text-muted); font-size:12.5px; margin:0 0 12px;">En yeni 6 sipariş</p>
+    ${son.map(r => `<div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); cursor:pointer;" onclick="aktifSiparisNo='${r.siparis_no}'; view='detay'; render();">
+      <div style="width:30px; height:30px; border-radius:9px; background:var(--bg-alt); display:flex; align-items:center; justify-content:center; flex:none;"><i class="bi bi-box-seam" style="font-size:13px; color:var(--text-muted);"></i></div>
+      <div style="flex:1; min-width:0;"><div style="font-size:13px; font-weight:600;">${r.siparis_no}</div><div style="font-size:11px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.musteri || ''} — ${r.urun_aciklamasi}</div></div>
+      <span class="pill ${durumRenkSinifi(r.durum)}">${r.durum_adi}</span>
+    </div>`).join('')}
+  </div>`;
+}
+async function analitikYukle() {
+  const main = document.querySelector('.main');
+  main.innerHTML = '<div class="empty-state">Yükleniyor…</div>';
+  let rows = siparisRowsCache;
+  if (!rows.length) {
+    const res = await fetch(API + '/api/tk/admin/siparisler', {headers:{'Authorization':'Bearer '+token}});
+    if (res.status === 401) { cikisYap(); return; }
+    rows = siparisRowsCache = await res.json();
+  }
+  const paraSembol = { USD:'$', EUR:'€', TRY:'₺', GBP:'£' };
+  const tutarli = rows.filter(r => r.toplam_tutar != null);
+  const paraGrup = {};
+  tutarli.forEach(r => { const c = r.para_birimi || 'USD'; paraGrup[c] = paraGrup[c] || {toplam:0, odenen:0}; paraGrup[c].toplam += Number(r.toplam_tutar); paraGrup[c].odenen += Number(r.odenen_toplam || 0); });
+  const anaPara = Object.keys(paraGrup).sort((a,b) => paraGrup[b].toplam - paraGrup[a].toplam)[0];
+  const ciro = anaPara ? paraGrup[anaPara].toplam : 0;
+  const tahsilEdilen = anaPara ? paraGrup[anaPara].odenen : 0;
+  const aktifMusteri = new Set(rows.map(r => r.email)).size;
+  main.innerHTML = `<div class="breadcrumb">Genel <i class="bi bi-chevron-right"></i> Analitik</div>
+  <div class="page-head"><div><h1>Analitik</h1><p>Ciro, tahsilat ve müşteri performansı — tamamı gerçek sipariş/ödeme verisinden.</p></div></div>
+  <div class="stat-grid">
+    ${analitikKpiKarti('<i class="bi bi-truck"></i>', 'Toplam Ciro', anaPara ? paraSembol[anaPara]+ciro.toLocaleString('tr-TR',{maximumFractionDigits:0}) : '—', 'blue')}
+    ${analitikKpiKarti('<i class="bi bi-cash-stack"></i>', 'Tahsil Edilen', anaPara ? paraSembol[anaPara]+tahsilEdilen.toLocaleString('tr-TR',{maximumFractionDigits:0}) : '—', 'green')}
+    ${analitikKpiKarti('<i class="bi bi-people"></i>', 'Aktif Müşteri', aktifMusteri, 'purple')}
+    ${analitikKpiKarti('<i class="bi bi-cart3"></i>', 'Toplam Sipariş', rows.length, 'orange')}
+  </div>
+  <div class="chart-row chart-row-1" style="margin-top:6px;">${yillikGenelBakisGrafigi(rows)}</div>
+  <div class="chart-row chart-row-2">${enDegerliMusteriler(rows)}${sonIslemlerListesi(rows)}</div>`;
+}
+
 async function adminSifreDegistirKaydet() {
   const errBox = document.getElementById('sifreErr');
   const okBox = document.getElementById('sifreOk');
@@ -901,6 +1006,7 @@ function panelShell(innerHtml, activeView) {
           <button class="${activeView==='yeni-siparis' ? 'active' : ''}" onclick="view='yeni-siparis'; render();"><span class="ico"><i class="bi bi-plus-circle"></i></span><span>Yeni Sipariş</span></button>
           <button class="${activeView==='musteriler' ? 'active' : ''}" onclick="view='musteriler'; render();"><span class="ico"><i class="bi bi-building"></i></span><span>Müşteriler</span></button>
           <button class="${activeView==='tedarikciler' ? 'active' : ''}" onclick="view='tedarikciler'; render();"><span class="ico"><i class="bi bi-shop"></i></span><span>Tedarikçiler</span></button>
+          <button class="${activeView==='analitik' ? 'active' : ''}" onclick="view='analitik'; render();"><span class="ico"><i class="bi bi-graph-up-arrow"></i></span><span>Analitik</span></button>
           <button class="${activeView==='takvim' ? 'active' : ''}" onclick="view='takvim'; render();"><span class="ico"><i class="bi bi-calendar3"></i></span><span>Takvim</span></button>
         </div>
         <div class="side-group-label">Hesap</div>
