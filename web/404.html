@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><rect width=%2240%22 height=%2240%22 rx=%229%22 fill=%22%231fae70%22/></svg>">
+<title>Sayfa Bulunamadı — Tedarik Ağı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --dark-main:#0a0e1f; --green:#1fae70; --text-dim:rgba(255,255,255,.6); }
+  *{ box-sizing:border-box; }
+  body{ margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--dark-main); color:#fff;
+    font-family:'Inter',-apple-system,'Segoe UI',Roboto,sans-serif; text-align:center; padding:24px; position:relative; overflow:hidden; }
+  body::before{ content:""; position:absolute; top:-20%; left:50%; transform:translateX(-50%); width:70vw; height:70vw; max-width:800px; max-height:800px;
+    background:radial-gradient(circle, rgba(31,174,112,.16), transparent 70%); pointer-events:none; }
+  .wrap{ position:relative; z-index:1; max-width:460px; }
+  .code{ font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:15px; color:var(--green); letter-spacing:.08em; margin-bottom:18px; }
+  h1{ font-size:clamp(1.6rem,4vw,2.4rem); font-weight:600; margin:0 0 12px; line-height:1.2; }
+  p{ color:var(--text-dim); font-size:15px; line-height:1.6; margin:0 0 32px; }
+  a.btn{ display:inline-block; background:var(--green); color:#fff; text-decoration:none; font-weight:600; font-size:14px;
+    padding:12px 26px; border-radius:30px; transition:transform .15s, background .15s; }
+  a.btn:hover{ background:#18a163; transform:translateY(-1px); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="code">HATA 404</div>
+    <h1>Aradığınız sayfa bulunamadı</h1>
+    <p>Bağlantı hatalı olabilir veya sayfa taşınmış olabilir. Ana sayfaya dönerek devam edebilirsiniz.</p>
+    <a class="btn" href="/">Ana Sayfaya Dön</a>
+  </div>
+</body>
+</html>

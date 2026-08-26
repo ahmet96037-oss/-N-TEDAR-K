@@ -10,9 +10,12 @@ Sonra tarayıcıda: http://127.0.0.1:8000
 """
 import os
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exception_handlers import http_exception_handler
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from src.db import db
 from src.rule_engine import hesapla
@@ -260,6 +263,18 @@ class NoCacheStaticFiles(StaticFiles):
         resp = super().file_response(*args, **kwargs)
         resp.headers["Cache-Control"] = "no-store"
         return resp
+
+
+_NOT_FOUND_PAGE = os.path.join(STATIC_DIR, "404.html")
+
+
+@app.exception_handler(StarletteHTTPException)
+async def temali_404(request: Request, exc: StarletteHTTPException):
+    """API çağrıları hariç, bulunamayan sayfalar için markayla uyumlu 404 ekranı —
+    varsayılan Starlette düz metin hatası yerine (Faz 6: temalı hata sayfaları)."""
+    if exc.status_code == 404 and not request.url.path.startswith("/api/") and os.path.isfile(_NOT_FOUND_PAGE):
+        return FileResponse(_NOT_FOUND_PAGE, status_code=404)
+    return await http_exception_handler(request, exc)
 
 
 # Statik frontend'i kökten servis et (aynı origin, CORS derdi yok)
