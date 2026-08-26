@@ -108,29 +108,11 @@
   .gecmis-satir .not{ font-size:13.5px; color:var(--text-muted); margin-top:4px; line-height:1.5; }
   .gecmis-satir .meta{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); margin-top:6px; margin-bottom:0; }
 
-  /* ---- Auth screen: tam ekran fotoğraf + ortalanmış cam kart ---- */
-  .auth-wrap{ min-height:100vh; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; overflow:hidden; }
-  .auth-wrap .theme-toggle{ position:absolute; top:20px; right:20px; z-index:2; }
-  .auth-bg{ position:absolute; inset:0; z-index:0; }
-  .auth-bg img{ width:100%; height:100%; object-fit:cover; }
-  .auth-scrim{ position:absolute; inset:0; background:linear-gradient(175deg, rgba(9,9,11,.86) 0%, rgba(9,9,11,.78) 50%, rgba(9,9,11,.92) 100%); }
-  .auth-glass-wrap{ position:relative; z-index:1; width:100%; max-width:380px; display:flex; flex-direction:column; align-items:center; }
-  .auth-badge{ width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; margin-bottom:22px; box-shadow:0 8px 24px -8px rgba(0,0,0,.5); }
-  .auth-badge svg{ width:30px; height:30px; }
-  .auth-card{ width:100%; background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.12); border-radius:26px; box-shadow:0 24px 60px -12px rgba(0,0,0,.6); padding:36px 32px; }
-  .auth-card .badge{ display:inline-block; font-family:var(--font-code); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#c7d2ff; background:rgba(31,174,112,.18); border:1px solid rgba(31,174,112,.35); padding:3px 10px; border-radius:20px; margin-bottom:16px; }
-  .auth-card h2{ font-size:24px; margin-bottom:6px; color:#fff; }
-  .auth-card .lede{ color:rgba(255,255,255,.6); font-size:14px; margin:0 0 24px; }
-  .auth-card label{ color:rgba(255,255,255,.7); }
-  .auth-card input{ background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:#fff; }
-  .auth-card input::placeholder{ color:rgba(255,255,255,.35); }
-  .auth-card input:focus{ border-color:rgba(255,255,255,.35); background:rgba(255,255,255,.1); }
-  .auth-card .demo-box{ background:rgba(31,174,112,.16); border-color:rgba(31,174,112,.35); color:#c7d2ff; }
-  .auth-card .demo-box b{ color:#fff; }
-  .auth-card .err{ color:#ff8a8a; }
-  .auth-meta{ position:relative; z-index:1; display:flex; gap:26px; font-family:var(--font-code); font-size:11.5px; color:rgba(255,255,255,.5); margin-top:26px; flex-wrap:wrap; justify-content:center; }
-  .auth-meta b{ display:block; color:#fff; font-family:var(--font-body); font-size:14px; margin-top:3px; font-weight:700; }
-  @media (max-width:480px){ .auth-card{ padding:28px 22px; } }
+  /* ---- Auth screen: Adminator'ın gerçek split-panel auth-shell/auth-aside/auth-main/
+     auth-card sınıfları kullanılıyor (adminator.css içinde tanımlı) — burada sadece
+     .sub/.err gibi bizim eklediğimiz birkaç yardımcı sınıf var. ---- */
+  .auth-card .sub{ color:var(--t-muted); font-size:14px; margin:0 0 8px; }
+  .auth-card .err{ color:var(--danger); font-size:13px; }
 
   /* ---- App shell ---- */
   .app-shell{ display:flex; min-height:100vh; align-items:stretch; }
