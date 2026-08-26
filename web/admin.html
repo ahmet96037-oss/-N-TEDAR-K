@@ -138,25 +138,32 @@
   /* Sidebar her zaman koyu (tema modundan bağımsız) — içerik alanının açık/koyu geçişinden
      ayrı, kendi kimliği olan bir kontrast şeridi. Nellavio demo görselindeki koyu sidebar +
      açık içerik ayrımıyla aynı dil. */
-  .sidebar{ width:260px; flex:none; background:var(--sidebar-bg); border-right:1px solid rgba(255,255,255,.06); padding:22px 14px; display:flex; flex-direction:column; }
-  .brand-row{ display:flex; align-items:center; justify-content:space-between; padding:6px; margin-bottom:20px; border-radius:10px; cursor:pointer; }
+  .sidebar{ width:264px; flex:none; background:var(--sidebar-bg); border-right:1px solid rgba(255,255,255,.06); padding:20px 16px; display:flex; flex-direction:column; }
+  .brand-row{ display:flex; align-items:center; justify-content:space-between; padding:8px; margin-bottom:22px; border-radius:12px; cursor:pointer; }
   .brand-row:hover{ background:var(--sidebar-hover); }
-  .brand-row .chev{ color:var(--sidebar-text-dim); font-size:12px; }
-  .sidebar .brand{ font-family:var(--font-display); font-weight:700; font-size:14px; text-decoration:none; color:var(--sidebar-text); display:flex; align-items:center; gap:10px; }
-  .sidebar .brand svg{ width:26px; height:26px; flex:none; }
+  .brand-row .chev{ color:var(--sidebar-text-dim); font-size:12px; transition:transform .15s; }
+  .app-shell.is-collapsed .brand-row .chev{ transform:rotate(-90deg); }
+  .sidebar .brand{ font-family:var(--font-display); font-weight:700; font-size:15.5px; letter-spacing:-.01em; text-decoration:none; color:var(--sidebar-text); display:flex; align-items:center; gap:11px; }
+  .sidebar .brand svg{ width:28px; height:28px; flex:none; border-radius:8px; }
   .sidebar .brand-t{ line-height:1.25; letter-spacing:-.01em; }
   .sidebar .brand-sub{ font-family:var(--font-body); font-weight:400; font-size:11px; letter-spacing:.02em; text-transform:none; color:var(--sidebar-text-dim); }
-  .side-group-label{ font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--sidebar-text-dim); padding:0 10px; margin:18px 0 8px; }
+  .side-group-label{ font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--sidebar-text-dim); padding:0 12px; margin:22px 0 10px; }
   .side-group-label:first-of-type{ margin-top:0; }
-  .side-nav{ display:flex; flex-direction:column; gap:2px; }
-  .side-nav button{ display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:10px; font-weight:600; font-size:14px; color:var(--sidebar-text); cursor:pointer; border:none; background:none; text-align:left; width:100%; font-family:var(--font-body); transition:background .12s, color .12s; position:relative; }
-  .side-nav button:hover{ background:var(--sidebar-hover); }
-  .side-nav button.active{ background:color-mix(in srgb, var(--text) 7%, transparent); color:var(--sidebar-text); font-weight:700; }
+  .side-nav{ display:flex; flex-direction:column; gap:3px; }
+  .side-nav button{ display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; font-weight:600; font-size:14px; color:var(--sidebar-text-dim); cursor:pointer; border:none; background:none; text-align:left; width:100%; font-family:var(--font-body); transition:background .15s, color .15s; position:relative; }
+  .side-nav button:hover{ background:var(--sidebar-hover); color:var(--sidebar-text); }
+  .side-nav button:hover .ico{ color:var(--sidebar-text); }
+  .side-nav button.active{ background:color-mix(in srgb, var(--accent2) 12%, var(--sidebar-hover)); color:var(--sidebar-text); font-weight:700; }
+  /* Aktif öğede sol tarafta ince, yeşil bir vurgu çizgisi — referans dashboard'daki
+     seçili sekme göstergesiyle aynı dil, sadece renkli kutu yerine ince bir işaret. */
+  .side-nav button.active::before{ content:""; position:absolute; left:-16px; top:50%; transform:translateY(-50%);
+    width:3px; height:18px; border-radius:0 3px 3px 0; background:var(--accent2); }
   .side-nav button.active .ico{ color:var(--accent2); }
-  .side-nav .ico{ width:16px; text-align:center; flex:none; font-size:14.5px; color:var(--sidebar-text-dim); }
-  .sidebar-foot{ margin-top:auto; padding-top:14px; border-top:1px solid rgba(255,255,255,.08); }
-  .user-chip{ display:flex; align-items:center; gap:10px; padding:6px; margin-bottom:6px; }
-  .user-chip .av{ width:30px; height:30px; border-radius:50%; background:var(--accent2); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:12px; flex:none; }
+  .side-nav .ico{ width:17px; text-align:center; flex:none; font-size:15px; color:var(--sidebar-text-dim); transition:color .15s; }
+  .sidebar-foot{ margin-top:auto; padding-top:16px; border-top:1px solid rgba(255,255,255,.08); }
+  .user-chip{ display:flex; align-items:center; gap:10px; padding:8px; margin-bottom:4px; border-radius:10px; transition:background .15s; }
+  .user-chip:hover{ background:var(--sidebar-hover); }
+  .user-chip .av{ width:32px; height:32px; border-radius:50%; background:var(--accent2); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:12.5px; flex:none; box-shadow:0 0 0 2px var(--sidebar-bg), 0 0 0 3.5px color-mix(in srgb, var(--accent2) 50%, transparent); }
   .user-chip b, .user-chip > div > div:first-child{ color:var(--sidebar-text); }
   .user-chip .role{ font-size:11px; color:var(--sidebar-text-dim); }
   .sidebar-foot .linklike{ color:var(--sidebar-text-dim); }
@@ -305,6 +312,12 @@
   /* Tedarikçi ülkeleri haritası */
   .ulke-harita-grid{ display:grid; grid-template-columns:1.6fr 1fr; gap:20px; align-items:center; }
   @media (max-width:820px){ .ulke-harita-grid{ grid-template-columns:1fr; } }
+  .ulke-harita-wrap{ position:relative; }
+  .ulke-path{ cursor:pointer; transition:fill .1s, fill-opacity .1s; }
+  .ulke-path.is-hover{ fill:var(--accent2) !important; fill-opacity:1 !important; stroke:var(--text); stroke-width:1; }
+  .ulke-tooltip{ position:absolute; top:0; left:0; opacity:0; pointer-events:none; z-index:5; white-space:nowrap;
+    background:var(--text); color:var(--bg); font-size:12.5px; font-weight:600; padding:6px 11px; border-radius:8px;
+    box-shadow:0 8px 20px -6px rgba(0,0,0,.35); transition:opacity .08s; }
 
   /* Takvim */
   .takvim-hafta-etiket{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:8px; }
@@ -547,6 +560,28 @@ const ULKE_ESLESTIRME = {
   'kamboca':{en:'Cambodia',iso2:'KH'}, 'sri lanka':{en:'Sri Lanka',iso2:'LK'}, 'yunanistan':{en:'Greece',iso2:'GR'},
   'portekiz':{en:'Portugal',iso2:'PT'}, 'belçika':{en:'Belgium',iso2:'BE'}, 'belcika':{en:'Belgium',iso2:'BE'},
 };
+// Native SVG <title> tooltip'i çok küçük/gecikmeli olduğu için fare ile gezerken belirgin
+// görünsün diye özel, imleci takip eden bir tooltip kutusu kullanıyoruz.
+function ulkeHaritaTooltipGuncelle(e) {
+  const tip = document.getElementById('ulkeTooltip');
+  if (!tip) return;
+  const wrap = e.currentTarget;
+  const path = e.target.closest('.ulke-path');
+  if (!path) { tip.style.opacity = '0'; return; }
+  const rect = wrap.getBoundingClientRect();
+  tip.textContent = path.dataset.etiket;
+  tip.style.left = (e.clientX - rect.left + 14) + 'px';
+  tip.style.top = (e.clientY - rect.top + 14) + 'px';
+  tip.style.opacity = '1';
+  wrap.querySelectorAll('.ulke-path.is-hover').forEach(p => p.classList.remove('is-hover'));
+  path.classList.add('is-hover');
+}
+function ulkeHaritaTooltipGizle() {
+  const tip = document.getElementById('ulkeTooltip');
+  if (tip) tip.style.opacity = '0';
+  document.querySelectorAll('.ulke-path.is-hover').forEach(p => p.classList.remove('is-hover'));
+}
+
 function ulkeEslestir(ulkeMetni) {
   if (!ulkeMetni) return null;
   const key = ulkeMetni.trim().toLowerCase();
@@ -589,14 +624,18 @@ async function tedarikciUlkeHaritasi(rows) {
     const paths = geo.features.map(f => {
       const eslesen = ulkeSayim[f.properties.name];
       const d = geoToSvgPath(f.geometry, W, H);
-      return `<path d="${d}" fill="${eslesen ? 'var(--accent2)' : 'var(--bg-alt)'}" fill-opacity="${eslesen ? '0.85' : '1'}" stroke="var(--border)" stroke-width="0.5"><title>${f.properties.name}${eslesen ? ' — ' + eslesen.count + ' tedarikçi' : ''}</title></path>`;
+      const etiket = f.properties.name + (eslesen ? ' — ' + eslesen.count + ' tedarikçi' : '');
+      return `<path class="ulke-path" data-etiket="${etiket.replace(/"/g,'&quot;')}" d="${d}" fill="${eslesen ? 'var(--accent2)' : 'var(--bg-alt)'}" fill-opacity="${eslesen ? '0.85' : '1'}" stroke="var(--border)" stroke-width="0.5"/>`;
     }).join('');
-    mapSvg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block;">${paths}</svg>`;
+    mapSvg = `<div class="ulke-harita-wrap" onmousemove="ulkeHaritaTooltipGuncelle(event)" onmouseleave="ulkeHaritaTooltipGizle()">
+      <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block;">${paths}</svg>
+      <div class="ulke-tooltip" id="ulkeTooltip"></div>
+    </div>`;
   }
   const liste = Object.entries(ulkeSayim).sort((a, b) => b[1].count - a[1].count);
   return `<div class="panel" style="margin-bottom:16px;">
     <h2 style="font-size:15px; margin-bottom:2px;">Tedarikçi Ülkeleri</h2>
-    <p style="color:var(--text-muted); font-size:12.5px; margin:0 0 14px;">Kayıtlı tedarikçilerin bulunduğu ülkeler, gerçek veri</p>
+    <p style="color:var(--text-muted); font-size:12.5px; margin:0 0 14px;">Kayıtlı tedarikçilerin bulunduğu ülkeler, gerçek veri — üzerine gelin, ülke adını görün</p>
     <div class="ulke-harita-grid">
       <div>${mapSvg}</div>
       <div>${liste.length ? liste.map(([en, v]) => `
