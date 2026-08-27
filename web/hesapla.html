@@ -3,33 +3,34 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><rect width=%2240%22 height=%2240%22 rx=%229%22 fill=%22%23465fff%22/><ellipse cx=%2220%22 cy=%2220%22 rx=%2214%22 ry=%227%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.16%22 stroke-width=%221%22/><ellipse cx=%2220%22 cy=%2220%22 rx=%227%22 ry=%2214%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.16%22 stroke-width=%221%22/><path d=%22M9,28 C15,24 25,16 31,12%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-dasharray=%220.5 4.2%22/><circle cx=%229%22 cy=%2228%22 r=%222.6%22 fill=%22%23ffffff%22/><circle cx=%2231%22 cy=%2212%22 r=%222.6%22 fill=%22%23ffffff%22/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><rect width=%2240%22 height=%2240%22 rx=%229%22 fill=%22%231fae70%22/><ellipse cx=%2220%22 cy=%2220%22 rx=%2214%22 ry=%227%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.16%22 stroke-width=%221%22/><ellipse cx=%2220%22 cy=%2220%22 rx=%227%22 ry=%2214%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.16%22 stroke-width=%221%22/><path d=%22M9,28 C15,24 25,16 31,12%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-dasharray=%220.5 4.2%22/><circle cx=%229%22 cy=%2228%22 r=%222.6%22 fill=%22%23ffffff%22/><circle cx=%2231%22 cy=%2212%22 r=%222.6%22 fill=%22%23ffffff%22/></svg>">
 <title>GTİP Vergi Hesaplama Motoru</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+  /* Adminator'ın gerçek token değerleri (admin.html/takip.html ile birebir) — sitenin geri
+     kalanıyla tutarlı olsun diye. Eskiden bu sayfa hâlâ ilk (mavi #465fff) paletteydi. */
   :root{
-    /* Sitenin geri kalanıyla (admin/müşteri paneli, ana sayfa) birebir aynı palet */
-    --bg:#fafafa; --bg-alt:#f4f4f5; --surface:#ffffff; --text:#09090b; --text-muted:#71717a;
-    --accent:#d99a2b; --accent-ink:#a8721a; --accent2:#465fff; --accent2-ink:#3641f5;
-    --signal:#c0392b; --signal-ink:#96271b; --border:#e4e4e7;
-    --font-display: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --bg:#F0F4F8; --bg-alt:#F1F5F9; --surface:#ffffff; --text:#1E293B; --text-muted:#64748B;
+    --accent:#F59E0B; --accent-ink:#b45309; --accent2:#18915d; --accent2-ink:#137a4d;
+    --signal:#EF4444; --signal-ink:#b91c1c; --border:#E4E8EF;
+    --font-display: "Inter Tight","Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --font-body: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-    --font-mono: "IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-    --font-code: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-mono: "JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --font-code: "JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#09090b; --bg-alt:#18181b; --surface:#18181b; --text:#fafafa; --text-muted:#a1a1aa;
-      --accent:#e8b355; --accent-ink:#f3c878; --accent2:#7c90ff; --accent2-ink:#9cabff;
-      --signal:#e2725f; --signal-ink:#f0a08e; --border:#27272a;
+      --bg:#0B1120; --bg-alt:#1A2237; --surface:#141B2D; --text:#F1F5F9; --text-muted:#94A3B8;
+      --accent:#FBBF24; --accent-ink:#fbbf24; --accent2:#3db985; --accent2-ink:#5fd39f;
+      --signal:#F87171; --signal-ink:#fca5a5; --border:#222C42;
     }
   }
   :root[data-theme="dark"]{
-    --bg:#09090b; --bg-alt:#18181b; --surface:#18181b; --text:#fafafa; --text-muted:#a1a1aa;
-    --accent:#e8b355; --accent-ink:#f3c878; --accent2:#7c90ff; --accent2-ink:#9cabff;
-    --signal:#e2725f; --signal-ink:#f0a08e; --border:#27272a;
+    --bg:#0B1120; --bg-alt:#1A2237; --surface:#141B2D; --text:#F1F5F9; --text-muted:#94A3B8;
+    --accent:#FBBF24; --accent-ink:#fbbf24; --accent2:#3db985; --accent2-ink:#5fd39f;
+    --signal:#F87171; --signal-ink:#fca5a5; --border:#222C42;
   }
   *{box-sizing:border-box;}
   .theme-toggle{ display:flex; gap:2px; background:var(--bg-alt); border:1px solid var(--border); border-radius:20px; padding:3px; flex:none; }
@@ -44,7 +45,7 @@
   .stats b{ color:var(--accent-ink); font-family:var(--font-body); font-size:15px; display:block; }
 
   .search-wrap{ position:relative; }
-  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:24px; box-shadow:0 4px 16px -4px rgba(70,95,255,.06); }
+  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:24px; box-shadow:0 4px 16px -4px rgba(31,174,112,.08); }
   label{ display:block; font-family:var(--font-body); font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); margin-bottom:7px; }
   input, select{ width:100%; font-size:15px; padding:11px 12px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; }
   select{ height:44px; }
@@ -67,7 +68,7 @@
   .table-wrap table tbody tr:hover{ background:var(--bg-alt); }
   .btb-no{ font-family:var(--font-code); font-size:12px; color:var(--text-muted); }
   .btb-gtip{ font-family:var(--font-code); font-weight:600; color:var(--accent-ink); white-space:nowrap; }
-  a.btn{ display:inline-block; background:var(--accent2); color:#fff; padding:9px 18px; border-radius:24px; font-weight:600; font-size:13.5px; text-decoration:none; }
+  a.btn{ display:inline-block; background:var(--accent2); color:#fff; padding:9px 18px; border-radius:8px; font-weight:600; font-size:13.5px; text-decoration:none; }
   a.btn:hover{ background:var(--accent2-ink); }
   .result-head{ margin-bottom:20px; }
   .result-head .g{ font-family:var(--font-code); font-size:13px; font-weight:500; letter-spacing:.02em; color:var(--accent-ink); }
@@ -140,7 +141,7 @@
 <body>
 <div class="wrap">
   <div class="site-nav">
-    <a href="/" class="logo"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#465fff"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg> Tedarik Ağı</a>
+    <a href="/" class="logo"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#1fae70"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg> Tedarik Ağı</a>
     <div class="links">
       <a href="/takip.html">Sipariş Takip</a>
       <div class="theme-toggle" id="themeToggle">
