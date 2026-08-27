@@ -2,3 +2,5 @@ User-agent: *
 Allow: /
 Disallow: /admin.html
 Disallow: /api/tk/admin/
+
+Sitemap: https://cin-tedarik-sistem.vercel.app/sitemap.xml
