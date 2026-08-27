@@ -18,6 +18,9 @@
 <link href="https://cdn.jsdelivr.net/npm/jsvectormap@1.7.0/dist/jsvectormap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.7.0/dist/jsvectormap.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.7.0/dist/maps/world.js" defer></script>
+<!-- jsPDF + autotable — CSV/XLSX yanına gerçek PDF dışa aktarma (resmi evrak/rapor için) -->
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js" defer></script>
 <style>
   /* Adminator'ın mavi --primary'sini marka yeşilimize çeviriyoruz. */
   :root[data-theme="light"]{ --primary:#18915d !important; --primary-light:#1fae70 !important; --primary-dark:#137a4d !important; --primary-soft:#e9f7f0 !important; --primary-ring:rgba(31,174,112,.18) !important; }
@@ -1491,6 +1494,27 @@ function xlsxIndir(rows, alanlar, baslikMap, dosyaAdi) {
   XLSX.writeFile(wb, dosyaAdi);
 }
 
+// Gerçek PDF dışa aktarma (jsPDF + autotable) — resmi rapor/evrak için, CSV/XLSX'in yanına.
+function pdfIndir(rows, alanlar, baslikMap, baslik, dosyaAdi) {
+  if (typeof window.jspdf === 'undefined') { showToast('PDF modülü henüz yükleniyor, birazdan tekrar deneyin.', 'err'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape' });
+  doc.setFontSize(14);
+  doc.text(baslik, 14, 16);
+  doc.setFontSize(9);
+  doc.setTextColor(120);
+  doc.text(new Date().toLocaleDateString('tr-TR') + ' itibarıyla · ' + rows.length + ' kayıt', 14, 22);
+  doc.autoTable({
+    startY: 28,
+    head: [alanlar.map(a => (baslikMap && baslikMap[a]) || a)],
+    body: rows.map(r => alanlar.map(a => (r[a] === null || r[a] === undefined) ? '' : String(r[a]))),
+    styles: { fontSize: 8, cellPadding: 3 },
+    headStyles: { fillColor: [24, 145, 93] },
+    margin: { left: 14, right: 14 },
+  });
+  doc.save(dosyaAdi);
+}
+
 // ---- Bildirim zili — gerçek veri: okunmamış müşteri mesajı olan siparişler (uydurma değil).
 // Açılır menü Adminator'ın kendi .dd-wrap.is-open mekanizmasını kullanıyor (bkz. initDropdowns). ----
 function bildirimSayisi() {
@@ -1659,6 +1683,7 @@ function siparisListesiCiz() {
       <button class="btn-outline" onclick="siparisSecili.clear(); siparisListesiCiz();">Seçimi Temizle</button>
       <button class="btn-outline" onclick="siparisSecilenleriIndir('csv')">⬇ CSV</button>
       <button class="btn-outline" onclick="siparisSecilenleriIndir('xlsx')">⬇ XLSX</button>
+      <button class="btn-outline" onclick="siparisSecilenleriIndir('pdf')">⬇ PDF</button>
     </div>`;
   }
   html += '<div class="table-card"><div class="table-wrap"><table><thead><tr>'
@@ -1688,6 +1713,7 @@ function siparisListesiCiz() {
   html += `<div style="margin-top:16px; display:flex; gap:10px;">
     <button class="secondary" onclick="csvIndir(siparisRowsCache, ['siparis_no','musteri','firma','email','urun_aciklamasi','durum_adi','olusturulma'], 'siparisler.csv')">⬇ CSV</button>
     <button class="secondary" onclick="xlsxIndir(siparisRowsCache, ['siparis_no','musteri','firma','email','urun_aciklamasi','durum_adi','olusturulma'], {siparis_no:'Sipariş No', musteri:'Müşteri', firma:'Firma', email:'E-posta', urun_aciklamasi:'Ürün', durum_adi:'Durum', olusturulma:'Tarih'}, 'siparisler.xlsx')">⬇ XLSX</button>
+    <button class="secondary" onclick="pdfIndir(siparisRowsCache, ['siparis_no','musteri','firma','urun_aciklamasi','durum_adi','olusturulma'], {siparis_no:'Sipariş No', musteri:'Müşteri', firma:'Firma', urun_aciklamasi:'Ürün', durum_adi:'Durum', olusturulma:'Tarih'}, 'Siparişler', 'siparisler.pdf')">⬇ PDF</button>
   </div>`;
   kutu.innerHTML = html;
 }
@@ -1711,7 +1737,9 @@ function siparisSayfaTumunuSec(hepsi) {
 function siparisSecilenleriIndir(tip) {
   const rows = siparisRowsCache.filter(r => siparisSecili.has(r.siparis_no));
   const alanlar = ['siparis_no','musteri','firma','email','urun_aciklamasi','durum_adi','olusturulma'];
-  if (tip === 'xlsx') xlsxIndir(rows, alanlar, {siparis_no:'Sipariş No', musteri:'Müşteri', firma:'Firma', email:'E-posta', urun_aciklamasi:'Ürün', durum_adi:'Durum', olusturulma:'Tarih'}, 'secili-siparisler.xlsx');
+  const baslikMap = {siparis_no:'Sipariş No', musteri:'Müşteri', firma:'Firma', email:'E-posta', urun_aciklamasi:'Ürün', durum_adi:'Durum', olusturulma:'Tarih'};
+  if (tip === 'xlsx') xlsxIndir(rows, alanlar, baslikMap, 'secili-siparisler.xlsx');
+  else if (tip === 'pdf') pdfIndir(rows, alanlar, baslikMap, 'Seçili Siparişler', 'secili-siparisler.pdf');
   else csvIndir(rows, alanlar, 'secili-siparisler.csv');
 }
 
@@ -1746,6 +1774,7 @@ async function musterilerYukle() {
   html += `<div style="margin-top:16px; display:flex; gap:10px;">
     <button class="secondary" onclick="csvIndir(musteriRowsCache, ['ad_soyad','firma','email','telefon','siparis_sayisi'], 'musteriler.csv')">⬇ CSV</button>
     <button class="secondary" onclick="xlsxIndir(musteriRowsCache, ['ad_soyad','firma','email','telefon','siparis_sayisi'], {ad_soyad:'Ad Soyad', firma:'Firma', email:'E-posta', telefon:'Telefon', siparis_sayisi:'Sipariş Sayısı'}, 'musteriler.xlsx')">⬇ XLSX</button>
+    <button class="secondary" onclick="pdfIndir(musteriRowsCache, ['ad_soyad','firma','email','telefon','siparis_sayisi'], {ad_soyad:'Ad Soyad', firma:'Firma', email:'E-posta', telefon:'Telefon', siparis_sayisi:'Sipariş'}, 'Müşteriler', 'musteriler.pdf')">⬇ PDF</button>
   </div>`;
   main.innerHTML = html;
 }
