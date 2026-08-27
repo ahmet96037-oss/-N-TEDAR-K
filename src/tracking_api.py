@@ -1022,3 +1022,62 @@ def belge_indir(dosya_adi: str):
     if not os.path.isfile(yol):
         raise HTTPException(status_code=404, detail="Belge bulunamadı")
     return FileResponse(yol)
+
+
+# ==================== HATA İZLEME ====================
+# Üçüncü parti bir servis (Sentry vb.) kullanmadan, kendi tablomuzda hafif bir
+# istemci-taraflı hata kaydı — production'da kullanıcı bir JS/API hatasıyla
+# karşılaşırsa fark edilsin diye. Herkese açık (giriş yapmamış ziyaretçi de
+# hata bildirebilmeli) ama rate-limitli, sadece kısa metin alanları kabul eder.
+
+class HataBildirIstek(BaseModel):
+    sayfa: str | None = None
+    mesaj: str
+    yigin: str | None = None
+    sayfa_url: str | None = None
+
+
+@router.post("/hata-bildir")
+def hata_bildir(istek: HataBildirIstek, request: Request):
+    _rate_sinirla("hata_bildir:" + request.client.host, limit=20, pencere_sn=60)
+    conn = db()
+    conn.execute(
+        "INSERT INTO tk_hata_kayitlari (sayfa, mesaj, yigin, sayfa_url, tarayici) VALUES (?, ?, ?, ?, ?)",
+        (
+            (istek.sayfa or "")[:100],
+            (istek.mesaj or "")[:2000],
+            (istek.yigin or "")[:4000],
+            (istek.sayfa_url or "")[:500],
+            (request.headers.get("user-agent") or "")[:300],
+        ),
+    )
+    conn._conn.commit()
+    conn.close()
+    return {"ok": True}
+
+
+@router.get("/admin/hatalar")
+def hatalar_listesi(limit: int = 100, authorization: str = Header(None)):
+    conn, _, _ = _admin_dogrula(authorization)
+    rows = conn.execute(
+        "SELECT id, sayfa, mesaj, yigin, sayfa_url, tarayici, olusturulma FROM tk_hata_kayitlari ORDER BY olusturulma DESC LIMIT ?",
+        (limit,),
+    ).fetchall()
+    conn.close()
+    return [
+        {
+            "id": r["id"], "sayfa": r["sayfa"], "mesaj": r["mesaj"], "yigin": r["yigin"],
+            "sayfa_url": r["sayfa_url"], "tarayici": r["tarayici"],
+            "olusturulma": r["olusturulma"].isoformat() if r["olusturulma"] else None,
+        }
+        for r in rows
+    ]
+
+
+@router.delete("/admin/hatalar")
+def hatalari_temizle(authorization: str = Header(None)):
+    conn, _, _ = _admin_dogrula(authorization)
+    conn.execute("DELETE FROM tk_hata_kayitlari")
+    conn._conn.commit()
+    conn.close()
+    return {"ok": True}

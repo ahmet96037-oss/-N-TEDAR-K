@@ -437,6 +437,22 @@
   </div>
 </div>
 <script>
+// ---- Hata izleme — üçüncü parti servis yok, kendi tablomuzda hafif bir kayıt.
+// Sayfada yakalanmamış bir JS hatası veya reddedilmiş Promise olursa backend'e bildirir,
+// admin panelindeki "Hatalar" sayfasında görünür. Kullanıcı deneyimini etkilemez (sessiz, fire-and-forget). ----
+(function(){
+  function bildir(mesaj, yigin) {
+    try {
+      fetch('/api/tk/hata-bildir', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ sayfa: location.pathname, mesaj: String(mesaj).slice(0,2000), yigin: String(yigin||'').slice(0,4000), sayfa_url: location.href })
+      }).catch(() => {});
+    } catch (e) {}
+  }
+  window.addEventListener('error', (e) => { bildir(e.message, e.error && e.error.stack); });
+  window.addEventListener('unhandledrejection', (e) => { bildir('Unhandled rejection: ' + (e.reason && e.reason.message || e.reason), e.reason && e.reason.stack); });
+})();
+
 const API = '';
 let token = localStorage.getItem('tk_admin_token');
 let adminEmail = localStorage.getItem('tk_admin_email') || '';
@@ -561,6 +577,7 @@ function render() {
   else if (view === 'yeni-siparis') { document.querySelector('.main').innerHTML = yeniSiparisEkrani(); ysMusteriDropdownDoldur(); }
   else if (view === 'ayarlar') ayarlarYukle();
   else if (view === 'kullanicilar') kullaniciYonetimiEkrani();
+  else if (view === 'hatalar') hatalarYukle();
   else if (view === 'analitik') analitikYukle();
   else if (view === 'takvim') takvimYukle();
   else if (view === 'profil') profilYukle();
@@ -1028,6 +1045,7 @@ const NAV = [
 const NAV_HESAP = [
   { key: 'profil', text: 'Profil', icon: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>' },
   { key: 'kullanicilar', text: 'Kullanıcı Yönetimi', icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>', adminOnly: true },
+  { key: 'hatalar', text: 'Hatalar', icon: '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/>', adminOnly: true },
   { key: 'ayarlar', text: 'Ayarlar', icon: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>' },
 ];
 const BRAND_LOGO = `<svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#1fae70"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg>`;
@@ -1202,6 +1220,41 @@ function benimRolum() {
 function canEdit() { return benimRolum() !== 'viewer'; }
 function canManageUsers() { return benimRolum() === 'admin'; }
 const ROL_ETIKET = { admin: 'Yönetici', editor: 'Editör', viewer: 'Görüntüleyici' };
+
+// ---- Hatalar — sayfalarda yakalanan JS hataları/reddedilen promise'lar, kendi tablomuzda.
+// Üçüncü parti servis yok; sessizce toplanıp burada listeleniyor. ----
+async function hatalarYukle() {
+  const main = document.querySelector('.main');
+  if (!canManageUsers()) {
+    main.innerHTML = `<div class="empty-state"><i class="bi bi-shield-lock" style="font-size:28px; display:block; margin-bottom:10px; opacity:.5;"></i>
+      <b>Erişim Reddedildi</b><p style="margin-top:6px;">Bu sayfayı yalnızca Yönetici rolündeki kullanıcılar görebilir.</p></div>`;
+    return;
+  }
+  main.innerHTML = '<div class="empty-state">Yükleniyor…</div>';
+  const res = await fetch(API + '/api/tk/admin/hatalar', {headers:{'Authorization':'Bearer '+token}});
+  if (res.status === 401) { cikisYap(); return; }
+  const rows = await res.json();
+  main.innerHTML = `<div class="breadcrumb">Hesap <i class="bi bi-chevron-right"></i> Hatalar</div>
+  <div class="page-head">
+    <div><h1>Hatalar</h1><p>${rows.length} kayıtlı hata — sitede/panelde yakalanan JS hataları ve reddedilen promise'lar, gerçek veri.</p></div>
+    ${rows.length ? `<button class="btn-outline" onclick="hatalariTemizle()"><i class="bi bi-trash"></i> Tümünü Temizle</button>` : ''}
+  </div>
+  ${rows.length === 0 ? '<div class="empty-state">Harika — hiç hata kaydı yok.</div>' : rows.map(h => `
+    <div class="panel" style="margin-bottom:10px;">
+      <div style="display:flex; justify-content:space-between; gap:12px; align-items:flex-start; margin-bottom:6px;">
+        <b style="color:var(--bad); font-size:13.5px;">${(h.mesaj || '').replace(/</g,'&lt;')}</b>
+        <span style="color:var(--text-muted); font-size:11.5px; white-space:nowrap;">${new Date(h.olusturulma).toLocaleString('tr-TR')}</span>
+      </div>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">${h.sayfa_url || h.sayfa || ''}</div>
+      ${h.yigin ? `<pre style="font-family:var(--font-code); font-size:11px; color:var(--text-muted); background:var(--bg-alt); padding:8px 10px; border-radius:8px; overflow-x:auto; margin:6px 0 0; white-space:pre-wrap;">${h.yigin.replace(/</g,'&lt;')}</pre>` : ''}
+    </div>`).join('')}`;
+}
+async function hatalariTemizle() {
+  if (!confirm('Tüm hata kayıtları silinecek, emin misiniz?')) return;
+  await fetch(API + '/api/tk/admin/hatalar', {method:'DELETE', headers:{'Authorization':'Bearer '+token}});
+  showToast('Hata kayıtları temizlendi.', 'ok');
+  hatalarYukle();
+}
 
 function kullaniciYonetimiEkrani() {
   const main = document.querySelector('.main');

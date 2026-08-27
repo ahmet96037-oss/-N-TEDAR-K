@@ -393,6 +393,22 @@
 </div>
 
 <script>
+// ---- Hata izleme — üçüncü parti servis yok, kendi tablomuzda hafif bir kayıt.
+// Sayfada yakalanmamış bir JS hatası veya reddedilmiş Promise olursa backend'e bildirir,
+// admin panelindeki "Hatalar" sayfasında görünür. Kullanıcı deneyimini etkilemez (sessiz, fire-and-forget). ----
+(function(){
+  function bildir(mesaj, yigin) {
+    try {
+      fetch('/api/tk/hata-bildir', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ sayfa: location.pathname, mesaj: String(mesaj).slice(0,2000), yigin: String(yigin||'').slice(0,4000), sayfa_url: location.href })
+      }).catch(() => {});
+    } catch (e) {}
+  }
+  window.addEventListener('error', (e) => { bildir(e.message, e.error && e.error.stack); });
+  window.addEventListener('unhandledrejection', (e) => { bildir('Unhandled rejection: ' + (e.reason && e.reason.message || e.reason), e.reason && e.reason.stack); });
+})();
+
 const API = '';
 function showToast(msg, type) {
   type = type || 'info';

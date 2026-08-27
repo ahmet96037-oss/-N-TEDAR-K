@@ -27,6 +27,32 @@ app = FastAPI(title="Çin Tedarik Ağı — Vergi Motoru + Takip Sistemi")
 app.include_router(tracking_router)
 
 
+@app.on_event("startup")
+def _sema_hazirla():
+    """Hata izleme tablosunu idempotent şekilde oluşturur — DATABASE_URL'ye buradan (yerel
+    ortamdan) erişimimiz olmadığı için elle migration çalıştırmak yerine, uygulama her
+    başladığında (Vercel soğuk başlangıcında dahil) CREATE TABLE IF NOT EXISTS çalıştırıyoruz.
+    Zararsız: tablo zaten varsa hiçbir şey yapmaz."""
+    try:
+        conn = db()
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS tk_hata_kayitlari (
+                id SERIAL PRIMARY KEY,
+                sayfa TEXT,
+                mesaj TEXT,
+                yigin TEXT,
+                sayfa_url TEXT,
+                tarayici TEXT,
+                olusturulma TIMESTAMPTZ DEFAULT now()
+            )"""
+        )
+        conn.close()
+    except Exception:
+        # Şema hazırlığı başarısız olsa bile uygulamanın geri kalanı çalışmaya devam etsin —
+        # hata izleme ikincil bir özellik, ana işlevselliği bloklamamalı.
+        pass
+
+
 def norm_code(raw: str) -> str:
     digits = "".join(ch for ch in raw if ch.isdigit())
     return digits.ljust(12, "0")[:12]
