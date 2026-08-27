@@ -222,6 +222,15 @@
   .cmdk-item.is-active .ico{ color:var(--accent2); }
   .cmdk-empty{ padding:26px 18px; text-align:center; color:var(--text-muted); font-size:13px; }
 
+  /* Belge önizleme modalı */
+  .belge-onizle-overlay{ position:fixed; inset:0; background:rgba(9,9,11,.6); z-index:9998; display:flex; align-items:center; justify-content:center; padding:24px; opacity:0; pointer-events:none; transition:opacity .15s; }
+  .belge-onizle-overlay.is-open{ opacity:1; pointer-events:auto; }
+  .belge-onizle-box{ width:100%; max-width:820px; height:85vh; background:var(--surface); border-radius:16px; box-shadow:0 30px 70px -12px rgba(0,0,0,.5); overflow:hidden; display:flex; flex-direction:column; }
+  .belge-onizle-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); font-weight:700; font-size:14px; flex:none; }
+  .belge-onizle-body{ flex:1; overflow:auto; background:var(--bg-alt); display:flex; align-items:center; justify-content:center; }
+  .belge-onizle-body img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .belge-onizle-body iframe{ width:100%; height:100%; border:none; }
+
   .panel-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:22px; flex-wrap:wrap; }
   /* shadcn admin dashboard referansındaki stat kartlarıyla birebir: ikon+etiket
      başlık satırı, büyük rakam, alt açıklama, alt satırda "Detaylar" linki. */
@@ -411,6 +420,17 @@
       <span class="kbd">Esc</span>
     </div>
     <div class="cmdk-list" id="cmdkList"></div>
+  </div>
+</div>
+<!-- Belge önizleme modalı — önceden sadece "İndir" linki vardı, PDF/resim açmak için yeni
+     sekmeye gidip geri dönmek gerekiyordu. Artık resimler ve PDF'ler panelin içinde açılıyor. -->
+<div class="belge-onizle-overlay" id="belgeOnizleOverlay" onclick="if(event.target===this) belgeOnizleKapat()">
+  <div class="belge-onizle-box">
+    <div class="belge-onizle-head">
+      <span id="belgeOnizleBaslik"></span>
+      <button class="icon-btn" onclick="belgeOnizleKapat()" aria-label="Kapat"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="belge-onizle-body" id="belgeOnizleBody"></div>
   </div>
 </div>
 <script>
@@ -1487,6 +1507,31 @@ function bildirimIcerikDoldur() {
         <div class="dd-body"><div class="dd-text"><strong>${r.siparis_no}</strong> için ${r.okunmamis_mesaj} okunmamış mesaj</div><div class="dd-time">${r.musteri || ''}</div></div>
       </a>`).join('') : '<div style="padding:20px; text-align:center; color:var(--text-muted); font-size:12.5px;">Yeni bildirim yok.</div>'}</div>`;
 }
+// ---- Belge önizleme — resim/PDF'ler yeni sekmeye gitmeden panel içinde açılır ----
+function belgeOnizlenebilirMi(url) {
+  return /\.(jpe?g|png|gif|webp|pdf)(\?|#|$)/i.test((url || '').split('/').pop());
+}
+function belgeOnizle(url, ad) {
+  const overlay = document.getElementById('belgeOnizleOverlay');
+  const body = document.getElementById('belgeOnizleBody');
+  document.getElementById('belgeOnizleBaslik').textContent = ad || 'Belge';
+  const uzanti = (url.split('.').pop() || '').split(/[?#]/)[0].toLowerCase();
+  if (['jpg','jpeg','png','gif','webp'].includes(uzanti)) {
+    body.innerHTML = `<img src="${url}" alt="${ad || ''}">`;
+  } else if (uzanti === 'pdf') {
+    body.innerHTML = `<iframe src="${url}" title="${ad || 'PDF'}"></iframe>`;
+  } else {
+    body.innerHTML = `<p style="padding:20px; color:var(--text-muted);">Bu dosya türü önizlenemiyor — indirin.</p>`;
+  }
+  overlay.classList.add('is-open');
+}
+function belgeOnizleKapat() {
+  const overlay = document.getElementById('belgeOnizleOverlay');
+  overlay.classList.remove('is-open');
+  setTimeout(() => { document.getElementById('belgeOnizleBody').innerHTML = ''; }, 200);
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') belgeOnizleKapat(); });
+
 function kopyala(metin, event) {
   navigator.clipboard.writeText(metin);
   const el = event.target;
@@ -2005,7 +2050,7 @@ async function detayYukle(siparisNo) {
     </div>
     <div class="panel">
       <h2>Mevcut Belgeler</h2>
-      ${d.belgeler.length ? d.belgeler.map(b => `<div class="liste-satir"><div><div class="liste-baslik">${b.dosya_adi}</div><div class="liste-alt">${b.belge_tipi}${b.yukleyen_email ? ' · ' + b.yukleyen_email : ''}</div></div><a href="${b.dosya_url}" target="_blank" style="color:var(--accent-ink); font-weight:600; font-size:13px; text-decoration:none;">İndir →</a></div>`).join('') : '<span style="color:var(--text-muted); font-size:14px;">Henüz belge yok.</span>'}
+      ${d.belgeler.length ? d.belgeler.map(b => `<div class="liste-satir"><div><div class="liste-baslik">${b.dosya_adi}</div><div class="liste-alt">${b.belge_tipi}${b.yukleyen_email ? ' · ' + b.yukleyen_email : ''}</div></div><div style="display:flex; gap:14px; align-items:center;">${belgeOnizlenebilirMi(b.dosya_url) ? `<a href="javascript:void(0)" onclick='belgeOnizle(${JSON.stringify(b.dosya_url)}, ${JSON.stringify(b.dosya_adi)})' style="color:var(--text-muted); font-weight:600; font-size:13px; text-decoration:none;">Görüntüle</a>` : ''}<a href="${b.dosya_url}" target="_blank" style="color:var(--accent-ink); font-weight:600; font-size:13px; text-decoration:none;">İndir →</a></div></div>`).join('') : '<span style="color:var(--text-muted); font-size:14px;">Henüz belge yok.</span>'}
     </div>
     <div class="panel">
       <h2>Durum Geçmişi</h2>
