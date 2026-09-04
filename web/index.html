@@ -216,10 +216,11 @@
   .map-pin.is-shown{ transform:translate(-50%,-50%) scale(1); opacity:1; }
   .map-pin::after{ content:""; width:10px; height:10px; border-radius:50%; background:var(--green); border:2.5px solid #fff; box-sizing:border-box;
     box-shadow:0 0 12px 2px rgba(31,174,112,.8); }
-  /* Zoom grubu içinde olduğu için scale ile büyüyor — küçük tutulmalı, yoksa yakınlaşınca tüm haritayı kaplıyor */
-  .map-region-glow{ position:absolute; width:34px; height:34px; border-radius:50%; transform:translate(-50%,-50%) scale(0);
-    background:radial-gradient(circle, rgba(31,174,112,.55) 0%, rgba(31,174,112,.1) 60%, transparent 78%);
-    transition:transform .5s cubic-bezier(.34,1.2,.64,1), opacity .4s; opacity:0; pointer-events:none; }
+  /* Zoom grubu içinde olduğu için scale ile büyüyor — ülke vurgusu için daha büyük, parlak glow */
+  .map-region-glow{ position:absolute; width:70px; height:70px; border-radius:50%; transform:translate(-50%,-50%) scale(0);
+    background:radial-gradient(circle, rgba(31,174,112,.7) 0%, rgba(31,174,112,.3) 40%, rgba(31,174,112,.05) 70%, transparent 85%);
+    transition:transform .5s cubic-bezier(.34,1.2,.64,1), opacity .4s; opacity:0; pointer-events:none;
+    box-shadow: 0 0 30px 8px rgba(31,174,112,.4), 0 0 60px 15px rgba(31,174,112,.15); }
   .map-region-glow.is-active{ transform:translate(-50%,-50%) scale(1); opacity:1; }
   .map-region-label{ position:absolute; transform:translate(-50%,-100%) scale(.3125); transform-origin:50% 100%; margin-top:-40px; font-family:'IBM Plex Mono',monospace;
     font-size:11px; color:#fff; background:rgba(10,14,31,.9); padding:4px 10px; border-radius:20px; white-space:nowrap;
@@ -235,9 +236,15 @@
   .footprint-map-img path{ transition:fill .5s ease; }
   /* Normal hal: referans --map:#2d2d42 tonu zaten SVG'nin kendi fill'inde gömülü.
      Vurgulanmış (noktalı işaretli) hal: Çin/Türkiye stage'inde ilgili ülke yeşile döner + nokta deseni. */
-  /* Tüm ülke düz yeşile boyanmasın diye — hafif yarı saydam dolgu + belirgin parlak kontur */
+  /* Ülkelerin "cerceveleme" (frame) — hafif dolgu + kalın parlak kontur + glow efekti */
+  .footprint-map-img .country-china,
+  .footprint-map-img .country-turkey{ transition:fill .5s ease, stroke .5s ease, filter .5s ease; }
   .footprint-map-img .country-china.is-marked,
-  .footprint-map-img .country-turkey.is-marked{ fill:var(--green); fill-opacity:.22; stroke:var(--green); stroke-width:1.4; }
+  .footprint-map-img .country-turkey.is-marked{
+    fill:var(--green); fill-opacity:.18;
+    stroke:var(--green); stroke-width:3.5; stroke-linejoin:round; stroke-linecap:round;
+    filter: drop-shadow(0 0 8px rgba(31,174,112,.8)) drop-shadow(0 0 15px rgba(31,174,112,.4));
+  }
   .map-dot.is-shown{ transform:translate(-50%,-50%) scale(1); animation:dotpulse 2.6s infinite; }
   .map-dot.is-focus{ width:9px; height:9px; opacity:1; }
   @keyframes dotpulse{ 0%{ box-shadow:0 0 0 0 rgba(31,174,112,.55);} 70%{ box-shadow:0 0 0 9px rgba(31,174,112,0);} 100%{ box-shadow:0 0 0 0 rgba(31,174,112,0);} }
@@ -292,35 +299,6 @@
 
   /* Final CTA — referans .text-size-* h1 seviyesinde büyük (~56px), .mw-690 desc */
   /* Quick Access — mouse hareketiyle beliren grid arka planı (spotlight/mask efekti) */
-  /* Paketler — eski sitedeki gerçek, uydurma olmayan 3 paket (sadece Başlangıç sabit fiyatlı, diğerleri
-     gerçekten görüşmeye yönlendiriyor), bu tasarım sistemine (Manrope, glassmorphism, yeşil vurgu) uyarlandı. */
-  .pricing{ background:var(--dark-main); padding:var(--sp-140) 0; }
-  .pricing-head{ text-align:center; max-width:38rem; margin:0 auto var(--sp-40); }
-  .pricing-head .eyebrow{ font-size:15px; font-weight:600; color:var(--green); margin-bottom:14px; }
-  .pricing-head h2{ font-size:clamp(1.8rem,4vw,var(--fs-44)); font-weight:500; margin-bottom:14px; }
-  .pricing-head p{ color:var(--text-dim); font-size:var(--fs-16); }
-
-  .pricing-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; align-items:stretch; }
-  @media (max-width:900px){ .pricing-row{ display:flex; grid-template-columns:none; overflow-x:auto; overflow-y:hidden; gap:16px; padding:6px 4px 10px;
-    scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; touch-action:pan-x pan-y; align-items:stretch; }
-    .pricing-row .pricing-card{ flex:none; width:84vw; max-width:340px; scroll-snap-align:center; } }
-  .pricing-card{ position:relative; background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:20px;
-    backdrop-filter:blur(1.5rem); padding:2.25rem 2rem; display:flex; flex-direction:column; text-align:left; transition:border-color .25s, transform .25s; }
-  .pricing-card:hover{ transform:translateY(-4px); border-color:rgba(255,255,255,.25); }
-  .pricing-card.is-popular{ border-color:var(--green); box-shadow:0 0 0 1px var(--green), 0 24px 50px -18px rgba(31,174,112,.4); }
-  .pricing-card.is-popular:hover{ border-color:var(--green); }
-  .pricing-badge{ position:absolute; top:-13px; right:28px; background:var(--green); color:#fff; font-size:11px; font-weight:700;
-    text-transform:uppercase; letter-spacing:.04em; padding:5px 14px; border-radius:20px; }
-  .pricing-name{ font-size:22px; font-weight:600; letter-spacing:-.01em; margin-bottom:8px; }
-  .pricing-desc{ font-size:14px; color:var(--text-dim); min-height:42px; line-height:1.55; margin-bottom:24px; }
-  .pricing-price{ font-family:'Manrope',sans-serif; font-weight:700; font-size:34px; letter-spacing:-.01em; line-height:1; margin-bottom:10px; }
-  .pricing-price .per{ font-size:14px; font-weight:500; color:var(--text-faint); margin-left:3px; }
-  .pricing-note{ font-size:13px; color:var(--text-faint); line-height:1.55; margin-bottom:0; min-height:34px; }
-  .pricing-feats{ margin-top:auto; padding-top:22px; border-top:1px solid var(--line); font-size:14px; color:var(--text-dim); display:flex; flex-direction:column; gap:11px; }
-  .pricing-feats .no{ color:var(--text-faint); opacity:.55; }
-  .pricing-feats .yes::before{ content:"✓ "; color:var(--green); font-weight:700; }
-  .pricing-feats .no::before{ content:"– "; }
-  .pricing-card .btn{ width:100%; margin-top:24px; font-size:14.5px; }
 
   .quickaccess{ position:relative; padding:var(--sp-140) 0; text-align:center; overflow:hidden; background:var(--dark-main); }
   /* Sönük çizgiler yerine: parlak, ışıltılı çizgiler + kesişim noktalarında yıldız gibi parlayan noktalar */
@@ -372,14 +350,6 @@
   .case-card h3{ font-size:22px; font-weight:600; line-height:1.2; }
 
   .cta{ padding:var(--sp-140) 0; text-align:center; position:relative; overflow:hidden; }
-  .cta-lines, .footer-lines{ position:absolute; inset:0; z-index:0; width:100%; height:100%; pointer-events:none; }
-  .cta-lines .rl, .footer-lines .rl{ fill:none; stroke:rgba(255,255,255,.14); stroke-width:1.5; }
-  /* Sürekli akan ışık — stroke-dasharray + dashoffset animasyonu ile yol boyunca durmadan hareket ediyor */
-  .cta-lines .rg, .footer-lines .rg{ fill:none; stroke:var(--green); stroke-width:2.5; stroke-linecap:round;
-    stroke-dasharray:26 220; filter:drop-shadow(0 0 6px rgba(31,174,112,.9)); animation:road-flow 4.5s linear infinite; }
-  .cta-lines .rg.is-rev, .footer-lines .rg.is-rev{ animation-direction:reverse; animation-duration:5.5s; }
-  @keyframes road-flow{ to{ stroke-dashoffset:-492; } }
-  @media (prefers-reduced-motion: reduce){ .cta-lines .rg, .footer-lines .rg{ animation:none; stroke-dasharray:none; } }
   .cta-bg{ position:absolute; inset:0; z-index:0; }
   .cta-bg video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:brightness(.5) saturate(.85); }
   .cta-scrim{ position:absolute; inset:0; background:linear-gradient(180deg, var(--dark-main) 0%, rgba(10,14,31,.75) 40%, rgba(10,14,31,.75) 60%, var(--dark-main) 100%); }
@@ -390,8 +360,6 @@
 
   /* Footer — referans .footer_body: 1fr / 50.625rem sütun, .footer_item 3 kolon */
   .footer{ border-top:1px solid var(--line); padding:20px 0 60px; position:relative; overflow:hidden; }
-  /* İnce dekoratif çizgiler — referanstaki gibi arka planda, kendi tasarımımız (kopya değil) */
-  .footer-deco{ position:absolute; inset:0; pointer-events:none; opacity:.5; z-index:0; }
   .footer .wrap{ position:relative; z-index:1; }
   .footer-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:40px; flex-wrap:wrap; margin-bottom:56px; }
   .footer-brand-block{ display:flex; flex-direction:column; gap:10px; }
@@ -424,7 +392,6 @@
   <div class="menu-links">
     <a href="#neden-biz">Neden Biz</a>
     <a href="#surec">Süreç</a>
-    <a href="#paketler">Paketler</a>
     <a href="/hesapla.html">Vergi Hesaplama</a>
     <a href="/takip.html">Müşteri Girişi</a>
   </div>
@@ -645,63 +612,6 @@
   </div>
 </section>
 
-<section class="pricing">
-  <div class="wrap">
-    <div class="pricing-head reveal">
-      <p class="eyebrow">Paketler</p>
-      <h2>İhtiyacınız Kadar Kapsam</h2>
-      <p>Üç paket de panelinizdeki gerçek süreç fazlarına birebir karşılık gelir — sistemde gördüğünüz aşamaların ta kendisi.</p>
-    </div>
-    <div class="pricing-row reveal-stagger">
-      <div class="pricing-card">
-        <p class="pricing-name">Başlangıç</p>
-        <p class="pricing-desc">Ürünü ve fabrikayı bulup fiyatlandırmak isteyenler için.</p>
-        <div class="pricing-price">$300<span class="per">'den başlar</span></div>
-        <p class="pricing-note">Tek seferlik hizmet bedeli — kesin fiyat ürün/hacme göre görüşme sonrası netleşir.</p>
-        <a href="/takip.html#rfq" class="btn btn-ghost">Talep Oluştur</a>
-        <div class="pricing-feats">
-          <span class="yes">Ürün araştırması</span>
-          <span class="yes">Uygun fabrika eşleştirme</span>
-          <span class="yes">Karşılaştırmalı fiyat teklifi</span>
-          <span class="yes">Canlı takip paneli erişimi</span>
-          <span class="no">Numune, üretim, sevkiyat, gümrük</span>
-        </div>
-      </div>
-      <div class="pricing-card is-popular">
-        <div class="pricing-badge">Popüler</div>
-        <p class="pricing-name">Profesyonel</p>
-        <p class="pricing-desc">Numune onaylayıp üretime geçecek, düzenli sipariş verenler için.</p>
-        <div class="pricing-price" style="font-size:22px;">İletişime Geçin</div>
-        <p class="pricing-note">Ürün, miktar ve üretim hacmine göre teklif hazırlanır.</p>
-        <a href="/takip.html#rfq" class="btn btn-primary">Teklif İsteyin</a>
-        <div class="pricing-feats">
-          <span class="yes">Başlangıç paketinin tamamı</span>
-          <span class="yes">Numune üretimi ve getirilmesi</span>
-          <span class="yes">Ürün tedariği ve anlaşmaları</span>
-          <span class="yes">Üretim süreci takibi</span>
-          <span class="yes">Anlaşmalı nakliye fiyatları</span>
-          <span class="no">Sevkiyat, gümrük, teslimat yönetimi</span>
-        </div>
-      </div>
-      <div class="pricing-card">
-        <p class="pricing-name">Kurumsal</p>
-        <p class="pricing-desc">Hiçbir şeyle uğraşmadan anahtar teslim çözüm isteyenler için.</p>
-        <div class="pricing-price" style="font-size:22px;">İletişime Geçin</div>
-        <p class="pricing-note">Kapsam ve hacme özel, anlaşmalı fiyatlandırma.</p>
-        <a href="/takip.html#rfq" class="btn btn-ghost">Teklif İsteyin</a>
-        <div class="pricing-feats">
-          <span class="yes">Profesyonel paketinin tamamı</span>
-          <span class="yes">Sevkiyat organizasyonu</span>
-          <span class="yes">Türkiye'deki gümrük işlemleri</span>
-          <span class="yes">Tüm ithalat evrakı ve beyanname</span>
-          <span class="yes">Fabrikadan kapınıza teslimat</span>
-          <span class="yes">Tüm süreç canlı panelde</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <section class="quickaccess" id="quickAccess">
   <div class="quickaccess-grid" id="quickAccessGrid"></div>
   <div class="wrap">
@@ -721,11 +631,6 @@
     </video>
     <div class="cta-scrim"></div>
   </div>
-  <!-- Referanstaki gibi dekoratif "rota" çizgisi — beyaz ince yol, üzerinde sürekli akan yeşil ışık -->
-  <svg class="cta-lines" viewBox="0 0 1440 620" preserveAspectRatio="none" aria-hidden="true">
-    <path class="rl" d="M -20,60 L 260,60 Q 320,60 320,120 L 320,340 Q 320,400 380,400 L 1180,400 Q 1240,400 1240,340 L 1240,80 Q 1240,20 1300,20 L 1460,20"/>
-    <path class="rg" d="M -20,60 L 260,60 Q 320,60 320,120 L 320,340 Q 320,400 380,400 L 1180,400 Q 1240,400 1240,340 L 1240,80 Q 1240,20 1300,20 L 1460,20"/>
-  </svg>
   <div class="wrap reveal">
     <h2>İşinizi Bir Sonraki Aşamaya Taşıyalım</h2>
     <p>İster tek seferlik bir sipariş, ister düzenli tedarik ihtiyacınız olsun — ekibimiz uçtan uca yönetmeye hazır.</p>
@@ -841,10 +746,43 @@
   // Footprint — TEK gerçek dünya haritası (ülke sınırlarıyla), scroll ilerledikçe bölgeye ZOOM yapılıyor.
   // Tüm noktalar aynı equirectangular projeksiyonla hesaplandı: x%=(lng+180)/360*100, y%=(90-lat)/180*100
   // — böylece harita hiç değişmeden, sadece kamera yakınlaşarak Çin ve Türkiye şehirlerine odaklanabiliyor.
-  // Referanstaki gibi az sayıda (6), büyük "radar" pin — ana operasyon merkezlerimiz (gerçek koordinatlar)
+  // Dünyada 56+ şehir, 40+ ülkede hizmet — tedarik merkezi Çin (zoom), varış noktası Türkiye (zoom)
+  // Scroll ilerledikçe harita bölgeye zooms, glow'lar büyüyor, SVG ülke sınırları vurgulanıyor
   const HUB_PINS = [
-    {x:83.74,y:32.65,label:'Şangay'}, {x:81.68,y:37.48,label:'Şenzhen'}, {x:58.05,y:27.22,label:'İstanbul'},
-    {x:51.24,y:21.16,label:'Rotterdam'}, {x:65.35,y:36.00,label:'Dubai'}, {x:17.16,y:31.08,label:'Los Angeles'},
+    // Çin (ana tedarik)
+    {x:83.74,y:32.65,label:'Şangay'}, {x:81.68,y:37.48,label:'Şenzhen'}, {x:81.71,y:37.60,label:'Hong Kong'},
+
+    // Asya-Pasifik
+    {x:88.79,y:30.18,label:'Tokyo'}, {x:85.27,y:29.13,label:'Seul'}, {x:78.84,y:49.25,label:'Singapur'},
+    {x:77.92,y:42.36,label:'Bangkok'}, {x:79.40,y:38.32,label:'Hanoi'}, {x:79.64,y:44.01,label:'Ho Chi Minh'},
+    {x:83.61,y:41.89,label:'Manila'}, {x:79.68,y:46.55,label:'Jakarta'}, {x:78.25,y:48.26,label:'Kuala Lumpur'},
+    {x:72.44,y:46.15,label:'Colombo'},
+
+    // Güney Asya
+    {x:68.61,y:36.19,label:'Karaçi'}, {x:70.24,y:39.40,label:'Mumbai'}, {x:71.42,y:34.05,label:'Yeni Delhi'},
+    {x:71.55,y:42.79,label:'Bangalore'}, {x:72.30,y:42.73,label:'Chennai'},
+
+    // Orta Doğu & Afrika
+    {x:65.35,y:36.00,label:'Dubai'}, {x:60.88,y:38.03,label:'Cidde'}, {x:64.31,y:35.95,label:'Doha'},
+    {x:65.10,y:36.41,label:'Abu Dabi'}, {x:58.31,y:32.67,label:'İskenderiye'}, {x:58.97,y:32.63,label:'Port Said'},
+    {x:48.38,y:30.13,label:'Tanger'}, {x:50.94,y:46.38,label:'Lagos'}, {x:61.02,y:52.25,label:'Mombasa'},
+    {x:55.12,y:68.85,label:'Kapstadt'},
+
+    // Avrupa (Türkiye çevreleri)
+    {x:58.05,y:27.22,label:'İstanbul'}, {x:56.59,y:28.90,label:'Atina'}, {x:49.96,y:21.38,label:'Londra'},
+    {x:52.78,y:20.25,label:'Hamburg'}, {x:51.24,y:21.15,label:'Rotterdam'}, {x:51.22,y:21.54,label:'Antwerp'},
+    {x:50.60,y:27.01,label:'Barcelona'}, {x:48.97,y:27.55,label:'Madrid'}, {x:50.65,y:22.86,label:'Paris'},
+    {x:52.55,y:24.74,label:'Milano'}, {x:53.42,y:24.76,label:'Venedik'}, {x:51.34,y:24.58,label:'Lyon'},
+    {x:51.36,y:20.91,label:'Amsterdam'}, {x:51.21,y:21.75,label:'Brüksel'}, {x:47.46,y:28.49,label:'Lizbon'},
+
+    // Rusya & Avrasya
+    {x:60.45,y:19.02,label:'Moskova'}, {x:58.43,y:16.70,label:'St. Petersburg'},
+
+    // Amerika
+    {x:17.15,y:31.08,label:'Los Angeles'}, {x:29.44,y:27.38,label:'New York'}, {x:25.66,y:26.73,label:'Chicago'},
+    {x:23.51,y:33.47,label:'Houston'}, {x:27.72,y:35.69,label:'Miami'}, {x:15.80,y:22.62,label:'Vancouver'},
+    {x:22.46,y:39.20,label:'Mexico City'}, {x:37.13,y:63.31,label:'Santos'}, {x:33.78,y:69.22,label:'Buenos Aires'},
+    {x:28.60,y:56.69,label:'Lima'}, {x:38.01,y:62.73,label:'Rio de Janeiro'},
   ];
   // Çin ve Türkiye için hassas pin yerine tek büyük, affedici "bölge vurgusu" (glow) — küçük koordinat
   // sapmaları görünmez kalır; gerçek şehir isimleri zaten yandaki bilgi kartında yazılı.
@@ -900,9 +838,9 @@
     const titleEl = document.getElementById('footprintTitle');
     const descEl = document.getElementById('footprintDesc');
     const STAGE_TEXT = [
-      { t: 'Küresel Tedarik Ağı', d: 'Scroll ettikçe harita dünyadan Çin\'deki tedarik merkezlerine, oradan Türkiye gümrüklerine yakınlaşır' },
-      { t: 'Çin — Tedarik Merkezleri', d: 'Fabrika ve üretim bölgelerimizin yoğunlaştığı gerçek şehirler' },
-      { t: 'Türkiye — Varış Noktaları', d: 'Malın gümrükten çekilip teslim edildiği gerçek şehirler' },
+      { t: '56+ Ülkede Tedarik Ağı', d: 'Dünyanın 56+ ülkesinde gümrük ve lojistik hizmetleri sağlıyoruz. Çin\'den başlayan tedarik yolculuğu Türkiye\'ye ulaşıyor, her adımda profesyonel destek ile.' },
+      { t: 'Çin — Tedarik Merkezleri', d: 'Şangay, Şenzhen, Hong Kong ve daha 20+ şehirde fabrika eşleştirmesi, kalite kontrolü ve üretim takibi' },
+      { t: 'Türkiye — Varış Noktaları', d: 'İstanbul, Atina ve Avrupa\'dan entegre gümrük çözümleri — malınız kapınıza güvenli teslim' },
     ];
     let currentStage = -1;
     function setStage(stage) {
