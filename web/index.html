@@ -888,9 +888,9 @@
       if (chinaMark) { chinaMark.label.classList.toggle('is-active', stage === 1); }
       if (turkeyMark) { turkeyMark.label.classList.toggle('is-active', stage === 2); }
 
-      // SVG ülke sınırları: glow yok, sadece stroke vurgusu
-      if (chinaPath) chinaPath.classList.toggle('is-marked', stage === 1);
-      if (turkeyPath) turkeyPath.classList.toggle('is-marked', stage === 2);
+      // SVG ülke sınırları: TAMAMEN gizle — sadece pin'ler göster
+      if (chinaPath) chinaPath.classList.toggle('is-marked', false);
+      if (turkeyPath) turkeyPath.classList.toggle('is-marked', false);
     }
     // Konum her scroll karesinde getBoundingClientRect ile YENİDEN ölçülüyor (kendi kendini
     // düzeltir — sayfa yüksekliği font/görsel geç yüklenince değişse bile harita şaşırıp
