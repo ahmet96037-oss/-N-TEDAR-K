@@ -747,43 +747,50 @@
   // Footprint — TEK gerçek dünya haritası (ülke sınırlarıyla), scroll ilerledikçe bölgeye ZOOM yapılıyor.
   // Tüm noktalar aynı equirectangular projeksiyonla hesaplandı: x%=(lng+180)/360*100, y%=(90-lat)/180*100
   // — böylece harita hiç değişmeden, sadece kamera yakınlaşarak Çin ve Türkiye şehirlerine odaklanabiliyor.
-  // Dünyada 56+ şehir, 40+ ülkede hizmet — tedarik merkezi Çin (zoom), varış noktası Türkiye (zoom)
-  // Scroll ilerledikçe harita bölgeye zooms, glow'lar büyüyor, SVG ülke sınırları vurgulanıyor
-  const HUB_PINS = [
-    // Çin (ana tedarik)
+  // Stage-specific pins: Global (56), Çin (10), Türkiye (5)
+  const GLOBAL_PINS = [
+    // Çin
     {x:83.74,y:32.65,label:'Şangay'}, {x:81.68,y:37.48,label:'Şenzhen'}, {x:81.71,y:37.60,label:'Hong Kong'},
-
     // Asya-Pasifik
     {x:88.79,y:30.18,label:'Tokyo'}, {x:85.27,y:29.13,label:'Seul'}, {x:78.84,y:49.25,label:'Singapur'},
     {x:77.92,y:42.36,label:'Bangkok'}, {x:79.40,y:38.32,label:'Hanoi'}, {x:79.64,y:44.01,label:'Ho Chi Minh'},
     {x:83.61,y:41.89,label:'Manila'}, {x:79.68,y:46.55,label:'Jakarta'}, {x:78.25,y:48.26,label:'Kuala Lumpur'},
     {x:72.44,y:46.15,label:'Colombo'},
-
     // Güney Asya
     {x:68.61,y:36.19,label:'Karaçi'}, {x:70.24,y:39.40,label:'Mumbai'}, {x:71.42,y:34.05,label:'Yeni Delhi'},
     {x:71.55,y:42.79,label:'Bangalore'}, {x:72.30,y:42.73,label:'Chennai'},
-
     // Orta Doğu & Afrika
     {x:65.35,y:36.00,label:'Dubai'}, {x:60.88,y:38.03,label:'Cidde'}, {x:64.31,y:35.95,label:'Doha'},
     {x:65.10,y:36.41,label:'Abu Dabi'}, {x:58.31,y:32.67,label:'İskenderiye'}, {x:58.97,y:32.63,label:'Port Said'},
     {x:48.38,y:30.13,label:'Tanger'}, {x:50.94,y:46.38,label:'Lagos'}, {x:61.02,y:52.25,label:'Mombasa'},
     {x:55.12,y:68.85,label:'Kapstadt'},
-
     // Avrupa (Türkiye çevreleri)
     {x:58.05,y:27.22,label:'İstanbul'}, {x:56.59,y:28.90,label:'Atina'}, {x:49.96,y:21.38,label:'Londra'},
     {x:52.78,y:20.25,label:'Hamburg'}, {x:51.24,y:21.15,label:'Rotterdam'}, {x:51.22,y:21.54,label:'Antwerp'},
     {x:50.60,y:27.01,label:'Barcelona'}, {x:48.97,y:27.55,label:'Madrid'}, {x:50.65,y:22.86,label:'Paris'},
     {x:52.55,y:24.74,label:'Milano'}, {x:53.42,y:24.76,label:'Venedik'}, {x:51.34,y:24.58,label:'Lyon'},
     {x:51.36,y:20.91,label:'Amsterdam'}, {x:51.21,y:21.75,label:'Brüksel'}, {x:47.46,y:28.49,label:'Lizbon'},
-
     // Rusya & Avrasya
     {x:60.45,y:19.02,label:'Moskova'}, {x:58.43,y:16.70,label:'St. Petersburg'},
-
     // Amerika
     {x:17.15,y:31.08,label:'Los Angeles'}, {x:29.44,y:27.38,label:'New York'}, {x:25.66,y:26.73,label:'Chicago'},
     {x:23.51,y:33.47,label:'Houston'}, {x:27.72,y:35.69,label:'Miami'}, {x:15.80,y:22.62,label:'Vancouver'},
     {x:22.46,y:39.20,label:'Mexico City'}, {x:37.13,y:63.31,label:'Santos'}, {x:33.78,y:69.22,label:'Buenos Aires'},
     {x:28.60,y:56.69,label:'Lima'}, {x:38.01,y:62.73,label:'Rio de Janeiro'},
+  ];
+
+  // Stage 1: Çin (10 şehir)
+  const CHINA_PINS = [
+    {x:83.74,y:32.65,label:'Şangay'}, {x:81.68,y:37.48,label:'Şenzhen'}, {x:81.71,y:37.60,label:'Hong Kong'},
+    {x:81.46,y:37.15,label:'Guangzhou'}, {x:82.34,y:27.83,label:'Pekin'}, {x:81.75,y:33.00,label:'Wuhan'},
+    {x:79.70,y:33.65,label:'Chongqing'}, {x:80.26,y:30.92,label:'Xi\'an'}, {x:83.38,y:33.18,label:'Hangzhou'},
+    {x:83.78,y:28.38,label:'Dalian'},
+  ];
+
+  // Stage 2: Türkiye (5 liman)
+  const TURKEY_PINS = [
+    {x:58.05,y:27.22,label:'İstanbul'}, {x:57.54,y:28.65,label:'İzmir'}, {x:59.62,y:29.57,label:'Mersin'},
+    {x:58.53,y:29.50,label:'Antalya'}, {x:59.81,y:27.06,label:'Samsun'},
   ];
   // Çin ve Türkiye için hassas pin yerine tek büyük, affedici "bölge vurgusu" (glow) — küçük koordinat
   // sapmaları görünmez kalır; gerçek şehir isimleri zaten yandaki bilgi kartında yazılı.
@@ -794,16 +801,25 @@
   const mapImg = document.getElementById('footprintZoomGroup');
   const mapImgHolder = document.getElementById('footprintMapImg');
   const worldDots = [];
-  if (mapWrap) {
-    HUB_PINS.forEach(d => {
+  const chinaDots = [];
+  const turkeyDots = [];
+
+  // Pin'leri stage'e göre gruplayarak oluştur
+  function createPins(pinsArray, targetArray) {
+    if (!mapWrap) return;
+    pinsArray.forEach(d => {
       const s = document.createElement('span');
       s.className = 'map-pin is-shown';
       s.style.left = d.x + '%'; s.style.top = d.y + '%';
       s.title = d.label;
       mapWrap.appendChild(s);
-      worldDots.push(s);
+      targetArray.push(s);
     });
   }
+
+  createPins(GLOBAL_PINS, worldDots);
+  createPins(CHINA_PINS, chinaDots);
+  createPins(TURKEY_PINS, turkeyDots);
   function makeRegionGlow(center) {
     const glow = document.createElement('div');
     glow.className = 'map-region-glow';
@@ -863,11 +879,16 @@
         mapImg.style.transformOrigin = TURKEY_CENTER.x + '% ' + TURKEY_CENTER.y + '%';
         mapImg.style.transform = 'scale(3.2)';
       }
+      // Stage göre pin'leri göster/gizle: Global, Çin, veya Türkiye
       worldDots.forEach(d => d.style.opacity = stage === 0 ? '.85' : '0');
-      // Glow'ları gizle, sadece SVG ülke sınırları vurgulanacak — temiz çerçeveleme
-      if (chinaMark) { chinaMark.glow.classList.toggle('is-active', false); chinaMark.label.classList.toggle('is-active', stage === 1); }
-      if (turkeyMark) { turkeyMark.glow.classList.toggle('is-active', false); turkeyMark.label.classList.toggle('is-active', stage === 2); }
-      // Çin/Türkiye path'lerini normal ↔ vurgulanmış (yeşil, noktalı işaretli) hale geçir
+      chinaDots.forEach(d => d.style.opacity = stage === 1 ? '.85' : '0');
+      turkeyDots.forEach(d => d.style.opacity = stage === 2 ? '.85' : '0');
+
+      // Label'ları göster (ülke isimleri)
+      if (chinaMark) { chinaMark.label.classList.toggle('is-active', stage === 1); }
+      if (turkeyMark) { turkeyMark.label.classList.toggle('is-active', stage === 2); }
+
+      // SVG ülke sınırları: glow yok, sadece stroke vurgusu
       if (chinaPath) chinaPath.classList.toggle('is-marked', stage === 1);
       if (turkeyPath) turkeyPath.classList.toggle('is-marked', stage === 2);
     }
