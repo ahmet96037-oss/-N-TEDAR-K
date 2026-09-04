@@ -864,8 +864,9 @@
         mapImg.style.transform = 'scale(3.2)';
       }
       worldDots.forEach(d => d.style.opacity = stage === 0 ? '.85' : '0');
+      // Glow'ları sadece zoom'da göster, stage 2'de gizle (SVG sınırı yeterli)
       if (chinaMark) { chinaMark.glow.classList.toggle('is-active', stage === 1); chinaMark.label.classList.toggle('is-active', stage === 1); }
-      if (turkeyMark) { turkeyMark.glow.classList.toggle('is-active', stage === 2); turkeyMark.label.classList.toggle('is-active', stage === 2); }
+      if (turkeyMark) { turkeyMark.glow.classList.toggle('is-active', false); turkeyMark.label.classList.toggle('is-active', stage === 2); }
       // Çin/Türkiye path'lerini normal ↔ vurgulanmış (yeşil, noktalı işaretli) hale geçir
       if (chinaPath) chinaPath.classList.toggle('is-marked', stage === 1);
       if (turkeyPath) turkeyPath.classList.toggle('is-marked', stage === 2);
