@@ -372,6 +372,42 @@
   .footer-col a{ display:block; font-size:14px; color:#fff; text-decoration:none; margin-bottom:10px; opacity:.85; }
   .footer-col a:hover{ opacity:1; color:var(--green); }
   .footer-bottom{ font-size:13px; color:var(--text-faint); border-top:1px solid var(--line); padding-top:24px; }
+
+  /* COMPARISON TABLE */
+  .comparison{ background:var(--dark-main); padding:var(--sp-140) 0; }
+  .comparison-head{ text-align:center; max-width:45rem; margin:0 auto var(--sp-60); }
+  .comparison-head h2{ font-size:clamp(1.8rem,4vw,var(--fs-44)); font-weight:500; margin-bottom:12px; }
+  .comparison-head p{ color:var(--text-dim); font-size:var(--fs-16); }
+  .comparison-table{ border:1px solid var(--glass-border); border-radius:12px; overflow:hidden; }
+  .comparison-row{ display:grid; grid-template-columns:1.5fr repeat(4,1fr); border-bottom:1px solid var(--glass-border); }
+  .comparison-row:last-child{ border-bottom:none; }
+  .comparison-row.header{ background:var(--green); color:#fff; font-weight:600; }
+  .comparison-row.header .col-name, .comparison-row.header .col{ padding:16px 14px; font-size:13px; }
+  .comparison-row .col-name{ padding:16px 20px; font-weight:500; font-size:14px; }
+  .comparison-row .col{ padding:16px 14px; text-align:center; font-size:15px; }
+  .comparison-row .col.highlighted{ background:rgba(31,174,112,.08); font-weight:600; color:var(--green); }
+  .comparison-note{ text-align:center; font-size:12px; color:var(--text-faint); margin-top:24px; }
+  @media (max-width:900px){ .comparison-row{ grid-template-columns:1fr 1fr; } .comparison-row.header{ display:none; } .comparison-row .col-name::before{ content:attr(data-label); font-weight:600; display:block; font-size:11px; margin-bottom:8px; } }
+
+  /* RISK vs REWARD */
+  .risk-reward{ background:var(--dark-main); padding:var(--sp-140) 0; border-top:1px solid var(--line); }
+  .risk-reward-head{ text-align:center; max-width:50rem; margin:0 auto var(--sp-80); }
+  .risk-reward-head h2{ font-size:clamp(1.8rem,4vw,var(--fs-44)); font-weight:500; margin-bottom:20px; }
+  .risk-reward-head p{ color:var(--text-dim); font-size:var(--fs-16); }
+  .risk-reward-cards{ display:grid; grid-template-columns:1fr 1fr; gap:32px; }
+  .risk-card, .reward-card{ border-radius:16px; backdrop-filter:blur(1.5rem); padding:2.5rem; display:flex; flex-direction:column; }
+  .risk-card{ background:rgba(220,53,69,.06); border:1px solid rgba(220,53,69,.2); }
+  .reward-card{ background:rgba(31,174,112,.06); border:1px solid rgba(31,174,112,.2); }
+  .risk-card-header, .reward-card-header{ font-weight:600; font-size:18px; margin-bottom:24px; }
+  .risk-card-header{ color:#dc3545; }
+  .reward-card-header{ color:var(--green); }
+  .risk-card-list, .reward-card-list{ display:flex; flex-direction:column; gap:14px; }
+  .risk-item, .reward-item{ font-size:14px; line-height:1.5; padding-left:24px; position:relative; }
+  .risk-item::before{ content:'✕'; position:absolute; left:0; color:#dc3545; font-weight:700; }
+  .reward-item::before{ content:'✓'; position:absolute; left:0; color:var(--green); font-weight:700; }
+  .risk-item{ color:var(--text-dim); }
+  .reward-item{ color:var(--text-dim); }
+  @media (max-width:900px){ .risk-reward-cards{ grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
@@ -501,6 +537,87 @@
     </div>
   </div>
 </section>
+
+<!-- COMPARISON TABLE -->
+<section class="comparison">
+  <div class="wrap">
+    <div class="comparison-head">
+      <p class="eyebrow">Neden Tedarik Ağı</p>
+      <h2>Diğer Yöntemlerden Farkımız</h2>
+    </div>
+
+    <div class="comparison-table">
+      <div class="comparison-row header">
+        <div class="col-name">Hizmet</div>
+        <div class="col">Kendi Tedariki</div>
+        <div class="col">Sourcing Ajansı</div>
+        <div class="col">Genel Gümrük Müşaviri</div>
+        <div class="col highlighted">Tedarik Ağı</div>
+      </div>
+      <div class="comparison-row">
+        <div class="col-name">Fabrika bulma & eşleştirme</div>
+        <div class="col">✓</div><div class="col">✓</div><div class="col">—</div><div class="col highlighted">✓</div>
+      </div>
+      <div class="comparison-row">
+        <div class="col-name">Yerinde numune & kalite kontrolü</div>
+        <div class="col">◐</div><div class="col">◐</div><div class="col">—</div><div class="col highlighted">✓</div>
+      </div>
+      <div class="comparison-row">
+        <div class="col-name">7/24 canlı sipariş takip paneli</div>
+        <div class="col">—</div><div class="col">—</div><div class="col">—</div><div class="col highlighted">✓</div>
+      </div>
+      <div class="comparison-row">
+        <div class="col-name">GTİP & vergi hesaplama</div>
+        <div class="col">—</div><div class="col">—</div><div class="col">◐</div><div class="col highlighted">✓</div>
+      </div>
+      <div class="comparison-row">
+        <div class="col-name">Gümrük süreci yönetimi</div>
+        <div class="col">—</div><div class="col">—</div><div class="col">✓</div><div class="col highlighted">✓</div>
+      </div>
+      <div class="comparison-row">
+        <div class="col-name">Tek ekip, tek sorumluluk</div>
+        <div class="col">—</div><div class="col">—</div><div class="col">—</div><div class="col highlighted">✓</div>
+      </div>
+    </div>
+    <p class="comparison-note">✓ = Tam destek | ◐ = Sınırlı destek | — = Yok</p>
+  </div>
+</section>
+
+<!-- RISK vs REWARD: Danışmanlık Mantığı -->
+<section class="risk-reward">
+  <div class="wrap">
+    <div class="risk-reward-head">
+      <p class="eyebrow">İthalat Yönetimi</p>
+      <h2>Danışmanlık: Gider mi, Sigorta mı?</h2>
+      <p>Yanlış kararlar pahalıya mal olur. Tedarik Ağı'nın uzman desteği, potansiyel zararları önler.</p>
+    </div>
+
+    <div class="risk-reward-cards">
+      <div class="risk-card">
+        <div class="risk-card-header">⚠ Danışmansız İthalat</div>
+        <div class="risk-card-list">
+          <div class="risk-item">Yanlış fabrika seçiminde kapasite/kalite sorunları</div>
+          <div class="risk-item">Kalite sorunu, konteyner limana varınca fark edilir</div>
+          <div class="risk-item">Yanlış GTİP beyannamesinde vergi ve mevzuat riskleri</div>
+          <div class="risk-item">Sorunun sorumlusu belirsizdir: fabrika mı, forwarder mı?</div>
+          <div class="risk-item">Hızlı çözüm olmadığı için zaman ve para kaybı</div>
+        </div>
+      </div>
+
+      <div class="reward-card">
+        <div class="reward-card-header">✓ Tedarik Ağı ile İthalat</div>
+        <div class="reward-card-list">
+          <div class="reward-item">Fabrika, üretime geçmeden önce yerinde doğrulanır</div>
+          <div class="reward-item">Numune ve seri üretim fotoğrafla onaylanır</div>
+          <div class="reward-item">7/24 panel izlemesi — sorun çıkarsa hemen müdahale</div>
+          <div class="reward-item">GTİP ve vergi, yola çıkmadan hesaplanır — sürpriz yok</div>
+          <div class="reward-item">Fabrikadan kapınıza: tek ekip, tek sorumluluk</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
 <section class="solutions">
   <div class="wrap">
