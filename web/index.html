@@ -484,8 +484,8 @@
   <div class="wrap">
     <div class="about-top">
       <div class="about-left">
-        <p class="about-label">Hakkımızda</p>
-        <p class="about-desc">Fabrika görüşmesinden gümrük teslimatına kadar süreci kendi ekibimizle yürütür, her aşamayı yazılı olarak raporlarız.</p>
+        <p class="about-label"><span data-i18n="about_title">Hakkımızda</span></p>
+        <p class="about-desc"><span data-i18n="about_desc1">Fabrika görüşmesinden gümrük teslimatına kadar süreci kendi ekibimizle yürütür</span>, her aşamayı yazılı olarak raporlarız.</p>
       </div>
       <div class="about-claim reveal">
         <h2>Fabrikayı seçmekten konteyneri gümrükten çekmeye kadar <b>tek bir ekiple</b>, tek panelden yönetilen ithalat süreci.</h2>
@@ -714,7 +714,7 @@
     <div class="cases-head reveal">
       <div>
         <p class="cases-eyebrow"><span data-i18n="case_title">Hizmet Kategorilerimiz</span></p>
-        <h2>Sürecin Her Aşamasında<br>Gerçek Destek</h2>
+        <h2><span data-i18n="cases_subtitle">Sürecin Her Aşamasında</span><br>Gerçek Destek</h2>
       </div>
       <a href="#surec" class="btn btn-primary" style="background:var(--green); color:#fff;">Tüm Süreci İnceleyin</a>
     </div>
@@ -799,7 +799,7 @@
         </div>
         <div class="footer-col">
           <div class="footer-col-label"><span data-i18n="footer_contact">Şirket</span></div>
-          <a href="#neden-biz">Hakkımızda</a>
+          <a href="#neden-biz"><span data-i18n="about_title">Hakkımızda</span></a>
           <a href="#footprintMap">Operasyonel Yayılım</a>
           <a href="/takip.html"><span data-i18n="nav_track">Müşteri Girişi</span></a>
           <a href="/admin.html">Admin</a>
@@ -977,7 +977,7 @@
     const descEl = document.getElementById('footprintDesc');
     const STAGE_TEXT = [
       { t: '56+ Ülkede Tedarik Ağı', d: 'Dünyanın 56+ ülkesinde gümrük ve lojistik hizmetleri sağlıyoruz. Çin\'den başlayan tedarik yolculuğu Türkiye\'ye ulaşıyor, her adımda profesyonel destek ile.' },
-      { t: 'Çin — Tedarik Merkezleri', d: 'Şangay, Şenzhen, Hong Kong ve daha 20+ şehirde fabrika eşleştirmesi, kalite kontrolü ve üretim takibi' },
+      { t: 'Çin — Tedarik Merkezleri', d: '<span data-i18n="china_desc">Şangay, Şenzhen, Hong Kong ve daha 20+ şehirde</span> fabrika eşleştirmesi, kalite kontrolü ve üretim takibi' },
       { t: 'Türkiye — Varış Noktaları', d: 'İstanbul, Atina ve Avrupa\'dan entegre gümrük çözümleri — malınız kapınıza güvenli teslim' },
     ];
     let currentStage = -1;
