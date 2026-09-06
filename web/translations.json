@@ -60,7 +60,17 @@
     "reward_2": "Numune ve seri üretim fotoğrafla onaylanır",
     "reward_3": "7/24 panel izlemesi — sorun çıkarsa hemen müdahale",
     "reward_4": "GTİP ve vergi, yola çıkmadan hesaplanır — sürpriz yok",
-    "reward_5": "Fabrikadan kapınıza: tek ekip, tek sorumluluk"
+    "reward_5": "Fabrikadan kapınıza: tek ekip, tek sorumluluk",
+    "case_title": "Müşteri Başarı Hikayeleri",
+    "cta_title": "Hemen Başlayalım",
+    "cta_subtitle": "Talebinizi paylaşın, uygun tedarikçi ile hemen bağlantı kuralım.",
+    "footer_brand": "Tedarik Ağı — İthalat İhracat ve Gümrük Danışmanlığı",
+    "footer_quick": "Hızlı Erişim",
+    "footer_why": "Neden Biz",
+    "footer_tax": "Vergi Hesaplama",
+    "footer_tracking": "Takip Paneli",
+    "footer_contact": "İletişim",
+    "footer_email": "info@tedarikagi.com"
   },
   "en": {
     "nav_logo": "Supply Network",
@@ -123,7 +133,17 @@
     "reward_2": "Sample and series production approved with photos",
     "reward_3": "24/7 dashboard monitoring—immediate intervention if issues arise",
     "reward_4": "HS codes and taxes calculated before shipment—no surprises",
-    "reward_5": "Factory to your door: one team, one responsibility"
+    "reward_5": "Factory to your door: one team, one responsibility",
+    "case_title": "Customer Success Stories",
+    "cta_title": "Get Started Now",
+    "cta_subtitle": "Share your requirements, connect with the right supplier immediately.",
+    "footer_brand": "Supply Network — Import Export & Customs Consulting",
+    "footer_quick": "Quick Access",
+    "footer_why": "Why Us",
+    "footer_tax": "Tax Calculator",
+    "footer_tracking": "Tracking Panel",
+    "footer_contact": "Contact",
+    "footer_email": "info@supplynetwork.com"
   },
   "zh": {
     "nav_logo": "供应网络",
@@ -186,7 +206,17 @@
     "reward_2": "样品和系列生产用照片批准",
     "reward_3": "24/7 仪表板监控—出现问题立即干预",
     "reward_4": "HS编码和税务在装运前计算—无惊喜",
-    "reward_5": "从工厂到门口：一个团队，一份责任"
+    "reward_5": "从工厂到门口：一个团队，一份责任",
+    "case_title": "客户成功故事",
+    "cta_title": "立即开始",
+    "cta_subtitle": "分享您的需求，立即与合适的供应商联系。",
+    "footer_brand": "供应网络 — 进口出口和海关咨询",
+    "footer_quick": "快速访问",
+    "footer_why": "为什么选择我们",
+    "footer_tax": "税务计算器",
+    "footer_tracking": "追踪面板",
+    "footer_contact": "联系",
+    "footer_email": "info@supplynetwork.cn"
   },
   "de": {
     "nav_logo": "Versorgungsnetz",
@@ -221,7 +251,7 @@
     "solution_5_desc": "Unser Expertenteam verwaltet Zollabfertigung, Dokumentation und Regulierungsprozesse.",
     "solution_6": "HS-Code und Steuerberechnung",
     "solution_6_desc": "Berechnen Sie HS-Codes, Mehrwertsteuer, Zusatzsteuern und Schutzmaßnahmen auf Basis offizieller Quellen.",
-    "more_info": "Mehr Infos",
+    "more_info": "Weitere Informationen",
     "calc_tool": "Taschenrechner öffnen",
     "comparison_eyebrow": "Warum Versorgungsnetz",
     "comparison_title": "Unsere Unterschiede",
@@ -249,7 +279,17 @@
     "reward_2": "Muster und Serienproduktion mit Fotos genehmigt",
     "reward_3": "24/7 Dashboard-Überwachung—sofortige Intervention bei Problemen",
     "reward_4": "HS-Codes und Steuern werden vor dem Versand berechnet—keine Überraschungen",
-    "reward_5": "Von der Fabrik zu Ihrer Tür: ein Team, eine Verantwortung"
+    "reward_5": "Von der Fabrik zu Ihrer Tür: ein Team, eine Verantwortung",
+    "case_title": "Kundenerfolggeschichten",
+    "cta_title": "Jetzt Anfangen",
+    "cta_subtitle": "Teilen Sie Ihre Anforderungen, verbinden Sie sich sofort mit dem richtigen Lieferanten.",
+    "footer_brand": "Versorgungsnetz — Import-Export- und Zollberatung",
+    "footer_quick": "Schnellzugriff",
+    "footer_why": "Warum Wir",
+    "footer_tax": "Steuerrechner",
+    "footer_tracking": "Verfolgungsbereich",
+    "footer_contact": "Kontakt",
+    "footer_email": "info@versorgungsnetz.de"
   },
   "it": {
     "nav_logo": "Rete di Fornitura",
@@ -312,7 +352,17 @@
     "reward_2": "Campioni e produzione in serie approvati con foto",
     "reward_3": "Monitoraggio dashboard 24/7—intervento immediato se sorgono problemi",
     "reward_4": "Codici HS e tasse calcolati prima della spedizione—nessuna sorpresa",
-    "reward_5": "Dalla fabbrica alla tua porta: un team, una responsabilità"
+    "reward_5": "Dalla fabbrica alla tua porta: un team, una responsabilità",
+    "case_title": "Storie di Successo dei Clienti",
+    "cta_title": "Inizia Subito",
+    "cta_subtitle": "Condividi i tuoi requisiti, connettiti immediatamente con il fornitore giusto.",
+    "footer_brand": "Rete di Fornitura — Consulenza Import-Export e Doganale",
+    "footer_quick": "Accesso Rapido",
+    "footer_why": "Perché Noi",
+    "footer_tax": "Calcolatore Fiscale",
+    "footer_tracking": "Pannello di Tracciamento",
+    "footer_contact": "Contatti",
+    "footer_email": "info@retefornitura.it"
   },
   "ar": {
     "nav_logo": "شبكة التوريد",
@@ -375,6 +425,16 @@
     "reward_2": "الموافقة على العينة والإنتاج المسلسل مع الصور",
     "reward_3": "مراقبة لوحة التحكم 24/7 - تدخل فوري في حالة حدوث مشاكل",
     "reward_4": "تحسب رموز HS والضرائب قبل الشحن - لا مفاجآت",
-    "reward_5": "من المصنع إلى باب منزلك: فريق واحد مسؤولية واحدة"
+    "reward_5": "من المصنع إلى باب منزلك: فريق واحد مسؤولية واحدة",
+    "case_title": "قصص نجاح العملاء",
+    "cta_title": "ابدأ الآن",
+    "cta_subtitle": "شارك متطلباتك وتواصل مع الموردين المناسبين على الفور.",
+    "footer_brand": "شبكة التوريد — استشارات الاستيراد والتصدير والجمارك",
+    "footer_quick": "الوصول السريع",
+    "footer_why": "لماذا نحن",
+    "footer_tax": "حاسبة الضرائب",
+    "footer_tracking": "لوحة التتبع",
+    "footer_contact": "اتصل",
+    "footer_email": "info@supplynetwork.ar"
   }
 }
