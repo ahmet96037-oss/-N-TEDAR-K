@@ -89,6 +89,12 @@
   .nav-logo{ font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:16px; letter-spacing:.02em; text-decoration:none;
     display:flex; align-items:center; gap:9px; text-transform:uppercase; height:24px; }
   .nav-logo svg{ flex:none; }
+  /* Logo koyu lacivert yazılı + beyaz zeminli — koyu navbar'da erimemesi için arkasına
+     hafif beyaz "chip" panel konuyor, logonun kendi renkleri bozulmuyor. */
+  .logo-chip{ background:#fff; border-radius:10px; padding:6px 12px; display:inline-flex; align-items:center;
+    box-shadow:0 2px 10px rgba(0,0,0,.18); }
+  .logo-chip img{ display:block; height:28px; width:auto; }
+  @media (max-width:767px){ .logo-chip img{ height:22px; } .logo-chip{ padding:5px 9px; border-radius:8px; } }
 
   .nav-actions{ display:flex; align-items:center; gap:10px; }
   .nav-quote-link{ font-size:13px; font-weight:600; text-decoration:none; color:#fff; opacity:.75; transition:opacity .2s, color .2s; }
@@ -425,12 +431,7 @@
 
 <nav class="nav" id="mainNav">
   <a href="/" class="nav-logo">
-    <svg width="140" height="40" viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
-      <text x="5" y="35" font-size="38" font-weight="900" font-family="Arial, sans-serif" fill="#1a1f3a">ROUTEX</text>
-      <text x="5" y="60" font-size="16" font-weight="700" font-family="Arial, sans-serif" fill="#1a1f3a" letter-spacing="2">GLOBAL</text>
-      <rect x="200" y="15" width="80" height="80" rx="12" ry="12" fill="#FF5722"/>
-      <text x="240" y="75" font-size="70" font-weight="900" font-family="Arial, sans-serif" fill="#fff" text-anchor="middle">X</text>
-    </svg>
+    <span class="logo-chip"><img src="/assets/logo/routex-logo.png" alt="RouteX Global"></span>
   </a>
   <div class="nav-actions">
     <div class="lang-selector" id="langSelector">
@@ -683,7 +684,7 @@
         <div class="col"><span data-i18n="comp_self">Kendi Tedariki</span></div>
         <div class="col"><span data-i18n="comp_sourcing">Sourcing Ajansı</span></div>
         <div class="col"><span data-i18n="comp_customs">Genel Gümrük Müşaviri</span></div>
-        <div class="col highlighted" style="display:flex; align-items:center; justify-content:center; gap:6px;"><svg width="70" height="24" viewBox="0 0 300 100" style="flex-shrink:0;" xmlns="http://www.w3.org/2000/svg"><text x="5" y="32" font-size="30" font-weight="900" font-family="Arial, sans-serif" fill="#FF5722">ROUTEX</text><rect x="180" y="8" width="60" height="60" rx="8" ry="8" fill="#FF5722"/><text x="210" y="58" font-size="50" font-weight="900" font-family="Arial, sans-serif" fill="#fff" text-anchor="middle">X</text></svg></div>
+        <div class="col highlighted" style="display:flex; align-items:center; justify-content:center;"><span class="logo-chip" style="padding:4px 8px;"><img src="/assets/logo/routex-logo.png" alt="RouteX Global" style="height:18px;"></span></div>
       </div>
       <div class="comparison-row">
         <div class="col-name"><span data-i18n="comp_1">Fabrika bulma & eşleştirme</span></div>
@@ -789,9 +790,8 @@
   <div class="wrap">
     <div class="footer-top reveal">
       <div class="footer-brand-block">
-        <a href="/" class="nav-logo" style="margin-bottom:6px;">
-          <svg width="24" height="24" viewBox="0 0 40 40"><rect width="40" height="40" rx="9" fill="#1fae70"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.3"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.3"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/></svg>
-          Tedarik Ağı
+        <a href="/" class="nav-logo" style="margin-bottom:12px;">
+          <span class="logo-chip"><img src="/assets/logo/routex-logo.png" alt="RouteX Global"></span>
         </a>
         <p><span data-i18n="footer_subtitle">İthalat, tedarik ve gümrük danışmanlığı</span><br><span data-i18n="footer_subtitle">Çin–Türkiye tedarik zinciri yönetimi</span></p>
       </div>
