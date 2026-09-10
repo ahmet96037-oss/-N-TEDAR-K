@@ -119,6 +119,11 @@
      kare kutu; yatay logomuz için ayrı kural. */
   .auth-brand-routex{ width:auto; height:auto; background:none; border:none; padding:0; }
   .auth-brand-routex img{ display:block; height:40px; width:auto; }
+  /* Sol panel: adminator.css'in mor-yeşil marka gradient'i RouteX'in kendi renkleriyle
+     (turuncu+lacivert) çakışıyordu; sade koyu zemine çevrildi, logo tek başına ortada. */
+  .auth-aside-routex{ background:#0a0e1f !important; display:flex; flex-direction:column; }
+  .auth-aside-routex .auth-brand-routex{ flex:1; display:flex; align-items:center; justify-content:center; }
+  .auth-aside-routex .auth-brand-routex img{ height:64px; }
   .side-group-label{ font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--sidebar-text-dim); padding:0 12px; margin:22px 0 10px; }
   .side-group-label:first-of-type{ margin-top:0; }
   .side-nav{ display:flex; flex-direction:column; gap:3px; }
@@ -542,13 +547,8 @@ function authShell(innerHtml) {
   // Adminator'ın gerçek split-panel auth tasarımı — admin paneliyle birebir aynı.
   return `
     <div class="auth-shell">
-      <aside class="auth-aside">
+      <aside class="auth-aside auth-aside-routex">
         <div class="auth-brand auth-brand-routex">${BRAND_LOGO}</div>
-        <div class="auth-aside-body">
-          <span class="auth-aside-eyebrow">Müşteri Paneli</span>
-          <h1>Siparişinizin her aşamasını canlı takip edin.</h1>
-          <p>Fabrika eşleştirmeden gümrük teslimatına — belgeleriniz, süreç geçmişiniz ve mesajlarınız tek panelde.</p>
-        </div>
         <div class="auth-aside-footer">
           <span>© 2026 RouteX Global</span>
           <span>CANLI TAKİP · YERİNDE QC</span>

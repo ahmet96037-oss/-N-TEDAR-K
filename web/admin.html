@@ -144,6 +144,11 @@
      için tasarlanmış sabit kare kutu (36x36px), bizim yatay logomuz onu ezerdi;
      kendi görsel için ayrı bir kural. */
   .auth-brand-routex{ width:auto; height:auto; background:none; border:none; padding:0; }
+  /* Sol panel: adminator.css'in mor-yeşil marka gradient'i RouteX'in kendi renkleriyle
+     (turuncu+lacivert) çakışıyordu; sade koyu zemine çevrildi, logo tek başına ortada. */
+  .auth-aside-routex{ background:#0a0e1f !important; display:flex; flex-direction:column; }
+  .auth-aside-routex .auth-brand-routex{ flex:1; display:flex; align-items:center; justify-content:center; }
+  .auth-aside-routex .auth-brand-routex img{ height:64px; }
   .auth-brand-routex img{ display:block; height:40px; width:auto; }
   .side-group-label{ font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--sidebar-text-dim); padding:0 12px; margin:22px 0 10px; }
   .side-group-label:first-of-type{ margin-top:0; }
@@ -1016,13 +1021,8 @@ function authShell(innerHtml) {
   // gerisi (auth-shell/auth-aside/auth-main/auth-card/field/input-icon/check) birebir.
   return `
     <div class="auth-shell">
-      <aside class="auth-aside">
+      <aside class="auth-aside auth-aside-routex">
         <div class="auth-brand auth-brand-routex">${BRAND_LOGO}</div>
-        <div class="auth-aside-body">
-          <span class="auth-aside-eyebrow">Admin Paneli</span>
-          <h1>Çin–Türkiye tedarik zincirinizi tek panelden yönetin.</h1>
-          <p>Fabrika eşleştirmeden gümrük teslimatına, sipariş durumlarını güncelleyin, belge yükleyin, süreç geçmişini takip edin.</p>
-        </div>
         <div class="auth-aside-footer">
           <span>© 2026 RouteX Global</span>
           <span>YALNIZCA EKİP ERİŞİMİ</span>
