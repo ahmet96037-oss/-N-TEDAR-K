@@ -87,12 +87,14 @@
   .nav.is-hidden{ transform:translateY(-110%); }
   @media (max-width:767px){ .nav, .nav.is-scrolled{ padding:18px var(--container-pad-mobile) !important; } }
   .nav-logo{ font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:16px; letter-spacing:.02em; text-decoration:none;
-    display:flex; align-items:center; gap:9px; text-transform:uppercase; height:24px; }
+    display:flex; align-items:center; gap:9px; text-transform:uppercase; }
   .nav-logo svg{ flex:none; }
   /* RouteX Global logosu — beyaz/açık renkli versiyon, koyu zemin üstünde chip'e gerek yok. */
   .logo-chip{ display:inline-flex; align-items:center; }
-  .logo-chip img{ display:block; height:32px; width:auto; }
-  @media (max-width:767px){ .logo-chip img{ height:24px; } }
+  .logo-chip img{ display:block; height:54px; width:auto; }
+  @media (max-width:767px){ .logo-chip img{ height:38px; } }
+  .footer-brand-block .logo-chip img{ height:44px; }
+  @media (max-width:767px){ .footer-brand-block .logo-chip img{ height:34px; } }
 
   .nav-actions{ display:flex; align-items:center; gap:10px; }
   .nav-quote-link{ font-size:13px; font-weight:600; text-decoration:none; color:#fff; opacity:.75; transition:opacity .2s, color .2s; }
