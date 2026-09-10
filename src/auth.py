@@ -21,13 +21,16 @@ def create_token(data: dict, expires_delta: Optional[timedelta] = None):
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(days=7)
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": expire.timestamp()})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
 def verify_token(credentials: HTTPAuthCredentials = Depends(security)):
     """JWT token verify et ve customer_id döndür."""
+    if not credentials:
+        raise HTTPException(status_code=401, detail="Token required")
+
     token = credentials.credentials
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -37,8 +40,8 @@ def verify_token(credentials: HTTPAuthCredentials = Depends(security)):
         return customer_id
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Token invalid")
+    except jwt.InvalidTokenError as e:
+        raise HTTPException(status_code=401, detail=f"Token invalid: {str(e)}")
 
 
 def hash_password(password: str) -> str:

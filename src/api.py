@@ -467,6 +467,18 @@ class NotificationResponse(BaseModel):
     sent_at: str
 
 
+@app.get("/api/health")
+def health_check():
+    """Sistem sağlığı kontrolü — database bağlantısı test et."""
+    try:
+        conn = db()
+        result = conn.execute("SELECT 1").fetchone()
+        conn.close()
+        return {"status": "ok", "database": "connected"}
+    except Exception as e:
+        return {"status": "error", "database": "disconnected", "error": str(e)}
+
+
 @app.post("/api/register")
 def register(req: RegisterRequest):
     """Müşteri kaydı — email, şifre, ad, şirket."""
