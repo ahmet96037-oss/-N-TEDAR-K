@@ -541,14 +541,17 @@ async function sifreDegistirKaydet() {
   okBox.style.display = 'block';
 }
 
-const BRAND_LOGO = `<img src="/assets/logo/routex-logo-white.png" alt="RouteX Global">`;
+// Sidebar zemini açık/beyaz — lacivert yazılı logo; login ekranının sol paneli
+// koyu zemin — beyaz yazılı logo. İkisi farklı görsel dosyası.
+const BRAND_LOGO = `<img src="/assets/logo/routex-logo-navy.png" alt="RouteX Global">`;
+const BRAND_LOGO_WHITE = `<img src="/assets/logo/routex-logo-white.png" alt="RouteX Global">`;
 
 function authShell(innerHtml) {
   // Adminator'ın gerçek split-panel auth tasarımı — admin paneliyle birebir aynı.
   return `
     <div class="auth-shell">
       <aside class="auth-aside auth-aside-routex">
-        <div class="auth-brand auth-brand-routex">${BRAND_LOGO}</div>
+        <div class="auth-brand auth-brand-routex">${BRAND_LOGO_WHITE}</div>
         <div class="auth-aside-footer">
           <span>© 2026 RouteX Global</span>
           <span>CANLI TAKİP · YERİNDE QC</span>
