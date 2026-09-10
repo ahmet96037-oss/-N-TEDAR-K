@@ -13,22 +13,36 @@
     }
     body {
       font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--dark-main);
+      background: linear-gradient(135deg, #0a0e1f 0%, #1a1f3a 50%, #0d1628 100%);
       color: #fff;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 50%, rgba(31,174,112,.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(31,174,112,.05) 0%, transparent 50%);
+      pointer-events: none;
     }
     .auth-container {
+      position: relative;
+      z-index: 1;
       width: 100%;
       max-width: 450px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(15,20,40,.8);
+      border: 1px solid rgba(31,174,112,.3);
       border-radius: 16px;
       padding: 40px;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(31,174,112,.15), 0 0 1px rgba(31,174,112,.1);
     }
     h1 {
       font-size: 28px;
@@ -137,38 +151,38 @@
     <form id="registerForm">
       <div class="form-group">
         <label for="name">Ad Soyad *</label>
-        <input type="text" id="name" placeholder="Ahmet Taşkıran" required>
+        <input type="text" id="name" required>
       </div>
 
       <div class="form-group">
         <label for="email">Email *</label>
-        <input type="email" id="email" placeholder="örn@mail.com" required>
+        <input type="email" id="email" required>
       </div>
 
       <div class="form-group">
         <label for="password">Şifre *</label>
-        <input type="password" id="password" placeholder="••••••••" required>
+        <input type="password" id="password" required>
       </div>
 
       <div class="form-group">
         <label for="company">Şirket Adı</label>
-        <input type="text" id="company" placeholder="Şirketim Ltd.">
+        <input type="text" id="company">
       </div>
 
       <div class="form-row">
         <div class="form-group">
           <label for="phone">Telefon</label>
-          <input type="tel" id="phone" placeholder="+90 500 000 00 00">
+          <input type="tel" id="phone">
         </div>
         <div class="form-group">
           <label for="city">Şehir</label>
-          <input type="text" id="city" placeholder="İstanbul">
+          <input type="text" id="city">
         </div>
       </div>
 
       <div class="form-group">
         <label for="country">Ülke</label>
-        <input type="text" id="country" placeholder="Türkiye">
+        <input type="text" id="country">
       </div>
 
       <button type="submit" id="submitBtn">Kaydol</button>
