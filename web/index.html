@@ -89,12 +89,10 @@
   .nav-logo{ font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:16px; letter-spacing:.02em; text-decoration:none;
     display:flex; align-items:center; gap:9px; text-transform:uppercase; height:24px; }
   .nav-logo svg{ flex:none; }
-  /* Logo koyu lacivert yazılı + beyaz zeminli — koyu navbar'da erimemesi için arkasına
-     hafif beyaz "chip" panel konuyor, logonun kendi renkleri bozulmuyor. */
-  .logo-chip{ background:#fff; border-radius:10px; padding:6px 12px; display:inline-flex; align-items:center;
-    box-shadow:0 2px 10px rgba(0,0,0,.18); }
-  .logo-chip img{ display:block; height:28px; width:auto; }
-  @media (max-width:767px){ .logo-chip img{ height:22px; } .logo-chip{ padding:5px 9px; border-radius:8px; } }
+  /* RouteX Global logosu — beyaz/açık renkli versiyon, koyu zemin üstünde chip'e gerek yok. */
+  .logo-chip{ display:inline-flex; align-items:center; }
+  .logo-chip img{ display:block; height:32px; width:auto; }
+  @media (max-width:767px){ .logo-chip img{ height:24px; } }
 
   .nav-actions{ display:flex; align-items:center; gap:10px; }
   .nav-quote-link{ font-size:13px; font-weight:600; text-decoration:none; color:#fff; opacity:.75; transition:opacity .2s, color .2s; }
@@ -431,7 +429,7 @@
 
 <nav class="nav" id="mainNav">
   <a href="/" class="nav-logo">
-    <span class="logo-chip"><img src="/assets/logo/routex-logo.png" alt="RouteX Global"></span>
+    <span class="logo-chip"><img src="/assets/logo/routex-logo-white.png" alt="RouteX Global"></span>
   </a>
   <div class="nav-actions">
     <div class="lang-selector" id="langSelector">
@@ -684,7 +682,7 @@
         <div class="col"><span data-i18n="comp_self">Kendi Tedariki</span></div>
         <div class="col"><span data-i18n="comp_sourcing">Sourcing Ajansı</span></div>
         <div class="col"><span data-i18n="comp_customs">Genel Gümrük Müşaviri</span></div>
-        <div class="col highlighted" style="display:flex; align-items:center; justify-content:center;"><span class="logo-chip" style="padding:4px 8px;"><img src="/assets/logo/routex-logo.png" alt="RouteX Global" style="height:18px;"></span></div>
+        <div class="col highlighted" style="display:flex; align-items:center; justify-content:center;"><img src="/assets/logo/routex-logo-white.png" alt="RouteX Global" style="height:20px; display:block;"></div>
       </div>
       <div class="comparison-row">
         <div class="col-name"><span data-i18n="comp_1">Fabrika bulma & eşleştirme</span></div>
@@ -791,7 +789,7 @@
     <div class="footer-top reveal">
       <div class="footer-brand-block">
         <a href="/" class="nav-logo" style="margin-bottom:12px;">
-          <span class="logo-chip"><img src="/assets/logo/routex-logo.png" alt="RouteX Global"></span>
+          <span class="logo-chip"><img src="/assets/logo/routex-logo-white.png" alt="RouteX Global"></span>
         </a>
         <p><span data-i18n="footer_subtitle">İthalat, tedarik ve gümrük danışmanlığı</span><br><span data-i18n="footer_subtitle">Çin–Türkiye tedarik zinciri yönetimi</span></p>
       </div>
