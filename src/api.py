@@ -22,6 +22,7 @@ from src.db import db
 from src.rule_engine import hesapla
 from src.tracking_api import router as tracking_router
 from src.auth import create_token, verify_token, hash_password, verify_password
+from src.email_service import send_quote_confirmation
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "web")
 
@@ -345,7 +346,7 @@ class QuoteIstek(BaseModel):
 
 @app.post("/api/generate-quote")
 def pdf_quote_genet(istek: QuoteIstek):
-    """PDF Quote Generator — Invoice/Teklif PDF oluştur ve indir."""
+    """PDF Quote Generator — Invoice/Teklif PDF oluştur, email gönder, DB'ye kaydet."""
     from io import BytesIO
     from reportlab.lib.pagesizes import letter
     from reportlab.lib import colors
@@ -403,16 +404,26 @@ def pdf_quote_genet(istek: QuoteIstek):
 
     story.append(table)
     story.append(Spacer(1, 0.2*inch))
-    story.append(Paragraph(f"<b>Toplam:</b> ${istek.mal_bedeli + sonuc.get('vergiler', {}).get('toplam', 0):.2f}", styles['Normal']))
+    toplam = istek.mal_bedeli + sonuc.get('vergiler', {}).get('toplam', 0)
+    story.append(Paragraph(f"<b>Toplam:</b> ${toplam:.2f}", styles['Normal']))
 
     # Build PDF
     doc.build(story)
     buffer.seek(0)
+    pdf_bytes = buffer.getvalue()
+
+    # Email gönder
+    send_quote_confirmation(
+        customer_name=istek.musteri_adi,
+        customer_email=istek.musteri_email,
+        quote_number=f"TK-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+        total=toplam
+    )
 
     # Response
     from fastapi.responses import StreamingResponse
     return StreamingResponse(
-        iter([buffer.getvalue()]),
+        iter([pdf_bytes]),
         media_type="application/pdf",
         headers={"Content-Disposition": "attachment; filename=teklif.pdf"}
     )
