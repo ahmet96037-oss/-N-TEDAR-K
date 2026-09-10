@@ -10,16 +10,18 @@ Sonra tarayıcıda: http://127.0.0.1:8000
 """
 import os
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import HTTPBearer
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from src.db import db
 from src.rule_engine import hesapla
 from src.tracking_api import router as tracking_router
+from src.auth import create_token, verify_token, hash_password, verify_password
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "web")
 
@@ -35,6 +37,7 @@ def _sema_hazirla():
     Zararsız: tablo zaten varsa hiçbir şey yapmaz."""
     try:
         conn = db()
+        # Hata izleme
         conn.execute(
             """CREATE TABLE IF NOT EXISTS tk_hata_kayitlari (
                 id SERIAL PRIMARY KEY,
@@ -46,6 +49,55 @@ def _sema_hazirla():
                 olusturulma TIMESTAMPTZ DEFAULT now()
             )"""
         )
+        # Müşteri Portal Şeması
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS customers (
+                id SERIAL PRIMARY KEY,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password_hash VARCHAR(255) NOT NULL,
+                name VARCHAR(255) NOT NULL,
+                company VARCHAR(255),
+                phone VARCHAR(20),
+                city VARCHAR(100),
+                country VARCHAR(100),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )"""
+        )
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS orders (
+                id SERIAL PRIMARY KEY,
+                customer_id INTEGER NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+                quote_number VARCHAR(50) UNIQUE,
+                status VARCHAR(50) DEFAULT 'pending',
+                gtip VARCHAR(20),
+                mal_bedeli DECIMAL(12, 2),
+                total_cost DECIMAL(12, 2),
+                order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                estimated_delivery DATE,
+                tracking_number VARCHAR(100),
+                notes TEXT,
+                pdf_path VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )"""
+        )
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS notifications (
+                id SERIAL PRIMARY KEY,
+                customer_id INTEGER NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+                type VARCHAR(50),
+                subject VARCHAR(255),
+                message TEXT,
+                is_read BOOLEAN DEFAULT FALSE,
+                sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )"""
+        )
+        # Indexler
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_orders_customer_id ON orders(customer_id)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_notifications_customer_id ON notifications(customer_id)")
         conn.close()
     except Exception:
         # Şema hazırlığı başarısız olsa bile uygulamanın geri kalanı çalışmaya devam etsin —
@@ -364,6 +416,165 @@ def pdf_quote_genet(istek: QuoteIstek):
         media_type="application/pdf",
         headers={"Content-Disposition": "attachment; filename=teklif.pdf"}
     )
+
+
+# ===== Customer Portal — Müşteri Giriş, Siparişler, Bildirimler =====
+
+class RegisterRequest(BaseModel):
+    email: str
+    password: str
+    name: str
+    company: str = ""
+    phone: str = ""
+    city: str = ""
+    country: str = ""
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class OrderResponse(BaseModel):
+    id: int
+    quote_number: str
+    status: str
+    gtip: str
+    mal_bedeli: float
+    total_cost: float
+    order_date: str
+    tracking_number: str = None
+    notes: str = None
+
+
+class NotificationResponse(BaseModel):
+    id: int
+    type: str
+    subject: str
+    message: str
+    is_read: bool
+    sent_at: str
+
+
+@app.post("/api/register")
+def register(req: RegisterRequest):
+    """Müşteri kaydı — email, şifre, ad, şirket."""
+    try:
+        conn = db()
+        # Email zaten varsa hata
+        existing = conn.execute(
+            "SELECT id FROM customers WHERE email = ?",
+            (req.email,)
+        ).fetchone()
+        if existing:
+            raise HTTPException(status_code=400, detail="Email zaten kayıtlı")
+
+        # Şifreyi hash'le
+        hashed = hash_password(req.password)
+
+        # Müşteri ekle
+        conn.execute(
+            """INSERT INTO customers (email, password_hash, name, company, phone, city, country)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (req.email, hashed, req.name, req.company, req.phone, req.city, req.country)
+        )
+
+        # Yeni müşterinin ID'sini al
+        result = conn.execute(
+            "SELECT id FROM customers WHERE email = ?",
+            (req.email,)
+        ).fetchone()
+        customer_id = result['id']
+        conn.close()
+
+        # Token oluştur
+        token = create_token({"sub": customer_id})
+        return {"access_token": token, "token_type": "bearer", "customer_id": customer_id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/login")
+def login(req: LoginRequest):
+    """Müşteri girişi — email, şifre."""
+    try:
+        conn = db()
+        customer = conn.execute(
+            "SELECT id, password_hash FROM customers WHERE email = ?",
+            (req.email,)
+        ).fetchone()
+        conn.close()
+
+        if not customer or not verify_password(req.password, customer['password_hash']):
+            raise HTTPException(status_code=401, detail="Email veya şifre yanlış")
+
+        # Token oluştur
+        token = create_token({"sub": customer['id']})
+        return {"access_token": token, "token_type": "bearer", "customer_id": customer['id']}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/orders")
+def get_orders(customer_id: int = Depends(verify_token)):
+    """Müşterinin siparişlerini listele (token required)."""
+    try:
+        conn = db()
+        orders = conn.execute(
+            """SELECT id, quote_number, status, gtip, mal_bedeli, total_cost,
+                      order_date, tracking_number, notes
+               FROM orders WHERE customer_id = ? ORDER BY order_date DESC""",
+            (customer_id,)
+        ).fetchall()
+        conn.close()
+        return [dict(o) for o in orders]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/notifications")
+def get_notifications(customer_id: int = Depends(verify_token)):
+    """Müşterinin bildirimlerini listele (token required)."""
+    try:
+        conn = db()
+        notifs = conn.execute(
+            """SELECT id, type, subject, message, is_read, sent_at
+               FROM notifications WHERE customer_id = ? ORDER BY sent_at DESC""",
+            (customer_id,)
+        ).fetchall()
+        conn.close()
+        return [dict(n) for n in notifs]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/notifications/{notification_id}/read")
+def mark_notification_read(notification_id: int, customer_id: int = Depends(verify_token)):
+    """Bildirimi okundu olarak işaretle."""
+    try:
+        conn = db()
+        # Kontrol: bildirimi müşteri mi sahibi
+        notif = conn.execute(
+            "SELECT customer_id FROM notifications WHERE id = ?",
+            (notification_id,)
+        ).fetchone()
+        if not notif or notif['customer_id'] != customer_id:
+            raise HTTPException(status_code=403, detail="Erişim reddedildi")
+
+        conn.execute(
+            "UPDATE notifications SET is_read = true WHERE id = ?",
+            (notification_id,)
+        )
+        conn.close()
+        return {"status": "ok"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 class NoCacheStaticFiles(StaticFiles):
