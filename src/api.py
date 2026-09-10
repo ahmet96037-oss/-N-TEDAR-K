@@ -482,6 +482,7 @@ def health_check():
 @app.post("/api/register")
 def register(req: RegisterRequest):
     """Müşteri kaydı — email, şifre, ad, şirket."""
+    conn = None
     try:
         conn = db()
         # Email zaten varsa hata
@@ -507,8 +508,11 @@ def register(req: RegisterRequest):
             "SELECT id FROM customers WHERE email = ?",
             (req.email,)
         ).fetchone()
+
+        if not result:
+            raise HTTPException(status_code=500, detail="Müşteri oluşturulamadı")
+
         customer_id = result['id']
-        conn.close()
 
         # Token oluştur
         token = create_token({"sub": customer_id})
@@ -516,21 +520,27 @@ def register(req: RegisterRequest):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Kayıt hatası: {str(e)}")
+    finally:
+        if conn:
+            conn.close()
 
 
 @app.post("/api/login")
 def login(req: LoginRequest):
     """Müşteri girişi — email, şifre."""
+    conn = None
     try:
         conn = db()
         customer = conn.execute(
             "SELECT id, password_hash FROM customers WHERE email = ?",
             (req.email,)
         ).fetchone()
-        conn.close()
 
-        if not customer or not verify_password(req.password, customer['password_hash']):
+        if not customer:
+            raise HTTPException(status_code=401, detail="Email veya şifre yanlış")
+
+        if not verify_password(req.password, customer['password_hash']):
             raise HTTPException(status_code=401, detail="Email veya şifre yanlış")
 
         # Token oluştur
@@ -539,12 +549,16 @@ def login(req: LoginRequest):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Giriş hatası: {str(e)}")
+    finally:
+        if conn:
+            conn.close()
 
 
 @app.get("/api/orders")
 def get_orders(customer_id: int = Depends(verify_token)):
     """Müşterinin siparişlerini listele (token required)."""
+    conn = None
     try:
         conn = db()
         orders = conn.execute(
@@ -553,15 +567,18 @@ def get_orders(customer_id: int = Depends(verify_token)):
                FROM orders WHERE customer_id = ? ORDER BY order_date DESC""",
             (customer_id,)
         ).fetchall()
-        conn.close()
-        return [dict(o) for o in orders]
+        return [dict(o) for o in orders] if orders else []
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Siparişler alınamadı: {str(e)}")
+    finally:
+        if conn:
+            conn.close()
 
 
 @app.get("/api/notifications")
 def get_notifications(customer_id: int = Depends(verify_token)):
     """Müşterinin bildirimlerini listele (token required)."""
+    conn = None
     try:
         conn = db()
         notifs = conn.execute(
@@ -569,15 +586,18 @@ def get_notifications(customer_id: int = Depends(verify_token)):
                FROM notifications WHERE customer_id = ? ORDER BY sent_at DESC""",
             (customer_id,)
         ).fetchall()
-        conn.close()
-        return [dict(n) for n in notifs]
+        return [dict(n) for n in notifs] if notifs else []
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Bildirimler alınamadı: {str(e)}")
+    finally:
+        if conn:
+            conn.close()
 
 
 @app.post("/api/notifications/{notification_id}/read")
 def mark_notification_read(notification_id: int, customer_id: int = Depends(verify_token)):
     """Bildirimi okundu olarak işaretle."""
+    conn = None
     try:
         conn = db()
         # Kontrol: bildirimi müşteri mi sahibi
@@ -592,12 +612,14 @@ def mark_notification_read(notification_id: int, customer_id: int = Depends(veri
             "UPDATE notifications SET is_read = true WHERE id = ?",
             (notification_id,)
         )
-        conn.close()
         return {"status": "ok"}
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Bildirim güncellenemedi: {str(e)}")
+    finally:
+        if conn:
+            conn.close()
 
 
 class NoCacheStaticFiles(StaticFiles):

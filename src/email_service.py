@@ -6,9 +6,12 @@ from email.mime.multipart import MIMEMultipart
 from typing import Optional
 
 SMTP_SERVER = os.environ.get("SMTP_SERVER", "smtp.gmail.com")
-SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
-SMTP_USER = os.environ.get("SMTP_USER", "")
-SMTP_PASS = os.environ.get("SMTP_PASS", "")
+try:
+    SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
+except (ValueError, TypeError):
+    SMTP_PORT = 587
+SMTP_USER = os.environ.get("SMTP_USER", "").strip()
+SMTP_PASS = os.environ.get("SMTP_PASS", "").strip()
 SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "noreply@tedarik.com")
 SENDER_NAME = os.environ.get("SENDER_NAME", "Tedarik Ağı")
 
