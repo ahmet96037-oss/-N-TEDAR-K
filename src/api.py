@@ -282,6 +282,90 @@ def gtip_hesapla(istek: HesaplaIstek):
     return sonuc.to_dict()
 
 
+class QuoteIstek(BaseModel):
+    gtip: str
+    mal_bedeli: float
+    musteri_adi: str
+    musteri_email: str
+    miktar: int = 1
+    birim: str = "Adet"
+
+
+@app.post("/api/generate-quote")
+def pdf_quote_genet(istek: QuoteIstek):
+    """PDF Quote Generator — Invoice/Teklif PDF oluştur ve indir."""
+    from io import BytesIO
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib import colors
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    from datetime import datetime
+
+    # Hesapla sonucu al
+    detay = gtip_detay(istek.gtip)
+    sonuc = hesapla(detay, istek.mal_bedeli, False, istek.miktar)
+
+    # PDF Buffer
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=0.5*inch, bottomMargin=0.5*inch)
+
+    # Styles
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        textColor=colors.HexColor('#1fae70'),
+        spaceAfter=12,
+    )
+
+    # Content
+    story = []
+    story.append(Paragraph("📄 Teklif / Quote", title_style))
+    story.append(Spacer(1, 0.3*inch))
+
+    # Müşteri bilgisi
+    story.append(Paragraph(f"<b>Müşteri:</b> {istek.musteri_adi}", styles['Normal']))
+    story.append(Paragraph(f"<b>Email:</b> {istek.musteri_email}", styles['Normal']))
+    story.append(Paragraph(f"<b>Tarih:</b> {datetime.now().strftime('%d.%m.%Y')}", styles['Normal']))
+    story.append(Spacer(1, 0.2*inch))
+
+    # Tablo
+    data = [
+        ['GTİP', 'Açıklama', 'Miktar', 'Birim', 'Mal Bedeli', 'Vergi'],
+        [istek.gtip, detay.get('description', '—')[:30], str(istek.miktar), istek.birim,
+         f"${istek.mal_bedeli:.2f}", f"${sonuc.get('vergiler', {}).get('toplam', 0):.2f}"]
+    ]
+
+    table = Table(data, colWidths=[1*inch, 2*inch, 0.8*inch, 0.8*inch, 1*inch, 1*inch])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1fae70')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+
+    story.append(table)
+    story.append(Spacer(1, 0.2*inch))
+    story.append(Paragraph(f"<b>Toplam:</b> ${istek.mal_bedeli + sonuc.get('vergiler', {}).get('toplam', 0):.2f}", styles['Normal']))
+
+    # Build PDF
+    doc.build(story)
+    buffer.seek(0)
+
+    # Response
+    from fastapi.responses import StreamingResponse
+    return StreamingResponse(
+        iter([buffer.getvalue()]),
+        media_type="application/pdf",
+        headers={"Content-Disposition": "attachment; filename=teklif.pdf"}
+    )
+
+
 class NoCacheStaticFiles(StaticFiles):
     """Geliştirme aşamasında tarayıcı eski index.html'i önbellekten göstermesin diye."""
 

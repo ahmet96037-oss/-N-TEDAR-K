@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>📄 Teklif Oluştur</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --dark-main: #0a0e1f;
+      --green: #1fae70;
+      --white: #f9f9ff;
+    }
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: var(--dark-main);
+      color: #fff;
+      padding: 40px 20px;
+    }
+    .container { max-width: 600px; margin: 0 auto; }
+    h1 { font-size: 32px; margin-bottom: 30px; text-align: center; color: var(--green); }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; }
+    input, select { width: 100%; padding: 12px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: #fff; border-radius: 8px; font-size: 14px; }
+    input::placeholder { color: rgba(255,255,255,.5); }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover { background: #178a5a; }
+    .loading { display: none; text-align: center; }
+    .error { color: #ff6b6b; margin-top: 10px; }
+    .back-link { text-align: center; margin-top: 30px; }
+    .back-link a { color: var(--green); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📄 Teklif Oluştur & PDF İndir</h1>
+
+    <form id="quoteForm">
+      <div class="form-group">
+        <label>GTİP Kodu *</label>
+        <input type="text" id="gtip" placeholder="Örn: 6204.62.00" required>
+      </div>
+
+      <div class="form-group">
+        <label>Mal Bedeli (USD) *</label>
+        <input type="number" id="mal_bedeli" placeholder="1000" step="0.01" required>
+      </div>
+
+      <div class="form-group">
+        <label>Miktar *</label>
+        <input type="number" id="miktar" placeholder="1000" value="1" required>
+      </div>
+
+      <div class="form-group">
+        <label>Birim *</label>
+        <select id="birim">
+          <option>Adet</option>
+          <option>KG</option>
+          <option>Ton</option>
+          <option>Litre</option>
+          <option>M²</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Müşteri Adı *</label>
+        <input type="text" id="musteri_adi" placeholder="Örn: Ahmet Taşkıran" required>
+      </div>
+
+      <div class="form-group">
+        <label>Email *</label>
+        <input type="email" id="musteri_email" placeholder="örn@mail.com" required>
+      </div>
+
+      <button type="submit">📥 PDF Teklif İndir</button>
+      <div id="loading" class="loading">⏳ PDF oluşturuluyor...</div>
+      <div id="error" class="error"></div>
+    </form>
+
+    <div class="back-link">
+      <a href="/">← Ana Sayfa</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('quoteForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const btn = e.target.querySelector('button');
+      const loading = document.getElementById('loading');
+      const error = document.getElementById('error');
+
+      btn.style.display = 'none';
+      loading.style.display = 'block';
+      error.innerHTML = '';
+
+      try {
+        const response = await fetch('/api/generate-quote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            gtip: document.getElementById('gtip').value,
+            mal_bedeli: parseFloat(document.getElementById('mal_bedeli').value),
+            miktar: parseInt(document.getElementById('miktar').value),
+            birim: document.getElementById('birim').value,
+            musteri_adi: document.getElementById('musteri_adi').value,
+            musteri_email: document.getElementById('musteri_email').value,
+          })
+        });
+
+        if (!response.ok) throw new Error('PDF oluşturulamadı');
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Teklif_${new Date().getTime()}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+
+        loading.style.display = 'none';
+        btn.style.display = 'block';
+      } catch (err) {
+        error.innerHTML = '❌ ' + err.message;
+        btn.style.display = 'block';
+        loading.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
