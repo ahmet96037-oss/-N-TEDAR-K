@@ -126,7 +126,9 @@
      açık içerik ayrımıyla aynı dil. */
   .sidebar{ width:264px; flex:none; background:var(--sidebar-bg); border-right:1px solid rgba(255,255,255,.06); padding:20px 16px; display:flex; flex-direction:column; }
   .brand-row{ display:flex; align-items:center; justify-content:space-between; padding:8px; margin-bottom:22px; border-radius:12px; cursor:pointer; }
-  .brand-row:hover{ background:var(--sidebar-hover); }
+  /* Logo artık tıklanabilir değil (Daralt/Genişlet, hamburger butonuna taşındı) — hover
+     efekti tıklanabilir gibi göstermesin diye iptal edildi. */
+  .brand-row:hover{ background:none; }
   .brand-row .chev{ color:var(--sidebar-text-dim); font-size:12px; transition:transform .15s; }
   .app-shell.is-collapsed .brand-row .chev{ transform:rotate(-90deg); }
   .sidebar .brand{ font-family:var(--font-display); font-weight:700; font-size:15.5px; letter-spacing:-.01em; text-decoration:none; color:var(--sidebar-text); display:flex; align-items:center; gap:11px; }
@@ -1075,7 +1077,7 @@ function panelShell(innerHtml, activeView) {
   return `
     <div class="shell app-shell">
       <aside class="d-sidebar sidebar">
-        <div class="brand brand-row" onclick="toggleSidebar()" title="Daralt/Genişlet (Ctrl+\\)">
+        <div class="brand brand-row" style="cursor:default;">
           <div class="brand-logo">${BRAND_LOGO}</div>
           <div class="brand-text">
             <div class="brand-tag">Admin Paneli</div>
