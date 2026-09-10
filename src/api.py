@@ -99,6 +99,21 @@ def _sema_hazirla():
         conn.execute("CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_orders_customer_id ON orders(customer_id)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_notifications_customer_id ON notifications(customer_id)")
+
+        # Demo kullanıcı ekle (geliştirme/test amaçlı)
+        try:
+            demo_email = "demo@tedarik.com"
+            existing_demo = conn.execute("SELECT id FROM customers WHERE email = ?", (demo_email,)).fetchone()
+            if not existing_demo:
+                demo_hashed = hash_password("demo123456")
+                conn.execute(
+                    """INSERT INTO customers (email, password_hash, name, company, phone, city, country)
+                       VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                    (demo_email, demo_hashed, "Demo Kullanıcı", "Tedarik Ağı", "+90 500 000 00 00", "İstanbul", "Türkiye")
+                )
+        except Exception:
+            pass  # Demo user eklenemezse, normal devam et
+
         conn.close()
     except Exception:
         # Şema hazırlığı başarısız olsa bile uygulamanın geri kalanı çalışmaya devam etsin —
