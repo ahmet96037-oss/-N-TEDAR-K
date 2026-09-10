@@ -1,5 +1,26 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "echo 'Static deploy'",
-  "outputDirectory": "web"
+  "buildCommand": "pip install -r requirements.txt",
+  "outputDirectory": "web",
+  "env": {
+    "DATABASE_URL": "@tedarik_database_url",
+    "JWT_SECRET": "@jwt_secret",
+    "SMTP_SERVER": "@smtp_server",
+    "SMTP_PORT": "@smtp_port",
+    "SMTP_USER": "@smtp_user",
+    "SMTP_PASS": "@smtp_pass",
+    "SENDER_EMAIL": "@sender_email"
+  },
+  "functions": {
+    "api/index.py": {
+      "memory": 1024,
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    }
+  ]
 }

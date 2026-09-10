@@ -1,4 +1,11 @@
-"""Vercel serverless giriş noktası — asıl uygulama src/api.py'de tanımlı,
-burada sadece Vercel'in Python runtime'ının aradığı `app` ismiyle yeniden
-dışa aktarıyoruz. Kod tekrarı yok, tek gerçek kaynak src/api.py."""
-from src.api import app  # noqa: F401
+"""Vercel Serverless Function — FastAPI wrapper."""
+import sys
+import os
+
+# Add src to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+from src.api import app
+
+# Export for Vercel
+handler = app
