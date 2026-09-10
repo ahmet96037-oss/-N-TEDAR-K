@@ -112,11 +112,11 @@
   .sidebar .brand svg{ width:28px; height:28px; flex:none; border-radius:8px; }
   /* RouteX Global logosu — brand-logo/brand-text için eksik olan asıl kurallar */
   .brand-logo{ flex:none; display:flex; align-items:center; width:auto; height:auto; background:none; border-radius:0; box-shadow:none; }
-  .brand-logo img{ display:block; height:34px; width:auto; }
+  .brand-logo img{ display:block; height:52px; width:auto; }
   .brand-text{ line-height:1.2; overflow:hidden; }
   .brand-name{ font-weight:700; font-size:14.5px; color:var(--sidebar-text); white-space:nowrap; }
   .brand-tag{ font-size:11px; color:var(--sidebar-text-dim); white-space:nowrap; }
-  .app-shell.is-collapsed .brand-logo img{ height:28px; }
+  .app-shell.is-collapsed .brand-logo img{ height:36px; }
   /* Login ekranındaki marka alanı — .auth-brand .logo kuralı SVG ikon için sabit
      kare kutu; yatay logomuz için ayrı kural. */
   .auth-brand-routex{ width:auto; height:auto; background:none; border:none; padding:0; }
@@ -125,7 +125,7 @@
      (turuncu+lacivert) çakışıyordu; sade koyu zemine çevrildi, logo tek başına ortada. */
   .auth-aside-routex{ background:#0a0e1f !important; display:flex; flex-direction:column; }
   .auth-aside-routex .auth-brand-routex{ flex:1; display:flex; align-items:center; justify-content:center; }
-  .auth-aside-routex .auth-brand-routex img{ height:64px; }
+  .auth-aside-routex .auth-brand-routex img{ height:90px; }
   .side-group-label{ font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--sidebar-text-dim); padding:0 12px; margin:22px 0 10px; }
   .side-group-label:first-of-type{ margin-top:0; }
   .side-nav{ display:flex; flex-direction:column; gap:3px; }
@@ -591,9 +591,6 @@ function panelShell(innerHtml, activeView) {
       <aside class="d-sidebar sidebar">
         <div class="brand brand-row" style="cursor:default;">
           <div class="brand-logo">${BRAND_LOGO}</div>
-          <div class="brand-text">
-            <div class="brand-tag">Müşteri Paneli</div>
-          </div>
         </div>
         <nav class="nav-section">
           <div class="nav-label">Genel</div>
