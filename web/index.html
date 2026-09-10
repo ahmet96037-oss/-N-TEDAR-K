@@ -91,6 +91,8 @@
   .nav-logo svg{ flex:none; }
 
   .nav-actions{ display:flex; align-items:center; gap:10px; }
+  .nav-quote-link{ font-size:13px; font-weight:600; text-decoration:none; color:#fff; opacity:.75; transition:opacity .2s, color .2s; }
+  .nav-quote-link:hover{ opacity:1; color:var(--green); }
   /* Language Selector */
   .lang-selector{ position:relative; }
   .lang-btn{ width:44px; height:44px; border-radius:50%; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.04); color:#fff; font-size:24px; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; }
@@ -438,6 +440,7 @@
         <button class="lang-option" data-lang="ar">🇸🇦 العربية</button>
       </div>
     </div>
+    <a href="/generate-quote.html" class="nav-quote-link" title="Teklif Oluştur">📄 Teklif</a>
     <a href="/admin.html" class="nav-admin-link" aria-label="Ekip / Admin Girişi" title="Ekip Girişi">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </a>
@@ -453,7 +456,7 @@
     <a href="/takip.html"><span data-i18n="nav_track">Müşteri Girişi</span></a>
   </div>
   <div class="menu-cta">
-    <a href="/takip.html#rfq" class="btn btn-primary" data-i18n="nav_quote">Ücretsiz Teklif Alın</a>
+    <a href="/generate-quote.html" class="btn btn-primary" data-i18n="nav_quote">Ücretsiz Teklif Alın</a>
     <a href="/takip.html" class="btn btn-ghost" data-i18n="nav_tracking"><span data-i18n="nav_tracking">Siparişimi Takip Et</span></a>
   </div>
 </div>
