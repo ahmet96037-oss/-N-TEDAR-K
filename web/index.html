@@ -91,10 +91,10 @@
   .nav-logo svg{ flex:none; }
   /* RouteX Global logosu — beyaz/açık renkli versiyon, koyu zemin üstünde chip'e gerek yok. */
   .logo-chip{ display:inline-flex; align-items:center; }
-  .logo-chip img{ display:block; height:54px; width:auto; }
-  @media (max-width:767px){ .logo-chip img{ height:38px; } }
-  .footer-brand-block .logo-chip img{ height:44px; }
-  @media (max-width:767px){ .footer-brand-block .logo-chip img{ height:34px; } }
+  .logo-chip img{ display:block; height:70px; width:auto; }
+  @media (max-width:767px){ .logo-chip img{ height:46px; } }
+  .footer-brand-block .logo-chip img{ height:60px; }
+  @media (max-width:767px){ .footer-brand-block .logo-chip img{ height:42px; } }
 
   .nav-actions{ display:flex; align-items:center; gap:10px; }
   .nav-quote-link{ font-size:13px; font-weight:600; text-decoration:none; color:#fff; opacity:.75; transition:opacity .2s, color .2s; }
@@ -404,7 +404,21 @@
   .comparison-row .col{ padding:16px 14px; text-align:center; font-size:15px; }
   .comparison-row .col.highlighted{ background:rgba(31,174,112,.08); font-weight:600; color:var(--green); }
   .comparison-note{ text-align:center; font-size:12px; color:var(--text-faint); margin-top:24px; }
-  @media (max-width:900px){ .comparison-row{ grid-template-columns:1fr 1fr; } .comparison-row.header{ display:none; } .comparison-row .col-name::before{ content:attr(data-label); font-weight:600; display:block; font-size:11px; margin-bottom:8px; } }
+  /* Masaüstünde satır-içi mobil etiketleri gizli — tablo görünümü zaten netleştiriyor */
+  .comparison-row .col-vs{ display:none; }
+  /* Mobil: 5 sütunu 2'ye sıkıştırmak (eski hal) hangi hücrenin hangi rakibe ait olduğunu
+     belirsizleştiriyordu. Her hizmet satırı artık dikey bir kart: rakip adı solda etiket,
+     sonuç (✓/—/◐) sağda değer olarak yan yana duruyor — okunaklı ve net. */
+  @media (max-width:900px){
+    .comparison-row{ display:block; padding:16px 18px 14px; }
+    .comparison-row.header{ display:none; }
+    .comparison-row .col-name{ padding:0 0 12px; font-size:15px; font-weight:600; border-bottom:1px solid var(--glass-border); margin-bottom:10px; }
+    .comparison-row .col{ display:flex; align-items:center; justify-content:space-between; padding:7px 0; text-align:left; font-size:14px; }
+    .comparison-row .col.highlighted{ background:none; border-radius:8px; padding:7px 10px; margin:2px -10px; }
+    .comparison-row .col-vs{ display:inline; font-weight:500; color:var(--text-dim); font-size:13px; }
+    .comparison-row .col.highlighted .col-vs{ color:var(--green); font-weight:700; }
+    .comparison-row .col-val{ font-weight:700; font-size:16px; }
+  }
 
   /* RISK vs REWARD */
   .risk-reward{ background:var(--dark-main); padding:var(--sp-140) 0; border-top:1px solid var(--line); }
@@ -684,31 +698,49 @@
         <div class="col"><span data-i18n="comp_self">Kendi Tedariki</span></div>
         <div class="col"><span data-i18n="comp_sourcing">Sourcing Ajansı</span></div>
         <div class="col"><span data-i18n="comp_customs">Genel Gümrük Müşaviri</span></div>
-        <div class="col highlighted" style="display:flex; align-items:center; justify-content:center;"><img src="/assets/logo/routex-logo-white.png" alt="RouteX Global" style="height:20px; display:block;"></div>
+        <div class="col highlighted" style="display:flex; align-items:center; justify-content:center;"><img src="/assets/logo/routex-logo-white.png" alt="RouteX Global" style="height:34px; display:block;"></div>
       </div>
       <div class="comparison-row">
         <div class="col-name"><span data-i18n="comp_1">Fabrika bulma & eşleştirme</span></div>
-        <div class="col">✓</div><div class="col">✓</div><div class="col">—</div><div class="col highlighted">✓</div>
+        <div class="col"><span class="col-vs" data-i18n="comp_self">Kendi Tedariki</span><span class="col-val">✓</span></div>
+        <div class="col"><span class="col-vs" data-i18n="comp_sourcing">Sourcing Ajansı</span><span class="col-val">✓</span></div>
+        <div class="col"><span class="col-vs" data-i18n="comp_customs">Genel Gümrük Müşaviri</span><span class="col-val">—</span></div>
+        <div class="col highlighted"><span class="col-vs">RouteX Global</span><span class="col-val">✓</span></div>
       </div>
       <div class="comparison-row">
         <div class="col-name"><span data-i18n="comp_2">Yerinde numune & kalite kontrolü</span></div>
-        <div class="col">◐</div><div class="col">◐</div><div class="col">—</div><div class="col highlighted">✓</div>
+        <div class="col"><span class="col-vs" data-i18n="comp_self">Kendi Tedariki</span><span class="col-val">◐</span></div>
+        <div class="col"><span class="col-vs" data-i18n="comp_sourcing">Sourcing Ajansı</span><span class="col-val">◐</span></div>
+        <div class="col"><span class="col-vs" data-i18n="comp_customs">Genel Gümrük Müşaviri</span><span class="col-val">—</span></div>
+        <div class="col highlighted"><span class="col-vs">RouteX Global</span><span class="col-val">✓</span></div>
       </div>
       <div class="comparison-row">
         <div class="col-name"><span data-i18n="comp_3">7/24 canlı sipariş takip paneli</span></div>
-        <div class="col">—</div><div class="col">—</div><div class="col">—</div><div class="col highlighted">✓</div>
+        <div class="col"><span class="col-vs" data-i18n="comp_self">Kendi Tedariki</span><span class="col-val">—</span></div>
+        <div class="col"><span class="col-vs" data-i18n="comp_sourcing">Sourcing Ajansı</span><span class="col-val">—</span></div>
+        <div class="col"><span class="col-vs" data-i18n="comp_customs">Genel Gümrük Müşaviri</span><span class="col-val">—</span></div>
+        <div class="col highlighted"><span class="col-vs">RouteX Global</span><span class="col-val">✓</span></div>
       </div>
       <div class="comparison-row">
         <div class="col-name"><span data-i18n="comp_4">GTİP & vergi hesaplama</span></div>
-        <div class="col">—</div><div class="col">—</div><div class="col">◐</div><div class="col highlighted">✓</div>
+        <div class="col"><span class="col-vs" data-i18n="comp_self">Kendi Tedariki</span><span class="col-val">—</span></div>
+        <div class="col"><span class="col-vs" data-i18n="comp_sourcing">Sourcing Ajansı</span><span class="col-val">—</span></div>
+        <div class="col"><span class="col-vs" data-i18n="comp_customs">Genel Gümrük Müşaviri</span><span class="col-val">◐</span></div>
+        <div class="col highlighted"><span class="col-vs">RouteX Global</span><span class="col-val">✓</span></div>
       </div>
       <div class="comparison-row">
         <div class="col-name"><span data-i18n="comp_5">Gümrük süreci yönetimi</span></div>
-        <div class="col">—</div><div class="col">—</div><div class="col">✓</div><div class="col highlighted">✓</div>
+        <div class="col"><span class="col-vs" data-i18n="comp_self">Kendi Tedariki</span><span class="col-val">—</span></div>
+        <div class="col"><span class="col-vs" data-i18n="comp_sourcing">Sourcing Ajansı</span><span class="col-val">—</span></div>
+        <div class="col"><span class="col-vs" data-i18n="comp_customs">Genel Gümrük Müşaviri</span><span class="col-val">✓</span></div>
+        <div class="col highlighted"><span class="col-vs">RouteX Global</span><span class="col-val">✓</span></div>
       </div>
       <div class="comparison-row">
         <div class="col-name"><span data-i18n="comp_6">Tek ekip, tek sorumluluk</span></div>
-        <div class="col">—</div><div class="col">—</div><div class="col">—</div><div class="col highlighted">✓</div>
+        <div class="col"><span class="col-vs" data-i18n="comp_self">Kendi Tedariki</span><span class="col-val">—</span></div>
+        <div class="col"><span class="col-vs" data-i18n="comp_sourcing">Sourcing Ajansı</span><span class="col-val">—</span></div>
+        <div class="col"><span class="col-vs" data-i18n="comp_customs">Genel Gümrük Müşaviri</span><span class="col-val">—</span></div>
+        <div class="col highlighted"><span class="col-vs">RouteX Global</span><span class="col-val">✓</span></div>
       </div>
     </div>
     <p class="comparison-note"><span data-i18n="comp_note">✓ = Tam destek | ◐ = Sınırlı destek | — = Yok</span></p>
