@@ -5,7 +5,7 @@ from typing import Optional
 
 import jwt
 from fastapi import HTTPException, Depends
-from fastapi.security import HTTPBearer, HTTPAuthCredentials
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 # JWT secret key
 SECRET_KEY = os.environ.get("JWT_SECRET", "dev-secret-key-change-in-production")
@@ -26,7 +26,7 @@ def create_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-def verify_token(credentials: HTTPAuthCredentials = Depends(security)):
+def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """JWT token verify et ve customer_id döndür."""
     if not credentials:
         raise HTTPException(status_code=401, detail="Token required")
