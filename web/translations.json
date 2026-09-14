@@ -129,7 +129,9 @@
     "footer_request": "Teklif Talebi",
     "footer_tracking_label": "Sipariş Takibi",
     "feature_num_gtip": "GTİP",
-    "feature_num_onsite": "Yerinde"
+    "feature_num_onsite": "Yerinde",
+    "feature_num_stages": "6",
+    "feature_num_tracking": "7/24"
   },
   "en": {
     "nav_logo": "ATK Global",
@@ -261,7 +263,9 @@
     "footer_request": "Quote Request",
     "footer_tracking_label": "Order Tracking",
     "feature_num_gtip": "HS Code",
-    "feature_num_onsite": "On-Site"
+    "feature_num_onsite": "On-Site",
+    "feature_num_stages": "6",
+    "feature_num_tracking": "24/7"
   },
   "zh": {
     "nav_logo": "ATK Global",
@@ -393,7 +397,9 @@
     "footer_request": "报价请求",
     "footer_tracking_label": "订单追踪",
     "feature_num_gtip": "HS编码",
-    "feature_num_onsite": "现场"
+    "feature_num_onsite": "现场",
+    "feature_num_stages": "6",
+    "feature_num_tracking": "24/7"
   },
   "de": {
     "nav_logo": "ATK Global",
@@ -525,7 +531,9 @@
     "footer_request": "Angebotsanfrage",
     "footer_tracking_label": "Bestellverfolgung",
     "feature_num_gtip": "HS-Code",
-    "feature_num_onsite": "Vor Ort"
+    "feature_num_onsite": "Vor Ort",
+    "feature_num_stages": "6",
+    "feature_num_tracking": "24/7"
   },
   "it": {
     "nav_logo": "ATK Global",
@@ -657,7 +665,9 @@
     "footer_request": "Richiesta di Preventivo",
     "footer_tracking_label": "Tracciamento Ordini",
     "feature_num_gtip": "Codice SA",
-    "feature_num_onsite": "In Loco"
+    "feature_num_onsite": "In Loco",
+    "feature_num_stages": "6",
+    "feature_num_tracking": "24/7"
   },
   "ar": {
     "nav_logo": "ATK Global",
@@ -789,6 +799,8 @@
     "footer_request": "طلب عرض",
     "footer_tracking_label": "تتبع الطلب",
     "feature_num_gtip": "رمز HS",
-    "feature_num_onsite": "في الموقع"
+    "feature_num_onsite": "في الموقع",
+    "feature_num_stages": "6",
+    "feature_num_tracking": "24/7"
   }
 }
