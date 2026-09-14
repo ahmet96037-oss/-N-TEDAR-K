@@ -142,6 +142,16 @@
   .brand-name{ font-weight:700; font-size:14.5px; color:var(--sidebar-text); white-space:nowrap; }
   .brand-tag{ font-size:11px; color:var(--sidebar-text-dim); white-space:nowrap; }
   .app-shell.is-collapsed .brand-logo img{ height:36px; }
+  /* Sidebar logosu tema-aware: lacivert logo (atk-logo-navy) opak beyaz zeminli olduğu
+     için koyu temada koca bir beyaz kutu gibi görünürdü — koyu temada şeffaf beyaz
+     logoya (atk-logo-white) otomatik geçiyor. */
+  .brand-logo .logo-dark{ display:none; }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .brand-logo .logo-light{ display:none; }
+    :root:not([data-theme="light"]) .brand-logo .logo-dark{ display:block; }
+  }
+  :root[data-theme="dark"] .brand-logo .logo-light{ display:none; }
+  :root[data-theme="dark"] .brand-logo .logo-dark{ display:block; }
   /* Login ekranındaki marka alanı — adminator.css'in .auth-brand .logo kuralı SVG ikon
      için tasarlanmış sabit kare kutu (36x36px), bizim yatay logomuz onu ezerdi;
      kendi görsel için ayrı bir kural. */
@@ -1059,9 +1069,12 @@ const NAV_HESAP = [
   { key: 'hatalar', text: 'Hatalar', icon: '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/>', adminOnly: true },
   { key: 'ayarlar', text: 'Ayarlar', icon: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>' },
 ];
-// Sidebar zemini açık/beyaz — lacivert yazılı logo; login ekranının sol paneli
-// koyu zemin — beyaz yazılı logo. İkisi farklı görsel dosyası.
-const BRAND_LOGO = `<img src="/assets/logo/atk-logo-navy.png" alt="ATK Global">`;
+// Sidebar zemini light/dark tema değiştirilebilir olduğu için logo da tema-aware:
+// açık temada lacivert (atk-logo-navy, opak beyaz zeminli) görünür, koyu temada
+// beyaz (atk-logo-white, şeffaf) görünür — CSS ile toggle ediliyor (.logo-light/.logo-dark).
+// Login ekranının sol paneli her zaman koyu zemin — orada sabit BRAND_LOGO_WHITE kullanılıyor.
+const BRAND_LOGO = `<img src="/assets/logo/atk-logo-navy.png" alt="ATK Global" class="logo-light">` +
+  `<img src="/assets/logo/atk-logo-white.png" alt="ATK Global" class="logo-dark">`;
 const BRAND_LOGO_WHITE = `<img src="/assets/logo/atk-logo-white.png" alt="ATK Global">`;
 
 function navLink(item, activeView) {

@@ -117,6 +117,16 @@
   .brand-name{ font-weight:700; font-size:14.5px; color:var(--sidebar-text); white-space:nowrap; }
   .brand-tag{ font-size:11px; color:var(--sidebar-text-dim); white-space:nowrap; }
   .app-shell.is-collapsed .brand-logo img{ height:36px; }
+  /* Sidebar logosu tema-aware: lacivert logo (atk-logo-navy) opak beyaz zeminli olduğu
+     için koyu temada koca bir beyaz kutu gibi görünürdü — koyu temada şeffaf beyaz
+     logoya (atk-logo-white) otomatik geçiyor. */
+  .brand-logo .logo-dark{ display:none; }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .brand-logo .logo-light{ display:none; }
+    :root:not([data-theme="light"]) .brand-logo .logo-dark{ display:block; }
+  }
+  :root[data-theme="dark"] .brand-logo .logo-light{ display:none; }
+  :root[data-theme="dark"] .brand-logo .logo-dark{ display:block; }
   /* Login ekranındaki marka alanı — .auth-brand .logo kuralı SVG ikon için sabit
      kare kutu; yatay logomuz için ayrı kural. */
   .auth-brand-routex{ width:auto; height:auto; background:none; border:none; padding:0; }
@@ -543,9 +553,12 @@ async function sifreDegistirKaydet() {
   okBox.style.display = 'block';
 }
 
-// Sidebar zemini açık/beyaz — lacivert yazılı logo; login ekranının sol paneli
-// koyu zemin — beyaz yazılı logo. İkisi farklı görsel dosyası.
-const BRAND_LOGO = `<img src="/assets/logo/atk-logo-navy.png" alt="ATK Global">`;
+// Sidebar zemini light/dark tema değiştirilebilir olduğu için logo da tema-aware:
+// açık temada lacivert (atk-logo-navy, opak beyaz zeminli) görünür, koyu temada
+// beyaz (atk-logo-white, şeffaf) görünür — CSS ile toggle ediliyor (.logo-light/.logo-dark).
+// Login ekranının sol paneli her zaman koyu zemin — orada sabit BRAND_LOGO_WHITE kullanılıyor.
+const BRAND_LOGO = `<img src="/assets/logo/atk-logo-navy.png" alt="ATK Global" class="logo-light">` +
+  `<img src="/assets/logo/atk-logo-white.png" alt="ATK Global" class="logo-dark">`;
 const BRAND_LOGO_WHITE = `<img src="/assets/logo/atk-logo-white.png" alt="ATK Global">`;
 
 function authShell(innerHtml) {
