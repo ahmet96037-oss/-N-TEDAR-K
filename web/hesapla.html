@@ -133,6 +133,14 @@
   .site-nav a{ color:var(--text-muted); text-decoration:none; font-weight:600; }
   .site-nav a:hover{ color:var(--text); }
   .site-nav .logo{ font-family:var(--font-display); font-weight:800; color:var(--text); display:inline-flex; align-items:center; gap:8px; }
+  /* Logo lacivert yazılı — açık temada olduğu gibi görünür; koyu temada beyaz versiyona
+     geçilir, aksi halde lacivert yazı koyu zeminde kayboluyordu. */
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .logo-light{ display:none !important; }
+    :root:not([data-theme="light"]) .logo-dark{ display:block !important; }
+  }
+  :root[data-theme="dark"] .logo-light{ display:none !important; }
+  :root[data-theme="dark"] .logo-dark{ display:block !important; }
   .site-nav .logo svg{ width:22px; height:22px; flex:none; }
   .site-nav .links{ display:flex; gap:20px; align-items:center; }
   .site-nav .cta{ background:var(--accent2); color:#fff !important; padding:9px 20px; border-radius:30px; font-weight:700; }
@@ -141,7 +149,10 @@
 <body>
 <div class="wrap">
   <div class="site-nav">
-    <a href="/" class="logo"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#1fae70"/><ellipse cx="20" cy="20" rx="14" ry="7" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><ellipse cx="20" cy="20" rx="7" ry="14" fill="none" stroke="#ffffff" stroke-opacity="0.25"/><path d="M9,28 C15,24 25,16 31,12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 4.2"/><circle cx="9" cy="28" r="2.6" fill="#ffffff"/><circle cx="31" cy="12" r="2.6" fill="#ffffff"/></svg> Tedarik Ağı</a>
+    <a href="/" class="logo">
+      <img src="/assets/logo/atk-logo-navy.png" alt="ATK Global" class="logo-img logo-light" style="height:26px; display:block;">
+      <img src="/assets/logo/atk-logo-white.png" alt="ATK Global" class="logo-img logo-dark" style="height:26px; display:none;">
+    </a>
     <div class="links">
       <a href="/takip.html">Sipariş Takip</a>
       <div class="theme-toggle" id="themeToggle">

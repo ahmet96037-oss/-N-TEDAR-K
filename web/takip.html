@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><rect width=%2240%22 height=%2240%22 rx=%229%22 fill=%22%230f3d63%22/><ellipse cx=%2220%22 cy=%2220%22 rx=%2214%22 ry=%227%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.16%22 stroke-width=%221%22/><ellipse cx=%2220%22 cy=%2220%22 rx=%227%22 ry=%2214%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.16%22 stroke-width=%221%22/><path d=%22M9,28 C15,24 25,16 31,12%22 fill=%22none%22 stroke=%22%23d99a2b%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-dasharray=%220.5 4.2%22/><circle cx=%229%22 cy=%2228%22 r=%222.6%22 fill=%22%23ffffff%22/><circle cx=%2231%22 cy=%2212%22 r=%222.6%22 fill=%22%23d99a2b%22/></svg>">
-<title>Sipariş Takip — RouteX Global</title>
+<title>Sipariş Takip — ATK Global</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Adminator (puikinsh/Adminator-admin-dashboard, MIT) — admin panelle birebir aynı tasarım
@@ -110,7 +110,7 @@
   .app-shell.is-collapsed .brand-row .chev{ transform:rotate(-90deg); }
   .sidebar .brand{ font-family:var(--font-display); font-weight:700; font-size:15.5px; letter-spacing:-.01em; text-decoration:none; color:var(--sidebar-text); display:flex; align-items:center; gap:11px; margin:0; }
   .sidebar .brand svg{ width:28px; height:28px; flex:none; border-radius:8px; }
-  /* RouteX Global logosu — brand-logo/brand-text için eksik olan asıl kurallar */
+  /* ATK Global logosu — brand-logo/brand-text için eksik olan asıl kurallar */
   .brand-logo{ flex:none; display:flex; align-items:center; width:auto; height:auto; background:none; border-radius:0; box-shadow:none; }
   .brand-logo img{ display:block; height:52px; width:auto; }
   .brand-text{ line-height:1.2; overflow:hidden; }
@@ -121,7 +121,7 @@
      kare kutu; yatay logomuz için ayrı kural. */
   .auth-brand-routex{ width:auto; height:auto; background:none; border:none; padding:0; }
   .auth-brand-routex img{ display:block; height:40px; width:auto; }
-  /* Sol panel: adminator.css'in mor-yeşil marka gradient'i RouteX'in kendi renkleriyle
+  /* Sol panel: adminator.css'in mor-yeşil marka gradient'i ATK'in kendi renkleriyle
      (turuncu+lacivert) çakışıyordu; sade koyu zemine çevrildi, logo tek başına ortada. */
   .auth-aside-routex{ background:#0a0e1f !important; display:flex; flex-direction:column; }
   .auth-aside-routex .auth-brand-routex{ flex:1; display:flex; align-items:center; justify-content:center; }
@@ -545,8 +545,8 @@ async function sifreDegistirKaydet() {
 
 // Sidebar zemini açık/beyaz — lacivert yazılı logo; login ekranının sol paneli
 // koyu zemin — beyaz yazılı logo. İkisi farklı görsel dosyası.
-const BRAND_LOGO = `<img src="/assets/logo/routex-logo-navy.png" alt="RouteX Global">`;
-const BRAND_LOGO_WHITE = `<img src="/assets/logo/routex-logo-white.png" alt="RouteX Global">`;
+const BRAND_LOGO = `<img src="/assets/logo/atk-logo-navy.png" alt="ATK Global">`;
+const BRAND_LOGO_WHITE = `<img src="/assets/logo/atk-logo-white.png" alt="ATK Global">`;
 
 function authShell(innerHtml) {
   // Adminator'ın gerçek split-panel auth tasarımı — admin paneliyle birebir aynı.
@@ -555,7 +555,7 @@ function authShell(innerHtml) {
       <aside class="auth-aside auth-aside-routex">
         <div class="auth-brand auth-brand-routex">${BRAND_LOGO_WHITE}</div>
         <div class="auth-aside-footer">
-          <span>© 2026 RouteX Global</span>
+          <span>© 2026 ATK Global</span>
           <span>CANLI TAKİP · YERİNDE QC</span>
         </div>
       </aside>
@@ -1231,7 +1231,7 @@ function detaySayfasi(d, suankiIndex) {
         background:${m.gonderen_tip === 'musteri' ? 'var(--accent2)' : 'var(--bg-alt)'};
         color:${m.gonderen_tip === 'musteri' ? '#fff' : 'var(--text)'};">
         <div>${m.mesaj.replace(/</g,'&lt;')}</div>
-        <div style="font-size:10.5px; opacity:.7; margin-top:4px;">${m.gonderen_tip === 'musteri' ? 'Siz' : 'RouteX Global Ekibi'} · ${new Date(m.tarih).toLocaleString('tr-TR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
+        <div style="font-size:10.5px; opacity:.7; margin-top:4px;">${m.gonderen_tip === 'musteri' ? 'Siz' : 'ATK Global Ekibi'} · ${new Date(m.tarih).toLocaleString('tr-TR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
       </div>
     </div>`).join('') : '<p style="color:var(--text-muted); font-size:13px; margin:0;">Bir sorunuz mu var? Buradan yazabilirsiniz.</p>';
   const mesajCard = `<div class="panel" style="margin-bottom:20px;">

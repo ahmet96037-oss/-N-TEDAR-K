@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><rect width=%2240%22 height=%2240%22 rx=%229%22 fill=%22%230f3d63%22/><ellipse cx=%2220%22 cy=%2220%22 rx=%2214%22 ry=%227%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.16%22 stroke-width=%221%22/><ellipse cx=%2220%22 cy=%2220%22 rx=%227%22 ry=%2214%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.16%22 stroke-width=%221%22/><path d=%22M9,28 C15,24 25,16 31,12%22 fill=%22none%22 stroke=%22%23d99a2b%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-dasharray=%220.5 4.2%22/><circle cx=%229%22 cy=%2228%22 r=%222.6%22 fill=%22%23ffffff%22/><circle cx=%2231%22 cy=%2212%22 r=%222.6%22 fill=%22%23d99a2b%22/></svg>">
-<title>Admin — RouteX Global</title>
+<title>Admin — ATK Global</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Adminator (puikinsh/Adminator-admin-dashboard, MIT) — gerçek, framework gerektirmeyen
@@ -135,7 +135,7 @@
   .sidebar .brand svg{ width:28px; height:28px; flex:none; border-radius:8px; }
   .sidebar .brand-t{ line-height:1.25; letter-spacing:-.01em; }
   .sidebar .brand-sub{ font-family:var(--font-body); font-weight:400; font-size:11px; letter-spacing:.02em; text-transform:none; color:var(--sidebar-text-dim); }
-  /* RouteX Global logosu — brand-logo/brand-text için eksik olan asıl kurallar */
+  /* ATK Global logosu — brand-logo/brand-text için eksik olan asıl kurallar */
   .brand-logo{ flex:none; display:flex; align-items:center; width:auto; height:auto; background:none; border-radius:0; box-shadow:none; }
   .brand-logo img{ display:block; height:52px; width:auto; }
   .brand-text{ line-height:1.2; overflow:hidden; }
@@ -146,7 +146,7 @@
      için tasarlanmış sabit kare kutu (36x36px), bizim yatay logomuz onu ezerdi;
      kendi görsel için ayrı bir kural. */
   .auth-brand-routex{ width:auto; height:auto; background:none; border:none; padding:0; }
-  /* Sol panel: adminator.css'in mor-yeşil marka gradient'i RouteX'in kendi renkleriyle
+  /* Sol panel: adminator.css'in mor-yeşil marka gradient'i ATK'in kendi renkleriyle
      (turuncu+lacivert) çakışıyordu; sade koyu zemine çevrildi, logo tek başına ortada. */
   .auth-aside-routex{ background:#0a0e1f !important; display:flex; flex-direction:column; }
   .auth-aside-routex .auth-brand-routex{ flex:1; display:flex; align-items:center; justify-content:center; }
@@ -1026,7 +1026,7 @@ function authShell(innerHtml) {
       <aside class="auth-aside auth-aside-routex">
         <div class="auth-brand auth-brand-routex">${BRAND_LOGO_WHITE}</div>
         <div class="auth-aside-footer">
-          <span>© 2026 RouteX Global</span>
+          <span>© 2026 ATK Global</span>
           <span>YALNIZCA EKİP ERİŞİMİ</span>
         </div>
       </aside>
@@ -1061,8 +1061,8 @@ const NAV_HESAP = [
 ];
 // Sidebar zemini açık/beyaz — lacivert yazılı logo; login ekranının sol paneli
 // koyu zemin — beyaz yazılı logo. İkisi farklı görsel dosyası.
-const BRAND_LOGO = `<img src="/assets/logo/routex-logo-navy.png" alt="RouteX Global">`;
-const BRAND_LOGO_WHITE = `<img src="/assets/logo/routex-logo-white.png" alt="RouteX Global">`;
+const BRAND_LOGO = `<img src="/assets/logo/atk-logo-navy.png" alt="ATK Global">`;
+const BRAND_LOGO_WHITE = `<img src="/assets/logo/atk-logo-white.png" alt="ATK Global">`;
 
 function navLink(item, activeView) {
   const active = item.key === activeView || (item.key === 'liste' && activeView === 'detay') ? ' is-active' : '';

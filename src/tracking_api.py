@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Takip Sistemi — Çin Tedarik Ağı müşteri portalı backend'i.
+Takip Sistemi — ATK Global müşteri portalı backend'i.
 
 RFQ'dan teslimata: müşteri kendi siparişinin durumunu (fabrika görüşülüyor →
 numune → üretim → konteyner → gemi → gümrük → teslimat) ve belgelerini

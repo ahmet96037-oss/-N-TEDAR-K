@@ -26,7 +26,7 @@ from src.email_service import send_quote_confirmation
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "web")
 
-app = FastAPI(title="Çin Tedarik Ağı — Vergi Motoru + Takip Sistemi")
+app = FastAPI(title="ATK Global — Vergi Motoru + Takip Sistemi")
 app.include_router(tracking_router)
 
 
@@ -109,7 +109,7 @@ def _sema_hazirla():
                 conn.execute(
                     """INSERT INTO customers (email, password_hash, name, company, phone, city, country)
                        VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                    (demo_email, demo_hashed, "Demo Kullanıcı", "Tedarik Ağı", "+90 500 000 00 00", "İstanbul", "Türkiye")
+                    (demo_email, demo_hashed, "Demo Kullanıcı", "ATK Global", "+90 500 000 00 00", "İstanbul", "Türkiye")
                 )
         except Exception:
             pass  # Demo user eklenemezse, normal devam et

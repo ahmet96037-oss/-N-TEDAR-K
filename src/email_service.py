@@ -12,8 +12,8 @@ except (ValueError, TypeError):
     SMTP_PORT = 587
 SMTP_USER = os.environ.get("SMTP_USER", "").strip()
 SMTP_PASS = os.environ.get("SMTP_PASS", "").strip()
-SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "noreply@tedarik.com")
-SENDER_NAME = os.environ.get("SENDER_NAME", "Tedarik Ağı")
+SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "noreply@atkglobal.com")
+SENDER_NAME = os.environ.get("SENDER_NAME", "ATK Global")
 
 
 def send_email(
@@ -67,9 +67,9 @@ def send_quote_confirmation(customer_name: str, customer_email: str, quote_numbe
           <p><strong>Teklif No:</strong> {quote_number}</p>
           <p><strong>Toplam Tutar:</strong> ${total:.2f}</p>
         </div>
-        <p>Müşteri panelinizdeki <a href="https://cin-tedarik-sistem.vercel.app/dashboard.html" style="color: #1fae70; text-decoration: none;">siparişlerim</a> bölümünden teklifi ve ilerlemeyi takip edebilirsiniz.</p>
+        <p>Müşteri panelinizdeki <a href="https://cin-tedarik-sistem.vercel.app/takip.html" style="color: #1fae70; text-decoration: none;">siparişlerim</a> bölümünden teklifi ve ilerlemeyi takip edebilirsiniz.</p>
         <p style="margin-top: 30px; color: #666; font-size: 12px;">
-          © Tedarik Ağı — İthalat İhracat ve Gümrük Danışmanlığı
+          © ATK Global — İthalat İhracat ve Gümrük Danışmanlığı
         </p>
       </div>
     </body>
@@ -94,12 +94,12 @@ def send_order_shipped(customer_name: str, customer_email: str, order_number: st
           <p><strong>Takip No:</strong> {tracking_number}</p>
         </div>
         <p>
-          <a href="https://cin-tedarik-sistem.vercel.app/dashboard.html" style="display: inline-block; background: #1fae70; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+          <a href="https://cin-tedarik-sistem.vercel.app/takip.html" style="display: inline-block; background: #1fae70; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
             Sipariş Detaylarını Gör
           </a>
         </p>
         <p style="margin-top: 30px; color: #666; font-size: 12px;">
-          © Tedarik Ağı — İthalat İhracat ve Gümrük Danışmanlığı
+          © ATK Global — İthalat İhracat ve Gümrük Danışmanlığı
         </p>
       </div>
     </body>
@@ -125,7 +125,7 @@ def send_delivery_confirmed(customer_name: str, customer_email: str, order_numbe
         </div>
         <p>Herhangi bir sorunuz varsa veya yardıma ihtiyacınız olursa, bize ulaşmaktan çekinmeyin.</p>
         <p style="margin-top: 30px; color: #666; font-size: 12px;">
-          © Tedarik Ağı — İthalat İhracat ve Gümrük Danışmanlığı
+          © ATK Global — İthalat İhracat ve Gümrük Danışmanlığı
         </p>
       </div>
     </body>
@@ -153,12 +153,12 @@ def send_notification_email(customer_name: str, customer_email: str, notificatio
         <p>Merhaba <strong>{customer_name}</strong>,</p>
         <p>{message}</p>
         <p>
-          <a href="https://cin-tedarik-sistem.vercel.app/dashboard.html" style="display: inline-block; background: #1fae70; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 20px;">
+          <a href="https://cin-tedarik-sistem.vercel.app/takip.html" style="display: inline-block; background: #1fae70; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 20px;">
             Panele Git
           </a>
         </p>
         <p style="margin-top: 30px; color: #666; font-size: 12px;">
-          © Tedarik Ağı
+          © ATK Global
         </p>
       </div>
     </body>
