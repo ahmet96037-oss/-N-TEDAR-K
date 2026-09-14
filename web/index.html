@@ -1194,6 +1194,26 @@
   const GOOGLE_LANG_MAP = { tr: '', en: 'en', zh: 'zh-CN', de: 'de', it: 'it', ar: 'ar' };
   let currentLang = localStorage.getItem('language') || 'tr';
 
+  // Google Translate 'Türkiye' kelimesini tutarsız çeviriyor — bazı yerlerde doğru
+  // (örn. Almanca'da 'Türkei'), bazı yerlerde hiç dokunmuyor, kaynakta olduğu gibi
+  // bırakıyor. Google'ın genel çevirisinden vazgeçmek yerine (tüm siteyi otomatik
+  // çeviren tek pratik çözüm bu), sadece bu bilinen özel ismi hedefli olarak
+  // düzeltiyoruz: çeviri DOM'a yerleştikten sonra 'Türkiye' geçen metin node'larını
+  // bulup doğru karşılığıyla değiştiriyoruz.
+  const COUNTRY_NAME_FIX = { en: 'Turkey', zh: '土耳其', de: 'Türkei', it: 'Turchia', ar: 'تركيا' };
+  function fixCountryName(lang) {
+    const replacement = COUNTRY_NAME_FIX[lang];
+    if (!replacement) return;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    let n;
+    while (n = walker.nextNode()) {
+      if (n.parentElement && n.parentElement.closest('#google_translate_element')) continue;
+      if (n.nodeValue.includes('Türkiye')) nodes.push(n);
+    }
+    nodes.forEach(node => { node.nodeValue = node.nodeValue.replaceAll('Türkiye', replacement); });
+  }
+
   function getGoogTransCookie() {
     const m = document.cookie.match(/(?:^|;\s*)googtrans=([^;]*)/);
     return m ? decodeURIComponent(m[1]) : '';
@@ -1250,6 +1270,17 @@
         opt.classList.toggle('active', opt.dataset.lang === currentLang);
       });
     }
+
+    // Google Translate DOM'u asenkron/parça parça günceller (özellikle scroll ile
+    // görünen yeni bölümlerde) — tek seferlik düzeltme yetmez, sürekli izleyip
+    // 'Türkiye' kelimesi her belirdiğinde anında düzeltiyoruz.
+    let fixDebounce = null;
+    const observer = new MutationObserver(() => {
+      if (currentLang === 'tr') return;
+      clearTimeout(fixDebounce);
+      fixDebounce = setTimeout(() => fixCountryName(currentLang), 150);
+    });
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
   });
 
   document.getElementById('langToggle').addEventListener('click', () => {
