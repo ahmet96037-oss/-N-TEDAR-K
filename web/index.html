@@ -392,7 +392,9 @@
 
   /* COMPARISON TABLE */
   .comparison{ background:var(--dark-main); padding:var(--sp-140) 0; }
+  @media (max-width:767px){ .comparison{ padding:var(--sp-70) 0; } }
   .comparison-head{ text-align:center; max-width:45rem; margin:0 auto var(--sp-60); }
+  @media (max-width:767px){ .comparison-head{ margin-bottom:2.25rem; } }
   .comparison-head h2{ font-size:clamp(1.8rem,4vw,var(--fs-44)); font-weight:500; margin-bottom:12px; }
   .comparison-head p{ color:var(--text-dim); font-size:var(--fs-16); }
   .comparison-table{ border:1px solid var(--glass-border); border-radius:12px; overflow:hidden; }
@@ -414,7 +416,7 @@
     .comparison-row.header{ display:none; }
     .comparison-row .col-name{ padding:0 0 12px; font-size:15px; font-weight:600; border-bottom:1px solid var(--glass-border); margin-bottom:10px; }
     .comparison-row .col{ display:flex; align-items:center; justify-content:space-between; padding:7px 0; text-align:left; font-size:14px; }
-    .comparison-row .col.highlighted{ background:none; border-radius:8px; padding:7px 10px; margin:2px -10px; }
+    .comparison-row .col.highlighted{ background:rgba(31,174,112,.1); border-radius:8px; padding:7px 10px; margin:4px 0 0; }
     .comparison-row .col-vs{ display:inline; font-weight:500; color:var(--text-dim); font-size:13px; }
     .comparison-row .col.highlighted .col-vs{ color:var(--green); font-weight:700; }
     .comparison-row .col-val{ font-weight:700; font-size:16px; }
@@ -689,7 +691,7 @@
   <div class="wrap">
     <div class="comparison-head">
       <p class="eyebrow"><span data-i18n="comparison_eyebrow">Neden ATK Global</span></p>
-      <h2 data-i18n="comparison_title"><h2>
+      <h2 data-i18n="comparison_title"></h2>
     </div>
 
     <div class="comparison-table">
