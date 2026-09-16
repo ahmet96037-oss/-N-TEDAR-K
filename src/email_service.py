@@ -12,8 +12,8 @@ except (ValueError, TypeError):
     SMTP_PORT = 587
 SMTP_USER = os.environ.get("SMTP_USER", "").strip()
 SMTP_PASS = os.environ.get("SMTP_PASS", "").strip()
-SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "noreply@atkglobal.com")
-SENDER_NAME = os.environ.get("SENDER_NAME", "ATK Global")
+SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "noreply@routexglobal.com")
+SENDER_NAME = os.environ.get("SENDER_NAME", "RouteX Global")
 
 
 def send_email(
@@ -69,7 +69,7 @@ def send_quote_confirmation(customer_name: str, customer_email: str, quote_numbe
         </div>
         <p>Müşteri panelinizdeki <a href="https://cin-tedarik-sistem.vercel.app/takip.html" style="color: #1fae70; text-decoration: none;">siparişlerim</a> bölümünden teklifi ve ilerlemeyi takip edebilirsiniz.</p>
         <p style="margin-top: 30px; color: #666; font-size: 12px;">
-          © ATK Global — İthalat İhracat ve Gümrük Danışmanlığı
+          © RouteX Global — İthalat İhracat ve Gümrük Danışmanlığı
         </p>
       </div>
     </body>
@@ -99,7 +99,7 @@ def send_order_shipped(customer_name: str, customer_email: str, order_number: st
           </a>
         </p>
         <p style="margin-top: 30px; color: #666; font-size: 12px;">
-          © ATK Global — İthalat İhracat ve Gümrük Danışmanlığı
+          © RouteX Global — İthalat İhracat ve Gümrük Danışmanlığı
         </p>
       </div>
     </body>
@@ -125,7 +125,7 @@ def send_delivery_confirmed(customer_name: str, customer_email: str, order_numbe
         </div>
         <p>Herhangi bir sorunuz varsa veya yardıma ihtiyacınız olursa, bize ulaşmaktan çekinmeyin.</p>
         <p style="margin-top: 30px; color: #666; font-size: 12px;">
-          © ATK Global — İthalat İhracat ve Gümrük Danışmanlığı
+          © RouteX Global — İthalat İhracat ve Gümrük Danışmanlığı
         </p>
       </div>
     </body>
@@ -158,7 +158,7 @@ def send_notification_email(customer_name: str, customer_email: str, notificatio
           </a>
         </p>
         <p style="margin-top: 30px; color: #666; font-size: 12px;">
-          © ATK Global
+          © RouteX Global
         </p>
       </div>
     </body>
