@@ -744,6 +744,7 @@ def admin_musteri_reddet(musteri_id: int, authorization: str = Header(None)):
         conn.execute("DELETE FROM tk_odemeler WHERE siparis_id = ?", (sid,))
         conn.execute("DELETE FROM tk_mesajlar WHERE siparis_id = ?", (sid,))
     conn.execute("DELETE FROM tk_siparisler WHERE musteri_id = ?", (musteri_id,))
+    conn.execute("DELETE FROM tk_oturumlar WHERE musteri_id = ?", (musteri_id,))
     conn.execute("DELETE FROM tk_musteriler WHERE id = ?", (musteri_id,))
     conn._conn.commit()
     conn.close()
