@@ -869,6 +869,14 @@
 </footer>
 
 <script>
+// Çeviri durumu — script'in en başında tanımlı, çünkü haritanın scroll IIFE'si
+// (aşağıda) sayfa yüklenir yüklenmez senkron olarak setStage(0) çağırıp bu
+// değişkenlere erişiyor. Aşağıda (i18n bloğunda) tanımlansaydı TDZ hatası
+// ('Cannot access before initialization') oluşurdu — tüm dil değiştirme
+// sistemini sessizce çökertiyordu.
+let translations = {};
+let currentLang = localStorage.getItem('language') || 'tr';
+
 // ---- Hata izleme — üçüncü parti servis yok, kendi tablomuzda hafif bir kayıt.
 // Sayfada yakalanmamış bir JS hatası veya reddedilmiş Promise olursa backend'e bildirir,
 // admin panelindeki "Hatalar" sayfasında görünür. Kullanıcı deneyimini etkilemez (sessiz, fire-and-forget). ----
@@ -977,8 +985,8 @@
   ];
   // Çin ve Türkiye için hassas pin yerine tek büyük, affedici "bölge vurgusu" (glow) — küçük koordinat
   // sapmaları görünmez kalır; gerçek şehir isimleri zaten yandaki bilgi kartında yazılı.
-  const CHINA_CENTER = { x: 82.2, y: 33.6, label: 'Çin — Tedarik Bölgesi' };
-  const TURKEY_CENTER = { x: 59.0, y: 27.0, label: 'Türkiye — Varış Bölgesi' };
+  const CHINA_CENTER = { x: 82.2, y: 33.6, label: 'Çin — Tedarik Merkezleri', i18nKey: 'china_title' };
+  const TURKEY_CENTER = { x: 59.0, y: 27.0, label: 'Türkiye — Varış Noktaları', i18nKey: 'turkey_title' };
 
   const mapWrap = document.getElementById('footprintZoomGroup');
   const mapImg = document.getElementById('footprintZoomGroup');
@@ -1002,6 +1010,10 @@
     label.className = 'map-region-label';
     label.style.left = center.x + '%'; label.style.top = center.y + '%';
     label.textContent = center.label;
+    // JS ile sonradan oluşturulan bu element normal data-i18n taramasında (sayfa
+    // ilk yüklendiğinde) hiç yoktu, bu yüzden dil değiştiğinde hiç güncellenmiyordu
+    // — kaynağında bu attribute'u koyup applyTranslations()'ın bulmasını sağlıyoruz.
+    if (center.i18nKey) label.setAttribute('data-i18n', center.i18nKey);
     mapWrap.appendChild(glow); mapWrap.appendChild(label);
     return { glow, label };
   }
@@ -1207,8 +1219,7 @@
   // (özellikle 'Türkiye' gibi özel isimlerde, gecikmeli DOM güncellemelerinde).
   // Bu sistemde HTML'e hiç dokunulmuyor — data-i18n etiketleri zaten sağlam duruyor,
   // sadece JS güvenilir bir kaynaktan (translations.json, kontrolümüzde) okuyor.
-  let translations = {};
-  let currentLang = localStorage.getItem('language') || 'tr';
+  // (translations/currentLang script'in en başında tanımlı, bkz. dosya başı notu.)
 
   fetch('/translations.json')
     .then(r => r.json())
