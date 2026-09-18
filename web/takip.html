@@ -110,23 +110,17 @@
   .app-shell.is-collapsed .brand-row .chev{ transform:rotate(-90deg); }
   .sidebar .brand{ font-family:var(--font-display); font-weight:700; font-size:15.5px; letter-spacing:-.01em; text-decoration:none; color:var(--sidebar-text); display:flex; align-items:center; gap:11px; margin:0; }
   .sidebar .brand svg{ width:28px; height:28px; flex:none; border-radius:8px; }
-  /* RouteX Global logosu — brand-logo/brand-text için eksik olan asıl kurallar */
-  .brand-logo{ flex:none; display:flex; align-items:center; width:auto; height:auto; background:none; border-radius:0; box-shadow:none; }
-  .brand-logo img{ display:block; height:52px; width:auto; }
+  /* RouteX Global logosu — brand-logo/brand-text için eksik olan asıl kurallar.
+     Logo sadece beyaz yazılı (koyu zemin için) — açık temada sidebar zemini
+     beyaz/açık olduğu için yazı kaybolurdu, o yüzden logo her zaman koyu bir
+     "chip" arka planı üzerinde duruyor, temadan bağımsız her zaman okunuyor. */
+  .brand-logo{ flex:none; display:flex; align-items:center; background:#0a0e1f; border-radius:8px; padding:8px 12px; box-shadow:none; }
+  .brand-logo img{ display:block; height:36px; width:auto; }
   .brand-text{ line-height:1.2; overflow:hidden; }
   .brand-name{ font-weight:700; font-size:14.5px; color:var(--sidebar-text); white-space:nowrap; }
   .brand-tag{ font-size:11px; color:var(--sidebar-text-dim); white-space:nowrap; }
-  .app-shell.is-collapsed .brand-logo img{ height:36px; }
-  /* Sidebar logosu tema-aware: lacivert logo (routex-logo-navy) opak beyaz zeminli olduğu
-     için koyu temada koca bir beyaz kutu gibi görünürdü — koyu temada şeffaf beyaz
-     logoya (routex-logo-white) otomatik geçiyor. */
-  .brand-logo .logo-dark{ display:none; }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]) .brand-logo .logo-light{ display:none; }
-    :root:not([data-theme="light"]) .brand-logo .logo-dark{ display:block; }
-  }
-  :root[data-theme="dark"] .brand-logo .logo-light{ display:none; }
-  :root[data-theme="dark"] .brand-logo .logo-dark{ display:block; }
+  .app-shell.is-collapsed .brand-logo{ padding:8px; }
+  .app-shell.is-collapsed .brand-logo img{ height:24px; }
   /* Login ekranındaki marka alanı — .auth-brand .logo kuralı SVG ikon için sabit
      kare kutu; yatay logomuz için ayrı kural. */
   .auth-brand-routex{ width:auto; height:auto; background:none; border:none; padding:0; }
@@ -554,13 +548,11 @@ async function sifreDegistirKaydet() {
   okBox.style.display = 'block';
 }
 
-// Sidebar zemini light/dark tema değiştirilebilir olduğu için logo da tema-aware:
-// açık temada lacivert (routex-logo-navy, opak beyaz zeminli) görünür, koyu temada
-// beyaz (routex-logo-white, şeffaf) görünür — CSS ile toggle ediliyor (.logo-light/.logo-dark).
-// Login ekranının sol paneli her zaman koyu zemin — orada sabit BRAND_LOGO_WHITE kullanılıyor.
-const BRAND_LOGO = `<img src="/assets/logo/routex-logo-navy.png" alt="RouteX Global" class="logo-light">` +
-  `<img src="/assets/logo/routex-logo-white.png" alt="RouteX Global" class="logo-dark">`;
-const BRAND_LOGO_WHITE = `<img src="/assets/logo/routex-logo-white.png" alt="RouteX Global">`;
+// Logo yalnızca beyaz yazılı (şeffaf, koyu zemin için) — sidebar'da .brand-logo
+// artık her zaman koyu bir chip arka planı veriyor, bu yüzden tema fark etmeksizin
+// tek bir görsel yeterli. Login ekranının sol paneli zaten hep koyu zemin.
+const BRAND_LOGO = `<img src="/assets/logo/routex-logo-white.png" alt="RouteX Global">`;
+const BRAND_LOGO_WHITE = BRAND_LOGO;
 
 function authShell(innerHtml) {
   // Adminator'ın gerçek split-panel auth tasarımı — admin paneliyle birebir aynı.

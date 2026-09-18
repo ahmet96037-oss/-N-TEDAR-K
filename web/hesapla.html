@@ -132,15 +132,10 @@
   @media (max-width:480px){ .site-nav .theme-toggle{ display:none; } }
   .site-nav a{ color:var(--text-muted); text-decoration:none; font-weight:600; }
   .site-nav a:hover{ color:var(--text); }
-  .site-nav .logo{ font-family:var(--font-display); font-weight:800; color:var(--text); display:inline-flex; align-items:center; gap:8px; }
-  /* Logo lacivert yazılı — açık temada olduğu gibi görünür; koyu temada beyaz versiyona
-     geçilir, aksi halde lacivert yazı koyu zeminde kayboluyordu. */
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]) .logo-light{ display:none !important; }
-    :root:not([data-theme="light"]) .logo-dark{ display:block !important; }
-  }
-  :root[data-theme="dark"] .logo-light{ display:none !important; }
-  :root[data-theme="dark"] .logo-dark{ display:block !important; }
+  /* Logo yalnızca beyaz yazılı (şeffaf, koyu zemin için) — bu sayfanın zemini
+     temaya göre değişiyor (açık/koyu), o yüzden logo her zaman koyu bir "chip"
+     arka planı üzerinde duruyor, temadan bağımsız her zaman okunuyor. */
+  .site-nav .logo{ font-family:var(--font-display); font-weight:800; color:var(--text); display:inline-flex; align-items:center; gap:8px; background:#0a0e1f; border-radius:8px; padding:6px 10px; }
   .site-nav .logo svg{ width:22px; height:22px; flex:none; }
   .site-nav .links{ display:flex; gap:20px; align-items:center; }
   .site-nav .cta{ background:var(--accent2); color:#fff !important; padding:9px 20px; border-radius:30px; font-weight:700; }
@@ -174,8 +169,7 @@
 <div class="wrap">
   <div class="site-nav">
     <a href="/" class="logo">
-      <img src="/assets/logo/routex-logo-navy.png" alt="RouteX Global" class="logo-img logo-light" style="height:26px; display:block;">
-      <img src="/assets/logo/routex-logo-white.png" alt="RouteX Global" class="logo-img logo-dark" style="height:26px; display:none;">
+      <img src="/assets/logo/routex-logo-white.png" alt="RouteX Global" style="height:26px; display:block;">
     </a>
     <div class="links">
       <a href="/takip.html">Sipariş Takip</a>
