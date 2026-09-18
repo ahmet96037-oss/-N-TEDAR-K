@@ -470,6 +470,7 @@ function render() {
   const app = document.getElementById('app');
   if (view === 'giris') { app.innerHTML = authShell(girisEkrani()); return; }
   if (view === 'rfq') { app.innerHTML = authShell(rfqEkrani()); return; }
+  if (view === 'onay-bekliyor') { app.innerHTML = authShell(onayBekliyorEkrani()); return; }
   // Post-auth: her zaman panel kabuğu (sidebar + içerik) — tüm kullanıcı işlemleri burada.
   app.innerHTML = panelShell('<div class="empty-state">Yükleniyor…</div>', view);
   if (localStorage.getItem('tk_musteri_sidebar') === 'collapsed') document.querySelector('.app-shell').classList.add('is-collapsed');
@@ -718,6 +719,16 @@ function rfqEkrani() {
     <div class="toggle-row">Zaten hesabınız var mı? <button class="linklike" onclick="view='giris'; render();">Giriş yapın</button></div>`;
 }
 
+function onayBekliyorEkrani() {
+  return `
+    <div style="text-align:center; padding:12px 0;">
+      <div style="font-size:40px; margin-bottom:14px;">⏳</div>
+      <h2>Talebiniz Alındı</h2>
+      <p class="sub" style="margin-bottom:18px;">Hesabınız ekibimizin onayını bekliyor. Onaylandığında panelinize giriş yapabileceksiniz — bu genelde kısa sürer, size ayrıca haber vereceğiz.</p>
+      <button class="btn btn--primary auth-submit" style="width:100%; justify-content:center;" onclick="view='giris'; render();">Giriş Ekranına Dön</button>
+    </div>`;
+}
+
 async function tekrarSiparisVer(eskiSiparis) {
   if (!confirm(`"${eskiSiparis.urun_aciklamasi}" için aynı bilgilerle yeni bir talep oluşturulsun mu?`)) return;
   try {
@@ -782,6 +793,11 @@ async function rfqGonder() {
     const res = await fetch(API + '/api/tk/rfq', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
     if (!res.ok) { const d = await res.json(); errBox.textContent = d.detail || 'Bir hata oluştu'; return; }
     const d = await res.json();
+    if (d.onay_bekliyor) {
+      // Yeni kayıt admin onayı bekliyor — token verilmedi, panele girilmiyor.
+      view = 'onay-bekliyor'; render();
+      return;
+    }
     token = d.token; localStorage.setItem('tk_token', token);
     musteriAdi = body.ad_soyad; localStorage.setItem('tk_ad', musteriAdi);
     aktifSiparisNo = d.siparis_no;

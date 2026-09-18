@@ -197,10 +197,13 @@ class RfqIstek(BaseModel):
 
 @router.post("/rfq")
 def rfq_gonder(istek: RfqIstek, request: Request):
-    """Yeni talep formu — müşteri yoksa kayıt olur, siparişi oluşturulur."""
+    """Yeni talep formu — müşteri yoksa kayıt olur, siparişi oluşturulur.
+    Yeni kayıtlar admin onayı bekler — talep hemen alınır (ekip görebilir) ama
+    hesap onaylanana kadar panele oturum açılmaz (token verilmez)."""
     _rate_sinirla("rfq:" + request.client.host, limit=8, pencere_sn=300)
     conn = db()
     musteri = conn.execute("SELECT * FROM tk_musteriler WHERE email = ?", (istek.email,)).fetchone()
+    yeni_kayit = False
     if musteri:
         # Güvenlik: e-posta zaten kayıtlıysa şifre doğrulanmadan o hesaba oturum
         # AÇILMAZ — aksi hâlde herkes başkasının e-postasıyla RFQ gönderip
@@ -211,13 +214,16 @@ def rfq_gonder(istek: RfqIstek, request: Request):
                 detail="Bu e-posta zaten kayıtlı. Devam etmek için mevcut şifrenizle giriş yapın.",
             )
         musteri_id = musteri["id"]
+        onaylandi = bool(musteri["onaylandi"])
     else:
+        yeni_kayit = True
         conn.execute(
-            "INSERT INTO tk_musteriler (ad_soyad, firma, email, telefon, sifre_hash) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO tk_musteriler (ad_soyad, firma, email, telefon, sifre_hash, onaylandi) VALUES (?, ?, ?, ?, ?, false)",
             (istek.ad_soyad, istek.firma, istek.email, istek.telefon, _hash_sifre(istek.sifre)),
         )
         conn._conn.commit()
         musteri_id = conn.execute("SELECT id FROM tk_musteriler WHERE email = ?", (istek.email,)).fetchone()["id"]
+        onaylandi = False
 
     siparis_no = _siparis_no_uret(conn)
     conn.execute(
@@ -232,8 +238,17 @@ def rfq_gonder(istek: RfqIstek, request: Request):
     )
     conn._conn.commit()
 
+    if not onaylandi:
+        conn.close()
+        return {
+            "siparis_no": siparis_no,
+            "token": None,
+            "onay_bekliyor": True,
+            "yeni_kayit": yeni_kayit,
+        }
+
     token = _oturum_olustur(conn, musteri_id=musteri_id)
-    return {"siparis_no": siparis_no, "token": token}
+    return {"siparis_no": siparis_no, "token": token, "onay_bekliyor": False, "yeni_kayit": yeni_kayit}
 
 
 class MusteriSiparisOlusturIstek(BaseModel):
@@ -279,6 +294,8 @@ def musteri_giris(istek: GirisIstek, request: Request):
     musteri = conn.execute("SELECT * FROM tk_musteriler WHERE email = ?", (istek.email,)).fetchone()
     if not musteri or not _sifre_dogrula(istek.sifre, musteri["sifre_hash"]):
         raise HTTPException(status_code=401, detail="E-posta veya şifre hatalı")
+    if not musteri["onaylandi"]:
+        raise HTTPException(status_code=403, detail="Hesabınız henüz onaylanmadı. Ekibimiz kaydınızı inceliyor.")
     token = _oturum_olustur(conn, musteri_id=musteri["id"])
     return {"token": token, "ad_soyad": musteri["ad_soyad"]}
 
@@ -644,7 +661,7 @@ def admin_musteri_listesi(authorization: str = Header(None)):
     sipariş tarihiyle birlikte. Admin panelindeki 'Müşteriler' sekmesi için."""
     conn, _, _ = _admin_dogrula(authorization)
     rows = conn.execute(
-        """SELECT m.id, m.ad_soyad, m.firma, m.email, m.telefon, m.olusturulma,
+        """SELECT m.id, m.ad_soyad, m.firma, m.email, m.telefon, m.olusturulma, m.onaylandi,
                   COUNT(s.id) AS siparis_sayisi, MAX(s.olusturulma) AS son_siparis
            FROM tk_musteriler m
            LEFT JOIN tk_siparisler s ON s.musteri_id = m.id
@@ -661,9 +678,76 @@ def admin_musteri_listesi(authorization: str = Header(None)):
             "kayit_tarihi": r["olusturulma"].isoformat() if r["olusturulma"] else None,
             "siparis_sayisi": r["siparis_sayisi"],
             "son_siparis": r["son_siparis"].isoformat() if r["son_siparis"] else None,
+            "onaylandi": bool(r["onaylandi"]),
         }
         for r in rows
     ]
+
+
+@router.get("/admin/bekleyen-uyelikler")
+def admin_bekleyen_uyelikler(authorization: str = Header(None)):
+    """Admin onayı bekleyen yeni müşteri kayıtları — RFQ formundan kaydolmuş ama
+    henüz onaylanmadığı için panele giremeyen hesaplar."""
+    conn, _, _ = _admin_dogrula(authorization)
+    rows = conn.execute(
+        """SELECT id, ad_soyad, firma, email, telefon, olusturulma
+           FROM tk_musteriler WHERE onaylandi = false ORDER BY olusturulma DESC"""
+    ).fetchall()
+    conn.close()
+    return [
+        {
+            "id": r["id"],
+            "ad_soyad": r["ad_soyad"],
+            "firma": r["firma"],
+            "email": r["email"],
+            "telefon": r["telefon"],
+            "kayit_tarihi": r["olusturulma"].isoformat() if r["olusturulma"] else None,
+        }
+        for r in rows
+    ]
+
+
+@router.post("/admin/musteri/{musteri_id}/onayla")
+def admin_musteri_onayla(musteri_id: int, authorization: str = Header(None)):
+    """Bekleyen bir müşteri kaydını onaylar — onaydan sonra müşteri normal
+    şekilde giriş yapabilir."""
+    conn, _, _ = _admin_dogrula(authorization)
+    musteri = conn.execute("SELECT id FROM tk_musteriler WHERE id = ?", (musteri_id,)).fetchone()
+    if not musteri:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Müşteri bulunamadı")
+    conn.execute("UPDATE tk_musteriler SET onaylandi = true WHERE id = ?", (musteri_id,))
+    conn._conn.commit()
+    conn.close()
+    return {"status": "ok"}
+
+
+@router.delete("/admin/musteri/{musteri_id}/reddet")
+def admin_musteri_reddet(musteri_id: int, authorization: str = Header(None)):
+    """Bekleyen bir kaydı reddeder — hesabı ve ona bağlı talepleri (siparişler,
+    durum geçmişi, belgeler, ödemeler, mesajlar) siler. Önce alt tablolar
+    temizlenir (FK'lar CASCADE değil, NO ACTION — elle silmek gerekiyor)."""
+    conn, _, _ = _admin_dogrula(authorization)
+    musteri = conn.execute("SELECT id, onaylandi FROM tk_musteriler WHERE id = ?", (musteri_id,)).fetchone()
+    if not musteri:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Müşteri bulunamadı")
+    if musteri["onaylandi"]:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Zaten onaylanmış bir hesap reddedilemez")
+    siparis_ids = [r["id"] for r in conn.execute(
+        "SELECT id FROM tk_siparisler WHERE musteri_id = ?", (musteri_id,)
+    ).fetchall()]
+    for sid in siparis_ids:
+        conn.execute("DELETE FROM tk_durum_gecmisi WHERE siparis_id = ?", (sid,))
+        conn.execute("DELETE FROM tk_belgeler WHERE siparis_id = ?", (sid,))
+        conn.execute("DELETE FROM tk_odemeler WHERE siparis_id = ?", (sid,))
+        conn.execute("DELETE FROM tk_mesajlar WHERE siparis_id = ?", (sid,))
+    conn.execute("DELETE FROM tk_siparisler WHERE musteri_id = ?", (musteri_id,))
+    conn.execute("DELETE FROM tk_musteriler WHERE id = ?", (musteri_id,))
+    conn._conn.commit()
+    conn.close()
+    return {"status": "ok"}
 
 
 @router.get("/admin/tedarikciler")

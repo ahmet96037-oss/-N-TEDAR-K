@@ -602,6 +602,7 @@ function render() {
   if (view === 'liste') listeYukle();
   else if (view === 'detay') detayYukle(aktifSiparisNo);
   else if (view === 'musteriler') musterilerYukle();
+  else if (view === 'bekleyen-uyelikler') bekleyenUyelikleriYukle();
   else if (view === 'tedarikciler') tedarikcilerYukle();
   else if (view === 'yeni-siparis') { document.querySelector('.main').innerHTML = yeniSiparisEkrani(); ysMusteriDropdownDoldur(); }
   else if (view === 'ayarlar') ayarlarYukle();
@@ -1059,6 +1060,7 @@ const NAV = [
   { key: 'liste', text: 'Siparişler', icon: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>' },
   { key: 'yeni-siparis', text: 'Yeni Sipariş', icon: '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>' },
   { key: 'musteriler', text: 'Müşteriler', icon: '<path d="M3 21V8l9-5 9 5v13"/><path d="M9 21V12h6v9"/>' },
+  { key: 'bekleyen-uyelikler', text: 'Bekleyen Üyelikler', icon: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>' },
   { key: 'tedarikciler', text: 'Tedarikçiler', icon: '<path d="M3 9l1-5h16l1 5"/><path d="M4 9v11h16V9"/><path d="M9 21v-6h6v6"/>' },
   { key: 'analitik', text: 'Analitik', icon: '<path d="M3 20V4M7 20v-6M11 20v-10M15 20v-4M19 20V8"/>' },
   { key: 'takvim', text: 'Takvim', icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>' },
@@ -1853,6 +1855,53 @@ async function musterilerYukle() {
     <button class="secondary" onclick="pdfIndir(musteriRowsCache, ['ad_soyad','firma','email','telefon','siparis_sayisi'], {ad_soyad:'Ad Soyad', firma:'Firma', email:'E-posta', telefon:'Telefon', siparis_sayisi:'Sipariş'}, 'Müşteriler', 'musteriler.pdf')">⬇ PDF</button>
   </div>`;
   main.innerHTML = html;
+}
+
+async function bekleyenUyelikleriYukle() {
+  const main = document.querySelector('.main');
+  const res = await fetch(API + '/api/tk/admin/bekleyen-uyelikler', {headers:{'Authorization':'Bearer '+token}});
+  if (res.status === 401) { cikisYap(); return; }
+  const rows = await res.json();
+  let html = `<div class="breadcrumb">Genel <i class="bi bi-chevron-right"></i> Bekleyen Üyelikler</div><div class="panel-head"><div><h2>Bekleyen Üyelikler</h2><p>${rows.length} hesap onay bekliyor. Onaylanmadan panele giriş yapamazlar.</p></div></div>`;
+  if (rows.length === 0) {
+    html += '<div class="empty-state">Bekleyen üyelik yok.</div>';
+  } else {
+    html += '<div class="table-card"><div class="table-wrap"><table><thead><tr><th>Ad Soyad</th><th>Firma</th><th>İletişim</th><th>Kayıt Tarihi</th><th></th></tr></thead><tbody>';
+    rows.forEach(m => {
+      const baslar = (m.ad_soyad || '?').trim().charAt(0).toUpperCase();
+      const [avBg, avFg] = avatarRengi(m.ad_soyad || m.email || '?');
+      html += `<tr>
+        <td><div class="row-cust"><div class="av" style="background:${avBg}; color:${avFg};">${baslar}</div><div style="font-weight:700;">${m.ad_soyad}</div></div></td>
+        <td>${m.firma || '—'}</td>
+        <td>
+          <a href="mailto:${m.email}" style="color:var(--accent2); text-decoration:none; font-weight:600; font-size:13px;"><i class="bi bi-envelope"></i> ${m.email}</a>
+          ${m.telefon ? `<br><span style="color:var(--text-muted); font-size:12.5px;">${m.telefon}</span>` : ''}
+        </td>
+        <td style="font-variant-numeric:tabular-nums; color:var(--text-muted);">${m.kayit_tarihi ? new Date(m.kayit_tarihi).toLocaleDateString('tr-TR', {day:'2-digit', month:'short', year:'numeric'}) : '—'}</td>
+        <td style="display:flex; gap:8px;">
+          <button class="secondary" style="color:var(--good); border-color:var(--good);" onclick="uyelikOnayla(${m.id})">Onayla</button>
+          <button class="secondary" style="color:var(--bad); border-color:var(--bad);" onclick="uyelikReddet(${m.id})">Reddet</button>
+        </td>
+      </tr>`;
+    });
+    html += '</tbody></table></div></div>';
+  }
+  main.innerHTML = html;
+}
+
+async function uyelikOnayla(musteriId) {
+  const res = await fetch(API + '/api/tk/admin/musteri/' + musteriId + '/onayla', {method:'POST', headers:{'Authorization':'Bearer '+token}});
+  if (!res.ok) { showToast('Onaylanamadı.', 'err'); return; }
+  showToast('Üyelik onaylandı.', 'ok');
+  bekleyenUyelikleriYukle();
+}
+
+async function uyelikReddet(musteriId) {
+  if (!confirm('Bu üyelik kaydı ve tüm talepleri silinecek. Emin misiniz?')) return;
+  const res = await fetch(API + '/api/tk/admin/musteri/' + musteriId + '/reddet', {method:'DELETE', headers:{'Authorization':'Bearer '+token}});
+  if (!res.ok) { showToast('Reddedilemedi.', 'err'); return; }
+  showToast('Üyelik reddedildi.', 'ok');
+  bekleyenUyelikleriYukle();
 }
 
 function yeniSiparisEkrani() {

@@ -38,6 +38,10 @@ def _sema_hazirla():
     Zararsız: tablo zaten varsa hiçbir şey yapmaz."""
     try:
         conn = db()
+        # Müşteri kayıtlarının admin onayı bekleyip beklemediği — eski satırlar zaten
+        # onaylı sayılır (DEFAULT false yeni kayıtlar için, ama mevcutlar production'da
+        # elle true'ya çekildi), tablo/kolon zaten varsa bu satırlar hiçbir şey yapmaz.
+        conn.execute("ALTER TABLE tk_musteriler ADD COLUMN IF NOT EXISTS onaylandi BOOLEAN DEFAULT false")
         # Hata izleme
         conn.execute(
             """CREATE TABLE IF NOT EXISTS tk_hata_kayitlari (
