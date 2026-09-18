@@ -144,11 +144,9 @@
 <body>
 <!-- Erişim kilidi — bu sayfa herkese açık bir araçtı, artık sadece admin panelinde
      (tk_admin_token) veya müşteri panelinde (tk_token) zaten oturum açmış kullanıcılar
-     görebiliyor; hiç birine sahip değilse giriş sayfalarına yönlendiriliyor. Not: bu
-     tarayıcı seviyesinde bir kapı — token'ın kendisi burada backend'e doğrulatılmıyor,
-     sadece varlığına bakılıyor; sayfanın kullandığı /api/gtip, /api/ara, /api/hesapla
-     uçları da backend'de hâlâ token istemiyor. Tam güvenlik için ikisi de ayrıca
-     ele alınmalı. -->
+     görebiliyor. Token localStorage'da bulunsa bile /api/tk/oturum-dogrula ile
+     backend'e (tk_oturumlar tablosu) doğrulatılıyor; sahte/eski/süresi dolmuş bir
+     token kapıyı açmaz. -->
 <div id="accessGate" style="position:fixed; inset:0; z-index:9999; background:#0a0e1f; display:flex; align-items:center; justify-content:center; padding:20px;">
   <div style="width:100%; max-width:380px; background:#141b2d; border:1px solid #222c42; border-radius:16px; padding:32px; text-align:center;">
     <img src="/assets/logo/routex-logo-v2.png" alt="RouteX Global" style="height:48px; margin:0 auto 20px; display:block;">
@@ -159,11 +157,14 @@
 </div>
 <script>
   (function(){
-    var hasAdmin = !!localStorage.getItem('tk_admin_token');
-    var hasCustomer = !!localStorage.getItem('tk_token');
-    if (hasAdmin || hasCustomer) {
-      document.getElementById('accessGate').style.display = 'none';
-    }
+    var token = localStorage.getItem('tk_admin_token') || localStorage.getItem('tk_token');
+    if (!token) return;
+    fetch('/api/tk/oturum-dogrula', { headers: { 'Authorization': 'Bearer ' + token } })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d.gecerli) document.getElementById('accessGate').style.display = 'none';
+      })
+      .catch(function(){});
   })();
 </script>
 <div class="wrap">

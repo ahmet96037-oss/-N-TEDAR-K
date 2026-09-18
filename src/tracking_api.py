@@ -182,6 +182,18 @@ def _oturum_dogrula(authorization: str = None):
     return conn, row
 
 
+@router.get("/oturum-dogrula")
+def oturum_dogrula(authorization: str = Header(None)):
+    """Bir token'ın gerçekten geçerli bir admin/müşteri oturumuna ait olup
+    olmadığını doğrular. hesapla.html gibi kilitli sayfaların erişim kapısı
+    sadece localStorage'a bakmasın diye kullanılır."""
+    try:
+        conn, row = _oturum_dogrula(authorization)
+    except HTTPException:
+        return {"gecerli": False}
+    return {"gecerli": True, "tur": "admin" if row["admin_id"] else "musteri"}
+
+
 # ==================== MÜŞTERİ TARAFI ====================
 
 class RfqIstek(BaseModel):
