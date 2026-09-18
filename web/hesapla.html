@@ -147,6 +147,39 @@
 </style>
 </head>
 <body>
+<!-- Erişim kilidi — bu sayfa herkese açık bir araçtı, artık sadece parolayı bilenler
+     girebiliyor. Not: bu sadece tarayıcı seviyesinde bir kapı; sayfanın kullandığı
+     /api/gtip, /api/ara, /api/hesapla uçları backend'de hâlâ açık — kaynak kodu
+     görebilen biri parolayı bulup API'yi doğrudan çağırabilir. Tam güvenlik için
+     backend tarafında da korumak gerekir. -->
+<div id="accessGate" style="position:fixed; inset:0; z-index:9999; background:#0a0e1f; display:flex; align-items:center; justify-content:center; padding:20px;">
+  <div style="width:100%; max-width:360px; background:#141b2d; border:1px solid #222c42; border-radius:16px; padding:32px; text-align:center;">
+    <img src="/assets/logo/routex-logo-white.png" alt="RouteX Global" style="height:32px; margin:0 auto 20px; display:block;">
+    <p style="color:#94a3b8; font-size:13.5px; margin-bottom:18px; font-family:'Inter',sans-serif;">Bu araç yalnızca yetkili kullanıcılara açıktır.</p>
+    <input type="password" id="gatePassword" placeholder="Parola" style="width:100%; padding:11px 12px; border-radius:10px; border:1px solid #222c42; background:#0B1120; color:#F1F5F9; font-size:15px; margin-bottom:10px; font-family:inherit;">
+    <div id="gateError" style="color:#F87171; font-size:12.5px; margin-bottom:10px; display:none;">Parola hatalı.</div>
+    <button id="gateSubmit" style="width:100%; padding:11px; border-radius:10px; border:none; background:#18915d; color:#fff; font-weight:600; font-size:14px; cursor:pointer; font-family:inherit;">Giriş</button>
+  </div>
+</div>
+<script>
+  (function(){
+    var GATE_KEY = 'hesapla_access_ok';
+    var PASSWORD = 'routex2026';
+    var gate = document.getElementById('accessGate');
+    if (sessionStorage.getItem(GATE_KEY) === '1') { gate.style.display = 'none'; }
+    function tryLogin() {
+      var val = document.getElementById('gatePassword').value;
+      if (val === PASSWORD) {
+        sessionStorage.setItem(GATE_KEY, '1');
+        gate.style.display = 'none';
+      } else {
+        document.getElementById('gateError').style.display = 'block';
+      }
+    }
+    document.getElementById('gateSubmit').addEventListener('click', tryLogin);
+    document.getElementById('gatePassword').addEventListener('keydown', function(e){ if (e.key === 'Enter') tryLogin(); });
+  })();
+</script>
 <div class="wrap">
   <div class="site-nav">
     <a href="/" class="logo">
