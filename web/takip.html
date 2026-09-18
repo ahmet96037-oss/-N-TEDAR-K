@@ -667,23 +667,20 @@ function girisEkrani() {
   return `
     <h2>Panelinize Giriş</h2>
     <p class="sub">Sipariş takibiniz, belgeleriniz ve süreç geçmişiniz tek panelde.</p>
-    <div class="demo-box" style="margin:16px 0;">
-      <b>Hızlı test için:</b> Bilgiler otomatik dolduruldu, doğrudan "Giriş Yap"a basabilirsiniz.
-    </div>
     <div id="girisErr" class="err"></div>
     <form class="auth-form" onsubmit="event.preventDefault(); girisYap();">
       <div class="field">
         <label class="field-label" for="gEmail">E-posta</label>
         <div class="input-icon">
           <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
-          <input id="gEmail" class="input" type="email" placeholder="ornek@firma.com" value="demo@cintedarikagi.com" autocomplete="email" required>
+          <input id="gEmail" class="input" type="email" placeholder="ornek@firma.com" autocomplete="email" required>
         </div>
       </div>
       <div class="field">
         <label class="field-label" for="gSifre">Şifre</label>
         <div class="input-icon">
           <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-          <input id="gSifre" class="input" type="password" value="demo1234" autocomplete="current-password" required>
+          <input id="gSifre" class="input" type="password" autocomplete="current-password" required>
         </div>
       </div>
       <button class="btn btn--primary auth-submit" type="submit" style="width:100%; justify-content:center;">
