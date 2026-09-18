@@ -1028,11 +1028,28 @@
     const fpLine = document.getElementById('fpLine');
     const titleEl = document.getElementById('footprintTitle');
     const descEl = document.getElementById('footprintDesc');
-    const STAGE_TEXT = [
-      { t: '56+ Ülkede RouteX Global', d: 'Dünyanın 56+ ülkesinde gümrük ve lojistik hizmetleri sağlıyoruz. Çin\'den başlayan tedarik yolculuğu Türkiye\'ye ulaşıyor, her adımda profesyonel destek ile.' },
-      { t: 'Çin — Tedarik Merkezleri', d: 'Şangay, Şenzhen, Hong Kong ve daha 20+ şehirde fabrika eşleştirmesi, kalite kontrolü ve üretim takibi' },
-      { t: 'Türkiye — Varış Noktaları', d: 'İstanbul, Atina ve Avrupa\'dan entegre gümrük çözümleri — malınız kapınıza güvenli teslim' },
+    // Başlık/açıklama artık translations.json'daki gerçek key'lerden okunuyor (dil
+    // değişince otomatik güncellenir, bkz. applyTranslations → __updateFootprintStageText).
+    // TR fallback'i sadece fetch tamamlanmadan önceki an için.
+    const STAGE_KEYS = [
+      { t: 'footprint_title', d: 'footprint_subtitle', fallbackT: '56+ Ülkede RouteX Global', fallbackD: 'Dünyanın 56+ ülkesinde gümrük ve lojistik hizmetleri sağlıyoruz. Çin\'den başlayan tedarik yolculuğu Türkiye\'ye ulaşıyor, her adımda profesyonel destek ile.' },
+      { t: 'china_title', d: 'china_desc', fallbackT: 'Çin — Tedarik Merkezleri', fallbackD: 'Şangay, Şenzhen, Hong Kong ve daha 20+ şehirde fabrika eşleştirmesi, kalite kontrolü ve üretim takibi' },
+      { t: 'turkey_title', d: 'turkey_desc', fallbackT: 'Türkiye — Varış Noktaları', fallbackD: 'İstanbul, Atina ve Avrupa\'dan entegre gümrük çözümleri — malınız kapınıza güvenli teslim' },
     ];
+    function stageText(stage) {
+      const k = STAGE_KEYS[stage];
+      const dict = (typeof translations !== 'undefined' && translations[currentLang]) || null;
+      return {
+        t: (dict && dict[k.t]) || k.fallbackT,
+        d: (dict && dict[k.d]) || k.fallbackD,
+      };
+    }
+    window.__updateFootprintStageText = function() {
+      if (currentStage < 0) return;
+      const txt = stageText(currentStage);
+      titleEl.textContent = txt.t;
+      descEl.textContent = txt.d;
+    };
     let currentStage = -1;
     function setStage(stage) {
       if (stage === currentStage) return;
@@ -1040,8 +1057,9 @@
       cardStages.forEach(c => c.classList.toggle('is-active', Number(c.dataset.stage) === stage));
       fpNum1.classList.toggle('is-active', stage === 0);
       fpNum2.classList.toggle('is-active', stage > 0);
-      titleEl.textContent = STAGE_TEXT[stage].t;
-      descEl.textContent = STAGE_TEXT[stage].d;
+      const txt = stageText(stage);
+      titleEl.textContent = txt.t;
+      descEl.textContent = txt.d;
 
       if (stage === 0) {
         mapImg.style.transformOrigin = '50% 50%';
@@ -1184,45 +1202,32 @@
   }
 })();
 
-  // ===== DİL DEĞİŞTİRME — Google Translate Website Widget =====
-  // Eskiden her cümle translations.json'a elle eklenip data-i18n ile bağlanıyordu;
-  // yeni içerik veya JS ile eklenen metin (harita başlıkları gibi) hep unutuluyor,
-  // sürekli tek tek hata avlamak gerekiyordu. Artık Google Translate sayfadaki HER
-  // metni (statik + dinamik, script ile sonradan eklenenler dahil) otomatik çeviriyor
-  // — manuel bakım yok. Kendi bayraklı buton/dropdown'ımız duruyor, sadece tıklanınca
-  // gizli Google Translate widget'ını tetikliyor.
-  const GOOGLE_LANG_MAP = { tr: '', en: 'en', zh: 'zh-CN', de: 'de', it: 'it', ar: 'ar' };
+  // ===== DİL DEĞİŞTİRME — Kendi kontrollü sistemimiz (translations.json) =====
+  // Google Translate widget'ı 3. parti servise bağımlıydı, tutarsız çalışıyordu
+  // (özellikle 'Türkiye' gibi özel isimlerde, gecikmeli DOM güncellemelerinde).
+  // Bu sistemde HTML'e hiç dokunulmuyor — data-i18n etiketleri zaten sağlam duruyor,
+  // sadece JS güvenilir bir kaynaktan (translations.json, kontrolümüzde) okuyor.
+  let translations = {};
   let currentLang = localStorage.getItem('language') || 'tr';
 
-  // Google Translate 'Türkiye' kelimesini tutarsız çeviriyor — bazı yerlerde doğru
-  // (örn. Almanca'da 'Türkei'), bazı yerlerde hiç dokunmuyor, kaynakta olduğu gibi
-  // bırakıyor. Google'ın genel çevirisinden vazgeçmek yerine (tüm siteyi otomatik
-  // çeviren tek pratik çözüm bu), sadece bu bilinen özel ismi hedefli olarak
-  // düzeltiyoruz: çeviri DOM'a yerleştikten sonra 'Türkiye' geçen metin node'larını
-  // bulup doğru karşılığıyla değiştiriyoruz.
-  const COUNTRY_NAME_FIX = { en: 'Turkey', zh: '土耳其', de: 'Türkei', it: 'Turchia', ar: 'تركيا' };
-  function fixCountryName(lang) {
-    const replacement = COUNTRY_NAME_FIX[lang];
-    if (!replacement) return;
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-    let n;
-    while (n = walker.nextNode()) {
-      if (n.parentElement && n.parentElement.closest('#google_translate_element')) continue;
-      if (n.nodeValue.includes('Türkiye')) nodes.push(n);
-    }
-    nodes.forEach(node => { node.nodeValue = node.nodeValue.replaceAll('Türkiye', replacement); });
-  }
+  fetch('/translations.json')
+    .then(r => r.json())
+    .then(data => {
+      translations = data;
+      applyTranslations(currentLang);
+    })
+    .catch(() => console.warn('Tercümeler yüklenemedi'));
 
-  function getGoogTransCookie() {
-    const m = document.cookie.match(/(?:^|;\s*)googtrans=([^;]*)/);
-    return m ? decodeURIComponent(m[1]) : '';
-  }
-  function setGoogTransCookie(value) {
-    const domain = location.hostname;
-    // Kök path + hostname'siz + hostname'li varyant — Google bazen ikincisini arıyor
-    document.cookie = 'googtrans=' + value + '; path=/;';
-    document.cookie = 'googtrans=' + value + '; path=/; domain=' + domain + ';';
+  function applyTranslations(lang) {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (translations[lang] && translations[lang][key] != null) {
+        el.textContent = translations[lang][key];
+      }
+    });
+    if (typeof window.__updateFootprintStageText === 'function') {
+      window.__updateFootprintStageText();
+    }
   }
 
   function setLanguage(lang) {
@@ -1238,49 +1243,16 @@
       opt.classList.toggle('active', opt.dataset.lang === lang);
     });
 
-    const target = GOOGLE_LANG_MAP[lang];
-    const wanted = target ? ('/tr/' + target) : '';
-    if (getGoogTransCookie() === wanted) return; // zaten o dildeyiz
-
-    if (!target) {
-      // Türkçe'ye (orijinal) dönüş — cookie'yi temizleyip yeniden yükle
-      setGoogTransCookie('');
-      location.reload();
-      return;
-    }
-
-    // Widget zaten yüklenmiş ve hazırsa doğrudan tetikle (sayfa yenilenmesin diye)
-    const combo = document.querySelector('.goog-te-combo');
-    if (combo) {
-      combo.value = target;
-      combo.dispatchEvent(new Event('change'));
-    } else {
-      setGoogTransCookie(wanted);
-      location.reload();
-    }
+    applyTranslations(lang);
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    if (currentLang !== 'tr') setLanguage(currentLang);
-    else {
-      const flags = { tr: '🇹🇷', en: '🇬🇧', zh: '🇨🇳', de: '🇩🇪', it: '🇮🇹', ar: '🇸🇦' };
-      const toggleBtn = document.getElementById('langToggle');
-      if (toggleBtn) toggleBtn.textContent = flags[currentLang];
-      document.querySelectorAll('.lang-option').forEach(opt => {
-        opt.classList.toggle('active', opt.dataset.lang === currentLang);
-      });
-    }
-
-    // Google Translate DOM'u asenkron/parça parça günceller (özellikle scroll ile
-    // görünen yeni bölümlerde) — tek seferlik düzeltme yetmez, sürekli izleyip
-    // 'Türkiye' kelimesi her belirdiğinde anında düzeltiyoruz.
-    let fixDebounce = null;
-    const observer = new MutationObserver(() => {
-      if (currentLang === 'tr') return;
-      clearTimeout(fixDebounce);
-      fixDebounce = setTimeout(() => fixCountryName(currentLang), 150);
+    const flags = { tr: '🇹🇷', en: '🇬🇧', zh: '🇨🇳', de: '🇩🇪', it: '🇮🇹', ar: '🇸🇦' };
+    const toggleBtn = document.getElementById('langToggle');
+    if (toggleBtn) toggleBtn.textContent = flags[currentLang];
+    document.querySelectorAll('.lang-option').forEach(opt => {
+      opt.classList.toggle('active', opt.dataset.lang === currentLang);
     });
-    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
   });
 
   document.getElementById('langToggle').addEventListener('click', () => {
@@ -1299,15 +1271,6 @@
       document.getElementById('langSelector').classList.remove('is-open');
     }
   });
-
-  function googleTranslateElementInit() {
-    new google.translate.TranslateElement({
-      pageLanguage: 'tr',
-      includedLanguages: 'en,zh-CN,de,it,ar',
-      autoDisplay: false,
-    }, 'google_translate_element');
-  }
 </script>
-<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
