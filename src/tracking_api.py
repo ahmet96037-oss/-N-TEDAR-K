@@ -719,6 +719,33 @@ def admin_bekleyen_uyelikler(authorization: str = Header(None)):
     ]
 
 
+class ManuelMusteriIstek(BaseModel):
+    ad_soyad: str
+    firma: str | None = None
+    email: str
+    telefon: str | None = None
+    sifre: str
+
+
+@router.post("/admin/musteri/manuel-ekle")
+def admin_musteri_manuel_ekle(istek: ManuelMusteriIstek, authorization: str = Header(None)):
+    """Admin, müşteri kendi kaydolmadan doğrudan onaylı bir müşteri hesabı
+    açabilir — örn. telefonla/yüz yüze anlaşılan müşteriler için."""
+    conn, _, _ = _admin_dogrula(authorization)
+    var = conn.execute("SELECT id FROM tk_musteriler WHERE email = ?", (istek.email,)).fetchone()
+    if var:
+        conn.close()
+        raise HTTPException(status_code=409, detail="Bu e-posta zaten kayıtlı")
+    conn.execute(
+        "INSERT INTO tk_musteriler (ad_soyad, firma, email, telefon, sifre_hash, onaylandi) VALUES (?, ?, ?, ?, ?, true)",
+        (istek.ad_soyad, istek.firma, istek.email, istek.telefon, _hash_sifre(istek.sifre)),
+    )
+    conn._conn.commit()
+    musteri_id = conn.execute("SELECT id FROM tk_musteriler WHERE email = ?", (istek.email,)).fetchone()["id"]
+    conn.close()
+    return {"status": "ok", "musteri_id": musteri_id}
+
+
 @router.post("/admin/musteri/{musteri_id}/onayla")
 def admin_musteri_onayla(musteri_id: int, authorization: str = Header(None)):
     """Bekleyen bir müşteri kaydını onaylar — onaydan sonra müşteri normal

@@ -596,6 +596,7 @@ function render() {
   else if (view === 'bekleyen-uyelikler') bekleyenUyelikleriYukle();
   else if (view === 'tedarikciler') tedarikcilerYukle();
   else if (view === 'yeni-siparis') { document.querySelector('.main').innerHTML = yeniSiparisEkrani(); ysMusteriDropdownDoldur(); }
+  else if (view === 'yeni-musteri') { document.querySelector('.main').innerHTML = yeniMusteriEkrani(); }
   else if (view === 'ayarlar') ayarlarYukle();
   else if (view === 'kullanicilar') kullaniciYonetimiEkrani();
   else if (view === 'hatalar') hatalarYukle();
@@ -1812,7 +1813,7 @@ async function musterilerYukle() {
   const res = await fetch(API + '/api/tk/admin/musteriler', {headers:{'Authorization':'Bearer '+token}});
   if (res.status === 401) { cikisYap(); return; }
   const rows = await res.json();
-  let html = `<div class="breadcrumb">Genel <i class="bi bi-chevron-right"></i> Müşteriler</div><div class="panel-head"><div><h2>Müşteriler</h2><p>${rows.length} kayıtlı müşteri.</p></div></div>`;
+  let html = `<div class="breadcrumb">Genel <i class="bi bi-chevron-right"></i> Müşteriler</div><div class="panel-head"><div><h2>Müşteriler</h2><p>${rows.length} kayıtlı müşteri.</p></div><button class="primary" onclick="view='yeni-musteri'; render();">+ Yeni Müşteri Ekle</button></div>`;
   if (rows.length === 0) {
     html += '<div class="empty-state">Henüz müşteri yok.</div>';
   } else {
@@ -1888,6 +1889,47 @@ async function uyelikReddet(musteriId) {
   if (!res.ok) { showToast('Reddedilemedi.', 'err'); return; }
   showToast('Üyelik reddedildi.', 'ok');
   bekleyenUyelikleriYukle();
+}
+
+function yeniMusteriEkrani() {
+  return `
+    <button class="back" onclick="view='musteriler'; render();">← Müşterilere dön</button>
+    <div class="panel" style="max-width:520px;">
+      <h2>Yeni Müşteri Ekle</h2>
+      <p style="color:var(--text-muted); font-size:13px; margin:0 0 18px;">Telefonla/yüz yüze anlaştığınız bir müşteriye doğrudan panel girişi açın — hesap onay beklemeden aktif olur.</p>
+      <div id="ymErr" class="err"></div>
+      <div id="ymBasari"></div>
+      <label>Ad Soyad</label><input id="ymAd">
+      <label>Firma (opsiyonel)</label><input id="ymFirma">
+      <label>E-posta</label><input id="ymEmail" type="email">
+      <label>Telefon (opsiyonel)</label><input id="ymTel">
+      <label>Şifre</label><input id="ymSifre" type="text" placeholder="Müşteriye ileteceğiniz giriş şifresi">
+      <button class="primary" style="margin-top:14px;" onclick="yeniMusteriKaydet()">Müşteriyi Kaydet</button>
+    </div>`;
+}
+
+async function yeniMusteriKaydet() {
+  const ad = document.getElementById('ymAd').value.trim();
+  const firma = document.getElementById('ymFirma').value.trim();
+  const email = document.getElementById('ymEmail').value.trim();
+  const tel = document.getElementById('ymTel').value.trim();
+  const sifre = document.getElementById('ymSifre').value;
+  const err = document.getElementById('ymErr');
+  err.textContent = '';
+  if (!ad || !email || !sifre) { err.textContent = 'Ad Soyad, E-posta ve Şifre zorunludur.'; return; }
+  const res = await fetch(API + '/api/tk/admin/musteri/manuel-ekle', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
+    body: JSON.stringify({ad_soyad: ad, firma: firma || null, email, telefon: tel || null, sifre})
+  });
+  if (!res.ok) {
+    const d = await res.json().catch(() => ({}));
+    err.textContent = d.detail || 'Kaydedilemedi.';
+    return;
+  }
+  showToast('Müşteri eklendi.', 'ok');
+  view = 'musteriler';
+  render();
 }
 
 function yeniSiparisEkrani() {
