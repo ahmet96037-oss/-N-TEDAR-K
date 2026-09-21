@@ -581,11 +581,7 @@ function durumRenkSinifi(durum) {
 }
 
 function themeToggleHtml() {
-  return `<div class="theme-toggle" id="themeToggle">
-    <button data-mode="light">☀</button>
-    <button data-mode="dark">☾</button>
-    <button data-mode="system">Sis</button>
-  </div>`;
+  return '';
 }
 
 function render() {
@@ -2377,26 +2373,13 @@ async function belgeEkle(siparisNo) {
 
 function initTheme() {
   const root = document.documentElement;
-  const buttons = document.querySelectorAll('#themeToggle button');
-  function apply(mode) {
-    // Adminator'ın CSS'i --bg-card/--t-base/--primary gibi kendi token'larını SADECE
-    // :root[data-theme=light] / [data-theme=dark] altında tanımlıyor (prefers-color-scheme
-    // fallback'ı yok) — "sistem" modunda attribute'u hiç set etmeyince bu değişkenler boş
-    // kalıyordu (örn. bildirim menüsü şeffaf görünüyordu). Bu yüzden "sistem" seçiliyken bile
-    // gerçek tercihi JS ile çözüp attribute'u HER ZAMAN açık şekilde yazıyoruz.
-    const resolved = mode === 'system'
-      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-      : mode;
-    root.setAttribute('data-theme', resolved);
-    buttons.forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-  }
-  const saved = localStorage.getItem('tema') || 'system';
-  apply(saved);
-  buttons.forEach(b => b.addEventListener('click', () => {
-    localStorage.setItem('tema', b.dataset.mode); apply(b.dataset.mode);
-    // Harita CSS custom property'leri otomatik izlemiyor — tema değişince aynı veriyle yeniden çiz
+  // Açık/koyu seçimi kaldırıldı — panel her zaman sistem tercihini takip eder.
+  const resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  root.setAttribute('data-theme', resolved);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    root.setAttribute('data-theme', e.matches ? 'dark' : 'light');
     if (ulkeMapSonParam) ulkeMapBaslat(ulkeMapSonParam.containerId, ulkeMapSonParam.ulkeSayim);
-  }));
+  });
 }
 
 // ---- Toast bildirim sistemi ----

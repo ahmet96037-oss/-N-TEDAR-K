@@ -384,11 +384,6 @@
 </style>
 </head>
 <body>
-<div class="theme-toggle" id="themeToggle">
-  <button data-mode="light">☀ Açık</button>
-  <button data-mode="dark">☾ Koyu</button>
-  <button data-mode="system">Sistem</button>
-</div>
 
 <div id="app"></div>
 <div class="toast-stack" id="toastStack" aria-live="polite"></div>
@@ -1419,21 +1414,10 @@ render();
 
 (function initTheme() {
   const root = document.documentElement;
-  const buttons = document.querySelectorAll('#themeToggle button');
-  function apply(mode) {
-    // Adminator'ın CSS'i --bg-card/--t-base/--primary gibi kendi token'larını sadece
-    // :root[data-theme=light/dark] altında tanımlıyor (prefers-color-scheme fallback'ı yok) —
-    // admin panelinde bulduğumuz aynı hata: attribute hiç set edilmeyince bu değişkenler boş
-    // kalıyordu. "Sistem" modunda bile gerçek tercihi JS ile çözüp attribute'u açıkça yazıyoruz.
-    const resolved = mode === 'system'
-      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-      : mode;
-    root.setAttribute('data-theme', resolved);
-    buttons.forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-  }
-  const saved = localStorage.getItem('tema') || 'system';
-  apply(saved);
-  buttons.forEach(b => b.addEventListener('click', () => { localStorage.setItem('tema', b.dataset.mode); apply(b.dataset.mode); }));
+  // Açık/koyu seçimi kaldırıldı — panel her zaman sistem tercihini takip eder.
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  root.setAttribute('data-theme', mq.matches ? 'dark' : 'light');
+  mq.addEventListener('change', (e) => root.setAttribute('data-theme', e.matches ? 'dark' : 'light'));
 })();
 </script>
 </body>
