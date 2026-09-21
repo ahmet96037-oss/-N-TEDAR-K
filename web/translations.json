@@ -133,7 +133,11 @@
     "feature_num_stages": "6",
     "feature_num_tracking": "7/24",
     "hero_subtitle": "Çin'deki ofisimizden yönettiğimiz tedarik, kalite kontrol ve gümrük süreciyle dünyanın her noktasına güvenle ticaret yapın.",
-    "quick_track_existing": "Siparişimi Görüntüle"
+    "quick_track_existing": "Siparişimi Görüntüle",
+    "stage_01_num": "Aşama 01",
+    "stage_02_num": "Aşama 02–03",
+    "stage_04_num": "Aşama 04",
+    "stage_05_num": "Aşama 05–06"
   },
   "en": {
     "nav_logo": "RouteX Global",
@@ -269,7 +273,11 @@
     "feature_num_stages": "6",
     "feature_num_tracking": "24/7",
     "hero_subtitle": "From our office in China, we handle sourcing, quality control, and customs so you can trade confidently anywhere in the world.",
-    "quick_track_existing": "View My Order"
+    "quick_track_existing": "View My Order",
+    "stage_01_num": "Stage 01",
+    "stage_02_num": "Stage 02–03",
+    "stage_04_num": "Stage 04",
+    "stage_05_num": "Stage 05–06"
   },
   "zh": {
     "nav_logo": "RouteX Global",
@@ -405,7 +413,11 @@
     "feature_num_stages": "6",
     "feature_num_tracking": "24/7",
     "hero_subtitle": "凭借我们在中国的办公室，我们负责采购、质检和清关，让您安心与世界各地开展贸易。",
-    "quick_track_existing": "查看我的订单"
+    "quick_track_existing": "查看我的订单",
+    "stage_01_num": "阶段 01",
+    "stage_02_num": "阶段 02–03",
+    "stage_04_num": "阶段 04",
+    "stage_05_num": "阶段 05–06"
   },
   "de": {
     "nav_logo": "RouteX Global",
@@ -541,7 +553,11 @@
     "feature_num_stages": "6",
     "feature_num_tracking": "24/7",
     "hero_subtitle": "Von unserem Büro in China aus kümmern wir uns um Beschaffung, Qualitätskontrolle und Zoll, damit Sie weltweit sicher Handel treiben können.",
-    "quick_track_existing": "Meine Bestellung ansehen"
+    "quick_track_existing": "Meine Bestellung ansehen",
+    "stage_01_num": "Phase 01",
+    "stage_02_num": "Phase 02–03",
+    "stage_04_num": "Phase 04",
+    "stage_05_num": "Phase 05–06"
   },
   "it": {
     "nav_logo": "RouteX Global",
@@ -677,7 +693,11 @@
     "feature_num_stages": "6",
     "feature_num_tracking": "24/7",
     "hero_subtitle": "Dal nostro ufficio in Cina ci occupiamo di approvvigionamento, controllo qualità e dogana, così puoi commerciare con fiducia in tutto il mondo.",
-    "quick_track_existing": "Visualizza il Mio Ordine"
+    "quick_track_existing": "Visualizza il Mio Ordine",
+    "stage_01_num": "Fase 01",
+    "stage_02_num": "Fase 02–03",
+    "stage_04_num": "Fase 04",
+    "stage_05_num": "Fase 05–06"
   },
   "ar": {
     "nav_logo": "RouteX Global",
@@ -813,6 +833,10 @@
     "feature_num_stages": "6",
     "feature_num_tracking": "24/7",
     "hero_subtitle": "من مكتبنا في الصين، نتولى التوريد ومراقبة الجودة والتخليص الجمركي لتتاجر بثقة في أي مكان بالعالم.",
-    "quick_track_existing": "عرض طلبي"
+    "quick_track_existing": "عرض طلبي",
+    "stage_01_num": "المرحلة 01",
+    "stage_02_num": "المرحلة 02–03",
+    "stage_04_num": "المرحلة 04",
+    "stage_05_num": "المرحلة 05–06"
   }
 }
