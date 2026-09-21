@@ -37,7 +37,7 @@
     --accent:#F59E0B; --accent-ink:#b45309; --accent2:#18915d; --accent2-ink:#137a4d; --accent2-fill:#1fae70;
     --accent-blue:#0EA5E9; --accent-purple:#8B5CF6;
     --signal:#EF4444; --signal-ink:#b91c1c; --border:#E4E8EF;
-    --sidebar-bg:var(--surface); --sidebar-text:var(--text); --sidebar-text-dim:var(--text-muted); --sidebar-hover:#F8FAFC;
+    --sidebar-bg:#0a0e1f; --sidebar-text:#F1F5F9; --sidebar-text-dim:#94A3B8; --sidebar-hover:#1C2438;
     --radius-card:14px; --radius-sm:10px; --card-shadow:0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.04);
     --font-display: "Inter Tight","Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --font-body: "Inter",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
@@ -50,7 +50,7 @@
       --accent:#FBBF24; --accent-ink:#fbbf24; --accent2:#3db985; --accent2-ink:#2f9d70; --accent2-fill:#368060;
       --accent-blue:#38BDF8; --accent-purple:#A78BFA;
       --signal:#F87171; --signal-ink:#fca5a5; --border:#222C42;
-      --sidebar-hover:#1C2438; --card-shadow:0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.25);
+      --card-shadow:0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.25);
     }
   }
   :root[data-theme="dark"]{
@@ -59,7 +59,7 @@
     --accent:#FBBF24; --accent-ink:#fbbf24; --accent2:#3db985; --accent2-ink:#2f9d70; --accent2-fill:#368060;
     --accent-blue:#38BDF8; --accent-purple:#A78BFA;
     --signal:#F87171; --signal-ink:#fca5a5; --border:#222C42;
-    --sidebar-hover:#1C2438; --card-shadow:0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.25);
+    --card-shadow:0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.25);
   }
   :root[data-theme="light"]{
     --bg:#F0F4F8; --bg-alt:#F1F5F9; --surface:#ffffff; --text:#1E293B; --text-muted:#64748B;
@@ -67,7 +67,7 @@
     --accent:#F59E0B; --accent-ink:#b45309; --accent2:#18915d; --accent2-ink:#137a4d; --accent2-fill:#1fae70;
     --accent-blue:#0EA5E9; --accent-purple:#8B5CF6;
     --signal:#EF4444; --signal-ink:#b91c1c; --border:#E4E8EF;
-    --sidebar-hover:#F8FAFC; --card-shadow:0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.04);
+    --card-shadow:0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.04);
   }
   *{box-sizing:border-box;}
   body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:15px; line-height:1.5; overflow-x:hidden; }
@@ -125,7 +125,7 @@
   /* Sidebar her zaman koyu (tema modundan bağımsız) — içerik alanının açık/koyu geçişinden
      ayrı, kendi kimliği olan bir kontrast şeridi. Nellavio demo görselindeki koyu sidebar +
      açık içerik ayrımıyla aynı dil. */
-  .sidebar{ width:264px; flex:none; background:var(--sidebar-bg); border-right:1px solid rgba(255,255,255,.06); padding:20px 16px; display:flex; flex-direction:column; }
+  .sidebar{ width:264px; flex:none; background:#0a0e1f; border-right:1px solid rgba(255,255,255,.06); padding:20px 16px; display:flex; flex-direction:column; }
   .brand-row{ display:flex; align-items:center; justify-content:space-between; padding:8px; margin-bottom:22px; border-radius:12px; cursor:pointer; }
   /* Logo artık tıklanabilir değil (Daralt/Genişlet, hamburger butonuna taşındı) — hover
      efekti tıklanabilir gibi göstermesin diye iptal edildi. */
@@ -136,11 +136,10 @@
   .sidebar .brand svg{ width:28px; height:28px; flex:none; border-radius:8px; }
   .sidebar .brand-t{ line-height:1.25; letter-spacing:-.01em; }
   .sidebar .brand-sub{ font-family:var(--font-body); font-weight:400; font-size:11px; letter-spacing:.02em; text-transform:none; color:var(--sidebar-text-dim); }
-  /* RouteX Global logosu — brand-logo/brand-text için eksik olan asıl kurallar.
-     Logo sadece beyaz yazılı (koyu zemin için) — açık temada sidebar zemini
-     beyaz/açık olduğu için yazı kaybolurdu, o yüzden logo her zaman koyu bir
-     "chip" arka planı üzerinde duruyor, temadan bağımsız her zaman okunuyor. */
-  .brand-logo{ flex:none; width:auto; height:auto; display:flex; align-items:center; background:#0a0e1f; border-radius:8px; padding:8px 12px; box-shadow:none; }
+  /* RouteX Global logosu — sidebar artık tema modundan bağımsız her zaman koyu
+     (bkz. yukarıdaki --sidebar-bg), o yüzden logonun ayrıca koyu bir "chip"
+     arka planına ihtiyacı yok — şeffaf, doğrudan sidebar zemininde duruyor. */
+  .brand-logo{ flex:none; width:auto; height:auto; display:flex; align-items:center; background:transparent; border-radius:8px; padding:8px 12px; box-shadow:none; }
   .brand-logo img{ display:block; height:26px; width:auto; }
   .brand-text{ line-height:1.2; overflow:hidden; }
   .brand-name{ font-weight:700; font-size:14.5px; color:var(--sidebar-text); white-space:nowrap; }
