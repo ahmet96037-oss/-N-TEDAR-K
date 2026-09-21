@@ -6,9 +6,9 @@
     "nav_process": "Süreç",
     "nav_tax": "Vergi Hesaplama",
     "nav_track": "Müşteri Girişi",
-    "nav_quote": "Hemen Ücretsiz Teklif Alın",
-    "nav_tracking": "Siparişimi Canlı Takip Et",
-    "hero_title": "Çin'den Dünyaya, İthalat İhracatınızı Uçtan Uca Yönetiyoruz",
+    "nav_quote": "Teklif Al",
+    "nav_tracking": "Hizmetlerimiz",
+    "hero_title": "İthalat İhracatta Uçtan Uca Danışmanlık Ortağınız",
     "hero_quote": "Fabrika görüşmesinden gümrüğe kadar her aşamayı canlı takip edin.",
     "footprint_title": "56+ Ülkede RouteX Global",
     "footprint_subtitle": "Dünyanın 56+ ülkesinde gümrük ve lojistik hizmetleri sağlıyoruz. Çinden başlayan tedarik ağımız, Türkiye ve uluslararası pazarlara kadar uzanır.",
@@ -132,7 +132,8 @@
     "feature_num_onsite": "Yerinde",
     "feature_num_stages": "6",
     "feature_num_tracking": "7/24",
-    "hero_subtitle": "Çin'deki ofisimizden yönettiğimiz tedarik, kalite kontrol ve gümrük süreciyle dünyanın her noktasına güvenle ticaret yapın."
+    "hero_subtitle": "Çin'deki ofisimizden yönettiğimiz tedarik, kalite kontrol ve gümrük süreciyle dünyanın her noktasına güvenle ticaret yapın.",
+    "quick_track_existing": "Siparişimi Görüntüle"
   },
   "en": {
     "nav_logo": "RouteX Global",
@@ -141,9 +142,9 @@
     "nav_process": "Process",
     "nav_tax": "Tax Calculator",
     "nav_track": "Customer Login",
-    "nav_quote": "Get My Free Quote Now",
-    "nav_tracking": "Track My Order Live",
-    "hero_title": "From China to the World — We Manage Your Import & Export, End to End",
+    "nav_quote": "Get a Quote",
+    "nav_tracking": "Our Services",
+    "hero_title": "Your End-to-End Import & Export Consulting Partner",
     "hero_quote": "Track every step from factory meeting to customs clearance.",
     "footprint_title": "RouteX Global in 56+ Countries",
     "footprint_subtitle": "We provide customs and logistics services in 56+ countries worldwide. Our supply chain starts from China and extends to Turkey and international markets.",
@@ -267,7 +268,8 @@
     "feature_num_onsite": "On-Site",
     "feature_num_stages": "6",
     "feature_num_tracking": "24/7",
-    "hero_subtitle": "From our office in China, we handle sourcing, quality control, and customs so you can trade confidently anywhere in the world."
+    "hero_subtitle": "From our office in China, we handle sourcing, quality control, and customs so you can trade confidently anywhere in the world.",
+    "quick_track_existing": "View My Order"
   },
   "zh": {
     "nav_logo": "RouteX Global",
@@ -276,9 +278,9 @@
     "nav_process": "流程",
     "nav_tax": "税务计算器",
     "nav_track": "客户登录",
-    "nav_quote": "立即获取免费报价",
-    "nav_tracking": "实时追踪我的订单",
-    "hero_title": "从中国到世界——为您全程管理进出口业务",
+    "nav_quote": "获取报价",
+    "nav_tracking": "我们的服务",
+    "hero_title": "您的进出口全程咨询合作伙伴",
     "hero_quote": "从工厂会面到海关清关，追踪每一步。",
     "footprint_title": "56+ 国家RouteX Global",
     "footprint_subtitle": "我们在全球 56+ 个国家提供海关和物流服务。我们的供应链从中国开始，延伸到土耳其和国际市场。",
@@ -402,7 +404,8 @@
     "feature_num_onsite": "现场",
     "feature_num_stages": "6",
     "feature_num_tracking": "24/7",
-    "hero_subtitle": "凭借我们在中国的办公室，我们负责采购、质检和清关，让您安心与世界各地开展贸易。"
+    "hero_subtitle": "凭借我们在中国的办公室，我们负责采购、质检和清关，让您安心与世界各地开展贸易。",
+    "quick_track_existing": "查看我的订单"
   },
   "de": {
     "nav_logo": "RouteX Global",
@@ -411,9 +414,9 @@
     "nav_process": "Prozess",
     "nav_tax": "Steuerrechner",
     "nav_track": "Kundenlogin",
-    "nav_quote": "Jetzt kostenloses Angebot erhalten",
-    "nav_tracking": "Meine Bestellung live verfolgen",
-    "hero_title": "Von China in die Welt – Wir managen Ihren Import & Export, von A bis Z",
+    "nav_quote": "Angebot einholen",
+    "nav_tracking": "Unsere Leistungen",
+    "hero_title": "Ihr End-to-End-Partner für Import- und Exportberatung",
     "hero_quote": "Verfolgen Sie jeden Schritt von der Fabrik bis zur Zollabfertigung.",
     "footprint_title": "RouteX Global in 56+ Ländern",
     "footprint_subtitle": "Wir bieten Zoll- und Logistikdienstleistungen in 56+ Ländern weltweit an. Unser RouteX Global beginnt in China und erstreckt sich auf die Türkei und internationale Märkte.",
@@ -537,7 +540,8 @@
     "feature_num_onsite": "Vor Ort",
     "feature_num_stages": "6",
     "feature_num_tracking": "24/7",
-    "hero_subtitle": "Von unserem Büro in China aus kümmern wir uns um Beschaffung, Qualitätskontrolle und Zoll, damit Sie weltweit sicher Handel treiben können."
+    "hero_subtitle": "Von unserem Büro in China aus kümmern wir uns um Beschaffung, Qualitätskontrolle und Zoll, damit Sie weltweit sicher Handel treiben können.",
+    "quick_track_existing": "Meine Bestellung ansehen"
   },
   "it": {
     "nav_logo": "RouteX Global",
@@ -546,9 +550,9 @@
     "nav_process": "Processo",
     "nav_tax": "Calcolatore Fiscale",
     "nav_track": "Accesso Cliente",
-    "nav_quote": "Ottieni Subito il Preventivo Gratuito",
-    "nav_tracking": "Traccia il Mio Ordine in Tempo Reale",
-    "hero_title": "Dalla Cina al Mondo: Gestiamo la Tua Importazione ed Esportazione, dall'Inizio alla Fine",
+    "nav_quote": "Richiedi un Preventivo",
+    "nav_tracking": "I Nostri Servizi",
+    "hero_title": "Il Tuo Partner di Consulenza per Import ed Export, dall'Inizio alla Fine",
     "hero_quote": "Traccia ogni fase dalla visita in fabbrica al passaggio doganale.",
     "footprint_title": "RouteX Global in 56+ Paesi",
     "footprint_subtitle": "Forniamo servizi doganali e logistici in 56+ paesi nel mondo. La nostra catena di approvvigionamento inizia dalla Cina e si estende alla Turchia e ai mercati internazionali.",
@@ -672,7 +676,8 @@
     "feature_num_onsite": "In Loco",
     "feature_num_stages": "6",
     "feature_num_tracking": "24/7",
-    "hero_subtitle": "Dal nostro ufficio in Cina ci occupiamo di approvvigionamento, controllo qualità e dogana, così puoi commerciare con fiducia in tutto il mondo."
+    "hero_subtitle": "Dal nostro ufficio in Cina ci occupiamo di approvvigionamento, controllo qualità e dogana, così puoi commerciare con fiducia in tutto il mondo.",
+    "quick_track_existing": "Visualizza il Mio Ordine"
   },
   "ar": {
     "nav_logo": "RouteX Global",
@@ -681,9 +686,9 @@
     "nav_process": "العملية",
     "nav_tax": "حاسبة الضرائب",
     "nav_track": "تسجيل دخول العميل",
-    "nav_quote": "احصل على عرض مجاني الآن",
-    "nav_tracking": "تتبع طلبي مباشرة",
-    "hero_title": "من الصين إلى العالم — ندير استيرادك وتصديرك من البداية إلى النهاية",
+    "nav_quote": "احصل على عرض سعر",
+    "nav_tracking": "خدماتنا",
+    "hero_title": "شريكك الاستشاري الشامل للاستيراد والتصدير",
     "hero_quote": "تابع كل خطوة من لقاء المصنع إلى التخليص الجمركي",
     "footprint_title": "RouteX Global في 56+ دولة",
     "footprint_subtitle": "نقدم خدمات جمركية وخدمات لوجستية في 56+ دولة حول العالم. تبدأ سلسلة التوريد لدينا من الصين وتمتد إلى تركيا والأسواق الدولية",
@@ -807,6 +812,7 @@
     "feature_num_onsite": "في الموقع",
     "feature_num_stages": "6",
     "feature_num_tracking": "24/7",
-    "hero_subtitle": "من مكتبنا في الصين، نتولى التوريد ومراقبة الجودة والتخليص الجمركي لتتاجر بثقة في أي مكان بالعالم."
+    "hero_subtitle": "من مكتبنا في الصين، نتولى التوريد ومراقبة الجودة والتخليص الجمركي لتتاجر بثقة في أي مكان بالعالم.",
+    "quick_track_existing": "عرض طلبي"
   }
 }
