@@ -448,9 +448,11 @@
   .risk-card, .reward-card{ border-radius:16px; backdrop-filter:blur(1.5rem); padding:2.5rem; display:flex; flex-direction:column; }
   .risk-card{ background:rgba(220,53,69,.06); border:1px solid rgba(220,53,69,.2); }
   .reward-card{ background:rgba(31,174,112,.06); border:1px solid rgba(31,174,112,.2); }
-  .risk-card-header, .reward-card-header{ font-weight:600; font-size:18px; margin-bottom:24px; }
+  .risk-card-header, .reward-card-header{ font-weight:600; font-size:18px; margin-bottom:24px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .risk-card-header{ color:#dc3545; }
   .reward-card-header{ color:var(--green); }
+  .reward-card-header img{ height:22px; width:auto; flex:none; }
+  @media (max-width:480px){ .reward-card-header{ font-size:16px; } .reward-card-header img{ height:18px; } }
   .risk-card-list, .reward-card-list{ display:flex; flex-direction:column; gap:14px; }
   .risk-item, .reward-item{ font-size:14px; line-height:1.5; padding-left:24px; position:relative; }
   .risk-item::before{ content:'✕'; position:absolute; left:0; color:#dc3545; font-weight:700; }
@@ -605,29 +607,29 @@
 <section class="risk-reward">
   <div class="wrap">
     <div class="risk-reward-head">
-      <h2 data-i18n="risk_title"></h2>
+      <h2 data-i18n="risk_title">Danışmanlık Bir Masraf Değil, Bir Sigortadır</h2>
     </div>
 
     <div class="risk-reward-cards">
       <div class="risk-card">
-        <div class="risk-card-header"><span data-i18n="risk_header">⚠ Danışmansız İthalat</span></div>
+        <div class="risk-card-header"><span data-i18n="risk_header">⚠ Danışmansız İthalatın Bedeli</span></div>
         <div class="risk-card-list">
-          <div class="risk-item"><span data-i18n="risk_1">Yanlış fabrika seçiminde kapasite/kalite sorunları</span></div>
-          <div class="risk-item"><span data-i18n="risk_2">Kalite sorunu, konteyner limana varınca fark edilir</span></div>
-          <div class="risk-item"><span data-i18n="risk_3">Yanlış GTİP beyannamesinde vergi ve mevzuat riskleri</span></div>
-          <div class="risk-item"><span data-i18n="risk_4">Sorunun sorumlusu belirsizdir: fabrika mı, forwarder mı?</span></div>
-          <div class="risk-item"><span data-i18n="risk_5">Hızlı çözüm olmadığı için zaman ve para kaybı</span></div>
+          <div class="risk-item"><span data-i18n="risk_1">Yanlış fabrika seçimi: düşük kapasite, düşük kalite, kaybedilen aylar</span></div>
+          <div class="risk-item"><span data-i18n="risk_2">Kalite sorunu ancak konteyner limana varınca anlaşılır — artık çok geç</span></div>
+          <div class="risk-item"><span data-i18n="risk_3">Yanlış GTİP kodu, beklenmedik vergi cezası ve gümrükte bekleyen yük demek</span></div>
+          <div class="risk-item"><span data-i18n="risk_4">Bir şeyler ters gidince kimse sorumluluk almaz: fabrika mı, forwarder mı, siz mi?</span></div>
+          <div class="risk-item"><span data-i18n="risk_5">Her gecikme, her hata doğrudan cebinizden çıkar</span></div>
         </div>
       </div>
 
       <div class="reward-card">
-        <div class="reward-card-header"><span data-i18n="reward_header">✓ RouteX ile İthalat</span></div>
+        <div class="reward-card-header"><img src="/assets/logo/routex-logo-v2.png" alt="RouteX Global"><span data-i18n="reward_header">✓ RouteX Global ile İthalat</span></div>
         <div class="reward-card-list">
-          <div class="reward-item"><span data-i18n="reward_1">Fabrika, üretime geçmeden önce yerinde doğrulanır</span></div>
-          <div class="reward-item"><span data-i18n="reward_2">Numune ve seri üretim fotoğrafla onaylanır</span></div>
-          <div class="reward-item"><span data-i18n="reward_3">7/24 panel izlemesi — sorun çıkarsa hemen müdahale</span></div>
-          <div class="reward-item"><span data-i18n="reward_4">GTİP ve vergi, yola çıkmadan hesaplanır — sürpriz yok</span></div>
-          <div class="reward-item"><span data-i18n="reward_5">Fabrikadan kapınıza: tek ekip, tek sorumluluk</span></div>
+          <div class="reward-item"><span data-i18n="reward_1">Fabrikayı üretime başlamadan önce biz, yerinde denetleriz — sürpriz yok</span></div>
+          <div class="reward-item"><span data-i18n="reward_2">Her parti, fotoğraflı kalite raporuyla onaylanmadan yola çıkmaz</span></div>
+          <div class="reward-item"><span data-i18n="reward_3">7/24 canlı panelden takip — bir sorun varsa siz duymadan biz müdahale ederiz</span></div>
+          <div class="reward-item"><span data-i18n="reward_4">Vergiyi mal yola çıkmadan bilirsiniz, gümrükte sürpriz fatura yok</span></div>
+          <div class="reward-item"><span data-i18n="reward_5">Tek ekip, tek sorumluluk: fabrikadan kapınıza kadar hesap verebilir tek muhatap biziz</span></div>
         </div>
       </div>
     </div>
