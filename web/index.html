@@ -247,6 +247,10 @@
   .map-pin.is-shown{ transform:translate(-50%,-50%) scale(1); opacity:1; }
   .map-pin::after{ content:""; width:10px; height:10px; border-radius:50%; background:var(--green); border:2.5px solid #fff; box-sizing:border-box;
     box-shadow:0 0 12px 2px rgba(31,174,112,.8); }
+  /* Çin/Türkiye noktaları 3.2x yakınlaştırılan grubun içinde — normal boyutta kalsalar ekranda
+     dev görünürler, bu yüzden zoom oranıyla ters orantılı, gözle görülür küçüklükte tutuyoruz. */
+  .map-pin.map-pin-region{ width:12px; height:12px; }
+  .map-pin.map-pin-region::after{ width:4px; height:4px; border-width:1px; box-shadow:0 0 5px 1px rgba(31,174,112,.8); }
   /* Zoom grubu içinde olduğu için scale ile büyüyor — ülke vurgusu için daha büyük, parlak glow */
   .map-region-glow{ position:absolute; width:70px; height:70px; border-radius:50%; transform:translate(-50%,-50%) scale(0);
     background:radial-gradient(circle, rgba(31,174,112,.7) 0%, rgba(31,174,112,.3) 40%, rgba(31,174,112,.05) 70%, transparent 85%);
@@ -1015,7 +1019,7 @@ let currentLang = localStorage.getItem('language') || 'tr';
   function makeCityPins(cities) {
     return cities.map(d => {
       const s = document.createElement('span');
-      s.className = 'map-pin';
+      s.className = 'map-pin map-pin-region';
       s.style.left = d.x + '%'; s.style.top = d.y + '%';
       s.title = d.label;
       mapWrap.appendChild(s);
