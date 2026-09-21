@@ -6,7 +6,7 @@
 <title>RouteX Global — 3D Globe Önizleme</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:#050a08; font-family:-apple-system,sans-serif; overflow:hidden;}
+  body{background:#050c09; font-family:-apple-system,sans-serif; overflow:hidden;}
   #globeViz{width:100vw;height:100vh;}
   .label{position:absolute; top:24px; left:24px; color:#fff; z-index:10;}
   .label h1{font-size:22px; font-weight:700; margin-bottom:6px;}
@@ -20,47 +20,77 @@
 </div>
 <div id="globeViz"></div>
 <script src="https://cdn.jsdelivr.net/npm/globe.gl"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
 <script>
-  const CHINA = {lat: 31.2, lng: 121.47, name: 'Shanghai, Çin'};
+  const GREEN = '#1fae70';
+
+  const CHINA = {lat: 31.2, lng: 121.47, name: 'ÇİN', main: true};
   const HUBS = [
-    {lat: 41.0, lng: 28.98, name: 'İstanbul, Türkiye'},
-    {lat: 40.18, lng: 29.06, name: 'Bursa, Türkiye'},
-    {lat: 52.37, lng: 4.90, name: 'Amsterdam, Hollanda'},
-    {lat: 45.46, lng: 9.19, name: 'Milano, İtalya'},
-    {lat: -23.55, lng: -46.63, name: 'São Paulo, Brezilya'},
-    {lat: -26.20, lng: 28.04, name: 'Johannesburg, G.Afrika'},
-    {lat: 25.20, lng: 55.27, name: 'Dubai, BAE'},
-    {lat: 40.71, lng: -74.01, name: 'New York, ABD'},
-    {lat: 51.51, lng: -0.13, name: 'Londra, İngiltere'},
+    {lat: 41.0, lng: 28.98, name: 'İSTANBUL'},
+    {lat: 52.37, lng: 4.90, name: 'HOLLANDA'},
+    {lat: 45.46, lng: 9.19, name: 'İTALYA'},
+    {lat: -23.55, lng: -46.63, name: 'BREZİLYA'},
+    {lat: -26.20, lng: 28.04, name: 'G. AFRİKA'},
+    {lat: 25.20, lng: 55.27, name: 'DUBAİ'},
+    {lat: 40.71, lng: -74.01, name: 'NEW YORK'},
+    {lat: 51.51, lng: -0.13, name: 'LONDRA'},
   ];
   const points = [CHINA, ...HUBS];
   const arcs = HUBS.map(h => ({startLat: CHINA.lat, startLng: CHINA.lng, endLat: h.lat, endLng: h.lng}));
 
-  const globe = Globe()
+  const world = Globe()
     (document.getElementById('globeViz'))
-    .globeImageUrl('https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-dark.jpg')
     .backgroundColor('rgba(0,0,0,0)')
+    .showGlobe(true)
+    .showAtmosphere(true)
+    .atmosphereColor(GREEN)
+    .atmosphereAltitude(0.22)
     .pointsData(points)
     .pointLat('lat').pointLng('lng')
-    .pointColor(d => d === CHINA ? '#e11d2e' : '#1fae70')
-    .pointAltitude(0.01)
-    .pointRadius(0.35)
-    .pointLabel('name')
+    .pointColor(d => d.main ? '#ffffff' : GREEN)
+    .pointAltitude(0.006)
+    .pointRadius(d => d.main ? 0.5 : 0.35)
+    .labelsData(points)
+    .labelLat('lat').labelLng('lng')
+    .labelText('name')
+    .labelSize(d => d.main ? 1.3 : 1.0)
+    .labelColor(d => d.main ? '#ffffff' : 'rgba(255,255,255,0.75)')
+    .labelDotRadius(0)
+    .labelAltitude(0.012)
+    .labelResolution(3)
     .arcsData(arcs)
-    .arcColor(() => ['#1fae70', 'rgba(31,174,112,0)'])
-    .arcDashLength(0.4)
-    .arcDashGap(2)
-    .arcDashAnimateTime(2500)
-    .arcStroke(0.5)
-    .atmosphereColor('#1fae70')
-    .atmosphereAltitude(0.2);
+    .arcColor(() => [GREEN, 'rgba(31,174,112,0)'])
+    .arcDashLength(0.35)
+    .arcDashGap(1.6)
+    .arcDashAnimateTime(3000)
+    .arcStroke(0.7)
+    .arcAltitudeAutoScale(0.35);
 
-  globe.controls().autoRotate = true;
-  globe.controls().autoRotateSpeed = 0.6;
-  globe.pointOfView({lat: 25, lng: 60, altitude: 2.2}, 0);
+  // Dünya haritasını noktalı kıta deseniyle çiziyoruz (ecomflow'daki gibi) —
+  // düz bir uydu fotoğrafı yerine marka yeşiliyle tutarlı, temiz bir görünüm.
+  world.globeMaterial().color.set('#050c09');
+  world.globeMaterial().emissive.set('#04140c');
+  world.globeMaterial().emissiveIntensity = 0.4;
+
+  fetch('https://cdn.jsdelivr.net/npm/world-atlas/countries-110m.json')
+    .then(res => res.json())
+    .then(topo => {
+      const countries = topojson.feature(topo, topo.objects.countries).features;
+      world
+        .hexPolygonsData(countries)
+        .hexPolygonResolution(3)
+        .hexPolygonMargin(0.35)
+        .hexPolygonUseDots(true)
+        .hexPolygonColor(() => 'rgba(31,174,112,0.65)');
+    });
+
+  world.controls().autoRotate = true;
+  world.controls().autoRotateSpeed = 0.5;
+  world.controls().enableZoom = false;
+  world.pointOfView({lat: 25, lng: 60, altitude: 2.3}, 0);
 
   window.addEventListener('resize', () => {
-    globe.width(window.innerWidth).height(window.innerHeight);
+    world.width(window.innerWidth).height(window.innerHeight);
   });
 </script>
 </body>
