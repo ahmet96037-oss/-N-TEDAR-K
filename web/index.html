@@ -452,6 +452,7 @@
   .risk-card-header{ color:#dc3545; }
   .reward-card-header{ color:var(--green); }
   .reward-card-header img{ height:22px; width:auto; flex:none; }
+  .reward-card-header .reward-check{ flex:none; }
   @media (max-width:480px){ .reward-card-header{ font-size:16px; } .reward-card-header img{ height:18px; } }
   .risk-card-list, .reward-card-list{ display:flex; flex-direction:column; gap:14px; }
   .risk-item, .reward-item{ font-size:14px; line-height:1.5; padding-left:24px; position:relative; }
@@ -623,7 +624,7 @@
       </div>
 
       <div class="reward-card">
-        <div class="reward-card-header"><img src="/assets/logo/routex-logo-v2.png" alt="RouteX Global"><span data-i18n="reward_header">✓ İthalat</span></div>
+        <div class="reward-card-header"><span class="reward-check">✓</span><img src="/assets/logo/routex-logo-v2.png" alt="RouteX Global"><span data-i18n="reward_header">ile Tedarik ve İthalat</span></div>
         <div class="reward-card-list">
           <div class="reward-item"><span data-i18n="reward_1">Fabrikayı üretime başlamadan önce biz, yerinde denetleriz — sürpriz yok</span></div>
           <div class="reward-item"><span data-i18n="reward_2">Her parti, fotoğraflı kalite raporuyla onaylanmadan yola çıkmaz</span></div>
