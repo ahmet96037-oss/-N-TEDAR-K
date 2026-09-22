@@ -795,7 +795,9 @@ function ayarlarYukle() {
     <div class="page-head"><div><h1>Ayarlar</h1><p>Hesabınızla ilgili ayarları buradan yönetin.</p></div></div>
     <div class="panel" style="max-width:480px;">
       <h2 style="font-size:16px; margin-bottom:4px;">Hesap</h2>
-      <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">${adminEmail || ''}</p>
+      <p style="color:var(--text-muted); font-size:13px; margin:0;">${adminEmail || ''}</p>
+    </div>
+    <div class="panel" style="max-width:480px;">
       <h2 style="font-size:16px; margin-bottom:14px;">Şifre Değiştir</h2>
       <div id="sifreErr" class="err"></div>
       <div id="sifreOk" style="display:none; color:var(--good); font-size:13px; margin-bottom:12px;">✓ Şifreniz güncellendi.</div>
@@ -1939,13 +1941,13 @@ function yeniSiparisEkrani() {
       <p style="color:var(--text-muted); font-size:13px; margin:0 0 18px;">Telefon veya e-postayla gelen bir talebi doğrudan sisteme girin.</p>
       <div id="ysErr" class="err"></div>
       <div id="ysBasari"></div>
-      <label>Müşteri</label>
+      <label>Müşteri Kayıt Türü</label>
       <select id="ysMusteriMod" onchange="document.getElementById('ysYeniMusteri').style.display = this.value==='yeni' ? 'block' : 'none'; document.getElementById('ysMevcutMusteri').style.display = this.value==='mevcut' ? 'block' : 'none';">
         <option value="mevcut">Mevcut müşteri seç</option>
         <option value="yeni">Yeni müşteri</option>
       </select>
       <div id="ysMevcutMusteri">
-        <label>Müşteri</label>
+        <label>Kayıtlı Müşteri</label>
         <select id="ysMusteriId"><option value="">Yükleniyor…</option></select>
       </div>
       <div id="ysYeniMusteri" style="display:none;">

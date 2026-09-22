@@ -175,11 +175,6 @@
     </a>
     <div class="links">
       <a href="/takip.html">Sipariş Takip</a>
-      <div class="theme-toggle" id="themeToggle">
-        <button data-mode="light">☀</button>
-        <button data-mode="dark">☾</button>
-        <button data-mode="system">Sis</button>
-      </div>
       <a href="/takip.html#rfq" class="cta">Teklif Al</a>
     </div>
   </div>
@@ -732,22 +727,12 @@ qInput.addEventListener('keydown', (e) => {
   }
 });
 
-// Tema seçimi: açık / koyu / sistem — localStorage'da kalıcı
+// Açık/koyu seçimi kaldırıldı — sayfa her zaman sistem tercihini takip eder.
 (function initTheme() {
   const root = document.documentElement;
-  const buttons = document.querySelectorAll('#themeToggle button');
-  function apply(mode) {
-    if (mode === 'light') root.setAttribute('data-theme', 'light');
-    else if (mode === 'dark') root.setAttribute('data-theme', 'dark');
-    else root.removeAttribute('data-theme');
-    buttons.forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-  }
-  const saved = localStorage.getItem('tema') || 'system';
-  apply(saved);
-  buttons.forEach(b => b.addEventListener('click', () => {
-    localStorage.setItem('tema', b.dataset.mode);
-    apply(b.dataset.mode);
-  }));
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  root.setAttribute('data-theme', mq.matches ? 'dark' : 'light');
+  mq.addEventListener('change', (e) => root.setAttribute('data-theme', e.matches ? 'dark' : 'light'));
 })();
 </script>
 </body>
