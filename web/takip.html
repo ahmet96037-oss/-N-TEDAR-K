@@ -805,6 +805,40 @@ async function tekrarSiparisVer(eskiSiparis) {
   } catch (e) { showToast('Bağlantı hatası.', 'err'); }
 }
 
+async function numuneyiOnayla(siparisNo) {
+  if (!confirm('Numuneyi onayladığınızda süreç üretim aşamasına geçecek. Onaylıyor musunuz?')) return;
+  const btn = document.getElementById('numuneOnayBtn');
+  btn.disabled = true; btn.textContent = 'Kaydediliyor...';
+  try {
+    const res = await fetch(API + '/api/tk/siparis/' + encodeURIComponent(siparisNo) + '/numune-onayla', {
+      method: 'POST', headers: {'Authorization':'Bearer '+token}
+    });
+    if (!res.ok) { showToast('Onay kaydedilemedi, tekrar deneyin.', 'err'); btn.disabled = false; btn.textContent = 'Numuneyi Onaylıyorum'; return; }
+    showToast('Numune onaylandı, süreç ilerledi.', 'ok');
+    siparisDetayYukle(siparisNo);
+  } catch (e) {
+    showToast('Bağlantı hatası.', 'err');
+    btn.disabled = false; btn.textContent = 'Numuneyi Onaylıyorum';
+  }
+}
+
+async function odemeyiBildir(siparisNo) {
+  const btn = document.getElementById('odemeBildirBtn');
+  btn.disabled = true; btn.textContent = 'Gönderiliyor...';
+  try {
+    const res = await fetch(API + '/api/tk/siparis/' + encodeURIComponent(siparisNo) + '/odeme-bildir', {
+      method: 'POST', headers: {'Authorization':'Bearer '+token}
+    });
+    if (!res.ok) { showToast('Bildirim gönderilemedi.', 'err'); btn.disabled = false; btn.textContent = 'Ödemeyi Yaptım, Bildir'; return; }
+    showToast('Ekibimize bildirildi, kontrol edip onaylayacaklar.', 'ok');
+    btn.textContent = '✓ Bildirildi';
+    siparisDetayYukle(siparisNo);
+  } catch (e) {
+    showToast('Bağlantı hatası.', 'err');
+    btn.disabled = false; btn.textContent = 'Ödemeyi Yaptım, Bildir';
+  }
+}
+
 async function musteriMesajGonder(siparisNo) {
   const input = document.getElementById('mesajInput');
   const mesaj = input.value.trim();
@@ -1281,6 +1315,24 @@ function detaySayfasi(d, suankiIndex) {
 
   const suankiAd = suankiIndex >= 0 ? d.durum_sirasi[suankiIndex].ad : 'Talep Alındı';
 
+  // Müşterinin eyleme geçebileceği aşamalarda tek tıkla onay/bildirim —
+  // parasal aşamalarda durum OTOMATİK değişmiyor (sadece admin'e bildirim
+  // gidiyor), sadece numune onayında gerçek ilerleme tetikleniyor.
+  let eylemKarti = '';
+  if (d.durum === 'numune_onayinizi_bekliyor') {
+    eylemKarti = `<div class="panel" style="margin-bottom:20px; border-color:var(--good);">
+      <h2 style="font-size:16px; margin-bottom:6px;">✅ Numune Onayınız Bekleniyor</h2>
+      <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Numuneyi inceleyip onayladıysanız süreç doğrudan üretim aşamasına geçer.</p>
+      <button class="btn btn-primary" id="numuneOnayBtn" onclick="numuneyiOnayla('${d.siparis_no}')">Numuneyi Onaylıyorum</button>
+    </div>`;
+  } else if (d.durum.endsWith('_odeme_bekleniyor')) {
+    eylemKarti = `<div class="panel" style="margin-bottom:20px; border-color:var(--accent2);">
+      <h2 style="font-size:16px; margin-bottom:6px;">💳 Ödeme Bekleniyor</h2>
+      <p style="color:var(--text-muted); font-size:13px; margin:0 0 14px;">Ödemeyi yaptıysanız ekibimize bildirin — kontrol edip onayladıktan sonra süreci ilerletecekler.</p>
+      <button class="btn btn-primary" id="odemeBildirBtn" onclick="odemeyiBildir('${d.siparis_no}')">Ödemeyi Yaptım, Bildir</button>
+    </div>`;
+  }
+
   // Ödeme Durumu — sadece admin tutar girdiyse gösterilir (o.toplam_tutar
   // null ise "0 bekliyor" gibi uydurma bir şey göstermek yerine hiç basmıyoruz).
   let odemeCard = '';
@@ -1378,6 +1430,7 @@ function detaySayfasi(d, suankiIndex) {
     </div>
     <div class="panel">${adimTakipcisi(d)}</div>
     ${ozelBanner}
+    ${eylemKarti}
     ${odemeCard}
     ${sevkiyatCard}
     ${mesajCard}

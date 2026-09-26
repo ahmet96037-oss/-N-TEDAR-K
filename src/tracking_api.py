@@ -611,6 +611,50 @@ def mesaj_gonder(siparis_no: str, istek: MesajGonderIstek, authorization: str = 
     return {"ok": True}
 
 
+@router.post("/siparis/{siparis_no}/numune-onayla")
+def musteri_numune_onayla(siparis_no: str, authorization: str = Header(None)):
+    """Müşteri kendi panelinden numuneyi onaylar — sadece 'numune_onayinizi_bekliyor'
+    aşamasındayken çalışır, süreci otomatik bir sonraki aşamaya (üretim ödemesi
+    bekleniyor) taşır. Ödeme gerektiren aşamalarda bu tarz otomatik ilerletme
+    YAPILMAZ (bkz. odeme-bildir) — parasal onay her zaman admin'de kalır."""
+    conn, oturum = _oturum_dogrula(authorization)
+    if not oturum["musteri_id"]:
+        raise HTTPException(status_code=403, detail="Bu işlem sadece müşteriler içindir")
+    siparis = conn.execute(
+        "SELECT id, durum FROM tk_siparisler WHERE siparis_no = ? AND musteri_id = ?",
+        (siparis_no, oturum["musteri_id"]),
+    ).fetchone()
+    if not siparis:
+        raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
+    if siparis["durum"] != "numune_onayinizi_bekliyor":
+        raise HTTPException(status_code=400, detail="Bu sipariş şu an numune onayı bekleyen aşamada değil")
+    yeni_durum = "uretim_odeme_bekleniyor"
+    conn.execute("UPDATE tk_siparisler SET durum = ?, guncellenme = now() WHERE id = ?", (yeni_durum, siparis["id"]))
+    conn.execute(
+        "INSERT INTO tk_durum_gecmisi (siparis_id, durum, not_metni, degistiren_email) VALUES (?, ?, ?, ?)",
+        (siparis["id"], yeni_durum, "Müşteri numuneyi onayladı.", None),
+    )
+    conn._conn.commit()
+    return {"ok": True, "durum": yeni_durum}
+
+
+@router.post("/siparis/{siparis_no}/odeme-bildir")
+def musteri_odeme_bildir(siparis_no: str, authorization: str = Header(None)):
+    """Müşteri 'ödemeyi yaptım' bildirir — sipariş durumunu DEĞİŞTİRMEZ (tahsilat
+    kaydı hâlâ admin onayı gerektirir), sadece mesajlaşmaya otomatik bir not düşer
+    ki admin sipariş listesindeki 'okunmamış mesaj' rozetiyle hemen fark etsin."""
+    conn, oturum = _oturum_dogrula(authorization)
+    if not oturum["musteri_id"]:
+        raise HTTPException(status_code=403, detail="Bu işlem sadece müşteriler içindir")
+    siparis = _siparis_yetki_kontrolu(conn, oturum, siparis_no)
+    conn.execute(
+        "INSERT INTO tk_mesajlar (siparis_id, gonderen_tip, gonderen_email, mesaj) VALUES (?, 'musteri', ?, ?)",
+        (siparis["id"], None, "💳 Ödemeyi gerçekleştirdim, lütfen kontrol edip onaylar mısınız?"),
+    )
+    conn._conn.commit()
+    return {"ok": True}
+
+
 # ==================== ADMIN TARAFI ====================
 
 @router.post("/admin/giris")
