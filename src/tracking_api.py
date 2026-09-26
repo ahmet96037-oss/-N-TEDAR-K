@@ -63,7 +63,7 @@ DURUM_SIRASI = [
     ("numune_odeme_bekleniyor", "Numune Ödemesi Bekleniyor"),
     ("numune_uretiliyor", "Numune Üretiliyor"),
     ("numune_kalite_kontrolde", "Numune Kalite Kontrolünde"),
-    ("numune_onayinizi_bekliyor", "Numune Onayınızı Bekliyor"),
+    ("numune_onayinizi_bekliyor", "Numune Müşteri Onayı Bekliyor"),
     ("uretim_odeme_bekleniyor", "Üretim Ödemesi Bekleniyor"),
     ("uretimde", "Üretimde"),
     ("uretim_kalite_kontrolde", "Üretim Kalite Kontrolünde"),
