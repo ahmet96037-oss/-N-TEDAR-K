@@ -1208,14 +1208,11 @@ async def admin_belge_yukle(
 
     uzanti = os.path.splitext(dosya.filename or "")[1][:10]
     guvenli_ad = f"{siparis_no}_{secrets.token_hex(8)}{uzanti}"
-    hedef_yol = os.path.join(BELGE_DIZINI, guvenli_ad)
-    with open(hedef_yol, "wb") as f:
-        f.write(icerik)
 
     dosya_url = f"/api/tk/belge-indir/{guvenli_ad}"
     conn.execute(
-        "INSERT INTO tk_belgeler (siparis_id, belge_tipi, dosya_adi, dosya_url, aciklama, yukleyen_email) VALUES (?, ?, ?, ?, ?, ?)",
-        (siparis["id"], belge_tipi, dosya.filename or guvenli_ad, dosya_url, aciklama, admin_email),
+        "INSERT INTO tk_belgeler (siparis_id, belge_tipi, dosya_adi, dosya_url, aciklama, yukleyen_email, icerik, mime_tipi) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (siparis["id"], belge_tipi, dosya.filename or guvenli_ad, dosya_url, aciklama, admin_email, icerik, dosya.content_type),
     )
     conn._conn.commit()
     return {"ok": True, "dosya_url": dosya_url}
@@ -1226,15 +1223,27 @@ def belge_indir(dosya_adi: str):
     """Yüklenen belgeyi indirir. Basit <a href> linkiyle çalışması için (Authorization
     header'ı olmadan) korumasız bırakıldı — güvenlik dosya adındaki 16 hex karakterlik
     rastgele token'a dayanıyor (secrets.token_hex(8) = 2^64 olasılık), tahmin edilemez.
-    Sipariş numarası önekte görünse de kalan kısım kaba kuvvetle bulunamaz."""
-    from fastapi.responses import FileResponse
+    Sipariş numarası önekte görünse de kalan kısım kaba kuvvetle bulunamaz.
 
-    # Path traversal koruması: sadece dosya adı bileşeni kabul edilir.
+    Dosya içeriği veritabanında (bytea) tutuluyor — Vercel/Render gibi ortamlarda yerel
+    /tmp diski kalıcı olmadığı ve instance'lar arasında paylaşılmadığı için doğrudan
+    diskten okumak, yükleme yapılan instance'tan farklı bir instance'a düşen indirme
+    isteklerinde 404'e yol açıyordu."""
+    from fastapi.responses import Response
+
     guvenli_ad = os.path.basename(dosya_adi)
-    yol = os.path.join(BELGE_DIZINI, guvenli_ad)
-    if not os.path.isfile(yol):
+    conn = db()
+    dosya_url = f"/api/tk/belge-indir/{guvenli_ad}"
+    row = conn.execute(
+        "SELECT icerik, mime_tipi, dosya_adi FROM tk_belgeler WHERE dosya_url = ?", (dosya_url,)
+    ).fetchone()
+    if not row or row["icerik"] is None:
         raise HTTPException(status_code=404, detail="Belge bulunamadı")
-    return FileResponse(yol)
+    return Response(
+        content=bytes(row["icerik"]),
+        media_type=row["mime_tipi"] or "application/octet-stream",
+        headers={"Content-Disposition": f'inline; filename="{row["dosya_adi"]}"'},
+    )
 
 
 # ==================== HATA İZLEME ====================

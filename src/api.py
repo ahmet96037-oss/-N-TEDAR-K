@@ -42,6 +42,11 @@ def _sema_hazirla():
         # onaylı sayılır (DEFAULT false yeni kayıtlar için, ama mevcutlar production'da
         # elle true'ya çekildi), tablo/kolon zaten varsa bu satırlar hiçbir şey yapmaz.
         conn.execute("ALTER TABLE tk_musteriler ADD COLUMN IF NOT EXISTS onaylandi BOOLEAN DEFAULT false")
+        # Vercel/Render gibi ortamlarda yerel diskteki /tmp kalıcı değil (soğuk başlangıçta
+        # veya farklı bir instance'a düşünce silinir) — yüklenen belgeleri diske değil,
+        # doğrudan veritabanına (bytea) yazıyoruz ki her zaman erişilebilir kalsınlar.
+        conn.execute("ALTER TABLE tk_belgeler ADD COLUMN IF NOT EXISTS icerik BYTEA")
+        conn.execute("ALTER TABLE tk_belgeler ADD COLUMN IF NOT EXISTS mime_tipi TEXT")
         # Hata izleme
         conn.execute(
             """CREATE TABLE IF NOT EXISTS tk_hata_kayitlari (
