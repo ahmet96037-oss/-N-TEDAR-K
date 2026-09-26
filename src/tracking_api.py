@@ -154,8 +154,8 @@ def _sifre_dogrula(sifre: str, hash_str: str) -> bool:
 
 def _siparis_no_uret(conn) -> str:
     yil = datetime.now().year
-    n = conn.execute("SELECT COUNT(*) c FROM tk_siparisler WHERE siparis_no LIKE ?", (f"CTA-{yil}-%",)).fetchone()["c"]
-    return f"CTA-{yil}-{n + 1:04d}"
+    n = conn.execute("SELECT COUNT(*) c FROM tk_siparisler WHERE siparis_no LIKE ?", (f"ROUT-{yil}-%",)).fetchone()["c"]
+    return f"ROUT-{yil}-{n + 1:04d}"
 
 
 def _oturum_olustur(conn, musteri_id: int = None, admin_id: int = None) -> str:
