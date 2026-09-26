@@ -1818,7 +1818,7 @@ async function musterilerYukle() {
   if (rows.length === 0) {
     html += '<div class="empty-state">Henüz müşteri yok.</div>';
   } else {
-    html += '<div class="table-card"><div class="table-wrap"><table><thead><tr><th>Ad Soyad</th><th>Firma</th><th>İletişim</th><th>Sipariş</th><th>Son sipariş</th></tr></thead><tbody>';
+    html += '<div class="table-card"><div class="table-wrap"><table><thead><tr><th>Ad Soyad</th><th>Firma</th><th>İletişim</th><th>Sipariş</th><th>Son sipariş</th><th></th></tr></thead><tbody>';
     rows.forEach(m => {
       const waNo = (m.telefon || '').replace(/[^0-9]/g, '');
       const baslar = (m.ad_soyad || '?').trim().charAt(0).toUpperCase();
@@ -1832,6 +1832,7 @@ async function musterilerYukle() {
         </td>
         <td class="siparis-no">${m.siparis_sayisi}</td>
         <td style="font-variant-numeric:tabular-nums; color:var(--text-muted);">${m.son_siparis ? new Date(m.son_siparis).toLocaleDateString('tr-TR', {day:'2-digit', month:'short', year:'numeric'}) : '—'}</td>
+        <td><button class="btn-outline" style="color:var(--bad); border-color:var(--bad); padding:5px 10px; font-size:12px;" onclick="event.stopPropagation(); musteriSil(${m.id}, '${(m.ad_soyad||'').replace(/'/g,"\\'")}')"><i class="bi bi-trash3"></i></button></td>
       </tr>`;
     });
     html += '</tbody></table></div></div>';
@@ -1843,6 +1844,16 @@ async function musterilerYukle() {
     <button class="secondary" onclick="pdfIndir(musteriRowsCache, ['ad_soyad','firma','email','telefon','siparis_sayisi'], {ad_soyad:'Ad Soyad', firma:'Firma', email:'E-posta', telefon:'Telefon', siparis_sayisi:'Sipariş'}, 'Müşteriler', 'musteriler.pdf')">⬇ PDF</button>
   </div>`;
   main.innerHTML = html;
+}
+
+async function musteriSil(musteriId, adSoyad) {
+  if (!confirm(`"${adSoyad}" adlı müşteri ve tüm siparişleri kalıcı olarak silinecek. Bu işlem geri alınamaz. Emin misiniz?`)) return;
+  const res = await fetch(API + '/api/tk/admin/musteri/' + musteriId, {
+    method: 'DELETE', headers: {'Authorization':'Bearer '+token}
+  });
+  if (!res.ok) { showToast('Müşteri silinemedi.', 'err'); return; }
+  showToast('Müşteri silindi.', 'ok');
+  musterilerYukle();
 }
 
 async function bekleyenUyelikleriYukle() {
@@ -2080,7 +2091,9 @@ async function detayYukle(siparisNo) {
       </div>
       <label>Açıklama (opsiyonel)</label>
       <input id="odemeAciklama" placeholder="ör. Numune ödemesi">
-      <button class="primary" onclick="odemeEkle('${d.siparis_no}')">Ödeme Ekle</button>
+      <label>Dekont / Fatura (PDF veya JPG, opsiyonel)</label>
+      <input id="odemeDekont" type="file" accept=".pdf,.jpg,.jpeg,.png">
+      <button class="primary" onclick="odemeEkle('${d.siparis_no}')" id="odemeEkleBtn">Ödeme Ekle</button>
     ` : `
       <p style="font-size:13px; margin-bottom:12px;">Bu sipariş için henüz tutar girilmedi.</p>
       <div class="row2">
@@ -2154,7 +2167,10 @@ async function detayYukle(siparisNo) {
 
   main.innerHTML = `
     <div class="breadcrumb">Genel <i class="bi bi-chevron-right"></i> Siparişler <i class="bi bi-chevron-right"></i> ${d.siparis_no}</div>
-    <button class="back" onclick="view='liste'; render();">← Listeye dön</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+      <button class="back" onclick="view='liste'; render();">← Listeye dön</button>
+      <button class="btn-outline" style="color:var(--bad); border-color:var(--bad);" onclick="siparisSil('${d.siparis_no}')"><i class="bi bi-trash3"></i> Siparişi Sil</button>
+    </div>
     <div class="panel">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
         <div>
@@ -2336,6 +2352,16 @@ async function mesajGonder(siparisNo) {
   detayYukle(siparisNo);
 }
 
+async function siparisSil(siparisNo) {
+  if (!confirm(`"${siparisNo}" numaralı sipariş kalıcı olarak silinecek. Bu işlem geri alınamaz. Emin misiniz?`)) return;
+  const res = await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo), {
+    method: 'DELETE', headers: {'Authorization':'Bearer '+token}
+  });
+  if (!res.ok) { showToast('Sipariş silinemedi.', 'err'); return; }
+  showToast('Sipariş silindi.', 'ok');
+  view = 'liste'; render();
+}
+
 async function tutarBelirle(siparisNo) {
   const toplam_tutar = parseFloat(document.getElementById('tutarGiris').value);
   if (!toplam_tutar || toplam_tutar <= 0) { showToast('Geçerli bir tutar girin.', 'err'); return; }
@@ -2353,12 +2379,29 @@ async function odemeEkle(siparisNo) {
   if (!tutar || tutar <= 0) { showToast('Geçerli bir tutar girin.', 'err'); return; }
   const para_birimi = document.getElementById('odemeParaBirimi').value;
   const aciklama = document.getElementById('odemeAciklama').value.trim() || null;
-  await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/odeme', {
-    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-    body: JSON.stringify({tutar, para_birimi, aciklama})
-  });
-  showToast('Ödeme eklendi.', 'ok');
-  detayYukle(siparisNo);
+  const dosya = document.getElementById('odemeDekont').files[0];
+  const btn = document.getElementById('odemeEkleBtn');
+  btn.disabled = true; btn.textContent = 'Kaydediliyor...';
+  try {
+    await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/odeme', {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body: JSON.stringify({tutar, para_birimi, aciklama})
+    });
+    if (dosya) {
+      const form = new FormData();
+      form.append('dosya', dosya);
+      form.append('belge_tipi', 'Ödeme Dekontu');
+      form.append('aciklama', aciklama || (tutar.toLocaleString('tr-TR') + ' ' + para_birimi + ' ödeme dekontu'));
+      await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/belge-yukle', {
+        method:'POST', headers:{'Authorization':'Bearer '+token}, body: form
+      });
+    }
+    showToast('Ödeme eklendi.', 'ok');
+    detayYukle(siparisNo);
+  } catch (e) {
+    showToast('Ödeme kaydedilemedi.', 'err');
+    btn.disabled = false; btn.textContent = 'Ödeme Ekle';
+  }
 }
 
 async function icNotKaydet(siparisNo) {

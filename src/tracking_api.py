@@ -790,6 +790,32 @@ def admin_musteri_reddet(musteri_id: int, authorization: str = Header(None)):
     return {"status": "ok"}
 
 
+@router.delete("/admin/musteri/{musteri_id}")
+def admin_musteri_sil(musteri_id: int, authorization: str = Header(None)):
+    """Onaylanmış/onaylanmamış fark etmeksizin bir müşteri hesabını ve ona bağlı
+    tüm siparişleri, belgeleri, ödemeleri, mesajları kalıcı olarak siler —
+    Müşteriler ekranındaki "Sil" butonu için."""
+    conn, _, _ = _admin_dogrula(authorization)
+    musteri = conn.execute("SELECT id FROM tk_musteriler WHERE id = ?", (musteri_id,)).fetchone()
+    if not musteri:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Müşteri bulunamadı")
+    siparis_ids = [r["id"] for r in conn.execute(
+        "SELECT id FROM tk_siparisler WHERE musteri_id = ?", (musteri_id,)
+    ).fetchall()]
+    for sid in siparis_ids:
+        conn.execute("DELETE FROM tk_durum_gecmisi WHERE siparis_id = ?", (sid,))
+        conn.execute("DELETE FROM tk_belgeler WHERE siparis_id = ?", (sid,))
+        conn.execute("DELETE FROM tk_odemeler WHERE siparis_id = ?", (sid,))
+        conn.execute("DELETE FROM tk_mesajlar WHERE siparis_id = ?", (sid,))
+    conn.execute("DELETE FROM tk_siparisler WHERE musteri_id = ?", (musteri_id,))
+    conn.execute("DELETE FROM tk_oturumlar WHERE musteri_id = ?", (musteri_id,))
+    conn.execute("DELETE FROM tk_musteriler WHERE id = ?", (musteri_id,))
+    conn._conn.commit()
+    conn.close()
+    return {"status": "ok"}
+
+
 @router.get("/admin/tedarikciler")
 def admin_tedarikci_listesi(authorization: str = Header(None)):
     """Fabrika/tedarikçi veritabanı (Faz 4) — şu ana kadar sadece müşteri (talep
@@ -960,6 +986,25 @@ def admin_ic_not_guncelle(siparis_no: str, istek: IcNotIstek, authorization: str
 class TutarBelirleIstek(BaseModel):
     toplam_tutar: float
     para_birimi: str = "USD"
+
+
+@router.delete("/admin/siparis/{siparis_no}")
+def admin_siparis_sil(siparis_no: str, authorization: str = Header(None)):
+    """Tek bir siparişi kalıcı olarak siler — yanlışlıkla oluşturulan/demo talepleri
+    temizlemek için. Müşteri hesabına dokunmaz, sadece o siparişe ve alt kayıtlarına
+    (durum geçmişi, belgeler, ödemeler, mesajlar) ait verileri kaldırır."""
+    conn, _, _ = _admin_dogrula(authorization)
+    siparis = conn.execute("SELECT id FROM tk_siparisler WHERE siparis_no = ?", (siparis_no,)).fetchone()
+    if not siparis:
+        raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
+    sid = siparis["id"]
+    conn.execute("DELETE FROM tk_durum_gecmisi WHERE siparis_id = ?", (sid,))
+    conn.execute("DELETE FROM tk_belgeler WHERE siparis_id = ?", (sid,))
+    conn.execute("DELETE FROM tk_odemeler WHERE siparis_id = ?", (sid,))
+    conn.execute("DELETE FROM tk_mesajlar WHERE siparis_id = ?", (sid,))
+    conn.execute("DELETE FROM tk_siparisler WHERE id = ?", (sid,))
+    conn._conn.commit()
+    return {"status": "ok"}
 
 
 @router.post("/admin/siparis/{siparis_no}/tutar")

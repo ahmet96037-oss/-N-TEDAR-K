@@ -381,6 +381,8 @@
   @keyframes toastIn{ from{ opacity:0; transform:translateY(10px) scale(.96); } to{ opacity:1; transform:translateY(0) scale(1); } }
   @keyframes toastOut{ to{ opacity:0; transform:translateY(6px) scale(.96); } }
   @media (prefers-reduced-motion: reduce){ .toast{ animation:none; } .toast.is-leaving{ animation:none; opacity:0; } }
+  .form-section-label{ font-size:11.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--t-muted, var(--text-muted)); margin:22px 0 10px; padding-top:14px; border-top:1px solid var(--border); }
+  .lede + .err + .form-section-label, .lede + .form-section-label{ margin-top:6px; padding-top:0; border-top:none; }
 </style>
 </head>
 <body>
@@ -477,16 +479,21 @@ function render() {
 function yeniSiparisIcYukle() {
   const main = document.querySelector('.main');
   main.innerHTML = `<div class="panel-fade">
-    <div class="panel-head"><div><h2>Yeni Sipariş Oluştur</h2><p>Talebinizi doğrudan panelinizden gönderin.</p></div></div>
+    <div class="panel-head"><div><h2>Yeni Sipariş Oluştur</h2><p>Talebinizi doğrudan panelinizden gönderin — hesap bilgileriniz zaten kayıtlı.</p></div></div>
     <div class="panel" style="max-width:560px;">
       <div id="icErr" class="err"></div>
-      <label for="icUrun">Ürün açıklaması</label>
-      <textarea id="icUrun" placeholder="Ne tür bir ürün, hangi özelliklerde?"></textarea>
-      <div class="row2">
-        <div><label for="icMiktar">Miktar (opsiyonel)</label><input id="icMiktar" placeholder="ör. 5000 adet"></div>
-        <div><label for="icFiyat">Hedef fiyat (opsiyonel)</label><input id="icFiyat" placeholder="ör. 2000 USD"></div>
+      <div class="field">
+        <label class="field-label" for="icUrun">Ürün açıklaması</label>
+        <textarea id="icUrun" placeholder="Ne tür bir ürün, hangi özelliklerde?"></textarea>
       </div>
-      <button class="primary" style="margin-top:14px;" onclick="icSiparisGonder()">Siparişi Oluştur</button>
+      <div class="row2">
+        ${rfqFieldHtml('icMiktar', 'Miktar (opsiyonel)', RFQ_ICO.hash, {placeholder:'ör. 5000 adet'})}
+        ${rfqFieldHtml('icFiyat', 'Hedef fiyat (opsiyonel)', RFQ_ICO.tag, {placeholder:'ör. 2000 USD'})}
+      </div>
+      <button class="btn btn--primary auth-submit" style="width:100%; justify-content:center; margin-top:6px;" onclick="icSiparisGonder()">
+        Siparişi Oluştur
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
     </div>
   </div>`;
 }
@@ -720,28 +727,54 @@ function girisEkrani() {
     <div class="toggle-row">Hesabınız yok mu? <button class="linklike" onclick="view='rfq'; render();">Yeni talep oluşturun</button></div>`;
 }
 
+const RFQ_ICO = {
+  ad: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  firma: '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1M9 13h1M14 9h1M14 13h1M9 21v-4h6v4"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+  tel: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>',
+  kilit: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  kutu: '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12l8.73-5.04M12 22.08V12"/>',
+  hash: '<line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/>',
+  tag: '<path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.25H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.58a2 2 0 0 0 2.82 0l4.6-4.6a2 2 0 0 0 0-2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+};
+function rfqFieldHtml(id, label, ico, opts) {
+  opts = opts || {};
+  return `<div class="field">
+    <label class="field-label" for="${id}">${label}</label>
+    <div class="input-icon">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ico}</svg></span>
+      <input id="${id}" class="input" type="${opts.type||'text'}" placeholder="${opts.placeholder||''}" ${opts.attrs||''}>
+    </div>
+  </div>`;
+}
 function rfqEkrani() {
   return `
     <h2>Yeni Talep (RFQ)</h2>
     <p class="lede">Ürün bilgilerinizi girin, fabrika görüşmelerine hemen başlayalım. Aynı anda bir panel hesabı oluşturulur.</p>
     <div id="rfqErr" class="err"></div>
+    <div class="form-section-label">İletişim Bilgileriniz</div>
     <div class="row2">
-      <div><label for="rAd">Ad Soyad</label><input id="rAd"></div>
-      <div><label for="rFirma">Firma (opsiyonel)</label><input id="rFirma"></div>
+      ${rfqFieldHtml('rAd', 'Ad Soyad', RFQ_ICO.ad)}
+      ${rfqFieldHtml('rFirma', 'Firma (opsiyonel)', RFQ_ICO.firma)}
     </div>
     <div class="row2">
-      <div><label for="rEmail">E-posta</label><input id="rEmail" type="email"></div>
-      <div><label for="rTel">Telefon (opsiyonel)</label><input id="rTel"></div>
+      ${rfqFieldHtml('rEmail', 'E-posta', RFQ_ICO.mail, {type:'email'})}
+      ${rfqFieldHtml('rTel', 'Telefon (opsiyonel)', RFQ_ICO.tel)}
     </div>
-    <label for="rSifre">Şifre belirleyin (panelinize giriş için)</label>
-    <input id="rSifre" type="password">
-    <label for="rUrun">Ürün açıklaması</label>
-    <textarea id="rUrun" placeholder="Ne tür bir ürün, hangi özelliklerde?"></textarea>
+    ${rfqFieldHtml('rSifre', 'Şifre belirleyin (panelinize giriş için)', RFQ_ICO.kilit, {type:'password'})}
+    <div class="form-section-label">Ürün Talebiniz</div>
+    <div class="field">
+      <label class="field-label" for="rUrun">Ürün açıklaması</label>
+      <textarea id="rUrun" placeholder="Ne tür bir ürün, hangi özelliklerde?"></textarea>
+    </div>
     <div class="row2">
-      <div><label for="rMiktar">Miktar</label><input id="rMiktar" placeholder="ör. 5000 adet"></div>
-      <div><label for="rFiyat">Hedef fiyat (opsiyonel)</label><input id="rFiyat" placeholder="ör. 2000 USD"></div>
+      ${rfqFieldHtml('rMiktar', 'Miktar', RFQ_ICO.hash, {placeholder:'ör. 5000 adet'})}
+      ${rfqFieldHtml('rFiyat', 'Hedef fiyat (opsiyonel)', RFQ_ICO.tag, {placeholder:'ör. 2000 USD'})}
     </div>
-    <button class="primary" onclick="rfqGonder()">Talebi Gönder</button>
+    <button class="btn btn--primary auth-submit" style="width:100%; justify-content:center; margin-top:6px;" onclick="rfqGonder()">
+      Talebi Gönder
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </button>
     <div class="toggle-row">Zaten hesabınız var mı? <button class="linklike" onclick="view='giris'; render();">Giriş yapın</button></div>`;
 }
 
