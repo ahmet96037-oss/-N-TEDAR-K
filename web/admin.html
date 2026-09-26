@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="tr">
+<html lang="tr" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -2415,14 +2415,8 @@ async function belgeEkle(siparisNo) {
 }
 
 function initTheme() {
-  const root = document.documentElement;
-  // Açık/koyu seçimi kaldırıldı — panel her zaman sistem tercihini takip eder.
-  const resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  root.setAttribute('data-theme', resolved);
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    root.setAttribute('data-theme', e.matches ? 'dark' : 'light');
-    if (ulkeMapSonParam) ulkeMapBaslat(ulkeMapSonParam.containerId, ulkeMapSonParam.ulkeSayim);
-  });
+  // Panel her zaman koyu (antresit) temada kalır — sistem tercihine bakılmaz.
+  document.documentElement.setAttribute('data-theme', 'dark');
 }
 
 // ---- Toast bildirim sistemi ----
