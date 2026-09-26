@@ -1239,6 +1239,7 @@ def belge_indir(dosya_adi: str):
     /tmp diski kalıcı olmadığı ve instance'lar arasında paylaşılmadığı için doğrudan
     diskten okumak, yükleme yapılan instance'tan farklı bir instance'a düşen indirme
     isteklerinde 404'e yol açıyordu."""
+    from urllib.parse import quote
     from fastapi.responses import Response
 
     guvenli_ad = os.path.basename(dosya_adi)
@@ -1249,10 +1250,18 @@ def belge_indir(dosya_adi: str):
     ).fetchone()
     if not row or row["icerik"] is None:
         raise HTTPException(status_code=404, detail="Belge bulunamadı")
+    # HTTP header'ları latin-1 dışına çıkamaz — Türkçe karakterli dosya adları (ör. "İ", "Ö")
+    # ham haliyle konursa Content-Disposition header'ı encode edilirken 500 hatası veriyordu.
+    # ASCII'ye indirgenmiş bir "filename" (uyumluluk için) + RFC 5987 "filename*" (gerçek ad,
+    # UTF-8 yüzde-encode) birlikte gönderiliyor.
+    orijinal_ad = row["dosya_adi"] or guvenli_ad
+    ascii_ad = orijinal_ad.encode("ascii", "ignore").decode("ascii") or "belge"
     return Response(
         content=bytes(row["icerik"]),
         media_type=row["mime_tipi"] or "application/octet-stream",
-        headers={"Content-Disposition": f'inline; filename="{row["dosya_adi"]}"'},
+        headers={
+            "Content-Disposition": f"inline; filename=\"{ascii_ad}\"; filename*=UTF-8''{quote(orijinal_ad)}"
+        },
     )
 
 
