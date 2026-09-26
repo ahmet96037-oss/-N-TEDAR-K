@@ -2250,7 +2250,7 @@ async function detayYukle(siparisNo) {
     </div>
     <div class="panel">
       <h2>Mevcut Belgeler</h2>
-      ${d.belgeler.length ? d.belgeler.map(b => `<div class="liste-satir"><div><div class="liste-baslik">${b.dosya_adi}</div><div class="liste-alt">${b.belge_tipi}${b.yukleyen_email ? ' · ' + b.yukleyen_email : ''}</div></div><div style="display:flex; gap:14px; align-items:center;">${belgeOnizlenebilirMi(b.dosya_url) ? `<a href="javascript:void(0)" onclick='belgeOnizle(${JSON.stringify(b.dosya_url)}, ${JSON.stringify(b.dosya_adi)})' style="color:var(--text-muted); font-weight:600; font-size:13px; text-decoration:none;">Görüntüle</a>` : ''}<a href="${b.dosya_url}" target="_blank" style="color:var(--accent-ink); font-weight:600; font-size:13px; text-decoration:none;">İndir →</a></div></div>`).join('') : '<span style="color:var(--text-muted); font-size:14px;">Henüz belge yok.</span>'}
+      ${d.belgeler.length ? d.belgeler.map(b => `<div class="liste-satir"><div><div class="liste-baslik">${b.dosya_adi}</div><div class="liste-alt">${b.belge_tipi}${b.yukleyen_email ? ' · ' + b.yukleyen_email : ''}</div></div><div style="display:flex; gap:14px; align-items:center;">${belgeOnizlenebilirMi(b.dosya_url) ? `<a href="javascript:void(0)" onclick='belgeOnizle(${JSON.stringify(b.dosya_url)}, ${JSON.stringify(b.dosya_adi)})' style="color:var(--text-muted); font-weight:600; font-size:13px; text-decoration:none;">Görüntüle</a>` : ''}<a href="${b.dosya_url}" target="_blank" style="color:var(--accent-ink); font-weight:600; font-size:13px; text-decoration:none;">İndir →</a><a href="javascript:void(0)" onclick="belgeSil(${b.id}, '${d.siparis_no}')" style="color:var(--bad); font-weight:600; font-size:13px; text-decoration:none;">Sil</a></div></div>`).join('') : '<span style="color:var(--text-muted); font-size:14px;">Henüz belge yok.</span>'}
     </div>
     <div class="panel">
       <h2>Durum Geçmişi</h2>
@@ -2455,6 +2455,16 @@ async function belgeEkle(siparisNo) {
     btn.disabled = false; btn.textContent = 'Belgeyi Yükle';
   }
   showToast('Belge yüklendi.', 'ok');
+  detayYukle(siparisNo);
+}
+
+async function belgeSil(belgeId, siparisNo) {
+  if (!confirm('Bu belge kalıcı olarak silinecek. Emin misiniz?')) return;
+  const res = await fetch(API + '/api/tk/admin/belge/' + belgeId, {
+    method: 'DELETE', headers: {'Authorization':'Bearer '+token}
+  });
+  if (!res.ok) { showToast('Belge silinemedi.', 'err'); return; }
+  showToast('Belge silindi.', 'ok');
   detayYukle(siparisNo);
 }
 

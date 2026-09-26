@@ -415,7 +415,7 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
         (siparis["id"],),
     ).fetchall()
     belgeler = conn.execute(
-        "SELECT belge_tipi, dosya_adi, dosya_url, aciklama, yuklenme_tarihi, yukleyen_email FROM tk_belgeler WHERE siparis_id = ? ORDER BY yuklenme_tarihi DESC",
+        "SELECT id, belge_tipi, dosya_adi, dosya_url, aciklama, yuklenme_tarihi, yukleyen_email FROM tk_belgeler WHERE siparis_id = ? ORDER BY yuklenme_tarihi DESC",
         (siparis["id"],),
     ).fetchall()
     odemeler = conn.execute(
@@ -512,6 +512,7 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
         ],
         "belgeler": [
             {
+                "id": b["id"],
                 "belge_tipi": b["belge_tipi"],
                 "dosya_adi": b["dosya_adi"],
                 "dosya_url": b["dosya_url"],
@@ -1216,6 +1217,15 @@ async def admin_belge_yukle(
     )
     conn._conn.commit()
     return {"ok": True, "dosya_url": dosya_url}
+
+
+@router.delete("/admin/belge/{belge_id}")
+def admin_belge_sil(belge_id: int, authorization: str = Header(None)):
+    """Yanlış/eski/geçersiz bir belgeyi kalıcı olarak siler — yeniden yükleyebilmek için."""
+    conn, _, _ = _admin_dogrula(authorization)
+    conn.execute("DELETE FROM tk_belgeler WHERE id = ?", (belge_id,))
+    conn._conn.commit()
+    return {"ok": True}
 
 
 @router.get("/belge-indir/{dosya_adi}")
