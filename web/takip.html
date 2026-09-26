@@ -468,6 +468,47 @@ function render() {
   else if (view === 'detay') siparisDetayYukle(aktifSiparisNo);
   else if (view === 'ayarlar') ayarlarYukle();
   else if (view === 'analitik') musteriAnalitikYukle();
+  else if (view === 'yeni-siparis') yeniSiparisIcYukle();
+}
+
+// Giriş yapmış müşteri için: hesap bilgisi istemeyen, doğrudan panelden sipariş
+// oluşturma ekranı — üyeliksiz RFQ formundan (rfqEkrani) ayrı, çünkü o form
+// hesap oluşturma alanları da içeriyor ve zaten üye olan biri için gereksiz/kafa karıştırıcı.
+function yeniSiparisIcYukle() {
+  const main = document.querySelector('.main');
+  main.innerHTML = `<div class="panel-fade">
+    <div class="panel-head"><div><h2>Yeni Sipariş Oluştur</h2><p>Talebinizi doğrudan panelinizden gönderin.</p></div></div>
+    <div class="panel" style="max-width:560px;">
+      <div id="icErr" class="err"></div>
+      <label for="icUrun">Ürün açıklaması</label>
+      <textarea id="icUrun" placeholder="Ne tür bir ürün, hangi özelliklerde?"></textarea>
+      <div class="row2">
+        <div><label for="icMiktar">Miktar (opsiyonel)</label><input id="icMiktar" placeholder="ör. 5000 adet"></div>
+        <div><label for="icFiyat">Hedef fiyat (opsiyonel)</label><input id="icFiyat" placeholder="ör. 2000 USD"></div>
+      </div>
+      <button class="primary" style="margin-top:14px;" onclick="icSiparisGonder()">Siparişi Oluştur</button>
+    </div>
+  </div>`;
+}
+
+async function icSiparisGonder() {
+  const errBox = document.getElementById('icErr');
+  errBox.textContent = '';
+  const urun_aciklamasi = document.getElementById('icUrun').value.trim();
+  if (!urun_aciklamasi) { errBox.textContent = 'Ürün açıklaması gerekli.'; return; }
+  try {
+    const res = await fetch(API + '/api/tk/siparis-olustur', {
+      method: 'POST', headers: {'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body: JSON.stringify({
+        urun_aciklamasi,
+        miktar: document.getElementById('icMiktar').value.trim() || null,
+        hedef_fiyat: document.getElementById('icFiyat').value.trim() || null,
+      })
+    });
+    if (!res.ok) { errBox.textContent = 'Sipariş oluşturulamadı, tekrar deneyin.'; return; }
+    const d = await res.json();
+    aktifSiparisNo = d.siparis_no; view = 'detay'; render();
+  } catch (e) { errBox.textContent = 'Bağlantı hatası.'; }
 }
 
 async function ayarlarYukle() {
@@ -879,7 +920,7 @@ initDropdowns();
 // ---- Komut paleti (⌘K) — sayfalar + kendi siparişleri arasında hızlı arama ----
 const CMDK_PAGES_MUSTERI = [
   { label: 'Siparişlerim', ico: 'bi-box-seam', go: () => { view = 'liste'; render(); } },
-  { label: 'Yeni Talep', ico: 'bi-plus-circle', go: () => { view = 'rfq'; render(); } },
+  { label: 'Yeni Talep', ico: 'bi-plus-circle', go: () => { view = 'yeni-siparis'; render(); } },
   { label: 'Vergi Hesaplama', ico: 'bi-calculator', go: () => { location.href = '/hesapla.html'; } },
   { label: 'Ayarlar', ico: 'bi-gear', go: () => { view = 'ayarlar'; render(); } },
 ];
@@ -1086,10 +1127,10 @@ async function siparisListesiYukle() {
     musteriSiparisCache = rows;
     let html = `<div class="panel-head">
       <div><h2>Siparişleriniz</h2><p>Tüm taleplerinizin durumu ve geçmişi.</p></div>
-      <button class="btn btn-primary" onclick="view='rfq'; render();">＋ Yeni Talep</button>
+      <button class="btn btn-primary" onclick="view='yeni-siparis'; render();">＋ Yeni Talep</button>
     </div>`;
     if (rows.length === 0) {
-      html += `<div class="empty-state">Henüz siparişiniz yok.<br><button class="linklike" style="margin-top:10px;" onclick="view='rfq'; render();">İlk talebinizi oluşturun →</button></div>`;
+      html += `<div class="empty-state">Henüz siparişiniz yok.<br><button class="linklike" style="margin-top:10px;" onclick="view='yeni-siparis'; render();">İlk talebinizi oluşturun →</button></div>`;
     } else {
       html += `<div class="chart-row">${musteriFazGrafigi(rows)}${musteriTamamlanmaHalkasi(rows)}</div>`;
       html += '<div class="siparis-liste">';
