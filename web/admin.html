@@ -527,8 +527,8 @@ const DURUMLAR = [
   ['yukleme_odeme_bekleniyor','Yükleme Öncesi Ödeme Bekleniyor'],
   ['gemide','Gemide'],
   ['gumruk_beyanname','Gümrük Beyannamesi Veriliyor'],
-  ['gumruk_vergi_odeme','Gümrük Vergisi Ödemesi Bekleniyor'],
   ['gumruk_muayene','Gümrükte Muayene'],
+  ['gumruk_vergi_odeme','Vergiler Ödenmeyi Bekliyor'],
   ['teslimat_yolda','Teslimat İçin Yolda'],
   ['teslim_edildi','Teslim Edildi'],
 ];
@@ -2132,7 +2132,7 @@ async function detayYukle(siparisNo) {
   // Zaten sevkiyat bilgisi girilmiş bir siparişte, aşama ne olursa olsun
   // (ör. teslim edildi) veriyi görüp düzenleyebilsin diye yine gösteriliyor.
   const sevkiyatBasIdx = DURUMLAR.findIndex(([k]) => k === 'sevkiyat_belgeleri_hazirlaniyor');
-  const sevkiyatBitIdx = DURUMLAR.findIndex(([k]) => k === 'gumruk_muayene');
+  const sevkiyatBitIdx = DURUMLAR.findIndex(([k]) => k === 'gumruk_vergi_odeme');
   const sevkiyatSuAsamaDaMi = suankiIdx >= sevkiyatBasIdx && suankiIdx <= sevkiyatBitIdx;
   const sevkiyatVeriVarMi = d.sevkiyat && (d.sevkiyat.gemi_adi || d.sevkiyat.tasiyici_firma || d.sevkiyat.konteyner_no);
   const sevkiyatPaneliHtml = (!sevkiyatSuAsamaDaMi && !sevkiyatVeriVarMi) ? '' : `<div class="panel">
@@ -2237,6 +2237,7 @@ async function detayYukle(siparisNo) {
             <option value="Çeki Listesi">Çeki Listesi (Packing List)</option>
             <option value="Menşe Şehadetnamesi">Menşe Şehadetnamesi</option>
             <option value="Numune / QC Raporu">Numune / QC Raporu</option>
+            <option value="Üretim Fotoğrafı">Üretim Fotoğrafı</option>
             <option value="Gümrük Beyannamesi">Gümrük Beyannamesi</option>
             <option value="diger">Diğer</option>
           </select>

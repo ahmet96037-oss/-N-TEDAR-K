@@ -72,8 +72,8 @@ DURUM_SIRASI = [
     ("yukleme_odeme_bekleniyor", "Yükleme Öncesi Ödeme Bekleniyor"),
     ("gemide", "Gemide"),
     ("gumruk_beyanname", "Gümrük Beyannamesi Veriliyor"),
-    ("gumruk_vergi_odeme", "Gümrük Vergisi Ödemesi Bekleniyor"),
     ("gumruk_muayene", "Gümrükte Muayene"),
+    ("gumruk_vergi_odeme", "Vergiler Ödenmeyi Bekliyor"),
     ("teslimat_yolda", "Teslimat İçin Yolda"),
     ("teslim_edildi", "Teslim Edildi"),
 ]
