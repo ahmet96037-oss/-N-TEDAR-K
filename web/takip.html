@@ -1527,9 +1527,9 @@ function belgelerListesi(d) {
   let html = '';
   d.belgeler.forEach(b => {
     html += `<div class="belge-item">
-      <div><div class="ad">${b.dosya_adi}</div><div class="tip">${b.belge_tipi}</div></div>
+      <div><div class="ad">${b.belge_tipi}</div>${b.aciklama ? `<div class="tip">${b.aciklama}</div>` : ''}</div>
       <div style="display:flex; gap:14px; align-items:center;">
-        ${belgeOnizlenebilirMi(b.dosya_url) ? `<a href="javascript:void(0)" onclick='belgeOnizle(${JSON.stringify(b.dosya_url)}, ${JSON.stringify(b.dosya_adi)})' style="color:var(--text-muted);">Görüntüle</a>` : ''}
+        ${belgeOnizlenebilirMi(b.dosya_url) ? `<a href="javascript:void(0)" onclick='belgeOnizle(${JSON.stringify(b.dosya_url)}, ${JSON.stringify(b.belge_tipi)})' style="color:var(--text-muted);">Görüntüle</a>` : ''}
         <a href="${b.dosya_url}" target="_blank" rel="noopener">İndir →</a>
       </div>
     </div>`;
