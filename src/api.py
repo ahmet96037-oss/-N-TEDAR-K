@@ -47,6 +47,9 @@ def _sema_hazirla():
         # doğrudan veritabanına (bytea) yazıyoruz ki her zaman erişilebilir kalsınlar.
         conn.execute("ALTER TABLE tk_belgeler ADD COLUMN IF NOT EXISTS icerik BYTEA")
         conn.execute("ALTER TABLE tk_belgeler ADD COLUMN IF NOT EXISTS mime_tipi TEXT")
+        # Gerçek zamanlı AIS gemi takibi için — MarineTraffic'in ücretsiz embed haritası
+        # MMSI numarasıyla çalışıyor, gemi adıyla değil.
+        conn.execute("ALTER TABLE tk_siparisler ADD COLUMN IF NOT EXISTS gemi_mmsi TEXT")
         # Hata izleme
         conn.execute(
             """CREATE TABLE IF NOT EXISTS tk_hata_kayitlari (

@@ -435,6 +435,16 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
         vesselfinder_url = f"https://www.vesselfinder.com/vessels?name={_url_quote(siparis['gemi_adi'])}"
         marinetraffic_url = f"https://www.marinetraffic.com/en/ais/index/search/all?keyword={_url_quote(siparis['gemi_adi'])}"
 
+    # Gerçek zamanlı AIS harita gömmesi — MMSI numarası girildiyse MarineTraffic'in
+    # ücretsiz embed haritasını canlı konumla gösterebiliyoruz (gemi adı aramasından
+    # farklı olarak MMSI ile doğrudan o gemiyi merkeze alıp takip ediyor).
+    gemi_harita_embed_url = None
+    if siparis["gemi_mmsi"]:
+        gemi_harita_embed_url = (
+            f"https://www.marinetraffic.com/en/ais/embed/zoom:6/mmsi:{_url_quote(siparis['gemi_mmsi'])}"
+            f"/maptype:0/shownames:true"
+        )
+
     carrier = CARRIER_REGISTRY.get(siparis["tasiyici_key"]) if siparis["tasiyici_key"] else None
 
     # Konteyner bazlı takip — üç kademeli, HER ZAMAN taşıyıcının kendi (3. parti
@@ -490,6 +500,8 @@ def siparis_detay(siparis_no: str, authorization: str = Header(None)):
             "tasiyici_key": siparis["tasiyici_key"],
             "tasiyici_firma": tasiyici_ad,
             "gemi_adi": siparis["gemi_adi"],
+            "gemi_mmsi": siparis["gemi_mmsi"],
+            "gemi_harita_embed_url": gemi_harita_embed_url,
             "sefer_no": siparis["sefer_no"],
             "konsimento_no": siparis["konsimento_no"],
             "konteyner_no": siparis["konteyner_no"],
@@ -1119,6 +1131,7 @@ class SevkiyatBilgisiIstek(BaseModel):
     konsimento_no: str | None = None
     konteyner_no: str | None = None  # ör. MSCU1234567 — konteyner bazlı takip linki için
     tasiyici_takip_url: str | None = None  # her zaman öncelikli — o sevkiyata özel gerçek link
+    gemi_mmsi: str | None = None  # gerçek zamanlı AIS harita gömmesi için (MarineTraffic embed)
 
 
 @router.get("/istatistik-genel")
@@ -1158,9 +1171,9 @@ def admin_sevkiyat_guncelle(siparis_no: str, istek: SevkiyatBilgisiIstek, author
     tasiyici_firma = istek.tasiyici_firma or (CARRIER_REGISTRY[istek.tasiyici_key]["ad"] if istek.tasiyici_key else None)
     conn.execute(
         """UPDATE tk_siparisler SET tasiyici_key = ?, tasiyici_firma = ?, gemi_adi = ?, sefer_no = ?,
-           konsimento_no = ?, konteyner_no = ?, tasiyici_takip_url = ?, guncellenme = now() WHERE id = ?""",
+           konsimento_no = ?, konteyner_no = ?, tasiyici_takip_url = ?, gemi_mmsi = ?, guncellenme = now() WHERE id = ?""",
         (istek.tasiyici_key, tasiyici_firma, istek.gemi_adi, istek.sefer_no, istek.konsimento_no,
-         istek.konteyner_no, istek.tasiyici_takip_url, siparis["id"]),
+         istek.konteyner_no, istek.tasiyici_takip_url, istek.gemi_mmsi, siparis["id"]),
     )
     conn._conn.commit()
     return {"ok": True}
@@ -1262,6 +1275,91 @@ def belge_indir(dosya_adi: str):
         headers={
             "Content-Disposition": f"inline; filename=\"{ascii_ad}\"; filename*=UTF-8''{quote(orijinal_ad)}"
         },
+    )
+
+
+@router.get("/siparis/{siparis_no}/pdf")
+def siparis_pdf(siparis_no: str, authorization: str = Header(None)):
+    """Sipariş özeti PDF'i — hem admin hem siparişin sahibi müşteri indirebilir.
+    Teklif/fatura değil, o ana kadarki sürecin resmi bir özeti (ürün, tutar, durum,
+    sevkiyat bilgisi) — sunumlarda/kayıtlarda paylaşılabilecek profesyonel bir çıktı."""
+    from io import BytesIO
+    from urllib.parse import quote as _q
+
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.lib.units import inch
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from fastapi.responses import Response as _Resp
+
+    conn, oturum = _oturum_dogrula(authorization)
+    siparis = _siparis_yetki_kontrolu(conn, oturum, siparis_no)
+    musteri = conn.execute(
+        "SELECT ad_soyad, firma, email FROM tk_musteriler WHERE id = ?", (siparis["musteri_id"],)
+    ).fetchone()
+    odemeler = conn.execute(
+        "SELECT tutar, tarih, aciklama FROM tk_odemeler WHERE siparis_id = ? ORDER BY tarih", (siparis["id"],)
+    ).fetchall()
+    odenen_toplam = sum(float(o["tutar"]) for o in odemeler)
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=0.6 * inch, bottomMargin=0.6 * inch)
+    styles = getSampleStyleSheet()
+    baslik_style = ParagraphStyle(
+        "Baslik", parent=styles["Heading1"], fontSize=20, textColor=colors.HexColor("#c0392b"), spaceAfter=4
+    )
+    alt_style = ParagraphStyle("Alt", parent=styles["Normal"], fontSize=10, textColor=colors.HexColor("#666666"))
+
+    story = [
+        Paragraph("RouteX Global", baslik_style),
+        Paragraph("Sipariş Özeti / Order Summary", alt_style),
+        Spacer(1, 0.3 * inch),
+    ]
+
+    genel_data = [
+        ["Sipariş No", siparis["siparis_no"]],
+        ["Müşteri", musteri["ad_soyad"] if musteri else "—"],
+        ["Firma", (musteri["firma"] if musteri and musteri["firma"] else "—")],
+        ["E-posta", musteri["email"] if musteri else "—"],
+        ["Ürün", siparis["urun_aciklamasi"] or "—"],
+        ["Miktar", str(siparis["miktar"]) if siparis["miktar"] else "—"],
+        ["Güncel Durum", TUM_DURUM_ISIMLERI.get(siparis["durum"], siparis["durum"])],
+    ]
+    if siparis["gemi_adi"]:
+        genel_data.append(["Gemi", siparis["gemi_adi"]])
+    if siparis["konteyner_no"]:
+        genel_data.append(["Konteyner No", siparis["konteyner_no"]])
+    if siparis["toplam_tutar"]:
+        genel_data.append(["Toplam Tutar", f"{float(siparis['toplam_tutar']):.2f} USD"])
+        genel_data.append(["Ödenen", f"{odenen_toplam:.2f} USD"])
+
+    tablo = Table(genel_data, colWidths=[1.8 * inch, 4.2 * inch])
+    tablo.setStyle(TableStyle([
+        ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 8),
+        ("LINEBELOW", (0, 0), (-1, -1), 0.5, colors.HexColor("#dddddd")),
+        ("TEXTCOLOR", (0, 0), (0, -1), colors.HexColor("#c0392b")),
+    ]))
+    story.append(tablo)
+    story.append(Spacer(1, 0.35 * inch))
+    story.append(Paragraph(
+        f"Oluşturulma tarihi: {datetime.now(timezone.utc).strftime('%d.%m.%Y')}", alt_style
+    ))
+    story.append(Paragraph(
+        "Bu belge RouteX Global takip sisteminden otomatik oluşturulmuştur.", alt_style
+    ))
+
+    doc.build(story)
+    buffer.seek(0)
+    pdf_bytes = buffer.getvalue()
+    dosya_adi_ascii = f"siparis-{siparis['siparis_no']}.pdf".encode("ascii", "ignore").decode("ascii")
+    return _Resp(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"inline; filename=\"{dosya_adi_ascii}\"; filename*=UTF-8''{_q(dosya_adi_ascii)}"},
     )
 
 

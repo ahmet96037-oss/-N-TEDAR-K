@@ -2149,6 +2149,8 @@ async function detayYukle(siparisNo) {
         </div>
         <div><label>Gemi adı</label><input id="sGemi" placeholder="ör. MSC ISTANBUL" value="${d.sevkiyat?.gemi_adi || ''}"></div>
       </div>
+      <label>Gemi MMSI no (opsiyonel — girilirse müşteri panelinde canlı AIS harita gömülür, sadece gemi adıyla arama değil gerçek konum gösterir)</label>
+      <input id="sMmsi" placeholder="ör. 636017569 — MarineTraffic/VesselFinder'da gemi sayfasında yazar" value="${d.sevkiyat?.gemi_mmsi || ''}">
       <div id="sTasiyiciDiger" style="display:${(!d.sevkiyat?.tasiyici_key && d.sevkiyat?.tasiyici_firma) ? 'block' : 'none'};">
         <label>Taşıyıcı adı (serbest metin)</label>
         <input id="sTasiyici" placeholder="ör. Yang Ming" value="${(!d.sevkiyat?.tasiyici_key && d.sevkiyat?.tasiyici_firma) ? d.sevkiyat.tasiyici_firma : ''}">
@@ -2169,7 +2171,10 @@ async function detayYukle(siparisNo) {
     <div class="breadcrumb">Genel <i class="bi bi-chevron-right"></i> Siparişler <i class="bi bi-chevron-right"></i> ${d.siparis_no}</div>
     <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
       <button class="back" onclick="view='liste'; render();">← Listeye dön</button>
-      <button class="btn-outline" style="color:var(--bad); border-color:var(--bad);" onclick="siparisSil('${d.siparis_no}')"><i class="bi bi-trash3"></i> Siparişi Sil</button>
+      <div style="display:flex; gap:10px;">
+        <button class="btn-outline" onclick="siparisPdfIndir('${d.siparis_no}')"><i class="bi bi-file-earmark-pdf"></i> PDF Özeti</button>
+        <button class="btn-outline" style="color:var(--bad); border-color:var(--bad);" onclick="siparisSil('${d.siparis_no}')"><i class="bi bi-trash3"></i> Siparişi Sil</button>
+      </div>
     </div>
     <div class="panel">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
@@ -2325,6 +2330,7 @@ async function sevkiyatGuncelle(siparisNo) {
     konsimento_no: document.getElementById('sKonsimento').value.trim() || null,
     konteyner_no: document.getElementById('sKonteyner').value.trim() || null,
     tasiyici_takip_url: document.getElementById('sUrl').value.trim() || null,
+    gemi_mmsi: document.getElementById('sMmsi').value.trim() || null,
   };
   await fetch(API + '/api/tk/admin/siparis/' + encodeURIComponent(siparisNo) + '/sevkiyat', {
     method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
@@ -2361,6 +2367,15 @@ async function siparisSil(siparisNo) {
   if (!res.ok) { showToast('Sipariş silinemedi.', 'err'); return; }
   showToast('Sipariş silindi.', 'ok');
   view = 'liste'; render();
+}
+
+async function siparisPdfIndir(siparisNo) {
+  const res = await fetch(API + '/api/tk/siparis/' + encodeURIComponent(siparisNo) + '/pdf', {
+    headers: {'Authorization':'Bearer '+token}
+  });
+  if (!res.ok) { showToast('PDF oluşturulamadı.', 'err'); return; }
+  const blob = await res.blob();
+  window.open(URL.createObjectURL(blob), '_blank');
 }
 
 async function tutarBelirle(siparisNo) {

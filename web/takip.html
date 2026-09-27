@@ -805,6 +805,15 @@ async function tekrarSiparisVer(eskiSiparis) {
   } catch (e) { showToast('Bağlantı hatası.', 'err'); }
 }
 
+async function siparisPdfIndir(siparisNo) {
+  const res = await fetch(API + '/api/tk/siparis/' + encodeURIComponent(siparisNo) + '/pdf', {
+    headers: {'Authorization':'Bearer '+token}
+  });
+  if (!res.ok) { showToast('PDF oluşturulamadı.', 'err'); return; }
+  const blob = await res.blob();
+  window.open(URL.createObjectURL(blob), '_blank');
+}
+
 async function numuneyiOnayla(siparisNo) {
   if (!confirm('Numuneyi onayladığınızda süreç üretim aşamasına geçecek. Onaylıyor musunuz?')) return;
   const btn = document.getElementById('numuneOnayBtn');
@@ -1403,11 +1412,18 @@ function detaySayfasi(d, suankiIndex) {
         ${s.vesselfinder_url ? `<a href="${s.vesselfinder_url}" target="_blank" rel="noopener" class="btn">VesselFinder'da Ara →</a>` : ''}
       </div>
       ${s.konteyner_takip_kaynagi ? `<p style="font-size:11.5px; color:var(--text-muted); margin:10px 0 0;">Konteyner takibi kaynağı: ${s.konteyner_takip_kaynagi}${s.konteyner_takip_kaynagi.includes('genel') ? ' — bu taşıyıcı sistemde kayıtlı değil' : (s.konteyner_takip_kaynagi.includes('resmi takip sayfası') ? '' : ' (konteyner no otomatik dolu)')}</p>` : ''}
+      ${s.gemi_harita_embed_url ? `<div style="margin-top:18px;">
+        <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); margin-bottom:8px;">🛰️ Canlı Konum (AIS)</div>
+        <iframe src="${s.gemi_harita_embed_url}" style="width:100%; height:380px; border:1px solid var(--border); border-radius:10px;" loading="lazy"></iframe>
+      </div>` : ''}
     </div>`;
   }
 
   return `
-    <button class="back" onclick="view='liste'; render();">← Siparişlerime dön</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+      <button class="back" onclick="view='liste'; render();">← Siparişlerime dön</button>
+      <button class="btn btn-outline" onclick="siparisPdfIndir('${d.siparis_no}')"><i class="bi bi-file-earmark-pdf"></i> PDF Özeti</button>
+    </div>
     <div class="ozet-card">
       <div class="ozet-top">
         <div>
