@@ -1283,15 +1283,28 @@ def siparis_pdf(siparis_no: str, authorization: str = Header(None)):
     """Sipariş özeti PDF'i — hem admin hem siparişin sahibi müşteri indirebilir.
     Teklif/fatura değil, o ana kadarki sürecin resmi bir özeti (ürün, tutar, durum,
     sevkiyat bilgisi) — sunumlarda/kayıtlarda paylaşılabilecek profesyonel bir çıktı."""
+    import os as _os
     from io import BytesIO
     from urllib.parse import quote as _q
 
+    import reportlab
     from reportlab.lib.pagesizes import A4
     from reportlab.lib import colors
     from reportlab.lib.units import inch
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
     from fastapi.responses import Response as _Resp
+
+    # Helvetica'nın WinAnsi kodlaması Türkçe'ye özgü ş/ı/ğ/İ karakterlerini içermiyor
+    # (PDF'te kare/kutu olarak basılıyordu) — reportlab'ın kendi paketiyle gelen
+    # Bitstream Vera Sans (Latin Extended-A destekli) fontunu kullanıyoruz, ekstra
+    # bir font dosyası bundle etmeye gerek kalmadan.
+    _font_dir = _os.path.join(_os.path.dirname(reportlab.__file__), "fonts")
+    if "Vera" not in pdfmetrics.getRegisteredFontNames():
+        pdfmetrics.registerFont(TTFont("Vera", _os.path.join(_font_dir, "Vera.ttf")))
+        pdfmetrics.registerFont(TTFont("VeraBd", _os.path.join(_font_dir, "VeraBd.ttf")))
 
     conn, oturum = _oturum_dogrula(authorization)
     siparis = _siparis_yetki_kontrolu(conn, oturum, siparis_no)
@@ -1307,9 +1320,12 @@ def siparis_pdf(siparis_no: str, authorization: str = Header(None)):
     doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=0.6 * inch, bottomMargin=0.6 * inch)
     styles = getSampleStyleSheet()
     baslik_style = ParagraphStyle(
-        "Baslik", parent=styles["Heading1"], fontSize=20, textColor=colors.HexColor("#c0392b"), spaceAfter=4
+        "Baslik", parent=styles["Heading1"], fontName="VeraBd", fontSize=20,
+        textColor=colors.HexColor("#c0392b"), spaceAfter=4,
     )
-    alt_style = ParagraphStyle("Alt", parent=styles["Normal"], fontSize=10, textColor=colors.HexColor("#666666"))
+    alt_style = ParagraphStyle(
+        "Alt", parent=styles["Normal"], fontName="Vera", fontSize=10, textColor=colors.HexColor("#666666")
+    )
 
     story = [
         Paragraph("RouteX Global", baslik_style),
@@ -1336,7 +1352,8 @@ def siparis_pdf(siparis_no: str, authorization: str = Header(None)):
 
     tablo = Table(genel_data, colWidths=[1.8 * inch, 4.2 * inch])
     tablo.setStyle(TableStyle([
-        ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+        ("FONTNAME", (0, 0), (0, -1), "VeraBd"),
+        ("FONTNAME", (1, 0), (1, -1), "Vera"),
         ("FONTSIZE", (0, 0), (-1, -1), 10),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
         ("TOPPADDING", (0, 0), (-1, -1), 8),
