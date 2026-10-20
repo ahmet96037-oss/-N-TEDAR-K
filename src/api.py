@@ -506,6 +506,53 @@ def health_check():
         return {"status": "error", "database": "disconnected", "error": str(e)}
 
 
+# ---- TCMB döviz kurları — maliyet hesaplayıcısı (web/maliyet-hesaplama.html) kuru buradan otomatik alır.
+# Tarayıcı TCMB'yi CORS nedeniyle doğrudan okuyamadığı için kurlar sunucu tarafında çekilir.
+# Değerler 1 birim döviz başına TL'dir (JPY gibi 100 birimlik kurlar 1 birime bölünür). 30 dk önbellek.
+_KUR_ONBELLEK = {"t": 0.0, "veri": None}
+
+
+def _tcmb_kurlari_cozumle(xml_bytes):
+    import xml.etree.ElementTree as ET
+    kok = ET.fromstring(xml_bytes)
+    kurlar = {}
+    for c in kok.findall("Currency"):
+        kod = c.get("CurrencyCode")
+        try:
+            birim = float((c.findtext("Unit") or "1").strip() or 1)
+        except ValueError:
+            birim = 1.0
+        def deger(etiket):
+            v = (c.findtext(etiket) or "").strip()
+            return round(float(v) / birim, 6) if v else None
+        kurlar[kod] = {"alis": deger("ForexBuying"), "satis": deger("ForexSelling"),
+                       "efektifAlis": deger("BanknoteBuying"), "efektifSatis": deger("BanknoteSelling")}
+    return {"kaynak": "TCMB", "tarih": kok.get("Tarih"), "bultenNo": kok.get("Bulten_No"), "kurlar": kurlar}
+
+
+@app.get("/api/kur")
+def tcmb_kur():
+    """TCMB günlük gösterge niteliğindeki döviz kurları (today.xml)."""
+    import time
+    import urllib.request
+    simdi = time.time()
+    if _KUR_ONBELLEK["veri"] and simdi - _KUR_ONBELLEK["t"] < 1800:
+        return _KUR_ONBELLEK["veri"]
+    try:
+        istek = urllib.request.Request("https://www.tcmb.gov.tr/kurlar/today.xml",
+                                       headers={"User-Agent": "Mozilla/5.0 (RouteX kur servisi)"})
+        with urllib.request.urlopen(istek, timeout=8) as yanit:
+            veri = _tcmb_kurlari_cozumle(yanit.read())
+        if not veri["kurlar"]:
+            raise ValueError("boş kur listesi")
+        _KUR_ONBELLEK.update(t=simdi, veri=veri)
+        return veri
+    except Exception as e:
+        if _KUR_ONBELLEK["veri"]:
+            return {**_KUR_ONBELLEK["veri"], "uyari": "TCMB'ye ulaşılamadı, son alınan kurlar gösteriliyor"}
+        raise HTTPException(status_code=502, detail=f"TCMB kuru alınamadı: {e}")
+
+
 @app.post("/api/register")
 def register(req: RegisterRequest):
     """Müşteri kaydı — email, şifre, ad, şirket."""
