@@ -54,6 +54,9 @@ tr.tot td{font-weight:700;background:#f7f9fc}
 .hint{font-size:12px;color:var(--muted);margin-top:6px}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 .scroll{overflow-x:auto}
+.kurbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.kurbar select{width:auto}
+.kurbar #kurDurum{font-size:12.5px;color:#1f6b47}
 .subh{grid-column:1/-1;font-size:12px;font-weight:600;color:var(--navy2);margin-top:6px;padding-top:8px;border-top:1px dashed var(--line)}
 .chkbox{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);margin:0;align-self:end;padding-bottom:8px}
 .chkbox input{width:auto}
@@ -108,6 +111,11 @@ tr.tot td{font-weight:700;background:#f7f9fc}
     <div><label>KKDF % (vadeli ödemede)</label><input id="kkdf" type="number" step="0.01" value="0"></div>
   </div>
   <div class="hint">Navlun ve sigorta, ürünlere mal bedeli oranında dağıtılır. Teslim şekli CFR/CIF ise ve navlun fiyata dahilse navlun alanını 0 bırakın. Döviz USD ise gözetim kuru otomatik olarak aynı kurdan alınır.</div>
+  <div class="kurbar">
+    <button class="btn alt" type="button" onclick="kurGetir(true)">↻ TCMB kurunu al</button>
+    <select id="kurTip"><option value="alis">TCMB döviz alış (gümrük)</option><option value="satis">TCMB döviz satış</option><option value="efektifSatis">TCMB efektif satış</option></select>
+    <span id="kurDurum"></span>
+  </div>
 </div>
 
 <!-- 3. ÜRÜNLER -->
@@ -592,6 +600,7 @@ function buildReport(jsPDF, F, D){
   ];
   if (cur!=="USD" && rows.some(r=>r.goz||Number(r.R.advUnit)))
     info.push(["USD Kuru:", "1 USD = "+(Number(meta.usdRate)||0).toLocaleString("tr-TR",{maximumFractionDigits:4})+" TL"]);
+  if (meta.kurKaynak) info.push(["Kur Kaynağı:", meta.kurKaynak]);
   const colW = CW/2 - 3;
   for (let i=0;i<info.length;i+=2){
     let hMax = 0;
@@ -672,10 +681,11 @@ function buildReport(jsPDF, F, D){
   // ---- Gözetim kontrolü
   const gz = rows.map((r,i)=>[r,i]).filter(([r])=>r.goz);
   if (gz.length){
-    const U = {ton:"USD/ton", kg:"USD/kg", adet:"USD/adet"};
+    const U = {ton_b:"USD/ton brüt", ton_n:"USD/ton net", kg_b:"USD/kg brüt", kg_n:"USD/kg net", adet:"USD/adet"};
     const f4 = n => (Number(n)||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:4});
     const meas = (g,r) => g.base==="adet" ? (Number(r.qty)||0).toLocaleString("tr-TR")+" "+(r.unit||"adet")
-                        : g.base==="ton" ? f4(g.bq)+" ton" : (Number(g.bq)||0).toLocaleString("tr-TR",{maximumFractionDigits:2})+" kg";
+                        : g.base.startsWith("ton") ? f4(g.bq)+" ton "+(g.base==="ton_n"?"net":"brüt")
+                        : (Number(g.bq)||0).toLocaleString("tr-TR",{maximumFractionDigits:2})+" kg "+(g.base==="kg_n"?"net":"brüt");
     const ST = {ok:["Uygun – belge gerekmez",[31,107,71]], need:["Gözetim belgesi gerekli",[163,39,27]],
                 apply:["Gözetim değerinden beyan",[138,75,12]], missing:["Eksik bilgi",MUTED]};
     section("Gözetim Kontrolü");
@@ -805,7 +815,7 @@ const tl = n => n.toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractio
 const fx = (n,c) => n.toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2}) + " " + c;
 const esc = s => String(s??"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
-const BASES = {ton:"USD/ton", kg:"USD/kg", adet:"USD/adet"};
+const BASES = {ton_b:"USD/ton (brüt)", ton_n:"USD/ton (net)", kg_b:"USD/kg (brüt)", kg_n:"USD/kg (net)", adet:"USD/adet"};
 const baseOpts = v => Object.keys(BASES).map(k=>`<option value="${k}" ${k===v?"selected":""}>${BASES[k]}</option>`).join("");
 let pid = 0;
 function addProduct(d={}){
@@ -826,13 +836,14 @@ function addProduct(d={}){
       <div><label>ÖTV %</label><input data-k="otv" type="number" step="any" value="${d.otv??0}"></div>
       <div><label>KDV %</label><input data-k="kdv" type="number" step="any" value="${d.kdv??20}"></div>
       <div class="subh">Ağırlık, Gözetim ve Anti-Damping</div>
-      <div><label>Brüt Ağırlık (kg)</label><input data-k="kg" type="number" step="any" value="${d.kg??0}"></div>
+      <div><label>Brüt Ağırlık (kg)</label><input data-k="kgB" type="number" step="any" value="${d.kgB??0}"></div>
+      <div><label>Net Ağırlık (kg)</label><input data-k="kgN" type="number" step="any" value="${d.kgN??0}"></div>
       <div><label>Gözetim Değeri (USD)</label><input data-k="gozVal" type="number" step="any" value="${d.gozVal??0}"></div>
-      <div><label>Gözetim Esası</label><select data-k="gozBase">${baseOpts(d.gozBase||"ton")}</select></div>
+      <div><label>Gözetim Esası</label><select data-k="gozBase">${baseOpts(d.gozBase||"ton_b")}</select></div>
       <label class="chkbox" style="grid-column:span 2"><input type="checkbox" data-k="gozApply" ${d.gozApply?"checked":""}> Gözetim altındaysa gözetim değerinden beyan et</label>
       <div><label>Anti-Damping %</label><input data-k="adv" type="number" step="any" value="${d.adv??0}"></div>
       <div><label>Anti-Damping (USD)</label><input data-k="advUnit" type="number" step="any" value="${d.advUnit??0}"></div>
-      <div><label>ADV Esası</label><select data-k="advBase">${baseOpts(d.advBase||"ton")}</select></div>
+      <div><label>ADV Esası</label><select data-k="advBase">${baseOpts(d.advBase||"ton_n")}</select></div>
     </div>
     <div class="goz"></div>`;
   $("products").appendChild(el);
@@ -871,7 +882,7 @@ function calc(){
   const usdRate = cur==="USD" ? rate : num($("usdRate").value);
   if (cur==="USD") $("usdRate").value = $("rate").value;
   $("usdRate").disabled = (cur==="USD");
-  const basisQty = (b,p) => b==="kg" ? num(p.kg) : b==="ton" ? num(p.kg)/1000 : num(p.qty);
+  const basisQty = (b,p) => ({ton_b:num(p.kgB)/1000, ton_n:num(p.kgN)/1000, kg_b:num(p.kgB), kg_n:num(p.kgN)})[b] ?? num(p.qty);
   const freight = num($("freight").value), ins = num($("insurance").value), kkdfP = num($("kkdf").value);
   const fobs = products.map(p=>num(p.qty)*num(p.price));
   const totFob = fobs.reduce((a,b)=>a+b,0);
@@ -937,6 +948,33 @@ function calc(){
     <div class="sbox"><div class="k">Toplam Maliyet (KDV hariç)</div><div class="v">${tl(t.total-t.kdv)}</div></div>`;
 }
 
+// ---- TCMB kuru: panelin /api/kur servisinden alınır (TCMB today.xml). Kur elle değiştirilirse elle girilen korunur.
+let KUR = null, autoKur = true;
+const KUR_TIP = {alis:"döviz alış", satis:"döviz satış", efektifSatis:"efektif satış"};
+function kurDurum(t, hata){ const d=$("kurDurum"); d.textContent=t; d.style.color = hata ? "var(--red)" : ""; }
+async function kurGetir(force){
+  if (force) autoKur = true;
+  kurDurum("TCMB kurları alınıyor…");
+  try {
+    const r = await fetch("/api/kur", {cache:"no-store"});
+    if (!r.ok) throw new Error(r.status);
+    KUR = await r.json();
+    if (!KUR || !KUR.kurlar) throw new Error("veri yok");
+    kurUygula();
+  } catch(e) { KUR = null; kurDurum("TCMB kuru alınamadı, kuru elle girin.", true); }
+}
+function kurUygula(){
+  if (!KUR || !autoKur) return;
+  const tip = $("kurTip").value, cur = $("cur").value, k = KUR.kurlar[cur], u = KUR.kurlar.USD;
+  if (!k || k[tip]==null){ kurDurum(cur+" için TCMB "+KUR_TIP[tip]+" kuru yok, elle girin.", true); return; }
+  $("rate").value = k[tip];
+  if (u && u[tip]!=null) $("usdRate").value = u[tip];
+  kurDurum("✓ TCMB "+KUR.tarih+" "+KUR_TIP[tip]+": 1 "+cur+" = "+k[tip].toLocaleString("tr-TR",{maximumFractionDigits:4})+" TL"
+    + (cur!=="USD" && u ? " · 1 USD = "+u[tip].toLocaleString("tr-TR",{maximumFractionDigits:4})+" TL" : "") + (KUR.uyari ? " ("+KUR.uyari+")" : ""));
+  calc();
+}
+function kurKaynak(){ return (autoKur && KUR) ? "TCMB "+KUR.tarih+" "+KUR_TIP[$("kurTip").value] : "Elle girildi"; }
+
 const f2u = n => n.toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:4});
 function showGoz(r){
   const box = r._el && r._el.querySelector(".goz"); if(!box) return;
@@ -944,7 +982,7 @@ function showGoz(r){
   if(!g){ box.className="goz"; box.textContent=""; return; }
   const u = BASES[g.base];
   box.className = "goz "+g.st;
-  if(g.st==="missing") box.textContent = "Gözetim kontrolü için "+(g.base==="adet"?"miktar":"brüt ağırlık")+" ve USD/TL kurunu girin.";
+  if(g.st==="missing") box.textContent = "Gözetim kontrolü için "+(g.base==="adet"?"miktar":g.base.endsWith("_n")?"net ağırlık":"brüt ağırlık")+" ve USD/TL kurunu girin.";
   else if(g.st==="ok") box.textContent = "✓ Gözetim üzerinde: birim CIF "+f2u(g.unit)+" "+u+" ≥ gözetim "+f2u(g.val)+" "+u+". Gözetim belgesi gerekmez.";
   else if(g.st==="need") box.textContent = "⚠ Gözetim altında: birim CIF "+f2u(g.unit)+" "+u+" < gözetim "+f2u(g.val)+" "+u+". Gözetim belgesi gerekir veya gözetim değerinden beyan seçilmeli.";
   else box.textContent = "↑ Gözetim değerinden beyan: birim CIF "+f2u(g.unit)+" "+u+" → "+f2u(g.val)+" "+u+". Vergi matrahı "+tl(r.matrah)+" (+"+tl(g.diff)+").";
@@ -960,7 +998,7 @@ function makePDF(){
     offerNo:$("offerNo").value.trim(), date:fd(d), valid:fd(vd),
     custName:$("custName").value.trim(), custFirm:$("custFirm").value.trim(), preparedBy:$("preparedBy").value.trim(),
     mode:$("mode").value, inco:$("inco").value, pol:$("pol").value.trim(), pod:$("pod").value.trim(),
-    cur:last.cur, rate:last.rate, usdRate:last.usdRate, freight:last.freight, ins:last.ins
+    cur:last.cur, rate:last.rate, usdRate:last.usdRate, kurKaynak:kurKaynak(), freight:last.freight, ins:last.ins
   };
   const doc = buildReport(window.jspdf.jsPDF, {reg:FONT_REG, bold:FONT_BOLD},
     {meta, rows:last.rows, t:last.t, costs:last.costs, reqs:last.reqs, notes:$("notes").value});
@@ -978,6 +1016,7 @@ function resetAll(){
   document.querySelectorAll("input[type=checkbox]").forEach(i=>i.checked=false);
   $("products").innerHTML=""; $("costs").innerHTML="";
   init(false);
+  autoKur = true; kurUygula();
 }
 function init(first=true){
   $("offerNo").value = newOfferNo();
@@ -988,6 +1027,10 @@ function init(first=true){
   if(first){
     $("reqChips").innerHTML = REQS.map(r=>`<label><input type="checkbox" value="${r}" onchange="calc()"> ${r}</label>`).join("");
     $("todayTxt").textContent = new Date().toLocaleDateString("tr-TR",{day:"numeric",month:"long",year:"numeric"});
+    ["rate","usdRate"].forEach(id=>$(id).addEventListener("input", ()=>{ if(autoKur && KUR){ autoKur=false; kurDurum("Kur elle girildi. TCMB kuruna dönmek için “TCMB kurunu al”a basın."); } }));
+    $("cur").addEventListener("change", kurUygula);
+    $("kurTip").addEventListener("change", ()=>{ autoKur=true; kurUygula(); });
+    kurGetir(false);
   }
   calc();
 }
