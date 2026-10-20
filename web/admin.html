@@ -602,6 +602,15 @@ function render() {
   else if (view === 'analitik') analitikYukle();
   else if (view === 'takvim') takvimYukle();
   else if (view === 'profil') profilYukle();
+  else if (view === 'maliyet') maliyetHesaplamaEkrani();
+}
+
+// ---- Maliyet Hesaplama: ithalat vergi/navlun/gözetim hesaplayıcısı (web/maliyet-hesaplama.html)
+// panelin içinde iframe olarak açılır; PDF indirme iframe içinden çalışır.
+function maliyetHesaplamaEkrani() {
+  const main = document.querySelector('.main');
+  main.innerHTML = `<iframe src="/maliyet-hesaplama.html" title="Maliyet Hesaplama"
+    style="width:100%;height:calc(100vh - 110px);min-height:600px;border:0;border-radius:12px;background:#f4f6f9;display:block;"></iframe>`;
 }
 
 // ---- Ülke adı (TR serbest metin) → {en, iso2} — bayrak emoji ve harita eşleştirmesi için.
@@ -1057,6 +1066,7 @@ const NAV = [
   { key: 'tedarikciler', text: 'Tedarikçiler', icon: '<path d="M3 9l1-5h16l1 5"/><path d="M4 9v11h16V9"/><path d="M9 21v-6h6v6"/>' },
   { key: 'analitik', text: 'Analitik', icon: '<path d="M3 20V4M7 20v-6M11 20v-10M15 20v-4M19 20V8"/>' },
   { key: 'takvim', text: 'Takvim', icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>' },
+  { key: 'maliyet', text: 'Maliyet Hesaplama', icon: '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h.01M12 19h4"/>' },
 ];
 const NAV_HESAP = [
   { key: 'profil', text: 'Profil', icon: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>' },
